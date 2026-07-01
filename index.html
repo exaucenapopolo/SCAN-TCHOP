@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCAN&TCHOP - L'excellence du service à votre table</title>
     
+    <!-- Police élégante et lisible -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -61,51 +62,36 @@
 
         /* Bouton Info Pop-up */
         .info-btn {
-            background-color: var(--border-light);
-            color: var(--text-main);
-            border: none;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            background-color: var(--border-light); color: var(--text-main); border: none;
+            border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; font-weight: bold;
+            cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center;
             transition: background 0.3s;
         }
         .info-btn:hover { background-color: var(--primary); color: white; }
 
         /* === EN-TÊTE (HEADER) === */
         header {
-            background-color: var(--bg-white);
-            border-bottom: 1px solid var(--border-light);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            padding: 10px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background-color: var(--bg-white); border-bottom: 1px solid var(--border-light);
+            position: fixed; width: 100%; top: 0; z-index: 1000; padding: 10px 5%;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .logo-container { background-color: var(--bg-white); padding: 5px; border-radius: 4px; }
-        .logo-container img { height: 45px; object-fit: contain; }
+        .logo-container { flex: 1; display: flex; justify-content: flex-start; }
+        .logo-container img { height: 45px; object-fit: contain; background-color: var(--bg-white); padding: 5px; border-radius: 4px; }
 
+        .header-title-container {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         .header-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: 1px;
+            font-size: 1.4rem; font-weight: 700; color: var(--text-main); letter-spacing: 1px;
+            white-space: nowrap;
         }
         .header-title span { color: var(--primary); }
 
+        .nav-container { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
         .nav-links { display: flex; gap: 30px; align-items: center; }
         .nav-links a { font-weight: 500; font-size: 0.9rem; transition: color 0.3s ease; }
         .nav-links a:hover { color: var(--primary); }
@@ -113,19 +99,23 @@
         .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
         .hamburger div { width: 25px; height: 2px; background-color: var(--text-main); transition: all 0.3s ease; }
 
-        /* === HERO SECTION (Améliorée) === */
+        /* === HERO SECTION (Carrousel Dynamique) === */
         .hero {
             padding: 160px 5% 100px;
-            background: linear-gradient(rgba(26, 32, 44, 0.8), rgba(26, 32, 44, 0.8)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            /* L'image de fond est gérée en Javascript pour le défilement */
+            background-color: var(--text-main);
+            background-size: cover;
+            background-position: center;
             color: var(--bg-white);
             text-align: center;
             position: relative;
+            transition: background-image 1s ease-in-out;
         }
 
-        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; color: var(--bg-white); letter-spacing: -0.02em; }
-        .hero p { font-size: 1.2rem; color: #E2E8F0; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; }
-        .hero-buttons { display: flex; justify-content: center; gap: 15px; }
-        .hero .btn-outline { color: white; border-color: white; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; color: var(--bg-white); letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .hero p { font-size: 1.2rem; color: #E2E8F0; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .hero-buttons { display: flex; justify-content: center; gap: 15px; position: relative; z-index: 2; }
+        .hero .btn-outline { color: white; border-color: white; background-color: rgba(255,255,255,0.1); }
         .hero .btn-outline:hover { background-color: white; color: var(--text-main); }
 
         /* === SECTIONS COMMUNES === */
@@ -134,81 +124,51 @@
         .section-header h2 { font-size: 2.2rem; margin-bottom: 15px; }
         .section-header p { color: var(--text-muted); font-size: 1.05rem; }
 
-        /* === POURQUOI NOUS CHOISIR (Conversion) === */
-        .conversion-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .conversion-card {
-            background: var(--bg-body);
-            padding: 30px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-            box-shadow: var(--shadow-sm);
-        }
-        .conversion-card h4 { margin-bottom: 15px; font-size: 1.2rem; color: var(--text-main); }
-        .conversion-card p { color: var(--text-muted); font-size: 0.95rem; }
+        /* === VALEURS INITIALES === */
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; max-width: 1000px; margin: 0 auto; text-align: center; }
+        .values-grid h3 { color: var(--primary); margin-bottom: 10px; }
+        .values-grid p { color: var(--text-muted); font-size: 0.95rem; }
 
         /* === FONCTIONNALITÉS ILLUSTRÉES (ZIG-ZAG) === */
         .feature-row {
-            display: flex;
-            align-items: center;
-            gap: 60px;
-            margin-bottom: 80px;
-            background-color: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; gap: 60px; margin-bottom: 80px;
+            background-color: var(--bg-white); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 40px; box-shadow: var(--shadow-sm);
         }
-
         .feature-row:nth-child(even) { flex-direction: row-reverse; }
         .feature-text { flex: 1; }
         .feature-text h3 { font-size: 1.6rem; color: var(--primary); margin-bottom: 15px; }
         .feature-text p { color: var(--text-muted); margin-bottom: 15px; font-size: 1rem; }
         .feature-image { flex: 1; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); }
 
+        /* === POURQUOI NOUS CHOISIR (Conversion) === */
+        .conversion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; }
+        .conversion-card { background: var(--bg-white); padding: 30px; border-radius: 12px; border-left: 4px solid var(--primary); box-shadow: var(--shadow-sm); }
+        .conversion-card h4 { margin-bottom: 15px; font-size: 1.2rem; color: var(--text-main); }
+        .conversion-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* === COMMENT ÇA MARCHE (Étapes) === */
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; position: relative; }
+        .step-card { text-align: center; padding: 20px; background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border-light); position: relative; z-index: 2; transition: transform 0.3s; }
+        .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .step-number { width: 50px; height: 50px; background-color: var(--primary); color: white; font-size: 1.5rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: -45px auto 20px; border: 4px solid var(--bg-body); }
+        .step-card h4 { margin-bottom: 15px; color: var(--text-main); font-size: 1.1rem; }
+        .step-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
         /* === TARIFICATION === */
-        .pricing-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1100px;
-            margin: 0 auto 60px;
-        }
-
-        .price-card {
-            background-color: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-
+        .pricing-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto 60px; }
+        .price-card { background-color: var(--bg-white); border: 1px solid var(--border-light); border-radius: 12px; padding: 40px 30px; display: flex; flex-direction: column; transition: transform 0.4s ease, box-shadow 0.4s ease; }
         .price-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
         .price-card.pro { border: 2px solid var(--primary); position: relative; }
-        .badge-pro {
-            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            background-color: var(--primary); color: var(--bg-white); padding: 4px 12px;
-            border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-        }
-
+        .badge-pro { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background-color: var(--primary); color: var(--bg-white); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .price-card h3 { font-size: 1.4rem; margin-bottom: 10px; }
         .price-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px; min-height: 40px; }
         .price-amount { font-size: 2rem; font-weight: 700; color: var(--text-main); margin-bottom: 25px; }
         .price-amount span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
-
         .price-features { margin-bottom: 30px; flex-grow: 1; }
-        .price-features li {
-            font-size: 0.9rem; margin-bottom: 12px; padding-left: 24px; position: relative; color: var(--text-main);
-        }
+        .price-features li { font-size: 0.9rem; margin-bottom: 12px; padding-left: 24px; position: relative; color: var(--text-main); }
         .price-features li::before { content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
-
+        
         /* Toggle Prix */
         .toggle-wrapper { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 50px; font-weight: 500; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
@@ -219,23 +179,8 @@
         input:checked + .slider:before { transform: translateX(24px); }
 
         /* Offres Spéciales */
-        .special-offers {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .special-card {
-            background-color: var(--bg-white);
-            border: 1px dashed var(--primary);
-            border-radius: 12px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+        .special-offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto; }
+        .special-card { background-color: var(--bg-white); border: 1px dashed var(--primary); border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; }
         .special-card h4 { color: var(--primary); font-size: 1.3rem; margin-bottom: 10px; }
         .special-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; }
 
@@ -247,16 +192,9 @@
             opacity: 0; transition: opacity 0.3s ease;
         }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content {
-            background: var(--bg-white); padding: 30px; border-radius: 12px;
-            max-width: 400px; width: 90%; position: relative;
-            transform: translateY(20px); transition: transform 0.3s ease;
-        }
+        .modal-content { background: var(--bg-white); padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; position: relative; transform: translateY(20px); transition: transform 0.3s ease; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .close-modal {
-            position: absolute; top: 15px; right: 15px; font-size: 1.5rem;
-            cursor: pointer; color: var(--text-muted); line-height: 1;
-        }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
         .close-modal:hover { color: var(--text-main); }
         .modal-content h3 { color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; }
         .modal-content p { color: var(--text-main); font-size: 0.95rem; }
@@ -266,31 +204,37 @@
         .fade-up.visible { opacity: 1; transform: translateY(0); }
 
         /* === RESPONSIVE (Mobiles) === */
-        @media screen and (max-width: 900px) {
-            .header-title { display: none; /* Masqué sur mobile pour laisser la place au menu */ }
+        @media screen and (max-width: 950px) {
+            .nav-container { display: none; /* Cache le menu desktop */ }
+            .hamburger { display: flex; }
+            .header-title { font-size: 1.2rem; }
+            
+            /* Menu Mobile Plein écran */
+            .nav-links {
+                position: fixed; top: 65px; left: -100%; width: 100%; height: calc(100vh - 65px);
+                background-color: var(--bg-white); flex-direction: column; padding-top: 50px;
+                transition: left 0.3s ease; border-top: 1px solid var(--border-light); justify-content: flex-start;
+            }
+            .nav-container.active { display: block; }
+            .nav-links.active { left: 0; }
+            
             .hero h1 { font-size: 2.2rem; }
             
             /* FORCE L'AFFICHAGE CÔTE À CÔTE SUR MOBILE COMME DEMANDÉ */
-            .feature-row { flex-direction: row !important; padding: 15px; gap: 15px; align-items: center; }
+            .feature-row { flex-direction: row !important; padding: 15px; gap: 15px; align-items: center; margin-bottom: 40px; }
             .feature-row:nth-child(even) { flex-direction: row-reverse !important; }
             .feature-text h3 { font-size: 1.1rem; margin-bottom: 8px; line-height: 1.2; }
             .feature-text p { font-size: 0.8rem; margin-bottom: 0; line-height: 1.4; }
             .feature-image img { border-radius: 8px; }
             
-            .nav-links {
-                position: fixed; top: 65px; left: -100%; width: 100%; height: calc(100vh - 65px);
-                background-color: var(--bg-white); flex-direction: column; padding-top: 50px;
-                transition: left 0.3s ease; border-top: 1px solid var(--border-light);
-            }
-            .nav-links.active { left: 0; }
-            .hamburger { display: flex; }
-            
             .special-offers { grid-template-columns: 1fr; }
+            .step-card { margin-top: 30px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- === HEADER & NAVIGATION === -->
     <header>
         <div class="logo-container">
             <a href="index.html">
@@ -298,15 +242,19 @@
             </a>
         </div>
         
-        <div class="header-title">SCAN<span>&</span>TCHOP</div>
+        <div class="header-title-container">
+            <div class="header-title">SCAN<span>&</span>TCHOP</div>
+        </div>
         
-        <nav class="nav-links" id="nav-menu">
-            <a href="#accueil" class="nav-item">Accueil</a>
-            <a href="#pourquoi" class="nav-item">La Différence</a>
-            <a href="#fonctionnalites" class="nav-item">Fonctionnalités</a>
-            <a href="#tarifs" class="nav-item">Tarifs</a>
-            <a href="connexion.html" class="btn btn-outline nav-item" style="margin-top: 5px;">Espace Gérant</a>
-        </nav>
+        <div class="nav-container">
+            <nav class="nav-links" id="nav-menu">
+                <a href="#accueil" class="nav-item">Accueil</a>
+                <a href="#fonctionnalites" class="nav-item">Fonctionnalités</a>
+                <a href="#comment-ca-marche" class="nav-item">Comment ça marche</a>
+                <a href="#tarifs" class="nav-item">Tarifs</a>
+                <a href="connexion.html" class="btn btn-outline nav-item" style="padding: 8px 15px;">Espace Gérant</a>
+            </nav>
+        </div>
 
         <div class="hamburger" id="hamburger-icon">
             <div class="line1"></div>
@@ -316,68 +264,139 @@
     </header>
 
     <main>
-        <section id="accueil" class="hero fade-up">
+        <!-- === HERO SECTION (Carrousel JavaScript) === -->
+        <section id="accueil" class="hero fade-up" id="hero-slider">
             <h1>L’excellence du service à votre table.</h1>
-            <p>Démarquez-vous de la concurrence. Offrez à vos clients une commande sans friction et reprenez le contrôle total sur la gestion, les stocks et les encaissements de votre restaurant.</p>
+            <p>Modernisez votre restaurant avec une solution intelligente, fluide et conçue pour offrir à chaque client une expérience rapide, élégante et sans friction.</p>
             <div class="hero-buttons">
                 <a href="#tarifs" class="btn btn-primary">Voir les offres</a>
                 <a href="demo.html" class="btn btn-outline">Demander une démo</a>
             </div>
         </section>
 
-        <section id="pourquoi" class="section-padding" style="background-color: var(--bg-white);">
+        <!-- === TEXTE INTRODUCTIF (Restauré) === -->
+        <section id="valeurs" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);">
             <div class="section-header fade-up">
-                <h2>Pourquoi changer pour SCAN&TCHOP ?</h2>
-                <p>La plupart des systèmes sont lents, compliqués ou inadaptés à notre réalité locale. Voici ce qui nous rend uniques.</p>
+                <h2>Une nouvelle façon de servir, d’encaisser et de piloter</h2>
+                <p>SCAN&TCHOP n’est pas seulement un outil de commande. C’est une solution complète pour les établissements qui veulent gagner en efficacité, en organisation et en image.</p>
             </div>
             
-            <div class="conversion-grid fade-up">
-                <div class="conversion-card">
-                    <h4>Aucune application à télécharger</h4>
-                    <p>Contrairement aux autres, vos clients ne fuiront pas face à un téléchargement. Un scan de QR code, et le menu s'ouvre instantanément dans leur navigateur.</p>
+            <div class="values-grid fade-up">
+                <div>
+                    <h3>Pour le client</h3>
+                    <p>L’expérience est simple, rapide et moderne. Commande autonome sans téléchargement.</p>
                 </div>
-                <div class="conversion-card">
-                    <h4>Ruptures gérées en 1 clic</h4>
-                    <p>Fini les clients frustrés car le plat commandé n'est plus disponible. Si un plat est fini en cuisine, vous le masquez sur le menu en une seconde.</p>
+                <div>
+                    <h3>Pour le restaurant</h3>
+                    <p>La gestion devient plus fluide, plus claire et plus rentable. Moins d'attente, moins d'erreurs.</p>
                 </div>
-                <div class="conversion-card">
-                    <h4>Paiements locaux intégrés</h4>
-                    <p>Nous comprenons votre quotidien. Que le client veuille payer en espèces au comptoir ou par Mobile Money, le système est pensé pour sécuriser vos caisses.</p>
+                <div>
+                    <h3>Pour les partenaires</h3>
+                    <p>Le positionnement est sérieux, structuré et prêt à évoluer avec votre croissance.</p>
                 </div>
             </div>
         </section>
 
-        <section id="fonctionnalites" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
+        <!-- === FONCTIONNALITÉS ILLUSTRÉES (Restaurées intégralement) === -->
+        <section id="fonctionnalites" class="section-padding">
             <div class="section-header fade-up">
-                <h2>Pensez votre service autrement</h2>
-                <p>Chaque fonctionnalité a été codée avec un seul but : augmenter votre rentabilité.</p>
+                <h2>Ce que SCAN&TCHOP apporte</h2>
+                <p>Pensé pour les restaurants qui veulent aller plus loin dans la gestion et le service.</p>
             </div>
 
+            <!-- Bloc 1 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
-                    <h3>Menu digital dynamique</h3>
-                    <p>Vos plats sont mis en valeur avec des photos alléchantes. Le client navigue, choisit ses options (suppléments, cuisson) et valide. Les erreurs de prise de commande disparaissent.</p>
+                    <h3>Commande rapide & Menu dynamique</h3>
+                    <p>Le client scanne un QR code et accède immédiatement au menu depuis son navigateur, sans installation. Les plats affichés dépendent des disponibilités réelles du restaurant, pour éviter les confusions et les ruptures mal gérées.</p>
                 </div>
                 <div class="feature-image">
                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Menu digital sur smartphone">
                 </div>
             </div>
 
+            <!-- Bloc 2 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
-                    <h3>Dashboard Cuisine & Gestion</h3>
-                    <p>Les serveurs ne courent plus vers la cuisine. Les commandes arrivent sur l'écran du chef avec une alerte sonore. Le gérant, lui, suit son chiffre d'affaires en temps réel depuis son bureau.</p>
+                    <h3>Paiement flexible & Autonome</h3>
+                    <p>Le client commande directement, ce qui réduit l’attente. Le règlement peut se faire par Mobile Money, par carte bancaire, en espèces ou au comptoir selon l’organisation stricte de votre établissement.</p>
                 </div>
                 <div class="feature-image">
-                    <img src="https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cuisine et interface">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Paiement mobile">
+                </div>
+            </div>
+
+            <!-- Bloc 3 -->
+            <div class="feature-row fade-up">
+                <div class="feature-text">
+                    <h3>Dashboard Cuisine & Gestion Pro</h3>
+                    <p>Les commandes validées arrivent instantanément en cuisine avec une alerte visuelle et sonore. Le gérant suit ses ventes, gère ses stocks (ruptures masquées immédiatement) et attribue des rôles précis à son équipe.</p>
+                </div>
+                <div class="feature-image">
+                    <img src="https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cuisine professionnelle et interface">
                 </div>
             </div>
         </section>
 
-        <section id="tarifs" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light);">
+        <!-- === POURQUOI NOUS CHOISIR (Déplacé ici pour la conversion) === -->
+        <section id="pourquoi" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
             <div class="section-header fade-up">
-                <h2>Un investissement qui se rembourse dès le premier jour</h2>
-                <p>Choisissez l'offre adaptée à la taille de votre établissement.</p>
+                <h2>Pourquoi changer pour SCAN&TCHOP ?</h2>
+                <p>La plupart des systèmes sont lents, compliqués ou inadaptés à notre réalité locale. Voici la différence.</p>
+            </div>
+            
+            <div class="conversion-grid fade-up">
+                <div class="conversion-card">
+                    <h4>Aucune application requise</h4>
+                    <p>Vos clients ne fuiront pas face à un téléchargement lourd. Un scan, et le menu s'ouvre instantanément sur Google Chrome ou Safari.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>Ruptures gérées en 1 clic</h4>
+                    <p>Si un plat est fini en cuisine, masquez-le sur le menu depuis votre téléphone en une seconde. Finies les frustrations à table.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>Paiements locaux intégrés</h4>
+                    <p>Nous comprenons votre quotidien. Mobile Money, cash, carte bancaire : le système sécurise votre trésorerie selon vos règles.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- === COMMENT ÇA MARCHE ? (Nouvelle Section étape par étape) === -->
+        <section id="comment-ca-marche" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light);">
+            <div class="section-header fade-up">
+                <h2>Comment ça se passe ?</h2>
+                <p>Un déploiement simple, rapide et sans interruption de votre service.</p>
+            </div>
+
+            <div class="steps-container fade-up">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Création du compte</h4>
+                    <p>Vous créez un compte sur notre plateforme et vous enregistrez les informations de votre établissement en quelques clics.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Configuration du Menu</h4>
+                    <p>Vous ajoutez vos catégories, les noms de vos plats, vos propres photos appétissantes et vous fixez vos prix de vente.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Déploiement</h4>
+                    <p>Vous choisissez votre abonnement. Vous générez, imprimez et placez les QR Codes physiques sur les tables de votre restaurant.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Encaissement</h4>
+                    <p>Le client s'installe, scanne le QR code, consulte le menu digital, commande et paie directement. La commande part en cuisine !</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- === TARIFS & OFFRES === -->
+        <section id="tarifs" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
+            <div class="section-header fade-up">
+                <h2>Des offres claires, lisibles et évolutives</h2>
+                <p>SCAN&TCHOP est conçu pour accompagner aussi bien les petits établissements que les structures plus organisées.</p>
             </div>
 
             <div class="toggle-wrapper fade-up">
@@ -390,67 +409,73 @@
             </div>
 
             <div class="pricing-container fade-up">
+                <!-- PACK STARTER -->
                 <div class="price-card">
                     <h3>Pack Starter</h3>
-                    <p class="price-desc">Pour les petits espaces voulant se digitaliser.</p>
+                    <p class="price-desc">Idéal pour les petits restaurants qui veulent commencer simplement.</p>
                     <div class="price-amount" data-mois="11 900" data-annee="119 000">11 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
-                        <li>Menu QR sur navigateur</li>
-                        <li>Commande WhatsApp <button class="info-btn" data-title="Commande WhatsApp" data-desc="Le client fait ses choix sur le menu digital, et le récapitulatif est envoyé proprement sur le numéro WhatsApp de votre restaurant.">?</button></li>
-                        <li>Paiement cash uniquement</li>
+                        <li>Menu QR accessible par navigateur</li>
+                        <li>Commande via WhatsApp <button class="info-btn" data-title="Commande WhatsApp" data-desc="Le client fait ses choix sur le menu digital, et le récapitulatif est envoyé proprement sur le numéro WhatsApp de votre restaurant pour que vous prépariez la commande.">?</button></li>
+                        <li>Paiement cash au comptoir</li>
                         <li>Gestion simple des ruptures</li>
                     </ul>
                     <a href="payement.html" class="btn btn-outline" style="width: 100%;">Souscrire</a>
                 </div>
 
+                <!-- PACK PRO -->
                 <div class="price-card pro">
                     <span class="badge-pro">Recommandé</span>
                     <h3>Pack Pro</h3>
-                    <p class="price-desc">Pour les restaurants avec du volume et une équipe structurée.</p>
+                    <p class="price-desc">Pensé pour les restaurants qui ont du volume et veulent du contrôle.</p>
                     <div class="price-amount" data-mois="14 900" data-annee="149 000">14 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
-                        <li><strong>Pack Starter inclus</strong></li>
-                        <li>Commande intégrée (Tableau de bord) <button class="info-btn" data-title="Tableau de bord" data-desc="Fini WhatsApp ! Les commandes arrivent dans une interface sécurisée, gérée par votre caissier ou gérant.">?</button></li>
-                        <li>Paiement Mobile Money & Cash</li>
-                        <li>Rapports Excel automatisés <button class="info-btn" data-title="Rapports Excel" data-desc="Générez en un clic un fichier Excel résumant vos ventes du jour, idéal pour votre comptabilité.">?</button></li>
+                        <li><strong>Tout le Pack Starter inclus</strong></li>
+                        <li>Commande vers le tableau de bord <button class="info-btn" data-title="Tableau de bord" data-desc="Fini WhatsApp ! Les commandes arrivent dans une interface sécurisée, gérée par votre caissier ou gérant en temps réel.">?</button></li>
+                        <li>Paiement Mobile Money et cash</li>
+                        <li>Export Excel & Rapports <button class="info-btn" data-title="Rapports Excel" data-desc="Générez en un clic un fichier Excel résumant vos ventes, idéal pour faire votre bilan comptable rapidement et sans erreur.">?</button></li>
                     </ul>
                     <a href="payement.html" class="btn btn-primary" style="width: 100%;">Souscrire</a>
                 </div>
 
+                <!-- PACK PREMIUM -->
                 <div class="price-card">
                     <h3>Pack Premium</h3>
-                    <p class="price-desc">L'outil de pilotage ultime pour les grands établissements.</p>
+                    <p class="price-desc">Conçu pour les restaurants structurés voulant un véritable outil de pilotage.</p>
                     <div class="price-amount" data-mois="29 900" data-annee="299 000">29 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
-                        <li><strong>Pack Pro inclus</strong></li>
-                        <li>Dashboard Cuisine avec alerte sonore <button class="info-btn" data-title="Alerte Sonore Cuisine" data-desc="Une tablette en cuisine sonne dès qu'une commande est validée. Les cuisiniers ne ratent plus rien.">?</button></li>
-                        <li>Multi-comptes (Gérant, Caissier, Chef)</li>
-                        <li>Statistiques analytiques avancées</li>
+                        <li><strong>Tout le Pack Pro inclus</strong></li>
+                        <li>Dashboard cuisine avec alerte sonore <button class="info-btn" data-title="Alerte Sonore Cuisine" data-desc="Une tablette installée en cuisine sonne dès qu'une commande est validée. Vos cuisiniers ne ratent plus aucune information.">?</button></li>
+                        <li>Statistiques et analyses avancées</li>
+                        <li>Multi-comptes et rôles complets</li>
                     </ul>
                     <a href="payement.html" class="btn btn-outline" style="width: 100%;">Souscrire</a>
                 </div>
             </div>
 
+            <!-- OFFRES SPÉCIALES -->
             <div class="section-header fade-up" style="margin-top: 80px; margin-bottom: 40px;">
-                <h2>Offres Exclusives</h2>
+                <h2>Offres Exclusives & Accompagnement</h2>
             </div>
 
             <div class="special-offers fade-up">
+                <!-- CLÉ EN MAIN -->
                 <div class="special-card">
                     <div>
                         <h4>Forfait "Clé en main"</h4>
                         <p style="margin-bottom: 10px;"><strong>Laissez-nous faire le travail fastidieux. Votre temps est précieux.</strong></p>
-                        <p>Pour ce tarif unique, un expert se déplace chez vous. Nous réalisons un shooting photo de vos plats, nous encodons l'intégralité de votre carte dans le système, nous imprimons vos QR codes sur des chevalets premium en plexiglas, et nous formons votre personnel. Vous n'avez rien à configurer.</p>
+                        <p>Pour ce tarif unique, un expert se déplace chez vous. Nous réalisons un shooting photo pro de vos plats, nous encodons l'intégralité de votre carte, nous imprimons vos QR codes sur des chevalets premium en plexiglas, et nous formons votre personnel.</p>
                         <div style="font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px;">35 000<span> FCFA</span><span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);"> (Paiement unique)</span></div>
                     </div>
                     <a href="contact.html" class="btn btn-primary">Bénéficier de ce service</a>
                 </div>
 
+                <!-- À VIE -->
                 <div class="special-card" style="border-color: #1A202C; background-color: #FAFAFA;">
                     <div>
                         <h4>Licence "À Vie" (Limitée)</h4>
-                        <p style="margin-bottom: 10px;"><strong>Libérez-vous des abonnements mensuels.</strong></p>
-                        <p>Cette offre exceptionnelle est réservée à nos partenaires visionnaires. Payez une seule fois et obtenez un accès à vie au <strong>Pack Premium</strong> (mises à jour incluses). Un investissement massif aujourd'hui pour une rentabilité pure sur les prochaines années.</p>
+                        <p style="margin-bottom: 10px;"><strong>Libérez-vous des abonnements mensuels pour toujours.</strong></p>
+                        <p>Offre exceptionnelle réservée à nos partenaires visionnaires. Payez une seule fois et obtenez un accès à vie au <strong>Pack Premium</strong> (mises à jour incluses). Un investissement aujourd'hui pour une rentabilité pure sur les années à venir.</p>
                         <div style="font-size: 1.8rem; font-weight: 700; color: #1A202C; margin-bottom: 20px;">499 000<span> FCFA</span><span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);"> (Paiement unique)</span></div>
                     </div>
                     <a href="contact.html" class="btn btn-special">Saisir l'opportunité</a>
@@ -459,14 +484,16 @@
         </section>
     </main>
 
+    <!-- FENÊTRE POP-UP (Cachée par défaut) -->
     <div id="infoModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
             <h3 id="modalTitle">Titre</h3>
-            <p id="modalDesc">Description de la fonctionnalité.</p>
+            <p id="modalDesc">Description.</p>
         </div>
     </div>
 
+    <!-- === FOOTER === -->
     <footer style="background-color: var(--text-main); color: var(--bg-white); padding: 60px 5% 30px; text-align: center;">
         <div style="background-color: white; display: inline-block; padding: 5px 15px; border-radius: 4px; margin-bottom: 20px;">
             <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo" style="height: 40px; object-fit: contain;">
@@ -477,13 +504,46 @@
         </div>
     </footer>
 
+    <!-- === JAVASCRIPT === -->
     <script>
         // 1. Menu Mobile
         const hamburger = document.getElementById('hamburger-icon');
         const navMenu = document.getElementById('nav-menu');
-        hamburger.addEventListener('click', () => navMenu.classList.toggle('active'));
+        const navContainer = document.querySelector('.nav-container');
+        
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navContainer.classList.toggle('active');
+        });
 
-        // 2. Bascule Prix
+        // Fermer le menu si on clique sur un lien (mobile)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                navContainer.classList.remove('active');
+            });
+        });
+
+        // 2. Carrousel d'Images (Hero Section)
+        const heroSection = document.getElementById('accueil');
+        // Tu peux remplacer ces liens par les photos réelles de ton projet
+        const images = [
+            'url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")',
+            'url("https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")',
+            'url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")'
+        ];
+        let currentImageIndex = 0;
+
+        // Initialisation de la première image avec le filtre sombre
+        heroSection.style.backgroundImage = `linear-gradient(rgba(26, 32, 44, 0.7), rgba(26, 32, 44, 0.8)), ${images[0]}`;
+
+        // Changement d'image toutes les 5 secondes (5000 millisecondes)
+        setInterval(() => {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            heroSection.style.backgroundImage = `linear-gradient(rgba(26, 32, 44, 0.7), rgba(26, 32, 44, 0.8)), ${images[currentImageIndex]}`;
+        }, 5000);
+
+        // 3. Bascule Prix (Mensuel / Annuel)
         const togglePricing = document.getElementById('toggle-pricing');
         const prices = document.querySelectorAll('.price-amount');
         const txtMois = document.getElementById('txt-mois');
@@ -501,7 +561,7 @@
             }
         });
 
-        // 3. Animation Défilement
+        // 4. Animation Défilement (Fade up)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -512,7 +572,7 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // 4. Gestion des Pop-ups (Explications)
+        // 5. Gestion des Pop-ups (Explications Tarifs)
         const modal = document.getElementById('infoModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalDesc = document.getElementById('modalDesc');
@@ -521,17 +581,14 @@
 
         infoBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Empêche le comportement par défaut si on clique dans un lien
+                e.preventDefault(); 
                 modalTitle.textContent = btn.getAttribute('data-title');
                 modalDesc.textContent = btn.getAttribute('data-desc');
                 modal.classList.add('active');
             });
         });
 
-        // Fermer la modale au clic sur la croix
         closeModal.addEventListener('click', () => modal.classList.remove('active'));
-        
-        // Fermer la modale en cliquant en dehors de la boîte
         modal.addEventListener('click', (e) => {
             if(e.target === modal) modal.classList.remove('active');
         });
