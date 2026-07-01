@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCAN&TCHOP - L'excellence du service à votre table</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === VARIABLES CSS (Pour modifier facilement les couleurs) === */
+        :root {
+            --primary-color: #E67E22; /* Orange élégant inspiré de la restauration */
+            --primary-hover: #D35400;
+            --dark-bg: #111827; /* Gris très foncé presque noir pour l'élégance */
+            --light-bg: #F9FAFB;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --white: #FFFFFF;
+            --border-color: #E5E7EB;
+        }
+
+        /* === RESET DE BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            color: var(--text-main);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        /* === EN-TÊTE (HEADER) === */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo img {
+            height: 50px;
+            object-fit: contain;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            font-weight: 600;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover { color: var(--primary-color); }
+
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--dark-bg);
+            color: var(--dark-bg);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--dark-bg);
+            color: var(--white);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        /* === SECTION HERO === */
+        .hero {
+            padding: 10rem 5% 6rem;
+            background: linear-gradient(to bottom, #f3f4f6, #ffffff);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--dark-bg);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        /* === SECTION FONCTIONNALITÉS === */
+        .features {
+            padding: 5rem 5%;
+            background-color: var(--white);
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            border-radius: 12px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark-bg);
+        }
+
+        /* === SECTION PRIX (TARIFICATION) === */
+        .pricing {
+            padding: 5rem 5%;
+            background-color: var(--dark-bg);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .pricing .section-title {
+            color: var(--white);
+        }
+
+        .pricing-card {
+            background-color: var(--white);
+            color: var(--text-main);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            text-align: left;
+            position: relative;
+        }
+
+        .pricing-card.premium {
+            transform: scale(1.05);
+            border: 3px solid var(--primary-color);
+        }
+
+        .badge {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: absolute;
+            top: -15px;
+            right: 20px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 1.5rem 0;
+            color: var(--dark-bg);
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .pricing-features li::before {
+            content: "✓";
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* === FOOTER === */
+        footer {
+            background-color: var(--dark-bg);
+            color: var(--text-muted);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid #374151;
+        }
+
+        footer p { margin-top: 1rem; font-size: 0.9rem; }
+
+        /* === RESPONSIVE DESIGN (Téléphones) === */
+        @media (max-width: 768px) {
+            nav ul { display: none; } /* Menu caché sur mobile pour simplifier l'aperçu */
+            .hero h1 { font-size: 2.5rem; }
+            .pricing-card.premium { transform: scale(1); }
+            .header-buttons { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="index.html">
+                <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo SCAN&TCHOP">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#solution">La Solution</a></li>
+                <li><a href="#tarifs">Tarifs</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header-buttons">
+            <a href="connexion.html" class="btn btn-outline">Espace Client</a>
+            <a href="inscription.html" class="btn btn-primary">Créer mon restaurant</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="accueil" class="hero">
+            <h1>L'excellence du service à votre table.</h1>
+            <p>La première plateforme SaaS et Fintech dédiée à la restauration africaine. Accélérez vos commandes, encaissez via Mobile Money et pilotez votre activité avec précision.</p>
+            <div class="hero-buttons">
+                <a href="inscription.html" class="btn btn-primary">Demander une démo</a>
+                <a href="#solution" class="btn btn-outline">Découvrir l'outil</a>
+            </div>
+        </section>
+
+        <section id="solution" class="features">
+            <h2 class="section-title">Plus qu'un menu, un outil de pilotage.</h2>
+            <p class="section-subtitle">Fini les erreurs de commande et les temps d'attente. Modernisez votre établissement.</p>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Menu QR & PWA</h3>
+                    <p>Vos clients scannent et commandent sans rien télécharger. Le menu est dynamique selon vos stocks en temps réel.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>Fintech Intégrée</h3>
+                    <p>Encaissez en Mobile Money, carte bancaire ou cash. La facturation est simplifiée avec partage d'addition (Split-bill).</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Dashboard Complet</h3>
+                    <p>Suivez vos ventes, gérez vos rôles (Gérant, Serveur, Cuisine) et recevez les commandes sur un Live Feed interactif.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tarifs" class="pricing">
+            <h2 class="section-title">Des offres adaptées à votre croissance</h2>
+            <p class="section-subtitle">Sans engagement complexe. Conçu pour grandir avec votre volume de clients.</p>
+            
+            <div class="grid-3">
+                <div class="pricing-card">
+                    <h3>Pack Starter</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Pour petits restaurants et fast-foods.</p>
+                    <div class="price">11 900 FCFA<span> / mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Menu QR sans téléchargement</li>
+                        <li>Commande via WhatsApp</li>
+                        <li>Paiement cash au comptoir</li>
+                        <li>Gestion simple des ruptures</li>
+                    </ul>
+                    <a href="inscription.html?pack=starter" class="btn btn-outline" style="display: block; width: 100%;">Commencer</a>
+                </div>
+
+                <div class="pricing-card premium">
+                    <span class="badge">Recommandé</span>
+                    <h3>Pack Pro</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Pour établissements en croissance.</p>
+                    <div class="price">14 900 FCFA<span> / mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout le Pack Starter</li>
+                        <li>Dashboard cuisine en temps réel</li>
+                        <li>Paiement Mobile Money intégré</li>
+                        <li>Export Excel & Statistiques</li>
+                    </ul>
+                    <a href="inscription.html?pack=pro" class="btn btn-primary" style="display: block; width: 100%;">Choisir le Pack Pro</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Pack Premium</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Pour équipes structurées.</p>
+                    <div class="price">29 900 FCFA<span> / mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout le Pack Pro</li>
+                        <li>Split-bill (Partage d'addition)</li>
+                        <li>Multi-comptes et Rôles complets</li>
+                        <li>Analyses annuelles poussées</li>
+                    </ul>
+                    <a href="inscription.html?pack=premium" class="btn btn-outline" style="display: block; width: 100%;">Contacter les ventes</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo SCAN&TCHOP" style="height: 40px; filter: grayscale(100%) brightness(200%); margin-bottom: 1rem;">
+        <p>Bertoua, Cameroun</p>
+        <p>&copy; <span id="year"></span> SCAN&TCHOP. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Ce script permet d'ajouter dynamiquement l'année en cours dans le pied de page
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Plus tard, nous ajouterons ici des fonctions pour :
+        // 1. Gérer le basculement "Prix Mensuel / Prix Annuel"
+        // 2. Ouvrir le menu sur téléphone (Hamburger menu)
+        // 3. Envoyer des données vers Firebase
+        console.log("Bienvenue sur la plateforme SCAN&TCHOP !");
+    </script>
+</body>
+</html>
