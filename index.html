@@ -5,54 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCAN&TCHOP - L'excellence du service à votre table</title>
     
-    <!-- Police élégante et lisible -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* === VARIABLES CSS (Ton design original préservé) === */
+        /* === VARIABLES CSS === */
         :root {
-            --primary: #E67E22;
-            --primary-hover: #cf6f1b;
-            --bg-body: #FAFAFA;
-            --bg-white: #FFFFFF;
-            --text-main: #2D3748;
-            --text-muted: #718096;
-            --border-light: #E2E8F0;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
-            --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
-            --shadow-lg: 0 20px 40px rgba(230, 126, 34, 0.15);
+            --primary: #E67E22; --primary-hover: #cf6f1b; --bg-body: #FAFAFA; --bg-white: #FFFFFF;
+            --text-main: #2D3748; --text-muted: #718096; --border-light: #E2E8F0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02); --shadow-md: 0 10px 30px rgba(0,0,0,0.05); --shadow-lg: 0 20px 40px rgba(230, 126, 34, 0.15);
         }
 
-        /* === RESET & TYPOGRAPHIE === */
+        /* === RESET & TYPO === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            line-height: 1.6;
-            font-size: 15px;
-            overflow-x: hidden;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; font-size: 15px; overflow-x: hidden; }
         h1, h2, h3, h4 { font-weight: 700; color: #1A202C; line-height: 1.2; }
         a { text-decoration: none; color: inherit; }
         ul { list-style: none; }
         img { max-width: 100%; height: auto; display: block; }
 
         /* === BOUTONS === */
-        .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
+        .btn { display: inline-block; padding: 12px 28px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-align: center; transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent; }
         .btn-primary { background-color: var(--primary); color: var(--bg-white); box-shadow: var(--shadow-sm); }
         .btn-primary:hover { background-color: var(--primary-hover); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
         .btn-outline { background-color: transparent; border-color: var(--border-light); color: var(--text-main); }
@@ -60,74 +32,63 @@
         .btn-special { background-color: #1A202C; color: #FFFFFF; }
         .btn-special:hover { background-color: #2D3748; transform: translateY(-2px); }
 
-        /* Bouton Info Pop-up */
-        .info-btn {
-            background-color: var(--border-light); color: var(--text-main); border: none;
-            border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold;
-            cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center;
-            transition: background 0.3s;
-        }
+        .info-btn { background-color: var(--border-light); color: var(--text-main); border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.3s; }
         .info-btn:hover { background-color: var(--primary); color: white; }
 
-        /* === EN-TÊTE === */
-        header {
-            background-color: var(--bg-white); border-bottom: 1px solid var(--border-light);
-            position: fixed; width: 100%; top: 0; z-index: 1000; padding: 10px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
+        /* === HEADER === */
+        header { background-color: var(--bg-white); border-bottom: 1px solid var(--border-light); position: fixed; width: 100%; top: 0; z-index: 1000; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; }
         .logo-container { flex: 1; display: flex; justify-content: flex-start; }
         .logo-container img { height: 45px; object-fit: contain; background-color: var(--bg-white); padding: 5px; border-radius: 4px; }
-
         .header-title-container { flex: 2; display: flex; justify-content: center; align-items: center; }
         .header-title { font-size: 1.4rem; font-weight: 700; color: var(--text-main); letter-spacing: 1px; white-space: nowrap; }
         .header-title span { color: var(--primary); }
-
         .nav-container { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
         .nav-links { display: flex; gap: 30px; align-items: center; }
         .nav-links a { font-weight: 500; font-size: 0.9rem; transition: color 0.3s ease; }
         .nav-links a:hover { color: var(--primary); }
-
         .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
         .hamburger div { width: 25px; height: 2px; background-color: var(--text-main); transition: all 0.3s ease; }
 
-        /* === HERO SECTION === */
-        .hero {
-            padding: 160px 5% 100px;
-            background-color: var(--text-main); background-size: cover; background-position: center;
-            color: var(--bg-white); text-align: center; position: relative; transition: background-image 1s ease-in-out;
-        }
+        /* === HERO === */
+        .hero { padding: 160px 5% 100px; background-color: var(--text-main); background-size: cover; background-position: center; color: var(--bg-white); text-align: center; position: relative; transition: background-image 1s ease-in-out; }
         .hero h1 { font-size: 3.5rem; margin-bottom: 20px; color: var(--bg-white); letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .hero p { font-size: 1.2rem; color: #E2E8F0; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .hero-buttons { display: flex; justify-content: center; gap: 15px; position: relative; z-index: 2; }
         .hero .btn-outline { color: white; border-color: white; background-color: rgba(255,255,255,0.1); }
         .hero .btn-outline:hover { background-color: white; color: var(--text-main); }
 
-        /* === SECTIONS COMMUNES === */
+        /* === SECTIONS === */
         .section-padding { padding: 100px 5%; }
         .section-header { text-align: center; margin-bottom: 60px; max-width: 800px; margin-left: auto; margin-right: auto; }
         .section-header h2 { font-size: 2.2rem; margin-bottom: 15px; }
         .section-header p { color: var(--text-muted); font-size: 1.05rem; }
 
-        /* === VALEURS === */
         .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
         .value-box { background: var(--bg-body); padding: 30px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); }
         .value-box h3 { color: var(--primary); margin-bottom: 15px; font-size: 1.4rem; }
         .value-box p { color: var(--text-main); font-size: 0.95rem; text-align: justify; }
 
-        /* === FONCTIONNALITÉS === */
-        .feature-row {
-            display: flex; align-items: center; gap: 60px; margin-bottom: 80px;
-            background-color: var(--bg-white); border: 1px solid var(--border-light);
-            border-radius: 16px; padding: 40px; box-shadow: var(--shadow-sm);
-        }
+        .feature-row { display: flex; align-items: center; gap: 60px; margin-bottom: 80px; background-color: var(--bg-white); border: 1px solid var(--border-light); border-radius: 16px; padding: 40px; box-shadow: var(--shadow-sm); }
         .feature-row:nth-child(even) { flex-direction: row-reverse; }
         .feature-text { flex: 1; }
         .feature-text h3 { font-size: 1.6rem; color: var(--primary); margin-bottom: 15px; }
         .feature-text p { color: var(--text-muted); margin-bottom: 15px; font-size: 1rem; }
         .feature-image { flex: 1; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); }
 
-        /* === TARIFICATION === */
+        .conversion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .conversion-card { background: var(--bg-white); padding: 25px; border-radius: 12px; border-left: 4px solid var(--primary); box-shadow: var(--shadow-sm); transition: transform 0.3s; }
+        .conversion-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .conversion-card h4 { margin-bottom: 10px; font-size: 1.1rem; color: var(--text-main); }
+        .conversion-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; position: relative; }
+        .step-card { text-align: center; padding: 20px; background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border-light); position: relative; z-index: 2; transition: transform 0.3s; }
+        .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .step-number { width: 50px; height: 50px; background-color: var(--primary); color: white; font-size: 1.5rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: -45px auto 20px; border: 4px solid var(--bg-body); }
+        .step-card h4 { margin-bottom: 15px; color: var(--text-main); font-size: 1.1rem; }
+        .step-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
+        /* === PRIX === */
         .pricing-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 60px; }
         .price-card { background-color: var(--bg-white); border: 1px solid var(--border-light); border-radius: 12px; padding: 40px 30px; display: flex; flex-direction: column; transition: transform 0.4s ease, box-shadow 0.4s ease; }
         .price-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
@@ -141,7 +102,6 @@
         .price-features li { font-size: 0.9rem; margin-bottom: 15px; padding-left: 24px; position: relative; color: var(--text-main); display: flex; align-items: center; justify-content: space-between;}
         .price-features li::before { content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
         
-        /* Toggle Prix */
         .toggle-wrapper { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 50px; font-weight: 500; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -150,7 +110,6 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        /* Offres Spéciales */
         .special-offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; }
         .special-card { background-color: var(--bg-white); border: 1px dashed var(--primary); border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; }
         .highlight-card { background-color: #FFF5EC; border: 2px solid var(--primary); box-shadow: var(--shadow-md); transform: scale(1.02); }
@@ -159,22 +118,7 @@
         .compare-box { background: white; padding: 15px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; border: 1px solid var(--border-light); }
         .compare-box strong { color: var(--primary); }
 
-        /* === POURQUOI NOUS CHOISIR === */
-        .conversion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
-        .conversion-card { background: var(--bg-white); padding: 25px; border-radius: 12px; border-left: 4px solid var(--primary); box-shadow: var(--shadow-sm); transition: transform 0.3s; }
-        .conversion-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .conversion-card h4 { margin-bottom: 10px; font-size: 1.1rem; color: var(--text-main); }
-        .conversion-card p { color: var(--text-muted); font-size: 0.9rem; }
-
-        /* === COMMENT ÇA MARCHE === */
-        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; position: relative; }
-        .step-card { text-align: center; padding: 20px; background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border-light); position: relative; z-index: 2; transition: transform 0.3s; }
-        .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .step-number { width: 50px; height: 50px; background-color: var(--primary); color: white; font-size: 1.5rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: -45px auto 20px; border: 4px solid var(--bg-body); }
-        .step-card h4 { margin-bottom: 15px; color: var(--text-main); font-size: 1.1rem; }
-        .step-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
-
-        /* === FAQ SECTION === */
+        /* === FAQ === */
         .faq-container { max-width: 800px; margin: 0 auto; }
         .faq-item { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
         .faq-item.hidden { display: none; }
@@ -186,7 +130,7 @@
         .faq-item.active .faq-toggle-icon { transform: rotate(45deg); color: var(--primary); }
         .btn-load-more { display: block; margin: 30px auto 0; }
 
-        /* === FENÊTRE POP-UP (MODAL) === */
+        /* === MODAL === */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { background: var(--bg-white); padding: 30px; border-radius: 12px; max-width: 450px; width: 90%; position: relative; transform: translateY(20px); transition: transform 0.3s ease; }
@@ -196,11 +140,9 @@
         .modal-content h3 { color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; }
         .modal-content p { color: var(--text-main); font-size: 0.95rem; }
 
-        /* === ANIMATIONS === */
         .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
         .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-        /* === RESPONSIVE (Mobiles) === */
         @media screen and (max-width: 950px) {
             .nav-container { display: none; }
             .hamburger { display: flex; }
@@ -217,7 +159,6 @@
 </head>
 <body>
 
-    <!-- === HEADER & NAVIGATION === -->
     <header>
         <div class="logo-container">
             <a href="index.html">
@@ -238,102 +179,92 @@
             </nav>
         </div>
         <div class="hamburger" id="hamburger-icon">
-            <div class="line1"></div>
-            <div class="line2"></div>
-            <div class="line3"></div>
+            <div class="line1"></div><div class="line2"></div><div class="line3"></div>
         </div>
     </header>
 
     <main>
-        <!-- === HERO SECTION === -->
         <section id="accueil" class="hero fade-up" id="hero-slider">
             <h1>L’excellence du service à votre table.</h1>
-            <p>Modernisez votre restaurant avec une solution intelligente, fluide et conçue pour offrir à chaque client une expérience rapide, élégante et sans friction.</p>
+            <p>Modernisez votre restaurant avec une solution SaaS & Fintech pensée pour accélérer vos commandes, fluidifier vos encaissements et piloter intelligemment votre activité.</p>
             <div class="hero-buttons">
-                <a href="#tarifs" class="btn btn-primary">Voir les offres</a>
+                <a href="#tarifs" class="btn btn-primary">Voir nos offres</a>
                 <a href="demo.html" class="btn btn-outline">Demander une démo</a>
             </div>
         </section>
 
-        <!-- === VALEURS PROFONDES === -->
         <section id="valeurs" class="section-padding" style="background-color: var(--bg-white); border-bottom: 1px solid var(--border-light);">
             <div class="section-header fade-up">
                 <h2>Une nouvelle façon de servir, d’encaisser et de piloter</h2>
-                <p>Oubliez les menus papier déchirés et les attentes interminables. SCAN&TCHOP propulse votre établissement dans l'ère de la restauration connectée.</p>
+                <p>Oubliez les menus papier déchirés et les attentes interminables. SCAN&TCHOP propulse votre établissement dans l'ère de la restauration connectée de très haut niveau.</p>
             </div>
             
             <div class="values-grid fade-up">
                 <div class="value-box">
                     <h3>Pour vos clients : L'autonomie absolue</h3>
-                    <p>Fini les mains levées pour appeler un serveur débordé. Le client s'installe, scanne le QR code et accède à un menu interactif et appétissant directement sur son navigateur. Il commande à son rythme, ajoute des suppléments, partage l'addition (Split-bill) avec ses amis et règle par Mobile Money, carte ou espèces. L'expérience est fluide, moderne et mémorable.</p>
+                    <p>Fini les mains levées pour appeler un serveur débordé. Le client s'installe, scanne le QR code et accède à un menu interactif et dynamique directement sur son navigateur. Il commande à son rythme, ajoute des suppléments, partage l'addition (Split-bill) avec ses amis et règle par Mobile Money, carte ou espèces. L'expérience est fluide, moderne et mémorable.</p>
                 </div>
                 <div class="value-box">
                     <h3>Pour votre restaurant : Le contrôle total</h3>
-                    <p>Vos serveurs ne courent plus pour prendre des commandes, ils se concentrent sur l'accueil et le service. La cuisine reçoit les bons en temps réel avec des alertes sonores. Vous, en tant que gérant, accédez à un tableau de bord puissant : suivez vos ventes, gérez vos ruptures de stock en un clic, exportez vos rapports Excel et contrôlez chaque aspect de votre activité de n'importe où.</p>
+                    <p>Vos serveurs ne courent plus pour prendre des commandes, ils se concentrent sur l'accueil chaleureux. La cuisine reçoit les bons en temps réel avec des alertes sonores. Vous, en tant que gérant, accédez à un tableau de bord puissant : suivez vos ventes, gérez vos ruptures de stock en 1 clic, exportez vos rapports Excel et contrôlez chaque aspect de votre activité.</p>
                 </div>
                 <div class="value-box">
                     <h3>Pour nos partenaires : Une croissance sereine</h3>
-                    <p>Nous ne vous donnons pas juste un outil, nous structurons votre croissance. En éliminant les erreurs de caisse et les pertes liées aux oublis de commande, SCAN&TCHOP augmente directement votre rentabilité. De plus, notre architecture multi-rôles sécurise vos données (accès propriétaire, serveur, comptable) pour une gestion d'entreprise véritablement professionnelle.</p>
+                    <p>Nous ne vous donnons pas juste un outil, nous structurons votre croissance. En éliminant les erreurs de caisse et les pertes liées aux oublis, SCAN&TCHOP augmente directement votre rentabilité. Notre architecture multi-rôles sécurise vos données (accès propriétaire, serveur, comptable) pour une gestion d'entreprise véritablement professionnelle.</p>
                 </div>
             </div>
         </section>
 
-        <!-- === FONCTIONNALITÉS ILLUSTRÉES (Enrichies) === -->
         <section id="fonctionnalites" class="section-padding">
             <div class="section-header fade-up">
                 <h2>Ce que SCAN&TCHOP vous apporte concrètement</h2>
                 <p>Découvrez l'arsenal complet d'outils pensés pour les restaurants exigeants.</p>
             </div>
 
-            <!-- Bloc 1 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
-                    <h3>Application Web PWA sans téléchargement</h3>
-                    <p>La barrière du téléchargement n'existe plus. En un simple scan d'appareil photo, le menu s'ouvre instantanément comme une vraie application directement dans Safari ou Chrome. C'est rapide, léger, et ça fonctionne même sur des téléphones d'entrée de gamme.</p>
+                    <h3>Application Web PWA (100% Sans Téléchargement)</h3>
+                    <p>La barrière du téléchargement n'existe plus. En un simple scan d'appareil photo, le menu s'ouvre instantanément comme une vraie application native directement dans Safari ou Google Chrome. C'est ultra-rapide, léger, et ça fonctionne parfaitement, même sur des téléphones d'entrée de gamme.</p>
                 </div>
                 <div class="feature-image">
-                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Menu digital sur smartphone">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Menu digital PWA">
                 </div>
             </div>
 
-            <!-- Bloc 2 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
                     <h3>Menu Dynamique & Interrupteur de Rupture</h3>
-                    <p>Un ingrédient manque en cuisine ? Désactivez le plat en 1 seconde depuis votre téléphone. Le plat disparaît instantanément du menu client. Finies les déceptions à table et les allers-retours du serveur pour annoncer une rupture.</p>
+                    <p>Un ingrédient manque soudainement en cuisine ? Désactivez le plat en 1 seconde depuis votre téléphone de gérant. Le plat disparaît instantanément du menu de tous les clients en salle. Finies les déceptions à table et les allers-retours gênants du serveur pour annoncer une rupture de stock.</p>
                 </div>
                 <div class="feature-image">
                     <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Gestion des ruptures">
                 </div>
             </div>
 
-            <!-- Bloc 3 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
                     <h3>Paiement Flexible (Mobile Money, CB, Cash)</h3>
-                    <p>Nous nous adaptons à la réalité locale. Vos clients peuvent sécuriser la commande en payant via MTN/Orange Money, par carte bancaire, ou choisir le paiement en espèces au comptoir ou au serveur, selon les règles strictes que VOUS définissez.</p>
+                    <p>Nous nous adaptons à VOTRE réalité et aux habitudes locales. Vos clients peuvent sécuriser la commande en payant via MTN Mobile Money, Orange Money, par carte bancaire, ou choisir le paiement en espèces au comptoir ou au serveur. L'argent est tracé et sécurisé.</p>
                 </div>
                 <div class="feature-image">
-                    <img src="https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Paiements locaux intégrés">
+                    <img src="https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Paiements locaux">
                 </div>
             </div>
 
-            <!-- Bloc 4 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
                     <h3>Dashboard Cuisine avec Alertes Sonores</h3>
-                    <p>Remplacez les bons en papier volants par une tablette en cuisine. Dès qu'un client paie sa commande en salle, un signal sonore retentit en cuisine et le bon s'affiche clairement. Une organisation militaire pour zéro erreur.</p>
+                    <p>Remplacez les bons en papier volants et illisibles par une tablette dédiée en cuisine. Dès qu'un client valide sa commande en salle, un signal sonore retentit en cuisine et le bon s'affiche clairement sur l'écran (Live feed). Une organisation militaire pour zéro erreur de préparation.</p>
                 </div>
                 <div class="feature-image">
-                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cuisine connectée">
+                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Dashboard Cuisine">
                 </div>
             </div>
 
-            <!-- Bloc 5 -->
             <div class="feature-row fade-up">
                 <div class="feature-text">
                     <h3>Split-Bill & Pourboire Numérique</h3>
-                    <p>Un groupe de 5 amis veut payer séparément ? Notre fonction "Split-Bill" calcule tout automatiquement. De plus, les clients satisfaits peuvent laisser un pourboire digital lors du paiement, motivant ainsi vos équipes.</p>
+                    <p>Un groupe de 5 amis veut payer l'addition séparément ? Notre fonction innovante "Split-Bill" calcule tout automatiquement, chacun paie sa part depuis son téléphone. De plus, les clients très satisfaits peuvent laisser un pourboire digital lors du paiement, motivant ainsi vos équipes !</p>
                 </div>
                 <div class="feature-image">
                     <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Partage d'addition">
@@ -341,11 +272,68 @@
             </div>
         </section>
 
-        <!-- === TARIFS & OFFRES (Déplacé ici) === -->
-        <section id="tarifs" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
+        <section id="pourquoi" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
+            <div class="section-header fade-up">
+                <h2>12 Raisons indiscutables de choisir SCAN&TCHOP</h2>
+                <p>Nous sommes bien plus qu'un simple menu en ligne. Nous sommes le cœur technologique et financier de votre établissement.</p>
+            </div>
+            
+            <div class="conversion-grid fade-up">
+                <div class="conversion-card">
+                    <h4>1. Zéro Téléchargement</h4>
+                    <p>Vos clients ne fuiront pas. Notre technologie Web PWA s'ouvre en 1 seconde chrono, juste en scannant le QR code avec l'appareil photo.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>2. Gestion des Ruptures (1 Clic)</h4>
+                    <p>Un plat est fini ? Masquez-le du menu en temps réel. Le client ne commande que ce que vous êtes réellement capables de servir.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>3. Fintech Intégrée (MoMo/Orange)</h4>
+                    <p>Nous intégrons directement MTN et Orange Money. Fini les clients qui doivent sortir du restaurant pour chercher un kiosque de retrait.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>4. Frais Invisibles pour le Client</h4>
+                    <p>Nos frais de transaction (3.5%) sont lissés intelligemment dans vos prix. Votre marge est préservée, et le client n'a pas l'impression de payer une taxe.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>5. Alertes Cuisine en Direct</h4>
+                    <p>La cuisine est alertée visuellement et par un son dès qu'une commande est passée. Terminé les serveurs qui oublient de déposer le bon.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>6. Partage d'Addition (Split-Bill)</h4>
+                    <p>Vos clients peuvent diviser la note eux-mêmes sur leurs téléphones. Fini les calculs interminables et les embouteillages à la caisse.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>7. Multi-Comptes & Sécurité</h4>
+                    <p>Le serveur ne voit que les commandes. Le comptable voit les exports Excel. Vous (Gérant) voyez tout et contrôlez l'argent. Sécurité maximale.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>8. Mode "Sans Smartphone"</h4>
+                    <p>Un client n'a plus de batterie ? Votre serveur utilise une tablette interne SCAN&TCHOP pour prendre sa commande et l'envoyer en cuisine.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>9. Reçus Numériques PDF</h4>
+                    <p>Donnez une image haut de gamme et écologique : le client reçoit sa facture détaillée par email instantanément après son paiement.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>10. Pourboires Digitalisés</h4>
+                    <p>Augmentez les revenus de votre personnel. Lors du paiement Mobile Money, le client est invité à laisser un pourboire d'un simple clic.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>11. Exports Excel Comptables</h4>
+                    <p>En un clic, téléchargez toutes vos données de ventes sur une période donnée pour faire votre bilan financier sans la moindre erreur de calcul.</p>
+                </div>
+                <div class="conversion-card">
+                    <h4>12. Technologie & Support Local</h4>
+                    <p>Contrairement aux solutions européennes inadaptées, nous sommes basés au Cameroun. Notre équipe comprend le terrain et vous assiste en temps réel.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tarifs" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light);">
             <div class="section-header fade-up">
                 <h2>Des offres claires, lisibles et évolutives</h2>
-                <p>Choisissez le pack qui correspond à votre volume d'activité actuel. Vous pouvez évoluer à tout moment.</p>
+                <p>Démarrez selon votre budget et votre volume. Cliquez sur les boutons (?) pour comprendre la puissance de chaque fonctionnalité.</p>
             </div>
 
             <div class="toggle-wrapper fade-up">
@@ -358,234 +346,165 @@
             </div>
 
             <div class="pricing-container fade-up">
-                <!-- PACK STARTER -->
                 <div class="price-card">
                     <h3>Pack Starter</h3>
-                    <p class="price-desc">Pour les petits restaurants, snacks et fast-foods qui veulent commencer simplement.</p>
+                    <p class="price-desc">Pour les petits restaurants et snacks qui veulent se digitaliser simplement.</p>
                     <div class="price-amount" data-mois="11 900" data-annee="119 000">11 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
-                        <li>Menu QR sans application <button class="info-btn" data-title="Menu QR accessible par navigateur" data-desc="Vos clients n'ont rien à télécharger. Ils scannent le code avec leur appareil photo et votre menu s'ouvre comme un site web ultra-rapide. Cela garantit que 100% des clients équipés d'un smartphone peuvent l'utiliser.">?</button></li>
-                        <li>Commande via WhatsApp <button class="info-btn" data-title="Commande via WhatsApp" data-desc="Une fois les plats choisis, un message parfaitement formaté avec le récapitulatif de la commande, le numéro de table et le prix total est envoyé automatiquement sur le numéro WhatsApp de votre restaurant. Simple et efficace pour démarrer sans matériel supplémentaire.">?</button></li>
-                        <li>Paiement cash au comptoir <button class="info-btn" data-title="Paiement cash" data-desc="Le client passe sa commande en ligne à sa table, et la règle de manière traditionnelle en espèces avec votre caissier. Idéal pour habituer doucement votre clientèle à la digitalisation.">?</button></li>
-                        <li>Gestion simple des ruptures <button class="info-btn" data-title="Gestion des ruptures" data-desc="Vous pouvez vous-même masquer un plat de votre menu digital si vous n'avez plus les ingrédients, évitant ainsi de prendre une commande que vous ne pouvez pas honorer.">?</button></li>
-                        <li>Rapports journaliers <button class="info-btn" data-title="Rapports journaliers" data-desc="Recevez un résumé basique des commandes effectuées dans la journée pour suivre vos ventes simplement.">?</button></li>
+                        <li>Menu QR sans application <button class="info-btn" data-title="Menu QR sans application" data-desc="Le client scanne le QR code physique sur sa table et le menu s'affiche instantanément. L'avantage ? Il n'a rien à installer, ce qui garantit 100% d'utilisation par vos clients.">?</button></li>
+                        <li>Commande via WhatsApp <button class="info-btn" data-title="Commande via WhatsApp" data-desc="Pour les petites structures, la commande du client est formatée automatiquement et envoyée sur le numéro WhatsApp de votre restaurant. Facile à lire et prêt à préparer !">?</button></li>
+                        <li>Paiement cash au comptoir <button class="info-btn" data-title="Paiement cash au comptoir" data-desc="Le client commande depuis sa table, mais paie en espèces de manière classique avec votre caissier. Idéal pour habituer votre clientèle à commander en ligne en douceur.">?</button></li>
+                        <li>Gestion simple des ruptures <button class="info-btn" data-title="Gestion des ruptures" data-desc="Un produit est épuisé ? Masquez-le vous-même depuis votre espace personnel. Vous évitez les frustrations des clients qui commandent un plat que vous n'avez plus.">?</button></li>
+                        <li>Rapports journaliers <button class="info-btn" data-title="Rapports journaliers de base" data-desc="Consultez à la fin de la journée le total des commandes passées pour faire votre caisse facilement.">?</button></li>
                     </ul>
                     <a href="payement.html" class="btn btn-outline" style="width: 100%;">Souscrire au Starter</a>
                 </div>
 
-                <!-- PACK PRO -->
                 <div class="price-card pro">
                     <span class="badge-pro">Le choix des pros</span>
                     <h3>Pack Pro</h3>
-                    <p class="price-desc">Pour les restaurants en croissance qui veulent de l'organisation et du contrôle.</p>
+                    <p class="price-desc">Pour les restaurants avec du volume qui exigent un contrôle total.</p>
                     <div class="price-amount" data-mois="14 900" data-annee="149 000">14 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
                         <li><strong>Tout le Pack Starter inclus</strong></li>
-                        <li>Commande vers tableau de bord <button class="info-btn" data-title="Commande directe" data-desc="Fini WhatsApp ! Les commandes n'arrivent plus sous forme de messages, mais s'affichent proprement dans un tableau de bord professionnel sécurisé, géré par votre caissier en temps réel. C'est beaucoup plus structuré.">?</button></li>
-                        <li>Paiement Mobile Money & Cash <button class="info-btn" data-title="Paiement Mobile Money" data-desc="Vos clients peuvent désormais payer directement leur commande depuis leur téléphone via Orange Money ou MTN Mobile Money. L'argent est sécurisé et traçable, ce qui réduit les risques de vol ou d'erreur de caisse.">?</button></li>
-                        <li>Export Excel & Archivage <button class="info-btn" data-title="Export Excel" data-desc="Téléchargez vos données de ventes en un seul clic sous forme de fichier Excel. Parfait pour votre comptable ou pour faire votre bilan de fin de mois sans avoir à tout recalculer à la main.">?</button></li>
-                        <li>Gestion des rôles (Base) <button class="info-btn" data-title="Gestion des rôles" data-desc="Créez des accès séparés. Le propriétaire a accès à l'argent et aux statistiques, le caissier n'a accès qu'à la validation des commandes.">?</button></li>
+                        <li>Commande vers Dashboard <button class="info-btn" data-title="Commande vers Dashboard" data-desc="On abandonne WhatsApp ! Toutes les commandes arrivent dans une interface professionnelle et sécurisée, consultée par votre caissier. C'est beaucoup plus pro et impossible de perdre une commande.">?</button></li>
+                        <li>Paiement Mobile Money & Cash <button class="info-btn" data-title="Paiement Mobile Money" data-desc="Vos clients peuvent payer directement depuis leur téléphone. L'argent est sécurisé par SCAN&TCHOP et vous demandez le virement (payout) quand vous voulez. Réduit drastiquement les erreurs de caisse et les vols.">?</button></li>
+                        <li>Export Excel & Archivage <button class="info-btn" data-title="Export Excel & Rapports" data-desc="Vous pouvez télécharger un fichier Excel complet de vos ventes. Idéal pour faire votre bilan comptable de fin de mois en 2 minutes au lieu de 2 heures.">?</button></li>
+                        <li>Gestion des rôles (Base) <button class="info-btn" data-title="Gestion des rôles" data-desc="Créez un accès pour vous (Propriétaire) avec vue sur l'argent, et un accès limité pour votre personnel (Serveur) qui ne peut que valider les commandes.">?</button></li>
                     </ul>
                     <a href="payement.html" class="btn btn-primary" style="width: 100%;">Souscrire au Pro</a>
                 </div>
 
-                <!-- PACK PREMIUM -->
                 <div class="price-card">
                     <h3>Pack Premium</h3>
-                    <p class="price-desc">Pour les restaurants très structurés voulant une machine de guerre technologique.</p>
+                    <p class="price-desc">L'outil ultime pour les restaurants très structurés visant l'excellence.</p>
                     <div class="price-amount" data-mois="29 900" data-annee="299 000">29 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
                         <li><strong>Tout le Pack Pro inclus</strong></li>
-                        <li>Dashboard cuisine + Alerte sonore <button class="info-btn" data-title="Alerte Cuisine" data-desc="Équipez votre cuisine d'une tablette. Chaque nouvelle commande validée s'affiche en direct et fait sonner la tablette. Les cuisiniers ne ratent plus rien et préparent les plats instantanément.">?</button></li>
-                        <li>Split-bill & Pourboires <button class="info-btn" data-title="Split-bill & Pourboires" data-desc="Vos clients peuvent diviser la note entre eux très facilement depuis leur téléphone, et peuvent ajouter un pourboire digital pour vos équipes.">?</button></li>
-                        <li>Statistiques Avancées <button class="info-btn" data-title="Statistiques Avancées" data-desc="Découvrez quels sont vos plats les plus rentables, vos heures d'affluence, et comparez vos ventes d'une année à l'autre grâce à nos outils d'analyse poussés.">?</button></li>
-                        <li>Multi-comptes complet <button class="info-btn" data-title="Multi-comptes complet" data-desc="Gérez une grande équipe avec des accès hyper spécifiques : Propriétaire, Manager de salle, Chef de cuisine, Comptable, etc.">?</button></li>
+                        <li>Dashboard Cuisine + Alertes <button class="info-btn" data-title="Alerte Sonore Cuisine" data-desc="Une tablette dans votre cuisine sonne à chaque nouvelle commande. Les cuisiniers voient le bon virtuel s'afficher et peuvent marquer le plat comme 'Prêt'. Fluidité totale.">?</button></li>
+                        <li>Split-bill & Pourboires <button class="info-btn" data-title="Split-bill & Pourboires" data-desc="Fonction VIP ! Un groupe d'amis peut diviser l'addition et chacun paie sa part depuis son téléphone. Ils peuvent aussi laisser un pourboire à l'équipe.">?</button></li>
+                        <li>Statistiques Avancées <button class="info-btn" data-title="Statistiques Avancées" data-desc="Graphiques détaillés pour savoir quels sont vos plats les plus rentables, vos heures de pointe, et comparer vos mois pour ajuster votre stratégie marketing.">?</button></li>
+                        <li>Multi-comptes complet <button class="info-btn" data-title="Multi-comptes complet" data-desc="Accès illimités et précis : créez un compte pour le comptable, un pour le manager de salle, un pour le chef cuisinier. Chacun son rôle !">?</button></li>
                     </ul>
                     <a href="payement.html" class="btn btn-outline" style="width: 100%;">Souscrire au Premium</a>
                 </div>
             </div>
 
-            <!-- OFFRES SPÉCIALES -->
             <div class="section-header fade-up" style="margin-top: 60px; margin-bottom: 40px;">
                 <h2>Offres Exclusives & Accompagnement</h2>
             </div>
 
             <div class="special-offers fade-up">
-                <!-- CLÉ EN MAIN -->
                 <div class="special-card highlight-card">
                     <div>
                         <h4>⭐ Forfait "Clé en main"</h4>
-                        <p style="margin-bottom: 15px;"><strong>Ne touchez à rien, on s'occupe de tout pour vous.</strong></p>
+                        <p style="margin-bottom: 15px;"><strong>Ne vous fatiguez pas. On installe absolument TOUT pour vous.</strong></p>
                         
                         <div class="compare-box">
-                            <p>❌ <strong>Si vous le faites :</strong> Vous perdez du temps à taper chaque plat, les photos sont floues, vous devez chercher un imprimeur pour les QR codes, et former votre personnel prend des jours.</p>
+                            <p>❌ <strong>Si vous le faites seul :</strong> Vous passez des heures à taper chaque plat, les photos sont floues, vous devez chercher un imprimeur de QR codes, et vous perdez du temps à former votre staff.</p>
                             <hr style="margin: 10px 0; border: none; border-top: 1px solid #E2E8F0;">
-                            <p>✅ <strong>Si nous le faisons :</strong> Un expert vient chez vous. Nous faisons un shooting photo professionnel de vos plats, nous encodons toute votre carte sans erreur, nous imprimons et livrons vos chevalets QR en plexiglas premium, et nous formons vos serveurs sur place.</p>
+                            <p>✅ <strong>Si NOUS le faisons :</strong> Un de nos experts se déplace chez vous. Il fait un shooting photo professionnel, configure tout votre menu, imprime et livre vos chevalets QR en plexiglas premium, et forme vos employés sur place !</p>
                         </div>
                         
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; text-align: center;">35 000<span> FCFA</span><br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-main);"> (Paiement unique, hors abonnement)</span></div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; text-align: center;">35 000<span> FCFA</span><br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-main);"> (Paiement unique, en plus de l'abonnement)</span></div>
                     </div>
-                    <a href="contact.html" class="btn btn-primary">Je veux l'accompagnement complet</a>
+                    <a href="contact.html" class="btn btn-primary">Je veux l'installation clé en main</a>
                 </div>
 
-                <!-- À VIE -->
                 <div class="special-card" style="border-color: #1A202C; background-color: #FAFAFA;">
                     <div>
                         <h4>💎 Licence "À Vie" (Limitée)</h4>
-                        <p style="margin-bottom: 10px;"><strong>Libérez-vous des abonnements mensuels pour toujours.</strong></p>
-                        <p>Une opportunité exceptionnelle réservée à nos partenaires les plus visionnaires. Payez une seule fois et obtenez un accès <strong>à vie</strong> au <strong>Pack Premium</strong> (toutes futures mises à jour incluses).</p>
+                        <p style="margin-bottom: 10px;"><strong>Achetez l'application. Fini les paiements mensuels.</strong></p>
+                        <p>Opportunité en or réservée aux visionnaires. Payez une seule fois et obtenez le <strong>Pack Premium à vie</strong>. Toutes les futures mises à jour sont incluses gratuitement.</p>
                         <ul style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; list-style-type: disc; padding-left: 20px;">
-                            <li>Rentabilisé en moins de 2 ans</li>
-                            <li>Zéro charge fixe mensuelle sur le logiciel</li>
-                            <li>Support technique prioritaire inclus</li>
+                            <li>Investissement rentabilisé en moins de 2 ans</li>
+                            <li>Zéro charge logicielle mensuelle pour votre business</li>
+                            <li>Support technique prioritaire garanti</li>
                         </ul>
-                        <div style="font-size: 1.8rem; font-weight: 700; color: #1A202C; margin-bottom: 20px; text-align: center;">499 000<span> FCFA</span><br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);"> (Paiement unique définitif)</span></div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #1A202C; margin-bottom: 20px; text-align: center;">499 000<span> FCFA</span><br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);"> (Paiement définitif, aucune autre charge)</span></div>
                     </div>
-                    <a href="contact.html" class="btn btn-special">Saisir cette opportunité unique</a>
+                    <a href="contact.html" class="btn btn-special">Acheter la licence à vie</a>
                 </div>
             </div>
         </section>
 
-        <!-- === POURQUOI NOUS CHOISIR (12 Arguments Massifs) === -->
-        <section id="pourquoi" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light);">
-            <div class="section-header fade-up">
-                <h2>12 Raisons de choisir SCAN&TCHOP</h2>
-                <p>Nous ne sommes pas juste un menu en ligne. Nous sommes la fintech et la tech au service de votre rentabilité.</p>
-            </div>
-            
-            <div class="conversion-grid fade-up">
-                <div class="conversion-card">
-                    <h4>1. 100% Sans Téléchargement</h4>
-                    <p>Vos clients n'installeront jamais d'application lourde. Notre technologie Web PWA s'ouvre en 1 seconde via l'appareil photo.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>2. Gestion des ruptures en 1 clic</h4>
-                    <p>Fini les plats commandés mais indisponibles. Désactivez un produit de votre menu digital d'un simple geste sur votre écran.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>3. Paiements locaux intégrés</h4>
-                    <p>Nous gérons parfaitement MTN Mobile Money et Orange Money. Fini les clients qui doivent chercher un point de retrait en pleine rue.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>4. Tarification invisible pour le client</h4>
-                    <p>Nos frais de transaction de 3.5% sont intégrés de manière lissée et intelligente dans vos prix, pour ne pas effrayer vos clients finaux.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>5. Alertes sonores en cuisine</h4>
-                    <p>La communication salle-cuisine n'a jamais été aussi fluide grâce aux notifications visuelles et sonores instantanées de notre interface Premium.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>6. Partage de l'addition (Split-bill)</h4>
-                    <p>Fini les maux de tête à la caisse pour un groupe de 10 personnes. Le système calcule et permet à chacun de payer sa part depuis son téléphone.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>7. Séparation stricte des rôles</h4>
-                    <p>Sécurisez votre business. Donnez l'accès "Commandes" au serveur, "Chiffres" au comptable, et gardez le "Contrôle total" pour vous.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>8. Mode "Sans Smartphone" prévu</h4>
-                    <p>Même si un client n'a pas de téléphone ou de batterie, vos serveurs peuvent utiliser une tablette du restaurant pour prendre la commande via notre système.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>9. Réception de reçus numériques</h4>
-                    <p>Écologie et modernité : vos clients peuvent recevoir leur facture ou reçu officiel directement par email après le paiement.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>10. Pourboires digitalisés</h4>
-                    <p>Boostez le moral de votre équipe. Les clients peuvent ajouter facilement un pourboire au moment du paiement en ligne.</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>11. Des rapports Excel puissants</h4>
-                    <p>Faites votre comptabilité en un claquement de doigts grâce à nos exports de données complets (ventes, heures d'affluence, etc.).</p>
-                </div>
-                <div class="conversion-card">
-                    <h4>12. Support basé en Afrique</h4>
-                    <p>Nous comprenons vos réalités car nous sommes sur le même terrain (Lancement initial à Bertoua, Cameroun). Notre assistance est réactive et locale.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- === COMMENT ÇA MARCHE ? === -->
         <section id="comment-ca-marche" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
             <div class="section-header fade-up">
-                <h2>Déploiement en 4 étapes simples</h2>
-                <p>Intégrez notre solution sans aucune interruption de votre service habituel.</p>
+                <h2>Déploiement en 4 étapes fluides</h2>
+                <p>Commencez à utiliser SCAN&TCHOP aujourd'hui, sans interrompre votre service.</p>
             </div>
 
             <div class="steps-container fade-up">
                 <div class="step-card">
                     <div class="step-number">1</div>
-                    <h4>Création & Menu</h4>
-                    <p>Créez votre compte et configurez vos catégories, plats, prix et photos sur votre interface d'administration claire.</p>
+                    <h4>Création du Compte</h4>
+                    <p>Inscrivez votre restaurant sur notre plateforme. Ajoutez vos catégories de plats, vos prix, et téléchargez des photos appétissantes.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">2</div>
-                    <h4>Choix du Pack & Impression</h4>
-                    <p>Sélectionnez l'abonnement adapté. Générez vos QR codes et placez-les fièrement sur toutes les tables de votre salle.</p>
+                    <h4>Choix & Impression</h4>
+                    <p>Choisissez l'abonnement qui vous correspond. Le système génère vos QR codes que vous imprimez et placez sur les tables.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">3</div>
-                    <h4>Le Client Scanne</h4>
-                    <p>Dès le premier jour, vos clients s'installent, scannent le code, naviguent dans votre beau menu et passent commande eux-mêmes.</p>
+                    <h4>Le Client Commande</h4>
+                    <p>Les clients s'asseyent, scannent le QR avec leur téléphone, naviguent avec plaisir dans le menu digital et envoient leur commande.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">4</div>
                     <h4>Cuisine & Encaissement</h4>
-                    <p>La cuisine reçoit la commande, la prépare. L'argent arrive de manière sécurisée selon les méthodes de paiement que vous avez activées.</p>
+                    <p>Votre cuisine est alertée, prépare le plat. Le client paie via Mobile Money ou Cash. Vous encaissez et suivez vos statistiques !</p>
                 </div>
             </div>
         </section>
 
-        <!-- === FOIRE AUX QUESTIONS (FAQ) === -->
         <section id="faq" class="section-padding" style="background-color: var(--bg-white); border-top: 1px solid var(--border-light);">
             <div class="section-header fade-up">
-                <h2>Questions Fréquemment Posées</h2>
-                <p>Vous avez des doutes ? Voici les réponses aux questions les plus courantes de nos partenaires restaurateurs.</p>
+                <h2>Questions Fréquemment Posées (FAQ)</h2>
+                <p>Toutes les réponses pour démarrer en toute confiance avec notre solution.</p>
             </div>
 
             <div class="faq-container fade-up">
-                <!-- FAQ 1-5 (Visibles par défaut) -->
                 <div class="faq-item">
-                    <div class="faq-question">1. Mes clients doivent-ils installer une application ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Absolument pas. C'est la plus grande force de SCAN&TCHOP. Le client utilise simplement l'appareil photo de son téléphone pour scanner le QR code, et le menu s'ouvre instantanément comme une page web classique dans son navigateur Safari ou Google Chrome.</div>
+                    <div class="faq-question">1. Mes clients doivent-ils télécharger une application pour commander ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Absolument pas ! C'est notre force. Le client utilise l'appareil photo normal de son téléphone pour scanner le QR code. Le menu s'ouvre instantanément sur Google Chrome ou Safari, même si la connexion internet est moyenne.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">2. Que se passe-t-il si un plat est épuisé en cuisine ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Vous disposez d'un "interrupteur de stock" sur votre tableau de bord. En un clic depuis votre téléphone de gérant, vous pouvez masquer le plat épuisé. Il disparaît immédiatement du menu des clients, évitant ainsi toute commande impossible à servir.</div>
+                    <div class="faq-question">2. L'argent payé par Mobile Money vient-il sur mon numéro personnel ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Non, pour des raisons de sécurité, l'argent transite par notre plateforme intégrée. Vous avez une "cagnotte" virtuelle sur votre tableau de bord. Dès que vous le souhaitez, vous cliquez sur "Retrait" (Payout) et l'argent est transféré sur le compte de votre entreprise.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">3. L'argent des paiements Mobile Money va-t-il sur mon propre numéro ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Les paiements transitent par notre système sécurisé pour garantir la validation de la commande, et sont crédités sur votre compte restaurateur. Vous pouvez ensuite demander un retrait (payout) vers le compte bancaire ou Mobile Money de l'entreprise quand vous le souhaitez via votre tableau de bord.</div>
+                    <div class="faq-question">3. Que se passe-t-il si un plat est épuisé pendant le service ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">C'est très simple : vous ouvrez l'application gérant, vous appuyez sur le bouton "Rupture" à côté du plat concerné. Le plat disparaît immédiatement du menu des clients. Fini les clients qui commandent des choses que vous n'avez plus.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">4. Les frais de transaction vont-ils faire fuir mes clients ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Non, car nous avons conçu le système intelligemment. Les frais de transaction (environ 3,5%) sont discrètement lissés dans le prix affiché (par exemple, un plat à 2000 FCFA s'affiche à 2070 FCFA). Ainsi, votre marge est préservée et le client ne voit pas de "frais supplémentaires" agressifs au moment de payer.</div>
+                    <div class="faq-question">4. Les frais de transaction de 3,5% vont-ils frustrer mes clients ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Nous avons pensé à tout. Les frais sont "lissés" et intégrés discrètement dans vos prix affichés (par exemple, un plat à 2000 FCFA affichera 2070 FCFA). Ainsi, votre marge est totalement préservée, et le client ne voit pas une ligne "Taxe" agressive à la fin.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">5. Je n'ai pas le temps de taper mon menu, pouvez-vous m'aider ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Oui ! C'est exactement le but de notre offre "Clé en main" à 35 000 FCFA. Nous venons chez vous, nous prenons des photos professionnelles de vos plats, nous tapons tout le menu, nous imprimons les QR codes sur du plexiglas et nous formons vos équipes. Vous n'avez rien à faire.</div>
+                    <div class="faq-question">5. Je n'ai pas le temps de configurer le menu. Comment faire ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Prenez notre forfait "Clé en main" à 35 000 FCFA. Un expert vient chez vous, prend des photos professionnelles, tape l'intégralité de votre carte, imprime vos chevalets QR en plexiglas et forme vos serveurs. Vous ne faites rien !</div>
                 </div>
 
-                <!-- FAQ 6-10 (Cachées par défaut) -->
                 <div class="faq-item hidden">
-                    <div class="faq-question">6. Que se passe-t-il si un client n'a pas de smartphone ou plus de batterie ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">SCAN&TCHOP prévoit un mode d'utilisation par le personnel. Vos serveurs peuvent être équipés d'une tablette ou d'un téléphone de service pour prendre la commande numériquement pour ces clients spécifiques, garantissant ainsi que 100% des tables soient gérées via le système.</div>
+                    <div class="faq-question">6. Que faire si un client n'a pas de smartphone ou plus de batterie ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Le système est pensé pour tout le monde. Vos serveurs peuvent être équipés d'une tablette ou d'un téléphone de l'entreprise. Ils utilisent l'interface SCAN&TCHOP pour prendre la commande à la place du client et l'envoyer en cuisine.</div>
                 </div>
                 <div class="faq-item hidden">
-                    <div class="faq-question">7. Est-ce que mes employés peuvent modifier les prix ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Non, sauf si vous leur en donnez le droit. Avec les packs Pro et Premium, vous bénéficiez de la gestion des rôles. Vous seul (compte Propriétaire) pouvez modifier les prix ou accéder aux données financières. Le serveur, lui, n'a accès qu'à la validation des commandes.</div>
+                    <div class="faq-question">7. Mes serveurs peuvent-ils voler ou modifier les prix ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Impossible. Avec les packs Pro et Premium, vous créez des "Rôles". Le serveur a uniquement le droit de voir les commandes. Seul le compte Propriétaire (vous) possède le code pour modifier les prix ou retirer l'argent.</div>
                 </div>
                 <div class="faq-item hidden">
-                    <div class="faq-question">8. Puis-je utiliser mon propre matériel (tablettes, téléphones) ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Oui, notre solution est basée sur le web (SaaS). Vous n'avez pas besoin d'acheter de matériel spécifique et onéreux. N'importe quelle tablette ou smartphone connecté à internet suffit pour gérer votre restaurant et recevoir les commandes en cuisine.</div>
+                    <div class="faq-question">8. Ai-je besoin d'acheter des ordinateurs très chers ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Non. Notre technologie SaaS fonctionne sur n'importe quel appareil connecté à Internet (tablettes Android, iPad, vieux téléphones, ordinateurs portables). Utilisez le matériel que vous possédez déjà !</div>
                 </div>
                 <div class="faq-item hidden">
-                    <div class="faq-question">9. Que se passe-t-il en cas de coupure internet ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Comme pour toute technologie moderne, une connexion internet est nécessaire pour la synchronisation en temps réel (réception des paiements et transmission à la cuisine). Nous recommandons d'avoir un petit routeur 4G de secours pour votre établissement afin de garantir une continuité de service.</div>
+                    <div class="faq-question">9. Que se passe-t-il si la connexion internet coupe ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Comme pour tous les systèmes modernes, une connexion internet est nécessaire pour synchroniser les commandes vers la cuisine en temps réel. Nous vous conseillons d'avoir un petit routeur Wi-Fi 4G de secours dans votre restaurant.</div>
                 </div>
                 <div class="faq-item hidden">
-                    <div class="faq-question">10. Puis-je changer de pack (ex: passer de Starter à Pro) plus tard ? <span class="faq-toggle-icon">+</span></div>
-                    <div class="faq-answer">Absolument ! Notre plateforme est évolutive. Vous pouvez commencer avec le Pack Starter pour tester le système, puis basculer vers le Pack Pro ou Premium depuis votre tableau de bord dès que vous sentez le besoin d'outils plus avancés.</div>
+                    <div class="faq-question">10. Puis-je changer d'abonnement au bout de quelques mois ? <span class="faq-toggle-icon">+</span></div>
+                    <div class="faq-answer">Absolument. SCAN&TCHOP est sans engagement complexe. Vous pouvez commencer avec le Pack Starter à 11 900 FCFA pour tester, puis basculer vers le Pack Premium quand votre restaurant grandit et que vous avez besoin de statistiques avancées.</div>
                 </div>
             </div>
             
@@ -593,7 +512,6 @@
         </section>
     </main>
 
-    <!-- FENÊTRE POP-UP (Explications fonctionnalités) -->
     <div id="infoModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
@@ -602,7 +520,6 @@
         </div>
     </div>
 
-    <!-- === FOOTER === -->
     <footer style="background-color: var(--text-main); color: var(--bg-white); padding: 60px 5% 30px; text-align: center;">
         <div style="background-color: white; display: inline-block; padding: 5px 15px; border-radius: 4px; margin-bottom: 20px;">
             <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo" style="height: 40px; object-fit: contain;">
@@ -613,7 +530,6 @@
         </div>
     </footer>
 
-    <!-- === JAVASCRIPT === -->
     <script>
         // 1. Menu Mobile
         const hamburger = document.getElementById('hamburger-icon');
@@ -632,7 +548,7 @@
             });
         });
 
-        // 2. Carrousel d'Images
+        // 2. Carrousel d'Images (Hero)
         const heroSection = document.getElementById('accueil');
         const images = [
             'url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")',
@@ -646,7 +562,7 @@
             heroSection.style.backgroundImage = `linear-gradient(rgba(26, 32, 44, 0.7), rgba(26, 32, 44, 0.8)), ${images[currentImageIndex]}`;
         }, 5000);
 
-        // 3. Bascule Prix
+        // 3. Bascule Prix (Annuel/Mensuel)
         const togglePricing = document.getElementById('toggle-pricing');
         const prices = document.querySelectorAll('.price-amount');
         const txtMois = document.getElementById('txt-mois');
@@ -675,7 +591,7 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // 5. Gestion des Pop-ups d'informations
+        // 5. Modales (Boutons ?)
         const modal = document.getElementById('infoModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalDesc = document.getElementById('modalDesc');
@@ -696,13 +612,35 @@
             if(e.target === modal) modal.classList.remove('active');
         });
 
-        // 6. Gestion dynamique de la FAQ
+        // 6. Gestion FAQ (Déplier/Replier & Afficher Plus)
         const faqItems = document.querySelectorAll('.faq-item');
         const btnLoadMore = document.getElementById('btn-load-more');
 
-        // Gérer l'accordéon (déplier/replier)
+        // Gérer le clic pour ouvrir/fermer une question
         faqItems.forEach(item => {
             const question = item.querySelector('.faq-question');
             question.addEventListener('click', () => {
-                // Fermer les autres (optionnel, mais plus propre)
-                faqItems.forEach(otherItem =>Normally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+                // Optionnel : fermer les autres questions
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                item.classList.toggle('active');
+            });
+        });
+
+        // Bouton "Afficher plus" pour les questions cachées
+        if(btnLoadMore) {
+            btnLoadMore.addEventListener('click', () => {
+                const hiddenItems = document.querySelectorAll('.faq-item.hidden');
+                hiddenItems.forEach(item => {
+                    item.classList.remove('hidden');
+                });
+                // Cacher le bouton une fois tout affiché
+                btnLoadMore.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
