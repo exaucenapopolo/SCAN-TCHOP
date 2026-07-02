@@ -31,6 +31,8 @@
         .btn-outline:hover { border-color: var(--text-main); background-color: var(--bg-body); }
         .btn-special { background-color: #1A202C; color: #FFFFFF; }
         .btn-special:hover { background-color: #2D3748; transform: translateY(-2px); }
+        .btn-ghost { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; }
+        .btn-ghost:hover { background: white; color: var(--text-main); border-color: white; }
 
         .info-btn { background-color: var(--border-light); color: var(--text-main); border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.3s; }
         .info-btn:hover { background-color: var(--primary); color: white; }
@@ -53,7 +55,7 @@
         .hero { padding: 160px 5% 100px; background-color: var(--text-main); background-size: cover; background-position: center; color: var(--bg-white); text-align: center; position: relative; transition: background-image 1s ease-in-out; }
         .hero h1 { font-size: 3.5rem; margin-bottom: 20px; color: var(--bg-white); letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .hero p { font-size: 1.2rem; color: #E2E8F0; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-        .hero-buttons { display: flex; justify-content: center; gap: 15px; position: relative; z-index: 2; }
+        .hero-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; position: relative; z-index: 2; }
         .hero .btn-outline { color: white; border-color: white; background-color: rgba(255,255,255,0.1); }
         .hero .btn-outline:hover { background-color: white; color: var(--text-main); }
 
@@ -186,10 +188,11 @@
     <main>
         <section id="accueil" class="hero fade-up" id="hero-slider">
             <h1>L’excellence du service à votre table.</h1>
-            <p>Modernisez votre restaurant avec une solution SaaS & Fintech pensée pour accélérer vos commandes, fluidifier vos encaissements et piloter intelligemment votre activité.</p>
+            <p>Modernisez votre restaurant avec une solution tout-en-un pensée pour accélérer vos commandes, fluidifier vos encaissements et piloter intelligemment votre activité.</p>
             <div class="hero-buttons">
                 <a href="#tarifs" class="btn btn-primary">Voir nos offres</a>
                 <a href="demo.html" class="btn btn-outline">Demander une démo</a>
+                <a href="connexion.html" class="btn btn-ghost">Accéder à mon espace</a>
             </div>
         </section>
 
@@ -253,11 +256,11 @@
 
             <div class="feature-row fade-up">
                 <div class="feature-text">
-                    <h3>Dashboard Cuisine avec Alertes Sonores</h3>
-                    <p>Remplacez les bons en papier volants et illisibles par une tablette dédiée en cuisine. Dès qu'un client valide sa commande en salle, un signal sonore retentit en cuisine et le bon s'affiche clairement sur l'écran (Live feed). Une organisation militaire pour zéro erreur de préparation.</p>
+                    <h3>Tableau de bord cuisine avec alertes sonores</h3>
+                    <p>Remplacez les bons en papier volants et illisibles par une tablette dédiée en cuisine. Dès qu'un client valide sa commande en salle, un signal sonore retentit en cuisine et le bon s'affiche clairement sur l'écran (flux en direct). Une organisation militaire pour zéro erreur de préparation.</p>
                 </div>
                 <div class="feature-image">
-                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Dashboard Cuisine">
+                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Tableau de bord cuisine">
                 </div>
             </div>
 
@@ -274,7 +277,7 @@
 
         <section id="pourquoi" class="section-padding" style="background-color: var(--bg-body); border-top: 1px solid var(--border-light);">
             <div class="section-header fade-up">
-                <h2>12 Raisons indiscutables de choisir SCAN&TCHOP</h2>
+                <h2>11 Raisons indiscutables de choisir SCAN&TCHOP</h2>
                 <p>Nous sommes bien plus qu'un simple menu en ligne. Nous sommes le cœur technologique et financier de votre établissement.</p>
             </div>
             
@@ -291,7 +294,6 @@
                     <h4>3. Fintech Intégrée (MoMo/Orange)</h4>
                     <p>Nous intégrons directement MTN et Orange Money. Fini les clients qui doivent sortir du restaurant pour chercher un kiosque de retrait.</p>
                 </div>
-                <!-- Suppression de la raison "Frais Invisibles pour le Client" -->
                 <div class="conversion-card">
                     <h4>4. Alertes Cuisine en Direct</h4>
                     <p>La cuisine est alertée visuellement et par un son dès qu'une commande est passée. Terminé les serveurs qui oublient de déposer le bon.</p>
@@ -364,7 +366,7 @@
                     <div class="price-amount" data-mois="14 900" data-annee="149 000">14 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
                         <li><strong>Tout le Pack Starter inclus</strong></li>
-                        <li>Commande vers Dashboard <button class="info-btn" data-title="Commande vers Dashboard" data-desc="On abandonne WhatsApp ! Toutes les commandes arrivent dans une interface professionnelle et sécurisée, consultée par votre caissier. C'est beaucoup plus pro et impossible de perdre une commande.">?</button></li>
+                        <li>Commande vers Tableau de bord <button class="info-btn" data-title="Commande vers Tableau de bord" data-desc="On abandonne WhatsApp ! Toutes les commandes arrivent dans une interface professionnelle et sécurisée, consultée par votre caissier. C'est beaucoup plus pro et impossible de perdre une commande.">?</button></li>
                         <li>Paiement Mobile Money & Cash <button class="info-btn" data-title="Paiement Mobile Money" data-desc="Vos clients peuvent payer directement depuis leur téléphone. L'argent est sécurisé par SCAN&TCHOP et vous demandez le virement (payout) quand vous voulez. Réduit drastiquement les erreurs de caisse et les vols.">?</button></li>
                         <li>Export Excel & Archivage <button class="info-btn" data-title="Export Excel & Rapports" data-desc="Vous pouvez télécharger un fichier Excel complet de vos ventes. Idéal pour faire votre bilan comptable de fin de mois en 2 minutes au lieu de 2 heures.">?</button></li>
                         <li>Gestion des rôles (Base) <button class="info-btn" data-title="Gestion des rôles" data-desc="Créez un accès pour vous (Propriétaire) avec vue sur l'argent, et un accès limité pour votre personnel (Serveur) qui ne peut que valider les commandes.">?</button></li>
@@ -378,8 +380,8 @@
                     <div class="price-amount" data-mois="29 900" data-annee="299 000">29 900<span> FCFA / mois</span></div>
                     <ul class="price-features">
                         <li><strong>Tout le Pack Pro inclus</strong></li>
-                        <li>Dashboard Cuisine + Alertes <button class="info-btn" data-title="Alerte Sonore Cuisine" data-desc="Une tablette dans votre cuisine sonne à chaque nouvelle commande. Les cuisiniers voient le bon virtuel s'afficher et peuvent marquer le plat comme 'Prêt'. Fluidité totale.">?</button></li>
-                        <li>Split-bill & Pourboires <button class="info-btn" data-title="Split-bill & Pourboires" data-desc="Fonction VIP ! Un groupe d'amis peut diviser l'addition et chacun paie sa part depuis son téléphone. Ils peuvent aussi laisser un pourboire à l'équipe.">?</button></li>
+                        <li>Tableau de bord cuisine + Alertes <button class="info-btn" data-title="Alerte Sonore Cuisine" data-desc="Une tablette dans votre cuisine sonne à chaque nouvelle commande. Les cuisiniers voient le bon virtuel s'afficher et peuvent marquer le plat comme 'Prêt'. Fluidité totale.">?</button></li>
+                        <li>Partage d'addition & Pourboires <button class="info-btn" data-title="Partage d'addition & Pourboires" data-desc="Fonction VIP ! Un groupe d'amis peut diviser l'addition et chacun paie sa part depuis son téléphone. Ils peuvent aussi laisser un pourboire à l'équipe.">?</button></li>
                         <li>Statistiques Avancées <button class="info-btn" data-title="Statistiques Avancées" data-desc="Graphiques détaillés pour savoir quels sont vos plats les plus rentables, vos heures de pointe, et comparer vos mois pour ajuster votre stratégie marketing.">?</button></li>
                         <li>Multi-comptes complet <button class="info-btn" data-title="Multi-comptes complet" data-desc="Accès illimités et précis : créez un compte pour le comptable, un pour le manager de salle, un pour le chef cuisinier. Chacun son rôle !">?</button></li>
                     </ul>
@@ -474,7 +476,6 @@
                     <div class="faq-question">3. Que se passe-t-il si un plat est épuisé pendant le service ? <span class="faq-toggle-icon">+</span></div>
                     <div class="faq-answer">C'est très simple : vous ouvrez l'application gérant, vous appuyez sur le bouton "Rupture" à côté du plat concerné. Le plat disparaît immédiatement du menu des clients. Fini les clients qui commandent des choses que vous n'avez plus.</div>
                 </div>
-                <!-- Question sur les frais supprimée -->
                 <div class="faq-item">
                     <div class="faq-question">4. Je n'ai pas le temps de configurer le menu. Comment faire ? <span class="faq-toggle-icon">+</span></div>
                     <div class="faq-answer">Prenez notre forfait "Clé en main" à 35 000 FCFA. Un expert vient chez vous, prend des photos professionnelles, tape l'intégralité de votre carte, imprime vos chevalets QR en plexiglas et forme vos serveurs. Vous ne faites rien !</div>
@@ -519,7 +520,7 @@
         </div>
         <p style="color: #A0AEC0; font-size: 0.9rem; margin-bottom: 5px;">Faire gagner du temps. Réduire les erreurs. Mieux encaisser. Mieux piloter.</p>
         <div style="margin-top: 40px; border-top: 1px solid #4A5568; padding-top: 20px; font-size: 0.8rem; color: #718096;">
-            &copy; 2026 SCAN&TCHOP. Plateforme SaaS + Fintech. (Bertoua, Cameroun)
+            &copy; 2026 SCAN&TCHOP. Plateforme de gestion et de paiement. (Bertoua, Cameroun)
         </div>
     </footer>
 
