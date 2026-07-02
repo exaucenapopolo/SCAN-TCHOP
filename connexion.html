@@ -34,14 +34,14 @@
                 <label for="role">Votre Rôle</label>
                 <select id="role" class="form-control" required>
                     <option value="proprietaire">Propriétaire / Gérant</option>
+                    <option value="comptable">Comptable</option>
                     <option value="serveur">Serveur</option>
                     <option value="cuisine">Cuisine</option>
-                    <option value="comptable">Comptable</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="email">Identifiant / Email</label>
-                <input type="email" id="email" class="form-control" placeholder="exemple@restaurant.com" required>
+                <input type="text" id="email" class="form-control" placeholder="Entrez votre identifiant" required>
             </div>
             <div class="form-group">
                 <label for="password">Mot de passe</label>
@@ -53,11 +53,27 @@
     </div>
 
     <script>
+        // Ce script aiguille l'utilisateur vers la bonne page en fonction du rôle
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            // Ici, tu pourras plus tard ajouter le code pour te connecter à ta base de données
-            alert("Connexion réussie ! Redirection vers le tableau de bord...");
-            window.location.href = 'index.html'; // Redirection temporaire
+            const role = document.getElementById('role').value;
+            
+            // Simulation d'une petite animation de chargement
+            const btn = document.querySelector('.btn');
+            btn.innerText = "Connexion...";
+            btn.style.opacity = "0.7";
+            
+            setTimeout(() => {
+                if(role === 'proprietaire') {
+                    window.location.href = 'dashboard_proprietaire.html';
+                } else if(role === 'comptable') {
+                    window.location.href = 'dashboard_comptable.html';
+                } else if(role === 'serveur') {
+                    window.location.href = 'dashboard_serveur.html';
+                } else if(role === 'cuisine') {
+                    window.location.href = 'dashboard_cuisine.html';
+                }
+            }, 800);
         });
     </script>
 </body>

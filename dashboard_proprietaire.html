@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Propriétaire - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E67E22; --bg-body: #F4F7FE; --sidebar: #1A202C; --white: #FFFFFF; --text-dark: #2B3674; --text-muted: #A3AED0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { display: flex; background: var(--bg-body); min-height: 100vh; }
+        .sidebar { width: 250px; background: var(--sidebar); color: var(--white); padding: 30px 20px; display: flex; flex-direction: column; }
+        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 40px; color: var(--white); text-align: center;}
+        .logo span { color: var(--primary); }
+        .nav-item { padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; color: #cbd5e1; font-weight: 500; text-decoration: none; display: block; }
+        .nav-item:hover, .nav-item.active { background: var(--primary); color: var(--white); }
+        .logout { margin-top: auto; background: rgba(255,0,0,0.1); color: #ff4d4f; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .header h1 { color: var(--text-dark); font-size: 1.8rem; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 45px; height: 45px; background: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .card { background: var(--white); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.02); }
+        .card h3 { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+        .card .value { font-size: 1.8rem; font-weight: 700; color: var(--text-dark); }
+        .card .trend { color: #05CD99; font-size: 0.85rem; font-weight: 600; margin-top: 5px; }
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .section-box { background: var(--white); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.02); }
+        .section-title { font-size: 1.2rem; color: var(--text-dark); margin-bottom: 20px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E2E8F0; font-size: 0.9rem; }
+        th { color: var(--text-muted); font-weight: 500; }
+        td { color: var(--text-dark); font-weight: 500; }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; }
+        .status.completed { background: #E6FFFA; color: #05CD99; }
+        .status.pending { background: #FFF7EB; color: #FFB547; }
+        .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #E2E8F0; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #05CD99; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #E2E8F0; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .rupture-text { font-size: 0.85rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">SCAN<span>&</span>TCHOP</div>
+        <a href="#" class="nav-item active">Vue d'ensemble</a>
+        <a href="#" class="nav-item">Menu & Stocks (Ruptures)</a>
+        <a href="#" class="nav-item">Rapports & Ventes</a>
+        <a href="#" class="nav-item">Gestion du Personnel</a>
+        <a href="#" class="nav-item">Paramètres</a>
+        <a href="connexion-v2.html" class="nav-item logout">Déconnexion</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Bonjour, Gérant 👋</h1>
+                <p style="color: var(--text-muted); margin-top: 5px;">Voici un résumé de votre activité aujourd'hui.</p>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; color: var(--text-dark);">Le Bon Goût</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Pack Premium</div>
+                </div>
+                <div class="avatar">BG</div>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <h3>Chiffre d'Affaires (Jour)</h3>
+                <div class="value">245 500 FCFA</div>
+                <div class="trend">↑ +12.5% vs Hier</div>
+            </div>
+            <div class="card">
+                <h3>Commandes</h3>
+                <div class="value">42</div>
+                <div class="trend">En cours : 5</div>
+            </div>
+            <div class="card">
+                <h3>Cagnotte Mobile Money</h3>
+                <div class="value">180 000 FCFA</div>
+                <button style="margin-top:10px; background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;">Demander Retrait</button>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="section-box">
+                <h2 class="section-title">Dernières Commandes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Commande</th>
+                            <th>Table</th>
+                            <th>Montant</th>
+                            <th>Paiement</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#1042</td>
+                            <td>Table 4</td>
+                            <td>12 500 FCFA</td>
+                            <td>MoMo</td>
+                            <td><span class="status completed">Servi</span></td>
+                        </tr>
+                        <tr>
+                            <td>#1043</td>
+                            <td>Table 12</td>
+                            <td>8 000 FCFA</td>
+                            <td>Espèces</td>
+                            <td><span class="status pending">En Cuisine</span></td>
+                        </tr>
+                        <tr>
+                            <td>#1044</td>
+                            <td>Table 2</td>
+                            <td>21 000 FCFA</td>
+                            <td>Orange Money</td>
+                            <td><span class="status pending">En Cuisine</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-box">
+                <h2 class="section-title">Interrupteur de Stocks (Rapide)</h2>
+                <div class="stock-item">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-dark);">Poulet DG</div>
+                        <div class="rupture-text">Disponible</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="stock-item">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-dark);">Ndolé Viande</div>
+                        <div class="rupture-text" style="color: red;">En Rupture</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

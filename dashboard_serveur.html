@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Serveur - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E67E22; --bg-body: #FAFAFA; --text-dark: #1A202C; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .header h1 { font-size: 1.5rem; color: var(--text-dark); }
+        .btn-order { background: var(--primary); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-logout { background: transparent; border: 1px solid #E2E8F0; padding: 8px 15px; border-radius: 6px; text-decoration: none; color: var(--text-dark); }
+        .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .table-card { background: white; padding: 25px 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 4px solid #CBD5E0; }
+        .table-card.active { border-top-color: #E67E22; }
+        .table-card.waiting { border-top-color: #38A169; }
+        .table-number { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+        .table-status { font-size: 0.9rem; font-weight: 600; padding: 5px 10px; border-radius: 20px; display: inline-block; }
+        .status-free { background: #EDF2F7; color: #718096; }
+        .status-active { background: #FEFCBF; color: #D69E2E; }
+        .status-ready { background: #C6F6D5; color: #2F855A; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Interface Salle - Serveur</h1>
+            <p style="color: #718096; font-size: 0.9rem;">Vue en temps réel des tables.</p>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button class="btn-order">+ Nouvelle Commande (Sans smartphone)</button>
+            <a href="connexion-v2.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="tables-grid">
+        <div class="table-card active">
+            <div class="table-number">T1</div>
+            <div class="table-status status-active">En attente (Cuisine)</div>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #718096;">Cmd #1042</p>
+        </div>
+        <div class="table-card">
+            <div class="table-number">T2</div>
+            <div class="table-status status-free">Libre</div>
+        </div>
+        <div class="table-card waiting">
+            <div class="table-number">T3</div>
+            <div class="table-status status-ready">Plat Prêt à servir !</div>
+            <button style="margin-top:15px; width:100%; padding:8px; background:#38A169; color:white; border:none; border-radius:6px; cursor:pointer;">Marquer Servi</button>
+        </div>
+    </div>
+</body>
+</html>
