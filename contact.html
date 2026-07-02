@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E67E22; --bg-body: #FAFAFA; --text-main: #2D3748; --border-light: #E2E8F0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 40px 5%; display: flex; justify-content: center; }
+        .contact-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 600px; width: 100%; }
+        h2 { color: #1A202C; text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        textarea.form-control { resize: vertical; min-height: 120px; }
+        .btn { width: 100%; padding: 15px; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background-color: #cf6f1b; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: var(--text-main); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="contact-container">
+        <h2>Contactez-nous</h2>
+        <form id="contactForm">
+            <div class="form-group">
+                <label>Objet de votre demande</label>
+                <select class="form-control" id="sujet">
+                    <option value="cle_en_main">Je veux l'installation "Clé en main" (35 000 FCFA)</option>
+                    <option value="licence_vie">Je suis intéressé par la Licence à vie (499 000 FCFA)</option>
+                    <option value="support">Besoin d'aide technique</option>
+                    <option value="autre">Autre question</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nom complet</label>
+                <input type="text" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Message (Optionnel)</label>
+                <textarea class="form-control" placeholder="Dites-nous en plus sur votre besoin..."></textarea>
+            </div>
+            <button type="submit" class="btn">Envoyer la demande</button>
+        </form>
+        <a href="index.html" class="back-link">Retour à l'accueil</a>
+    </div>
+
+    <script>
+        // Le code JavaScript va récupérer le sujet si on vient d'un lien spécifique
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const subject = urlParams.get('sujet');
+            if(subject) {
+                document.getElementById('sujet').value = subject;
+            }
+        };
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("Message envoyé avec succès ! L'équipe technique de Bertoua vous contactera très vite.");
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

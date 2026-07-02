@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demander une démo - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E67E22; --bg-body: #FAFAFA; --text-main: #2D3748; --border-light: #E2E8F0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 40px 5%; display: flex; justify-content: center; }
+        .demo-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 500px; width: 100%; }
+        h2 { color: #1A202C; margin-bottom: 10px; text-align: center; }
+        p.subtitle { text-align: center; color: #718096; margin-bottom: 30px; font-size: 0.9rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 6px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background-color: #1A202C; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background-color: #2D3748; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: var(--primary); text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h2>Passez à la vitesse supérieure</h2>
+        <p class="subtitle">Laissez-nous vos coordonnées, un expert SCAN&TCHOP vous contactera pour une démonstration gratuite.</p>
+        
+        <form id="demoForm">
+            <div class="form-group">
+                <input type="text" class="form-control" required placeholder="Votre nom complet">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" required placeholder="Nom de votre établissement">
+            </div>
+            <div class="form-group">
+                <input type="tel" class="form-control" required placeholder="Numéro WhatsApp / Téléphone">
+            </div>
+            <div class="form-group">
+                <input type="email" class="form-control" placeholder="Adresse Email (Optionnel)">
+            </div>
+            <button type="submit" class="btn">Réserver ma démo</button>
+        </form>
+        <a href="index.html" class="back-link">&larr; Retour à l'accueil</a>
+    </div>
+
+    <script>
+        document.getElementById('demoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("Merci ! Votre demande a été envoyée. Notre équipe vous contactera sous 24h.");
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

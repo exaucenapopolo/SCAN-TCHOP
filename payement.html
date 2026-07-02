@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Souscription - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E67E22; --bg-body: #FAFAFA; --text-main: #2D3748; --border-light: #E2E8F0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 40px 5%; margin: 0; display: flex; justify-content: center; }
+        .checkout-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 600px; }
+        h2 { color: #1A202C; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.95rem; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
+        .payment-methods { display: flex; gap: 15px; margin-bottom: 20px; }
+        .method { flex: 1; text-align: center; padding: 15px; border: 2px solid var(--border-light); border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .method.active { border-color: var(--primary); background-color: rgba(230, 126, 34, 0.05); color: var(--primary); }
+        .btn { width: 100%; padding: 15px; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .btn:hover { opacity: 0.9; }
+        .header-link { text-align: center; margin-bottom: 30px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <a href="index.html" class="header-link"><img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo" height="40"></a>
+        <h2>Finaliser la souscription</h2>
+        
+        <form id="paymentForm">
+            <div class="form-group">
+                <label>Choix du Pack</label>
+                <select class="form-control" id="packChoice">
+                    <option value="11900">Pack Starter - 11 900 FCFA / mois</option>
+                    <option value="14900" selected>Pack Pro - 14 900 FCFA / mois</option>
+                    <option value="29900">Pack Premium - 29 900 FCFA / mois</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nom du Restaurant</label>
+                <input type="text" class="form-control" required placeholder="Ex: Le Bon Goût">
+            </div>
+
+            <label>Méthode de paiement</label>
+            <div class="payment-methods">
+                <div class="method active" onclick="selectMethod(this)">MTN Mobile Money</div>
+                <div class="method" onclick="selectMethod(this)">Orange Money</div>
+                <div class="method" onclick="selectMethod(this)">Carte Bancaire</div>
+            </div>
+
+            <div class="form-group">
+                <label>Numéro de téléphone (pour le paiement)</label>
+                <input type="tel" class="form-control" required placeholder="Ex: 6XX XX XX XX">
+            </div>
+
+            <button type="submit" class="btn">Payer et Activer mon compte</button>
+        </form>
+    </div>
+
+    <script>
+        function selectMethod(element) {
+            document.querySelectorAll('.method').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const packPrice = document.getElementById('packChoice').value;
+            alert(`Initialisation du paiement de ${packPrice} FCFA sur votre téléphone. Veuillez valider avec votre code secret.`);
+        });
+    </script>
+</body>
+</html>
