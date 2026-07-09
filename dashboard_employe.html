@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon espace - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            width: 260px;
+            background: #fff;
+            border-right: 1px solid #e2e8f0;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+        .sidebar .logo img {
+            height: 40px;
+        }
+        .sidebar .logo span {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #475569;
+            text-decoration: none;
+            transition: 0.2s;
+            margin-bottom: 4px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .sidebar nav a:hover {
+            background: #f1f5f9;
+        }
+        .sidebar nav a.active {
+            background: #fef3e8;
+            color: #e67e22;
+            font-weight: 600;
+        }
+        .sidebar .logout {
+            margin-top: auto;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .sidebar .logout a {
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .sidebar .logout a:hover {
+            background: #f1f5f9;
+        }
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px 40px;
+        }
+        .main .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .main .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .main .header .badge-role {
+            background: #e67e22;
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px 28px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 28px;
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 i {
+            color: #e67e22;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #475569;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge.warning {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+        .badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-sm {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-sm.primary {
+            background: #e67e22;
+            color: #fff;
+        }
+        .btn-sm.primary:hover {
+            background: #cf6f1b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            opacity: 0.4;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
+            <span>SCAN&TCHOP</span>
+        </div>
+        <nav>
+            <a class="active" data-view="dashboard"><i class="fas fa-home"></i> Tableau de bord</a>
+            <a data-view="commandes"><i class="fas fa-clipboard-list"></i> Commandes</a>
+        </nav>
+        <div class="logout">
+            <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="header">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+                <h1 id="pageTitle">Mon espace</h1>
+            </div>
+            <div>
+                <span class="badge-role" id="roleBadge">Serveur</span>
+                <span style="margin-left:12px;color:#64748b;" id="userEmail">email@exemple.com</span>
+            </div>
+        </div>
+
+        <div id="view-dashboard" class="view">
+            <div class="card" id="roleContent">
+                <!-- Contenu dynamique selon le rôle -->
+            </div>
+        </div>
+
+        <div id="view-commandes" class="view" style="display:none;">
+            <div class="card">
+                <h3><i class="fas fa-clipboard-list"></i> Commandes en temps réel</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead>
+                        <tbody id="ordersList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js">
+    </script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+            authDomain: "scan-et-tchop.firebaseapp.com",
+            projectId: "scan-et-tchop",
+            storageBucket: "scan-et-tchop.firebasestorage.app",
+            messagingSenderId: "648843762360",
+            appId: "1:648843762360:web:092b3d359eeae61ef2324d",
+            measurementId: "G-8DKXS67DKY"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userRole = '';
+        let restaurantId = '';
+
+        auth.onAuthStateChanged(async user => {
+            if (!user) {
+                window.location.href = 'connexion.html';
+                return;
+            }
+            currentUser = user;
+            document.getElementById('userEmail').textContent = user.email;
+
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) { alert('Utilisateur non reconnu.'); auth.signOut(); return; }
+            const data = doc.data();
+            userRole = data.role || 'serveur';
+            restaurantId = data.restaurantId;
+            document.getElementById('roleBadge').textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+
+            // Afficher le contenu selon le rôle
+            renderRoleContent(userRole);
+            loadOrders();
+
+            // Écouter les commandes en temps réel
+            if (restaurantId) {
+                db.collection('commandes')
+                    .where('restaurantId', '==', restaurantId)
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .onSnapshot(() => loadOrders());
+            }
+        });
+
+        function renderRoleContent(role) {
+            const container = document.getElementById('roleContent');
+            let html = '';
+            if (role === 'serveur') {
+                html = `
+                    <h3><i class="fas fa-concierge-bell"></i> Vue Serveur</h3>
+                    <p>Prenez les commandes en salle et suivez leur statut.</p>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>#</th><th>Total</th><th>Statut</th><th>Action</th></tr></thead>
+                            <tbody id="serveurOrders"></tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (role === 'cuisine') {
+                html = `
+                    <h3><i class="fas fa-utensils"></i> Vue Cuisine</h3>
+                    <p>Commandes en attente de préparation.</p>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>#</th><th>Total</th><th>Statut</th><th>Action</th></tr></thead>
+                            <tbody id="cuisineOrders"></tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (role === 'comptable') {
+                html = `
+                    <h3><i class="fas fa-calculator"></i> Vue Comptable</h3>
+                    <p>Rapports et statistiques des ventes.</p>
+                    <div class="empty-state"><i class="fas fa-chart-bar"></i><p>Export des rapports disponible prochainement.</p></div>
+                `;
+            } else {
+                html = `<p>Rôle non reconnu.</p>`;
+            }
+            container.innerHTML = html;
+            // Remplir les tableaux spécifiques
+            if (role === 'serveur' || role === 'cuisine') {
+                loadOrdersForRole(role);
+            }
+        }
+
+        async function loadOrders() {
+            if (!restaurantId) return;
+            const snapshot = await db.collection('commandes')
+                .where('restaurantId', '==', restaurantId)
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+            const tbody = document.getElementById('ordersList');
+            tbody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${doc.id.slice(0,8)}</td>
+                    <td>${data.total || 0} FCFA</td>
+                    <td><span class="badge ${data.status === 'terminé' ? 'success' : data.status === 'en cours' ? 'warning' : 'danger'}">${data.status || 'en attente'}</span></td>
+                    <td>${data.createdAt?.toDate?.()?.toLocaleString() || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadOrdersForRole(role) {
+            if (!restaurantId) return;
+            const snapshot = await db.collection('commandes')
+                .where('restaurantId', '==', restaurantId)
+                .orderBy('createdAt', 'desc')
+                .limit(20)
+                .get();
+            const tbodyId = role === 'serveur' ? 'serveurOrders' : 'cuisineOrders';
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${doc.id.slice(0,8)}</td>
+                    <td>${data.total || 0} FCFA</td>
+                    <td><span class="badge ${data.status === 'terminé' ? 'success' : data.status === 'en cours' ? 'warning' : 'danger'}">${data.status || 'en attente'}</span></td>
+                    <td>
+                        ${role === 'cuisine' ? `<button class="btn-sm primary" onclick="updateStatus('${doc.id}','en cours')">Préparer</button>` : 
+                          role === 'serveur' ? `<button class="btn-sm primary" onclick="updateStatus('${doc.id}','terminé')">Servir</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.updateStatus = async (id, status) => {
+            await db.collection('commandes').doc(id).update({ status });
+            loadOrdersForRole(userRole);
+            loadOrders();
+        };
+
+        // Navigation
+        document.querySelectorAll('nav a[data-view]').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelectorAll('nav a[data-view]').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+                const view = link.dataset.view;
+                document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+                document.getElementById('view-' + view).style.display = 'block';
+                document.getElementById('pageTitle').textContent = link.textContent.trim();
+                document.getElementById('sidebar').classList.remove('open');
+                if (view === 'dashboard') renderRoleContent(userRole);
+            });
+        });
+
+        document.getElementById('hamburger').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+        console.log('✅ Dashboard employé chargé.');
+    </script>
+</body>
+</html>

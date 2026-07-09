@@ -1,255 +1,389 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentification - SCAN&TCHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family:'Inter', sans-serif;
-            background:#f4f7f6;
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f4f7f6 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         .auth-container {
-            background:#fff;
-            padding:40px 35px;
-            border-radius:20px;
-            box-shadow:0 8px 30px rgba(0,0,0,0.06);
-            width:100%;
-            max-width:420px;
-            transition:all 0.2s;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 40px 36px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            animation: fadeUp 0.6s ease;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .auth-container img {
-            height:50px;
-            display:block;
-            margin:0 auto 20px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 24px;
         }
         .auth-container h2 {
-            font-size:1.4rem;
-            font-weight:600;
-            color:#1a202c;
-            margin-bottom:4px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a202c;
+            text-align: center;
         }
         .auth-container > p {
-            color:#718096;
-            font-size:0.9rem;
-            margin-bottom:28px;
+            color: #718096;
+            text-align: center;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
         }
-        .form-section { transition:opacity 0.2s; }
-        .hidden { display:none; }
+        .form-section {
+            transition: opacity 0.3s ease;
+        }
+        .hidden {
+            display: none;
+        }
         .form-group {
-            margin-bottom:18px;
-            text-align:left;
+            margin-bottom: 18px;
+            text-align: left;
         }
         .form-group label {
-            display:block;
-            font-weight:500;
-            font-size:0.85rem;
-            color:#4a5568;
-            margin-bottom:5px;
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2d3748;
+            margin-bottom: 5px;
         }
         .form-group .form-control {
-            width:100%;
-            padding:12px 14px;
-            border:1.5px solid #e2e8f0;
-            border-radius:10px;
-            font-family:inherit;
-            font-size:0.95rem;
-            transition:border 0.15s, box-shadow 0.15s;
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border 0.15s, box-shadow 0.15s;
         }
         .form-group .form-control:focus {
-            outline:none;
-            border-color:#e67e22;
-            box-shadow:0 0 0 3px rgba(230,126,34,0.12);
+            outline: none;
+            border-color: #e67e22;
+            box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.12);
+        }
+        .form-group .form-control::placeholder {
+            color: #a0aec0;
+        }
+        .role-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .role-selector button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-selector button.active {
+            border-color: #e67e22;
+            background: #fef3e8;
+            color: #e67e22;
+        }
+        .role-selector button i {
+            margin-right: 8px;
         }
         .btn {
-            display:inline-block;
-            width:100%;
-            padding:13px;
-            background:#e67e22;
-            color:#fff;
-            border:none;
-            border-radius:10px;
-            font-weight:600;
-            font-size:1rem;
-            cursor:pointer;
-            transition:background 0.2s, transform 0.1s;
-            position:relative;
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: #e67e22;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            position: relative;
         }
-        .btn:hover { background:#cf6f1b; }
-        .btn:active { transform:scale(0.97); }
-        .btn i { margin-right:8px; }
-        .btn .spinner { display:none; }
-        .btn.loading .spinner { display:inline-block; }
-        .btn.loading .btn-text { display:none; }
+        .btn:hover {
+            background: #cf6f1b;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn i {
+            margin-right: 8px;
+        }
+        .btn .spinner {
+            display: none;
+        }
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
         .toggle-link {
-            display:block;
-            margin-top:22px;
-            font-size:0.9rem;
-            color:#718096;
-            cursor:pointer;
+            display: block;
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #718096;
+            cursor: pointer;
         }
-        .toggle-link span { color:#e67e22; font-weight:600; }
-        .toggle-link:hover span { text-decoration:underline; }
+        .toggle-link span {
+            color: #e67e22;
+            font-weight: 600;
+            transition: text-decoration 0.2s;
+        }
+        .toggle-link:hover span {
+            text-decoration: underline;
+        }
         .error-message {
-            color:#e53e3e;
-            font-size:0.85rem;
-            margin-bottom:14px;
-            display:none;
-            background:#fff5f5;
-            padding:10px 12px;
-            border-radius:8px;
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+            background: #fff5f5;
+            padding: 10px 14px;
+            border-radius: 10px;
+            display: none;
+        }
+        .field-code {
+            display: none;
+        }
+        .field-code.visible {
+            display: block;
+        }
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 28px 20px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="auth-container">
-    <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP">
 
-    <!-- Login -->
-    <div id="login-section" class="form-section">
-        <h2>Bon retour</h2>
-        <p>Connectez-vous à votre espace</p>
-        <div id="login-error" class="error-message"></div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="login-email">Email professionnel</label>
-                <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required>
+    <div class="auth-container">
+        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
+
+        <!-- Login Section -->
+        <div id="login-section" class="form-section">
+            <h2>Bienvenue</h2>
+            <p>Connectez-vous à votre espace</p>
+
+            <div id="login-error" class="error-message"></div>
+
+            <div class="role-selector">
+                <button id="role-proprietaire" class="active"><i class="fas fa-user-tie"></i> Propriétaire</button>
+                <button id="role-employe"><i class="fas fa-user-cog"></i> Employé</button>
             </div>
-            <div class="form-group">
-                <label for="login-password">Mot de passe</label>
-                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn" id="login-btn">
-                <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
-                <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
-            </button>
-        </form>
-        <p class="toggle-link" onclick="toggleForm()">Nouveau restaurant ? <span>Inscrire mon établissement</span></p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required />
+                </div>
+                <div class="form-group field-code" id="code-group">
+                    <label for="login-code">Code restaurant</label>
+                    <input type="text" id="login-code" class="form-control" placeholder="Ex: ABCD1234" />
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="btn" id="login-btn">
+                    <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
+                    <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+                </button>
+            </form>
+
+            <p class="toggle-link" onclick="toggleForm()">Nouveau restaurant ? <span>Créer mon établissement</span></p>
+        </div>
+
+        <!-- Register Section -->
+        <div id="register-section" class="form-section hidden">
+            <h2>Créer votre restaurant</h2>
+            <p>Devenez partenaire SCAN&TCHOP</p>
+            <div id="register-error" class="error-message"></div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="reg-email">Email du propriétaire</label>
+                    <input type="email" id="reg-email" class="form-control" placeholder="proprietaire@email.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Mot de passe sécurisé</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="Min. 8 caractères" required />
+                </div>
+                <button type="submit" class="btn" id="register-btn">
+                    <span class="btn-text"><i class="fas fa-user-plus"></i> Créer mon compte</span>
+                    <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+                </button>
+            </form>
+            <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
+        </div>
     </div>
 
-    <!-- Register -->
-    <div id="register-section" class="form-section hidden">
-        <h2>Créer votre restaurant</h2>
-        <p>Devenez partenaire SCAN&TCHOP</p>
-        <div id="register-error" class="error-message"></div>
-        <form id="registerForm">
-            <div class="form-group">
-                <label for="reg-email">Email du propriétaire</label>
-                <input type="email" id="reg-email" class="form-control" placeholder="proprietaire@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-password">Mot de passe sécurisé</label>
-                <input type="password" id="reg-password" class="form-control" placeholder="Min. 8 caractères" required>
-            </div>
-            <button type="submit" class="btn" id="register-btn">
-                <span class="btn-text"><i class="fas fa-user-plus"></i> Créer mon compte</span>
-                <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
-            </button>
-        </form>
-        <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
-    </div>
-</div>
+    <!-- Firebase compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js">
+    </script>
 
-<!-- Firebase compat -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+            authDomain: "scan-et-tchop.firebaseapp.com",
+            projectId: "scan-et-tchop",
+            storageBucket: "scan-et-tchop.firebasestorage.app",
+            messagingSenderId: "648843762360",
+            appId: "1:648843762360:web:092b3d359eeae61ef2324d",
+            measurementId: "G-8DKXS67DKY"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-<script>
-    // Config Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
-        authDomain: "scan-et-tchop.firebaseapp.com",
-        projectId: "scan-et-tchop",
-        storageBucket: "scan-et-tchop.firebasestorage.app",
-        messagingSenderId: "648843762360",
-        appId: "1:648843762360:web:092b3d359eeae61ef2324d",
-        measurementId: "G-8DKXS67DKY"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+        // Éléments
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const roleProprietaire = document.getElementById('role-proprietaire');
+        const roleEmploye = document.getElementById('role-employe');
+        const codeGroup = document.getElementById('code-group');
 
-    // Basculer entre formulaires
-    function toggleForm() {
-        document.getElementById('login-section').classList.toggle('hidden');
-        document.getElementById('register-section').classList.toggle('hidden');
-        document.getElementById('login-error').style.display = 'none';
-        document.getElementById('register-error').style.display = 'none';
-    }
-
-    // Gestion de l'inscription
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
-        const btn = document.getElementById('register-btn');
-        const errorDiv = document.getElementById('register-error');
-
-        btn.classList.add('loading');
-        errorDiv.style.display = 'none';
-
-        try {
-            const cred = await auth.createUserWithEmailAndPassword(email, password);
-            const user = cred.user;
-            // Enregistrer le rôle propriétaire
-            await db.collection('users').doc(user.uid).set({
-                email: email,
-                role: 'proprietaire',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            // Rediriger vers le dashboard
-            window.location.href = 'dashboard_proprietaire.html';
-        } catch (err) {
-            errorDiv.textContent = err.message;
-            errorDiv.style.display = 'block';
-            btn.classList.remove('loading');
+        // Toggle formulaire
+        function toggleForm() {
+            loginSection.classList.toggle('hidden');
+            registerSection.classList.toggle('hidden');
+            loginError.style.display = 'none';
+            registerError.style.display = 'none';
         }
-    });
+        window.toggleForm = toggleForm;
 
-    // Gestion de la connexion
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        const btn = document.getElementById('login-btn');
-        const errorDiv = document.getElementById('login-error');
+        // Sélecteur de rôle
+        roleProprietaire.addEventListener('click', () => {
+            roleProprietaire.classList.add('active');
+            roleEmploye.classList.remove('active');
+            codeGroup.classList.remove('visible');
+            document.getElementById('login-code').required = false;
+        });
+        roleEmploye.addEventListener('click', () => {
+            roleEmploye.classList.add('active');
+            roleProprietaire.classList.remove('active');
+            codeGroup.classList.add('visible');
+            document.getElementById('login-code').required = true;
+        });
 
-        btn.classList.add('loading');
-        errorDiv.style.display = 'none';
+        // Inscription (propriétaire)
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            registerBtn.classList.add('loading');
+            registerError.style.display = 'none';
 
-        try {
-            const cred = await auth.signInWithEmailAndPassword(email, password);
-            const user = cred.user;
-            // Récupérer le rôle
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) throw new Error("Aucun rôle trouvé.");
-            const role = doc.data().role;
-            // Redirection selon le rôle
-            if (role === 'proprietaire') {
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                const user = cred.user;
+                // Créer document utilisateur
+                await db.collection('users').doc(user.uid).set({
+                    email: email,
+                    role: 'proprietaire',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                // Rediriger vers dashboard propriétaire
                 window.location.href = 'dashboard_proprietaire.html';
-            } else if (role === 'comptable') {
-                window.location.href = 'dashboard_comptable.html';
-            } else if (role === 'serveur') {
-                window.location.href = 'dashboard_serveur.html';
-            } else if (role === 'cuisine') {
-                window.location.href = 'dashboard_cuisine.html';
-            } else {
-                throw new Error("Rôle inconnu.");
+            } catch (err) {
+                registerError.textContent = err.message;
+                registerError.style.display = 'block';
+                registerBtn.classList.remove('loading');
             }
-        } catch (err) {
-            errorDiv.textContent = "Identifiants incorrects ou erreur réseau.";
-            errorDiv.style.display = 'block';
-            btn.classList.remove('loading');
-        }
-    });
-</script>
+        });
+
+        // Connexion
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const code = document.getElementById('login-code').value.trim();
+            const isEmploye = roleEmploye.classList.contains('active');
+
+            loginBtn.classList.add('loading');
+            loginError.style.display = 'none';
+
+            try {
+                const cred = await auth.signInWithEmailAndPassword(email, password);
+                const user = cred.user;
+
+                // Récupérer le rôle
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (!doc.exists) throw new Error("Utilisateur introuvable.");
+
+                const data = doc.data();
+                const role = data.role;
+
+                // Si employé, vérifier le code restaurant
+                if (isEmploye) {
+                    if (!code) throw new Error("Le code restaurant est requis.");
+                    // Le code doit correspondre à celui stocké dans le document de l'employé
+                    if (data.codeRestaurant !== code) {
+                        throw new Error("Code restaurant invalide.");
+                    }
+                    // Redirection vers dashboard employé
+                    window.location.href = 'dashboard_employe.html';
+                } else {
+                    // Propriétaire
+                    if (role !== 'proprietaire') {
+                        throw new Error("Ce compte n'est pas un compte propriétaire.");
+                    }
+                    window.location.href = 'dashboard_proprietaire.html';
+                }
+            } catch (err) {
+                loginError.textContent = err.message || "Identifiants incorrects.";
+                loginError.style.display = 'block';
+                loginBtn.classList.remove('loading');
+            }
+        });
+
+        // Pré-remplir le champ code si l'utilisateur a déjà saisi un code (pour la démo)
+        console.log('✅ Page de connexion améliorée chargée.');
+    </script>
 </body>
 </html>

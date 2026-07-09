@@ -1,339 +1,589 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tableau de bord - SCAN&TCHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    </script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family:'Inter', sans-serif;
-            background:#f4f7f6;
-            color:#2d3748;
-            display:flex;
-            min-height:100vh;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        /* Sidebar */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ---------- SIDEBAR ---------- */
         .sidebar {
-            width:260px;
-            background:#1a202c;
-            color:#fff;
-            padding:25px 20px;
-            display:flex;
-            flex-direction:column;
-            position:fixed;
-            top:0;
-            left:0;
-            bottom:0;
-            overflow-y:auto;
-            z-index:100;
-            transition:transform 0.25s ease;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.02);
         }
         .sidebar .logo {
-            display:flex;
-            align-items:center;
-            gap:10px;
-            margin-bottom:35px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 36px;
         }
         .sidebar .logo img {
-            height:40px;
+            height: 42px;
         }
         .sidebar .logo span {
-            font-weight:700;
-            font-size:1.1rem;
-            color:#fff;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
         }
         .sidebar nav a {
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:12px 14px;
-            border-radius:10px;
-            color:#a0aec0;
-            text-decoration:none;
-            transition:all 0.2s;
-            margin-bottom:4px;
-            font-weight:500;
-            font-size:0.95rem;
-            cursor:pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
         }
-        .sidebar nav a:hover, .sidebar nav a.active {
-            background:#2d3748;
-            color:#fff;
+        .sidebar nav a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
         }
-        .sidebar nav a i { width:20px; text-align:center; }
+        .sidebar nav a.active {
+            background: #fef3e8;
+            color: #e67e22;
+            font-weight: 600;
+        }
+        .sidebar nav a i {
+            width: 22px;
+            text-align: center;
+        }
         .sidebar .logout {
-            margin-top:auto;
-            border-top:1px solid #2d3748;
-            padding-top:20px;
+            margin-top: auto;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
         }
         .sidebar .logout a {
-            color:#a0aec0;
-            display:flex;
-            align-items:center;
-            gap:12px;
-            text-decoration:none;
-            padding:12px 14px;
-            border-radius:10px;
-            transition:0.2s;
-            cursor:pointer;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            transition: 0.2s;
+            cursor: pointer;
+            text-decoration: none;
         }
-        .sidebar .logout a:hover { background:#2d3748; color:#fff; }
+        .sidebar .logout a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
 
-        /* Main content */
+        /* ---------- MAIN ---------- */
         .main {
-            margin-left:260px;
-            flex:1;
-            padding:30px 35px;
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px 40px 40px;
+            min-height: 100vh;
         }
         .main .header {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
         .main .header h1 {
-            font-size:1.7rem;
-            font-weight:600;
-            color:#1a202c;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
         }
         .main .header .user-badge {
-            background:#fff;
-            padding:8px 18px;
-            border-radius:50px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
-            font-weight:500;
-            font-size:0.9rem;
+            background: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1e293b;
         }
-        .main .header .user-badge i { color:#e67e22; margin-right:6px; }
-
-        /* Sections */
-        .section { display:none; }
-        .section.active { display:block; }
-
-        /* Cards */
-        .card {
-            background:#fff;
-            border-radius:16px;
-            box-shadow:0 2px 12px rgba(0,0,0,0.04);
-            padding:22px 26px;
-            margin-bottom:25px;
+        .main .header .user-badge i {
+            color: #e67e22;
+            margin-right: 8px;
         }
-        .card h3 {
-            font-size:1.1rem;
-            font-weight:600;
-            margin-bottom:18px;
-            display:flex;
-            align-items:center;
-            gap:10px;
-        }
-        .card h3 i { color:#e67e22; }
-
-        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-        .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-
-        .stat-card {
-            background:#fff;
-            border-radius:16px;
-            padding:20px 22px;
-            box-shadow:0 2px 12px rgba(0,0,0,0.04);
-            text-align:center;
-        }
-        .stat-card .number {
-            font-size:2rem;
-            font-weight:700;
-            color:#1a202c;
-        }
-        .stat-card .label {
-            color:#718096;
-            font-size:0.9rem;
-            margin-top:4px;
-        }
-        .stat-card .icon { font-size:1.8rem; color:#e67e22; margin-bottom:8px; }
-
-        .table-wrap {
-            overflow-x:auto;
-        }
-        table {
-            width:100%;
-            border-collapse:collapse;
-            font-size:0.9rem;
-        }
-        th {
-            text-align:left;
-            padding:12px 8px;
-            border-bottom:2px solid #e2e8f0;
-            color:#4a5568;
-            font-weight:600;
-        }
-        td {
-            padding:12px 8px;
-            border-bottom:1px solid #edf2f7;
-            vertical-align:middle;
-        }
-        td .badge {
-            background:#e2e8f0;
-            padding:4px 12px;
-            border-radius:50px;
-            font-size:0.75rem;
-            font-weight:600;
-        }
-        .badge.success { background:#c6f6d5; color:#276749; }
-        .badge.warning { background:#fefcbf; color:#975a16; }
-        .badge.danger { background:#fed7d7; color:#9b2c2c; }
-
-        .btn-sm {
-            padding:6px 14px;
-            border:none;
-            border-radius:8px;
-            font-weight:600;
-            font-size:0.8rem;
-            cursor:pointer;
-            transition:0.2s;
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
-        }
-        .btn-sm.primary { background:#e67e22; color:#fff; }
-        .btn-sm.primary:hover { background:#cf6f1b; }
-        .btn-sm.danger { background:#e53e3e; color:#fff; }
-        .btn-sm.danger:hover { background:#c53030; }
-        .btn-sm.outline { background:transparent; border:1.5px solid #e2e8f0; }
-        .btn-sm.outline:hover { background:#f7fafc; }
-
-        .form-inline {
-            display:flex;
-            gap:12px;
-            align-items:flex-end;
-            flex-wrap:wrap;
-        }
-        .form-inline .form-group { flex:1; min-width:160px; }
-        .form-inline .form-group label { font-size:0.8rem; color:#4a5568; font-weight:500; }
-        .form-inline .form-group input, .form-inline .form-group select {
-            width:100%;
-            padding:8px 12px;
-            border:1.5px solid #e2e8f0;
-            border-radius:8px;
-            font-family:inherit;
-            font-size:0.9rem;
-        }
-        .form-inline .form-group input:focus, .form-inline .form-group select:focus {
-            outline:none;
-            border-color:#e67e22;
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #0f172a;
+            cursor: pointer;
         }
 
-        /* Modal */
-        .modal-overlay {
-            position:fixed;
-            top:0; left:0; right:0; bottom:0;
-            background:rgba(0,0,0,0.4);
-            backdrop-filter:blur(4px);
-            display:none;
-            align-items:center;
-            justify-content:center;
-            z-index:200;
+        /* ---------- SECTIONS ---------- */
+        .section {
+            display: none;
+            animation: fadeSlide 0.4s ease;
         }
-        .modal-overlay.open { display:flex; }
-        .modal {
-            background:#fff;
-            border-radius:20px;
-            padding:30px 35px;
-            max-width:520px;
-            width:90%;
-            max-height:90vh;
-            overflow-y:auto;
-            box-shadow:0 20px 60px rgba(0,0,0,0.15);
-            animation:modalIn 0.25s ease;
+        .section.active {
+            display: block;
         }
-        @keyframes modalIn {
-            from { opacity:0; transform:scale(0.96); }
-            to { opacity:1; transform:scale(1); }
-        }
-        .modal h3 {
-            font-size:1.2rem;
-            margin-bottom:20px;
-        }
-        .modal .form-group {
-            margin-bottom:16px;
-        }
-        .modal .form-group label {
-            display:block;
-            font-weight:500;
-            font-size:0.85rem;
-            color:#4a5568;
-            margin-bottom:4px;
-        }
-        .modal .form-group input, .modal .form-group select, .modal .form-group textarea {
-            width:100%;
-            padding:10px 12px;
-            border:1.5px solid #e2e8f0;
-            border-radius:8px;
-            font-family:inherit;
-            font-size:0.9rem;
-        }
-        .modal .form-group input:focus, .modal .form-group select:focus, .modal .form-group textarea:focus {
-            outline:none;
-            border-color:#e67e22;
-        }
-        .modal .actions {
-            display:flex;
-            gap:12px;
-            justify-content:flex-end;
-            margin-top:20px;
-        }
-        .modal .actions .btn {
-            padding:10px 24px;
-            border:none;
-            border-radius:10px;
-            font-weight:600;
-            cursor:pointer;
-            transition:0.2s;
-        }
-        .modal .actions .btn-primary { background:#e67e22; color:#fff; }
-        .modal .actions .btn-primary:hover { background:#cf6f1b; }
-        .modal .actions .btn-secondary { background:#edf2f7; color:#2d3748; }
-        .modal .actions .btn-secondary:hover { background:#e2e8f0; }
-
-        .empty-state {
-            text-align:center;
-            padding:30px 0;
-            color:#a0aec0;
-        }
-        .empty-state i { font-size:2.5rem; margin-bottom:10px; }
-
-        /* Responsive */
-        @media (max-width:768px) {
-            .sidebar { transform:translateX(-100%); }
-            .sidebar.open { transform:translateX(0); }
-            .main { margin-left:0; padding:20px; }
-            .grid-2, .grid-3 { grid-template-columns:1fr; }
-            .form-inline { flex-direction:column; align-items:stretch; }
-            .form-inline .form-group { min-width:auto; }
-            .main .header { flex-wrap:wrap; gap:12px; }
-            .hamburger {
-                display:block !important;
-                background:none;
-                border:none;
-                font-size:1.5rem;
-                color:#1a202c;
-                cursor:pointer;
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        .hamburger { display:none; }
+
+        /* ---------- CARDS ---------- */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f172a;
+        }
+        .card h3 i {
+            color: #e67e22;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .stat-card .label {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .stat-card .icon {
+            font-size: 1.8rem;
+            color: #e67e22;
+            margin-bottom: 8px;
+        }
+
+        /* ---------- FORMULAIRES ---------- */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #e67e22;
+            box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sm.primary {
+            background: #e67e22;
+            color: #fff;
+        }
+        .btn-sm.primary:hover {
+            background: #cf6f1b;
+            transform: scale(0.97);
+        }
+        .btn-sm.danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-sm.danger:hover {
+            background: #dc2626;
+        }
+        .btn-sm.outline {
+            background: transparent;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+        }
+        .btn-sm.outline:hover {
+            background: #f1f5f9;
+        }
+        .btn-sm.success {
+            background: #22c55e;
+            color: #fff;
+        }
+        .btn-sm.success:hover {
+            background: #16a34a;
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .form-inline .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* ---------- TABLE ---------- */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #475569;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge.warning {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+        .badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* ---------- TOGGLE SWITCH ---------- */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #cbd5e1;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        input:checked+.slider {
+            background: #e67e22;
+        }
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        /* ---------- MODAL ---------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 28px;
+            padding: 32px 36px;
+            max-width: 540px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .modal .actions .btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal .actions .btn-primary {
+            background: #e67e22;
+            color: #fff;
+        }
+        .modal .actions .btn-primary:hover {
+            background: #cf6f1b;
+        }
+        .modal .actions .btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        .modal .actions .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* ---------- QR CODE ---------- */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .qr-container #qrcode {
+            background: #fff;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ---------- EMPTY STATE ---------- */
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .form-inline {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-inline .form-group {
+                min-width: auto;
+            }
+            .hamburger {
+                display: block;
+            }
+            .main .header {
+                flex-wrap: wrap;
+            }
+        }
+        @media (max-width: 480px) {
+            .card {
+                padding: 18px 16px;
+            }
+            .modal {
+                padding: 24px 20px;
+            }
+        }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="logo">
-            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo">
+            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
             <span>SCAN&TCHOP</span>
         </div>
         <nav>
-            <a class="active" data-section="dashboard"><i class="fas fa-home"></i> Tableau de bord</a>
-            <a data-section="restaurant"><i class="fas fa-store"></i> Mon restaurant</a>
+            <a class="active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Tableau de bord</a>
+            <a data-section="restaurant"><i class="fas fa-store-alt"></i> Mon restaurant</a>
             <a data-section="employes"><i class="fas fa-users"></i> Employés</a>
             <a data-section="menu"><i class="fas fa-utensils"></i> Menu</a>
             <a data-section="commandes"><i class="fas fa-clipboard-list"></i> Commandes</a>
@@ -344,23 +594,30 @@
         </div>
     </aside>
 
-    <!-- Main -->
+    <!-- MAIN -->
     <div class="main">
         <div class="header">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:14px;">
                 <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
                 <h1 id="pageTitle">Tableau de bord</h1>
             </div>
             <div class="user-badge"><i class="fas fa-user-circle"></i> <span id="userEmail">Propriétaire</span></div>
         </div>
 
-        <!-- SECTION : Dashboard -->
+        <!-- SECTION DASHBOARD -->
         <div id="section-dashboard" class="section active">
-            <div class="grid-3" id="statsCards">
+            <div class="grid-4" id="statsCards">
                 <div class="stat-card"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes aujourd'hui</div></div>
                 <div class="stat-card"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Chiffre d'affaires (jour)</div></div>
                 <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="statEmployes">0</div><div class="label">Employés</div></div>
+                <div class="stat-card"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats au menu</div></div>
             </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-line"></i> Évolution des ventes (7 derniers jours)</h3>
+                <canvas id="salesChart" height="120" style="max-height:200px; width:100%;"></canvas>
+            </div>
+
             <div class="card">
                 <h3><i class="fas fa-clock"></i> Dernières commandes</h3>
                 <div class="table-wrap">
@@ -372,52 +629,62 @@
             </div>
         </div>
 
-        <!-- SECTION : Restaurant -->
+        <!-- SECTION RESTAURANT -->
         <div id="section-restaurant" class="section">
             <div class="card">
-                <h3><i class="fas fa-store"></i> Informations du restaurant</h3>
+                <h3><i class="fas fa-store-alt"></i> Informations du restaurant</h3>
                 <form id="restaurantForm">
                     <div class="grid-2">
-                        <div class="form-group"><label>Nom du restaurant</label><input type="text" id="restoNom" class="form-control" placeholder="Mon restaurant" required></div>
-                        <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@resto.com"></div>
-                        <div class="form-group"><label>Téléphone</label><input type="text" id="restoTel" class="form-control" placeholder="+237 6 12 34 56"></div>
-                        <div class="form-group"><label>Adresse</label><input type="text" id="restoAdresse" class="form-control" placeholder="Bertoua, Cameroun"></div>
+                        <div class="form-group"><label>Nom du restaurant</label><input type="text" id="restoNom" class="form-control" required /></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" /></div>
+                        <div class="form-group"><label>Téléphone</label><input type="text" id="restoTel" class="form-control" /></div>
+                        <div class="form-group"><label>Adresse</label><input type="text" id="restoAdresse" class="form-control" /></div>
                     </div>
-                    <div class="form-group"><label>Description</label><textarea id="restoDescription" class="form-control" rows="2" placeholder="Description de votre établissement..."></textarea></div>
-                    <button type="submit" class="btn-sm primary" style="padding:10px 28px;font-size:0.9rem;border:none;border-radius:10px;"><i class="fas fa-save"></i> Enregistrer</button>
+                    <div class="form-group"><label>Description</label><textarea id="restoDescription" class="form-control" rows="2"></textarea></div>
+                    <button type="submit" class="btn-sm primary" style="padding:10px 32px;border:none;border-radius:12px;font-size:0.95rem;"><i class="fas fa-save"></i> Enregistrer</button>
                 </form>
             </div>
         </div>
 
-        <!-- SECTION : Employés -->
+        <!-- SECTION EMPLOYÉS -->
         <div id="section-employes" class="section">
             <div class="card">
                 <h3><i class="fas fa-users"></i> Gestion des employés</h3>
-                <button class="btn-sm primary" id="openAddEmploye" style="margin-bottom:18px;padding:10px 20px;border:none;border-radius:10px;"><i class="fas fa-plus"></i> Ajouter un employé</button>
+                <button class="btn-sm primary" id="openAddEmploye" style="margin-bottom:20px;padding:10px 24px;border:none;border-radius:12px;"><i class="fas fa-plus"></i> Ajouter un employé</button>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Email</th><th>Rôle</th><th>Action</th></tr></thead>
+                        <thead><tr><th>Email</th><th>Rôle</th><th>Code restaurant</th><th>Action</th></tr></thead>
                         <tbody id="employesList"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION : Menu -->
+        <!-- SECTION MENU -->
         <div id="section-menu" class="section">
             <div class="card">
                 <h3><i class="fas fa-utensils"></i> Gestion du menu</h3>
-                <button class="btn-sm primary" id="openAddPlat" style="margin-bottom:18px;padding:10px 20px;border:none;border-radius:10px;"><i class="fas fa-plus"></i> Ajouter un plat</button>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+                    <button class="btn-sm primary" id="openAddPlat" style="padding:10px 24px;border:none;border-radius:12px;"><i class="fas fa-plus"></i> Ajouter un plat</button>
+                    <button class="btn-sm success" id="generateMenuLink" style="padding:10px 24px;border:none;border-radius:12px;"><i class="fas fa-link"></i> Générer le lien du menu</button>
+                </div>
+                <div id="menuLinkContainer" style="display:none;background:#f8fafc;padding:16px 20px;border-radius:16px;margin-bottom:20px;">
+                    <p><strong>Lien public :</strong> <a id="menuLink" href="#" target="_blank">Cliquez pour ouvrir</a></p>
+                    <div class="qr-container">
+                        <div id="qrcode"></div>
+                        <button class="btn-sm primary" id="downloadQR"><i class="fas fa-download"></i> Télécharger QR (PDF)</button>
+                    </div>
+                </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Nom</th><th>Prix</th><th>Catégorie</th><th>Disponible</th><th>Action</th></tr></thead>
+                        <thead><tr><th>Nom</th><th>Prix</th><th>Catégorie</th><th>Disponible</th><th>Actions</th></tr></thead>
                         <tbody id="menuList"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION : Commandes -->
+        <!-- SECTION COMMANDES -->
         <div id="section-commandes" class="section">
             <div class="card">
                 <h3><i class="fas fa-clipboard-list"></i> Historique des commandes</h3>
@@ -430,14 +697,14 @@
             </div>
         </div>
 
-        <!-- SECTION : Retraits -->
+        <!-- SECTION RETRAITS -->
         <div id="section-retraits" class="section">
             <div class="card">
                 <h3><i class="fas fa-hand-holding-usd"></i> Gestion des retraits</h3>
-                <p style="margin-bottom:18px;color:#718096;">Solde disponible : <strong id="soldeDisplay">0 FCFA</strong></p>
-                <button class="btn-sm primary" id="openDemandeRetrait" style="padding:10px 20px;border:none;border-radius:10px;"><i class="fas fa-arrow-up"></i> Demander un retrait</button>
-                <div style="margin-top:20px;">
-                    <h4 style="font-size:0.95rem;font-weight:600;">Historique des retraits</h4>
+                <p style="margin-bottom:18px;color:#475569;">Solde disponible : <strong id="soldeDisplay" style="color:#0f172a;">0 FCFA</strong></p>
+                <button class="btn-sm primary" id="openDemandeRetrait" style="padding:10px 24px;border:none;border-radius:12px;"><i class="fas fa-arrow-up"></i> Demander un retrait</button>
+                <div style="margin-top:24px;">
+                    <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:12px;">Historique des retraits</h4>
                     <div class="table-wrap">
                         <table>
                             <thead><tr><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
@@ -449,7 +716,7 @@
         </div>
     </div>
 
-    <!-- Modal (ajout employé / plat / retrait) -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h3 id="modalTitle">Titre</h3>
@@ -464,9 +731,15 @@
     </div>
 
     <!-- Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js">
+    </script>
+    <!-- jsPDF pour PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
 
     <script>
         // ---------- CONFIG ----------
@@ -487,6 +760,7 @@
         let currentUser = null;
         let currentRestaurantId = null;
         let restaurantData = null;
+        let salesChart = null;
 
         // ---------- AUTH ----------
         auth.onAuthStateChanged(async user => {
@@ -497,7 +771,7 @@
             currentUser = user;
             document.getElementById('userEmail').textContent = user.email;
 
-            // Vérifier le rôle
+            // Vérifier rôle
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (!userDoc.exists || userDoc.data().role !== 'proprietaire') {
                 alert('Accès réservé aux propriétaires.');
@@ -505,25 +779,22 @@
                 return;
             }
 
-            // Récupérer ou créer le restaurant
             await initRestaurant(user.uid);
-            // Charger les données
             loadDashboard();
             loadEmployes();
             loadMenu();
             loadCommandes();
             loadRetraits();
+            initChart();
         });
 
         // ---------- INIT RESTAURANT ----------
         async function initRestaurant(uid) {
-            // Chercher si un restaurant existe déjà pour ce propriétaire
             const snapshot = await db.collection('restaurants').where('proprietaireId', '==', uid).get();
             if (!snapshot.empty) {
                 const doc = snapshot.docs[0];
                 currentRestaurantId = doc.id;
                 restaurantData = doc.data();
-                // Pré-remplir le formulaire
                 document.getElementById('restoNom').value = restaurantData.nom || '';
                 document.getElementById('restoEmail').value = restaurantData.email || '';
                 document.getElementById('restoTel').value = restaurantData.telephone || '';
@@ -533,7 +804,7 @@
                 return;
             }
 
-            // Créer un restaurant par défaut
+            // Créer restaurant
             const newResto = {
                 proprietaireId: uid,
                 nom: 'Mon restaurant',
@@ -547,15 +818,13 @@
             const docRef = await db.collection('restaurants').add(newResto);
             currentRestaurantId = docRef.id;
             restaurantData = newResto;
-            // Pré-remplir
             document.getElementById('restoNom').value = newResto.nom;
             document.getElementById('restoEmail').value = newResto.email;
             document.getElementById('soldeDisplay').textContent = '0 FCFA';
-            // Mettre à jour l'utilisateur avec restaurantId
             await db.collection('users').doc(uid).update({ restaurantId: currentRestaurantId });
         }
 
-        // ---------- NAVIGATION ----------
+        // ---------- NAV ----------
         document.querySelectorAll('nav a[data-section]').forEach(link => {
             link.addEventListener('click', () => {
                 document.querySelectorAll('nav a[data-section]').forEach(a => a.classList.remove('active'));
@@ -564,19 +833,13 @@
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById('section-' + section).classList.add('active');
                 document.getElementById('pageTitle').textContent = link.textContent.trim();
-                // Fermer sidebar mobile
                 document.getElementById('sidebar').classList.remove('open');
             });
         });
-
         document.getElementById('hamburger').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('open');
         });
-
-        // ---------- LOGOUT ----------
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            auth.signOut();
-        });
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
         // ---------- RESTAURANT FORM ----------
         document.getElementById('restaurantForm').addEventListener('submit', async (e) => {
@@ -594,7 +857,7 @@
             alert('Informations mises à jour.');
         });
 
-        // ---------- MODAL SYSTEM ----------
+        // ---------- MODAL ----------
         function openModal(title, html, onSubmit) {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalBody').innerHTML = html;
@@ -627,7 +890,8 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${data.email}</td>
-                    <td><span class="badge">${data.role}</span></td>
+                    <td><span class="badge info">${data.role}</span></td>
+                    <td><code>${data.codeRestaurant || 'N/A'}</code></td>
                     <td><button class="btn-sm danger" onclick="supprimerEmploye('${doc.id}')"><i class="fas fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(tr);
@@ -641,9 +905,10 @@
             loadEmployes();
         };
 
+        // Ajout employé avec code restaurant
         document.getElementById('openAddEmploye').addEventListener('click', () => {
             const html = `
-                <div class="form-group"><label>Email</label><input type="email" id="empEmail" class="form-control" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="empEmail" class="form-control" required /></div>
                 <div class="form-group"><label>Rôle</label>
                     <select id="empRole" class="form-control">
                         <option value="serveur">Serveur</option>
@@ -652,28 +917,39 @@
                     </select>
                 </div>
                 <div class="form-group"><label>Mot de passe temporaire</label>
-                    <input type="text" id="empPassword" class="form-control" value="password123" required>
-                    <small style="color:#718096;">Changez-le après la première connexion.</small>
+                    <input type="text" id="empPassword" class="form-control" value="password123" required />
+                    <small style="color:#64748b;">L'employé devra le changer à la première connexion.</small>
+                </div>
+                <div class="form-group"><label>Code restaurant (généré automatiquement)</label>
+                    <input type="text" id="empCode" class="form-control" readonly />
                 </div>
             `;
+            // Générer un code aléatoire de 8 caractères
+            const code = Math.random().toString(36).substring(2, 10).toUpperCase();
             openModal('Ajouter un employé', html, async (e) => {
                 const email = document.getElementById('empEmail').value;
                 const password = document.getElementById('empPassword').value;
                 const role = document.getElementById('empRole').value;
+                const codeRestaurant = document.getElementById('empCode').value;
                 try {
                     const cred = await auth.createUserWithEmailAndPassword(email, password);
                     await db.collection('users').doc(cred.user.uid).set({
                         email: email,
                         role: role,
                         restaurantId: currentRestaurantId,
+                        codeRestaurant: codeRestaurant,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     loadEmployes();
-                    alert('Employé ajouté !');
+                    alert(`Employé ajouté ! Code restaurant : ${codeRestaurant}`);
                 } catch (err) {
                     alert('Erreur : ' + err.message);
                 }
             });
+            // Remplir le code
+            setTimeout(() => {
+                document.getElementById('empCode').value = code;
+            }, 100);
         });
 
         // ---------- MENU ----------
@@ -684,7 +960,9 @@
                 .get();
             const tbody = document.getElementById('menuList');
             tbody.innerHTML = '';
+            let count = 0;
             snapshot.forEach(doc => {
+                count++;
                 const data = doc.data();
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -692,11 +970,10 @@
                     <td>${data.prix} FCFA</td>
                     <td>${data.categorie || '-'}</td>
                     <td>
-                        <label class="switch" style="display:inline-block;position:relative;width:44px;height:24px;">
+                        <label class="switch">
                             <input type="checkbox" ${data.disponible !== false ? 'checked' : ''} 
-                                   onchange="toggleDisponibilite('${doc.id}', this.checked)">
-                            <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:12px;transition:0.2s;"></span>
-                            <span style="position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.2s;transform:${data.disponible !== false ? 'translateX(20px)' : 'none'}"></span>
+                                   onchange="toggleDisponibilite('${doc.id}', this.checked)" />
+                            <span class="slider"></span>
                         </label>
                     </td>
                     <td>
@@ -706,6 +983,7 @@
                 `;
                 tbody.appendChild(tr);
             });
+            document.getElementById('statPlats').textContent = count;
         }
 
         window.toggleDisponibilite = async (id, checked) => {
@@ -721,14 +999,15 @@
         window.editPlat = async (id) => {
             const doc = await db.collection('menus').doc(id).get();
             const data = doc.data();
+            const supps = data.supplements ? data.supplements.map(s => s.nom + ':' + s.prix).join(', ') : '';
             const html = `
-                <div class="form-group"><label>Nom</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required></div>
-                <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" value="${data.prix}" required></div>
-                <div class="form-group"><label>Catégorie</label><input type="text" id="platCategorie" class="form-control" value="${data.categorie || ''}"></div>
+                <div class="form-group"><label>Nom</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
+                <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" value="${data.prix}" required /></div>
+                <div class="form-group"><label>Catégorie</label><input type="text" id="platCategorie" class="form-control" value="${data.categorie || ''}" /></div>
                 <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" rows="2">${data.description || ''}</textarea></div>
-                <div class="form-group"><label>Image (URL)</label><input type="text" id="platImage" class="form-control" value="${data.image || ''}"></div>
+                <div class="form-group"><label>Image (URL)</label><input type="text" id="platImage" class="form-control" value="${data.image || ''}" /></div>
                 <div class="form-group"><label>Suppléments (ex: Sauce:300, Fromage:200)</label>
-                    <input type="text" id="platSupplements" class="form-control" value="${data.supplements ? data.supplements.map(s => s.nom+':'+s.prix).join(', ') : ''}">
+                    <input type="text" id="platSupplements" class="form-control" value="${supps}" />
                 </div>
             `;
             openModal('Modifier le plat', html, async (e) => {
@@ -737,13 +1016,18 @@
                 const categorie = document.getElementById('platCategorie').value;
                 const description = document.getElementById('platDescription').value;
                 const image = document.getElementById('platImage').value;
-                const supps = document.getElementById('platSupplements').value;
-                const supplements = supps ? supps.split(',').map(s => {
+                const suppsStr = document.getElementById('platSupplements').value;
+                const supplements = suppsStr ? suppsStr.split(',').map(s => {
                     const parts = s.trim().split(':');
                     return { nom: parts[0], prix: parseFloat(parts[1]) || 0 };
                 }) : [];
                 await db.collection('menus').doc(id).update({
-                    nom, prix, categorie, description, image, supplements
+                    nom,
+                    prix,
+                    categorie,
+                    description,
+                    image,
+                    supplements
                 });
                 loadMenu();
             });
@@ -751,13 +1035,13 @@
 
         document.getElementById('openAddPlat').addEventListener('click', () => {
             const html = `
-                <div class="form-group"><label>Nom</label><input type="text" id="platNom" class="form-control" required></div>
-                <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" required></div>
-                <div class="form-group"><label>Catégorie</label><input type="text" id="platCategorie" class="form-control"></div>
+                <div class="form-group"><label>Nom</label><input type="text" id="platNom" class="form-control" required /></div>
+                <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" required /></div>
+                <div class="form-group"><label>Catégorie</label><input type="text" id="platCategorie" class="form-control" /></div>
                 <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" rows="2"></textarea></div>
-                <div class="form-group"><label>Image (URL)</label><input type="text" id="platImage" class="form-control"></div>
+                <div class="form-group"><label>Image (URL)</label><input type="text" id="platImage" class="form-control" /></div>
                 <div class="form-group"><label>Suppléments (ex: Sauce:300, Fromage:200)</label>
-                    <input type="text" id="platSupplements" class="form-control" placeholder="Sauce:300, Fromage:200">
+                    <input type="text" id="platSupplements" class="form-control" placeholder="Sauce:300, Fromage:200" />
                 </div>
             `;
             openModal('Ajouter un plat', html, async (e) => {
@@ -766,19 +1050,59 @@
                 const categorie = document.getElementById('platCategorie').value;
                 const description = document.getElementById('platDescription').value;
                 const image = document.getElementById('platImage').value;
-                const supps = document.getElementById('platSupplements').value;
-                const supplements = supps ? supps.split(',').map(s => {
+                const suppsStr = document.getElementById('platSupplements').value;
+                const supplements = suppsStr ? suppsStr.split(',').map(s => {
                     const parts = s.trim().split(':');
                     return { nom: parts[0], prix: parseFloat(parts[1]) || 0 };
                 }) : [];
                 await db.collection('menus').add({
                     restaurantId: currentRestaurantId,
-                    nom, prix, categorie, description, image, supplements,
+                    nom,
+                    prix,
+                    categorie,
+                    description,
+                    image,
+                    supplements,
                     disponible: true,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 loadMenu();
             });
+        });
+
+        // ---------- GÉNÉRATION LIEN MENU + QR CODE ----------
+        document.getElementById('generateMenuLink').addEventListener('click', async () => {
+            const container = document.getElementById('menuLinkContainer');
+            const link = document.getElementById('menuLink');
+            // Construire l'URL du menu public (ex: menu.html?resto=ID)
+            const url = `${window.location.origin}/menu_public.html?restaurant=${currentRestaurantId}`;
+            link.href = url;
+            link.textContent = url;
+            container.style.display = 'block';
+
+            // Générer QR code
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, {
+                text: url,
+                width: 160,
+                height: 160,
+                colorDark: '#1e293b',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+
+        // Télécharger QR en PDF
+        document.getElementById('downloadQR').addEventListener('click', () => {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) return alert('Générez d\'abord le QR code.');
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Menu SCAN&TCHOP - QR Code', 10, 20);
+            doc.addImage(imgData, 'PNG', 10, 30, 80, 80);
+            doc.save('QR_Menu.pdf');
         });
 
         // ---------- COMMANDES ----------
@@ -790,15 +1114,15 @@
                 .limit(50)
                 .get();
 
-            const tbody = document.getElementById('lastOrders');
-            const allBody = document.getElementById('allOrders');
-            tbody.innerHTML = '';
-            allBody.innerHTML = '';
+            const tbodyLast = document.getElementById('lastOrders');
+            const tbodyAll = document.getElementById('allOrders');
+            tbodyLast.innerHTML = '';
+            tbodyAll.innerHTML = '';
 
-            let totalCA = 0;
-            let count = 0;
+            let totalCA = 0,
+                count = 0;
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
 
             snapshot.forEach(doc => {
                 const data = doc.data();
@@ -815,8 +1139,8 @@
                     <td><span class="badge ${data.status === 'terminé' ? 'success' : data.status === 'en cours' ? 'warning' : 'danger'}">${data.status || 'en attente'}</span></td>
                     <td>${date.toLocaleString()}</td>
                 `;
-                tbody.appendChild(tr.cloneNode(true));
-                allBody.appendChild(tr);
+                tbodyLast.appendChild(tr.cloneNode(true));
+                tbodyAll.appendChild(tr);
             });
 
             document.getElementById('statCommandes').textContent = count;
@@ -847,7 +1171,7 @@
 
         document.getElementById('openDemandeRetrait').addEventListener('click', () => {
             const html = `
-                <div class="form-group"><label>Montant (FCFA)</label><input type="number" id="retraitMontant" class="form-control" required></div>
+                <div class="form-group"><label>Montant (FCFA)</label><input type="number" id="retraitMontant" class="form-control" required /></div>
                 <div class="form-group"><label>Méthode</label>
                     <select id="retraitMethode" class="form-control">
                         <option value="mobile_money">Mobile Money</option>
@@ -867,7 +1191,6 @@
                     status: 'en attente',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                // Mettre à jour le solde (simulation)
                 const newSolde = solde - montant;
                 await db.collection('restaurants').doc(currentRestaurantId).update({ solde: newSolde });
                 restaurantData.solde = newSolde;
@@ -877,7 +1200,7 @@
             });
         });
 
-        // ---------- DASHBOARD (reload) ----------
+        // ---------- DASHBOARD & CHART ----------
         function loadDashboard() {
             loadEmployes();
             loadCommandes();
@@ -885,8 +1208,63 @@
             loadRetraits();
         }
 
-        // ---------- LISTENER TEMPS RÉEL (menu, employés) ----------
-        // On utilise onSnapshot pour les mises à jour automatiques
+        function initChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                    datasets: [{
+                        label: 'Ventes (FCFA)',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#e67e22',
+                        backgroundColor: 'rgba(230,126,34,0.08)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointBackgroundColor: '#e67e22',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            // Mettre à jour avec des données réelles (simulé)
+            updateChart();
+        }
+
+        async function updateChart() {
+            if (!currentRestaurantId) return;
+            const snapshot = await db.collection('commandes')
+                .where('restaurantId', '==', currentRestaurantId)
+                .get();
+            const jours = Array(7).fill(0);
+            const now = new Date();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.createdAt?.toDate?.();
+                if (date) {
+                    const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                    if (diff >= 0 && diff < 7) {
+                        jours[6 - diff] += data.total || 0;
+                    }
+                }
+            });
+            if (salesChart) {
+                salesChart.data.datasets[0].data = jours;
+                salesChart.update();
+            }
+        }
+
+        // ---------- ÉCOUTES TEMPS RÉEL ----------
         if (currentRestaurantId) {
             db.collection('menus').where('restaurantId', '==', currentRestaurantId)
                 .onSnapshot(() => loadMenu());
@@ -896,7 +1274,8 @@
             db.collection('commandes').where('restaurantId', '==', currentRestaurantId)
                 .orderBy('createdAt', 'desc')
                 .limit(50)
-                .onSnapshot(() => loadCommandes());
+                .onSnapshot(() => { loadCommandes();
+                    updateChart(); });
             db.collection('retraits').where('restaurantId', '==', currentRestaurantId)
                 .orderBy('createdAt', 'desc')
                 .limit(20)
