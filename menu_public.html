@@ -14,123 +14,124 @@
             color: #0b1a2e;
             padding: 24px 16px 40px;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .container { max-width: 900px; margin: 0 auto; }
         
         /* En-tête du restaurant */
         .restaurant-header {
-            background: #fff;
-            border-radius: 28px;
-            padding: 30px 32px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            margin-bottom: 28px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 24px;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: #fff; border-radius: 28px; padding: 30px 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 28px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 24px;
         }
-        .restaurant-header img.logo {
-            width: 80px; height: 80px; object-fit: cover; border-radius: 20px;
-        }
+        .restaurant-header img.logo { width: 80px; height: 80px; object-fit: cover; border-radius: 20px; }
         .restaurant-header .info { flex: 1; }
         .restaurant-header .info h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
-        .restaurant-header .info p { color: #475569; font-size: 0.95rem; margin-bottom: 4px; }
-        .restaurant-header .info .contacts { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; }
-        .restaurant-header .info .contacts a, .restaurant-header .info .contacts span {
-            color: #e67e22; text-decoration: none; font-weight: 500; font-size: 0.9rem;
-            display: inline-flex; align-items: center; gap: 6px;
+        .restaurant-header .info p { color: #475569; font-size: 0.95rem; margin-bottom: 12px; }
+        
+        .btn-avis-header {
+            background: #f1f5f9; color: #0b1a2e; padding: 8px 16px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 600; text-decoration: none; border: none;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.3s;
         }
-        .restaurant-header .info .contacts a:hover { text-decoration: underline; }
+        .btn-avis-header:hover { background: #e2e8f0; }
+        .btn-avis-header i { color: #f59e0b; }
 
         /* Grille du menu */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 24px;
-        }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
         
         /* Carte de plat */
         .menu-card {
             background: #fff; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid rgba(255,255,255,0.3);
-            display: flex; flex-direction: column;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: transform 0.2s;
+            display: flex; flex-direction: column; position: relative;
         }
-        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
-        .menu-card img { width: 100%; height: 180px; object-fit: cover; }
+        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+        .menu-card img { 
+            width: 100%; height: 180px; object-fit: cover; cursor: zoom-in; 
+            transition: opacity 0.3s;
+        }
+        .menu-card img:hover { opacity: 0.9; }
         .menu-card .body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
         .menu-card .body h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
-        
-        /* Style pour les plats indisponibles */
-        .menu-card.indisponible { opacity: 0.6; filter: grayscale(80%); }
-        .menu-card.indisponible:hover { transform: none; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
-        .badge-indisponible {
-            background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700;
-            padding: 4px 10px; border-radius: 30px; display: inline-table; margin-bottom: 10px;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
         .price { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
-        .price .original { text-decoration: line-through; color: #94a3b8; font-size: 0.9rem; }
         .price .current { font-size: 1.2rem; font-weight: 700; color: #e67e22; }
-        .description { color: #64748b; font-size: 0.9rem; margin: 8px 0 4px; flex: 1; }
         
-        .supplements {
-            font-size: 0.85rem; color: #475569; margin-top: 8px; margin-bottom: 15px;
-            border-top: 1px dashed #e2e8f0; padding-top: 8px;
-        }
-        .supplements span {
-            background: #f1f5f9; padding: 2px 10px; border-radius: 30px;
-            display: inline-block; margin: 2px 4px 2px 0; font-size: 0.75rem;
-        }
-        
-        .badge-promo {
-            background: #22c55e; color: #fff; font-weight: 600; font-size: 0.7rem;
-            padding: 2px 10px; border-radius: 30px; display: inline-block; margin-left: 8px;
-        }
-
-        /* Bouton d'action (Paiement) */
+        /* BOUTON COMMANDER - AMÉLIORÉ */
         .btn-commander {
-            width: 100%; padding: 12px; background: linear-gradient(135deg, #e67e22, #cf6f1b);
-            color: #fff; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem;
-            cursor: pointer; transition: all 0.3s ease; margin-top: auto;
+            width: 100%; padding: 14px; margin-top: auto;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff; border: none; border-radius: 16px; font-weight: 700; font-size: 1.05rem;
+            cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+            animation: pulse 2s infinite; /* Animation pour attirer l'oeil */
         }
-        .btn-commander:hover { box-shadow: 0 4px 15px rgba(230,126,34,0.3); transform: translateY(-2px); }
-        .btn-commander:disabled {
-            background: #cbd5e1; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none;
+        .btn-commander:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+            animation: none; /* Stoppe l'animation au survol */
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
         }
 
-        .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
-        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
-
-        /* Pied de page et Publicité SaaS */
-        .footer { text-align: center; margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 30px; }
+        /* MODALS (Fenêtres pop-up) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 26, 46, 0.8); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
         
-        .promo-saas {
-            background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
+        .modal-content {
+            background: #fff; border-radius: 24px; width: 100%; max-width: 400px;
+            padding: 24px; position: relative; transform: translateY(20px); transition: 0.3s;
+            max-height: 90vh; overflow-y: auto;
         }
-        .promo-saas h4 { font-size: 1.1rem; color: #0b1a2e; margin-bottom: 8px; }
-        .promo-saas p { color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
-        .btn-saas {
-            display: inline-block; background: #0b1a2e; color: #fff; text-decoration: none;
-            padding: 10px 24px; border-radius: 12px; font-weight: 500; font-size: 0.9rem;
-            transition: background 0.3s;
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        
+        .close-modal {
+            position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: none;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;
+            color: #64748b; display: flex; align-items: center; justify-content: center;
         }
-        .btn-saas:hover { background: #1e293b; }
 
-        .footer-credits { font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .footer-credits img { height: 30px; }
+        /* Image Zoom Lightbox */
+        #zoomImage { max-width: 100%; max-height: 80vh; border-radius: 16px; object-fit: contain; }
 
-        @media (max-width: 600px) {
-            .restaurant-header { flex-direction: column; text-align: center; }
-            .restaurant-header .info .contacts { justify-content: center; }
+        /* Formulaire de commande dans le Modal */
+        .order-section { margin-bottom: 20px; }
+        .order-section h4 { font-size: 0.95rem; color: #475569; margin-bottom: 10px; }
+        
+        .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 10px; border-radius: 16px; width: fit-content; }
+        .qty-btn { background: #fff; border: 1px solid #e2e8f0; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; }
+        .qty-val { font-weight: 700; font-size: 1.1rem; width: 20px; text-align: center; }
+
+        .tip-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tip-btn { 
+            padding: 8px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 20px;
+            cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s;
         }
+        .tip-btn.active { background: #0b1a2e; color: #fff; border-color: #0b1a2e; }
+
+        .split-options { display: flex; gap: 10px; margin-bottom: 10px; }
+        .split-btn { flex:1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; font-weight: 500; text-align: center; }
+        .split-btn.active { background: #e67e22; color: white; border-color: #e67e22; }
+        #splitCountContainer { display: none; margin-top: 10px; }
+        .split-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; }
+
+        .total-display {
+            background: #f1f5f9; padding: 16px; border-radius: 16px; text-align: center; margin-top: 20px;
+        }
+        .total-display span { display: block; font-size: 0.9rem; color: #64748b; }
+        .total-display strong { font-size: 1.5rem; color: #0b1a2e; }
+
+        /* Formulaire Avis */
+        .stars { color: #e2e8f0; font-size: 2rem; cursor: pointer; display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+        .stars i.active { color: #f59e0b; }
+        textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 100px; margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -138,147 +139,261 @@
     <div id="restaurantInfo" class="restaurant-header">
         <!-- Rempli par JS -->
     </div>
-    
     <div id="menuContainer" class="menu-grid">
         <!-- Rempli par JS -->
     </div>
-    
-    <div class="footer">
-        <!-- Espace promotionnel pour les restaurateurs -->
-        <div class="promo-saas">
-            <h4>Vous êtes restaurateur ?</h4>
-            <p>Digitalisez votre établissement, recevez des paiements et gérez vos commandes facilement.</p>
-            <a href="inscription.html" class="btn-saas">Créer mon menu QR gratuitement</a>
+</div>
+
+<!-- Modal Zoom Image -->
+<div class="modal-overlay" id="modalZoom" onclick="closeModal('modalZoom')">
+    <img id="zoomImage" src="" alt="Zoom Plat" onclick="event.stopPropagation()" />
+    <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
+</div>
+
+<!-- Modal Commande (Configuration) -->
+<div class="modal-overlay" id="modalOrder">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
+        <h2 id="orderPlatNom" style="margin-bottom: 20px; font-size:1.4rem;">Nom du plat</h2>
+        
+        <div class="order-section">
+            <h4>Combien de plats ?</h4>
+            <div class="qty-selector">
+                <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                <span class="qty-val" id="orderQty">1</span>
+                <button class="qty-btn" onclick="updateQty(1)">+</button>
+            </div>
         </div>
 
-        <div class="footer-credits">
-            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
-            <span>SCAN&TCHOP – L'excellence du service à votre table.</span>
+        <div class="order-section">
+            <h4>Soutenir l'équipe (Pourboire)</h4>
+            <div class="tip-options">
+                <button class="tip-btn active" onclick="setTip(0, this)">0 F</button>
+                <button class="tip-btn" onclick="setTip(500, this)">500 F</button>
+                <button class="tip-btn" onclick="setTip(1000, this)">1000 F</button>
+            </div>
         </div>
+
+        <div class="order-section">
+            <h4>Paiement</h4>
+            <div class="split-options">
+                <div class="split-btn active" id="btnPayerSeul" onclick="setSplit(false)">Je paie seul</div>
+                <div class="split-btn" id="btnPartager" onclick="setSplit(true)">Partager l'addition</div>
+            </div>
+            <div id="splitCountContainer">
+                <input type="number" id="splitCount" class="split-input" placeholder="Vous êtes combien au total ?" min="2" oninput="calculateTotal()" />
+                <p style="font-size:0.85rem; color:#64748b; margin-top:8px;">
+                    <i class="fas fa-info-circle"></i> Un QR code de paiement partagé sera généré à l'étape suivante.
+                </p>
+            </div>
+        </div>
+
+        <div class="total-display">
+            <span id="totalLabel">Total à payer :</span>
+            <strong id="orderTotal">0 FCFA</strong>
+        </div>
+
+        <button class="btn-commander" style="margin-top:20px; animation:none;" onclick="validerCommande()">
+            Aller au paiement <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Modal Avis -->
+<div class="modal-overlay" id="modalAvis">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
+        <h2 style="text-align: center; margin-bottom: 10px;">Laissez un avis</h2>
+        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Votre avis aide le restaurant à s'améliorer.</p>
+        
+        <div class="stars" id="starContainer">
+            <i class="fas fa-star" data-value="1"></i>
+            <i class="fas fa-star" data-value="2"></i>
+            <i class="fas fa-star" data-value="3"></i>
+            <i class="fas fa-star" data-value="4"></i>
+            <i class="fas fa-star" data-value="5"></i>
+        </div>
+        
+        <textarea id="avisCommentaire" placeholder="Dites-nous ce que vous avez aimé..."></textarea>
+        
+        <button class="btn-commander" style="animation:none;" onclick="soumettreAvis()">
+            Envoyer mon avis
+        </button>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
-    // Configuration Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
         authDomain: "scan-et-tchop.firebaseapp.com",
         projectId: "scan-et-tchop",
         storageBucket: "scan-et-tchop.firebasestorage.app",
         messagingSenderId: "648843762360",
-        appId: "1:648843762360:web:092b3d359eeae61ef2324d",
-        measurementId: "G-8DKXS67DKY"
+        appId: "1:648843762360:web:092b3d359eeae61ef2324d"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Récupérer l'ID du restaurant depuis l'URL
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('restaurant');
 
-    if (!restaurantId) {
-        document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Restaurant non spécifié dans le lien.</p>';
-    } else {
-        loadRestaurant(restaurantId);
-    }
+    // Variables pour la commande en cours
+    let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
+    let currentRating = 0;
+
+    if (restaurantId) loadRestaurant(restaurantId);
 
     async function loadRestaurant(id) {
-        try {
-            // Infos du restaurant
-            const restoDoc = await db.collection('restaurants').doc(id).get();
-            if (!restoDoc.exists) {
-                document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Restaurant introuvable.</p>';
-                return;
-            }
-            const resto = restoDoc.data();
+        const restoDoc = await db.collection('restaurants').doc(id).get();
+        if (!restoDoc.exists) return;
+        const resto = restoDoc.data();
 
-            // Afficher les infos du restaurant
-            const infoDiv = document.getElementById('restaurantInfo');
-            infoDiv.innerHTML = `
-                ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo" />` : ''}
-                <div class="info">
-                    <h1>${resto.nom || 'Restaurant'}</h1>
-                    ${resto.description ? `<p>${resto.description}</p>` : ''}
-                    <div class="contacts">
-                        ${resto.telephone ? `<a href="tel:${resto.telephone}"><i class="fas fa-phone"></i> ${resto.telephone}</a>` : ''}
-                        ${resto.whatsapp ? `<a href="https://wa.me/${resto.whatsapp.replace(/\s/g,'')}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
-                        ${resto.adresse ? `<span><i class="fas fa-map-pin"></i> ${resto.adresse}${resto.ville ? ', '+resto.ville : ''}</span>` : ''}
-                        ${resto.map ? `<a href="${resto.map}" target="_blank"><i class="fas fa-map-marked-alt"></i> Voir sur la carte</a>` : ''}
-                    </div>
+        document.getElementById('restaurantInfo').innerHTML = `
+            ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo" />` : ''}
+            <div class="info">
+                <h1>${resto.nom}</h1>
+                <p>${resto.description || 'Bienvenue dans notre établissement'}</p>
+                <button class="btn-avis-header" onclick="openModal('modalAvis')">
+                    <i class="fas fa-star"></i> Donner mon avis
+                </button>
+            </div>
+        `;
+
+        const snapshot = await db.collection('menus').where('restaurantId', '==', id).get();
+        const container = document.getElementById('menuContainer');
+        container.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+            const plat = doc.data();
+            if(plat.disponible === false) return; // On cache les plats indisponibles pour simplifier
+
+            const card = document.createElement('div');
+            card.className = 'menu-card';
+            card.innerHTML = `
+                ${plat.image ? `<img src="${plat.image}" onclick="openZoom('${plat.image}')" title="Cliquez pour agrandir" />` : ''}
+                <div class="body">
+                    <h3>${plat.nom}</h3>
+                    <div class="price"><span class="current">${plat.prix} FCFA</span></div>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom:16px;">${plat.description || ''}</p>
+                    <button class="btn-commander" onclick="openOrderModal('${doc.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})">
+                        <i class="fas fa-shopping-cart"></i> Commander
+                    </button>
                 </div>
             `;
+            container.appendChild(card);
+        });
+    }
 
-            // Charger TOUS les plats (sans filtrer par disponibilité pour pouvoir les afficher en "épuisé")
-            const snapshot = await db.collection('menus')
-                .where('restaurantId', '==', id)
-                .get();
+    /* === GESTION DES MODALS === */
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-            const container = document.getElementById('menuContainer');
-            container.innerHTML = '';
-            
-            if (snapshot.empty) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Aucun plat configuré pour ce menu.</p></div>`;
-                return;
-            }
+    /* === ZOOM IMAGE === */
+    function openZoom(url) {
+        document.getElementById('zoomImage').src = url;
+        openModal('modalZoom');
+    }
 
-            snapshot.forEach(doc => {
-                const plat = doc.data();
-                
-                // Définir l'état du plat en lisant la variable "disponible" gérée dans le tableau de bord
-                const isDispo = plat.disponible !== false; 
-                
-                // Gérer les suppléments
-                const supps = plat.supplements && plat.supplements.length ? 
-                    plat.supplements.map(s => `<span>${s.nom} (+${s.prix} F)</span>`).join('') : '';
+    /* === LOGIQUE DE COMMANDE === */
+    function openOrderModal(id, nom, prix) {
+        currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
+        document.getElementById('orderPlatNom').innerText = nom;
+        document.getElementById('orderQty').innerText = 1;
+        document.getElementById('splitCount').value = '';
+        setTip(0, document.querySelectorAll('.tip-btn')[0]); // Remettre le pourboire à 0
+        setSplit(false); // Remettre à "Paie seul"
+        calculateTotal();
+        openModal('modalOrder');
+    }
 
-                // Gérer l'affichage de la promotion
-                const promo = plat.promotion && isDispo ? `<span class="badge-promo">Promo</span>` : '';
-                
-                // Gérer le badge d'indisponibilité
-                const badgeIndispo = !isDispo ? `<div class="badge-indisponible">Non disponible aujourd'hui</div>` : '';
-
-                // Configurer le bouton d'action selon la disponibilité
-                // L'encodage URI permet de passer les noms avec des espaces ou accents dans l'URL sans casser le code
-                const boutonAction = isDispo 
-                    ? `<button class="btn-commander" onclick="allerAuPaiement('${doc.id}', '${encodeURIComponent(plat.nom)}', ${plat.prix})"><i class="fas fa-shopping-cart"></i> Commander & Payer</button>`
-                    : `<button class="btn-commander" disabled><i class="fas fa-times-circle"></i> Épuisé</button>`;
-
-                // Création de la carte
-                const card = document.createElement('div');
-                card.className = isDispo ? 'menu-card' : 'menu-card indisponible';
-                
-                card.innerHTML = `
-                    ${plat.image ? `<img src="${plat.image}" alt="${plat.nom}" />` : ''}
-                    <div class="body">
-                        ${badgeIndispo}
-                        <h3>${plat.nom} ${promo}</h3>
-                        <div class="price">
-                            ${plat.prixOriginal ? `<span class="original">${plat.prixOriginal} F</span>` : ''}
-                            <span class="current">${plat.prix} FCFA</span>
-                        </div>
-                        ${plat.description ? `<p class="description">${plat.description}</p>` : ''}
-                        ${supps ? `<div class="supplements">Suppl. : ${supps}</div>` : ''}
-                        
-                        ${boutonAction}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        } catch (err) {
-            console.error(err);
-            document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Erreur lors du chargement du menu.</p>';
+    function updateQty(change) {
+        if (currentOrder.qty + change >= 1) {
+            currentOrder.qty += change;
+            document.getElementById('orderQty').innerText = currentOrder.qty;
+            calculateTotal();
         }
     }
 
-    // Fonction de redirection vers la page de paiement
-    function allerAuPaiement(platId, nomEncode, prix) {
-        // Redirige vers la page de paiement en passant toutes les informations nécessaires
-        const nomPlat = decodeURIComponent(nomEncode);
-        const urlPaiement = `paiement.html?restaurant=${restaurantId}&plat=${platId}&nom=${encodeURIComponent(nomPlat)}&prix=${prix}`;
+    function setTip(amount, btnElement) {
+        currentOrder.tip = amount;
+        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        calculateTotal();
+    }
+
+    function setSplit(isSplit) {
+        currentOrder.isSplit = isSplit;
+        if(isSplit) {
+            document.getElementById('btnPartager').classList.add('active');
+            document.getElementById('btnPayerSeul').classList.remove('active');
+            document.getElementById('splitCountContainer').style.display = 'block';
+        } else {
+            document.getElementById('btnPayerSeul').classList.add('active');
+            document.getElementById('btnPartager').classList.remove('active');
+            document.getElementById('splitCountContainer').style.display = 'none';
+            currentOrder.splitCount = 1;
+        }
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        let baseTotal = (currentOrder.prixBase * currentOrder.qty) + currentOrder.tip;
         
-        window.location.href = urlPaiement;
+        if (currentOrder.isSplit) {
+            let inputCount = parseInt(document.getElementById('splitCount').value);
+            currentOrder.splitCount = inputCount > 1 ? inputCount : 1;
+            
+            if(currentOrder.splitCount > 1) {
+                let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
+                document.getElementById('totalLabel').innerText = `Total par personne (${currentOrder.splitCount} pers) :`;
+                document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
+                return;
+            }
+        }
+        
+        document.getElementById('totalLabel').innerText = "Total à payer :";
+        document.getElementById('orderTotal').innerText = `${baseTotal} FCFA`;
+    }
+
+    function validerCommande() {
+        // Redirige vers la page de paiement en passant TOUS les détails de configuration
+        // La page paiement.html s'occupera d'afficher le bon montant et de générer le QR code pour les amis si l'option split est activée.
+        const url = `paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&pourboire=${currentOrder.tip}&split=${currentOrder.isSplit}&splitCount=${currentOrder.splitCount}`;
+        window.location.href = url;
+    }
+
+    /* === GESTION DES AVIS === */
+    const stars = document.querySelectorAll('#starContainer i');
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = this.getAttribute('data-value');
+            stars.forEach(s => s.classList.remove('active'));
+            for(let i=0; i<currentRating; i++) { stars[i].classList.add('active'); }
+        });
+    });
+
+    async function soumettreAvis() {
+        const commentaire = document.getElementById('avisCommentaire').value;
+        if(currentRating === 0) { alert('Veuillez sélectionner au moins une étoile.'); return; }
+        
+        try {
+            await db.collection('avis').add({
+                restaurantId: restaurantId,
+                note: parseInt(currentRating),
+                commentaire: commentaire,
+                date: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert('Merci beaucoup pour votre avis !');
+            closeModal('modalAvis');
+            // Réinitialiser le formulaire
+            document.getElementById('avisCommentaire').value = '';
+            stars.forEach(s => s.classList.remove('active'));
+            currentRating = 0;
+        } catch (e) {
+            alert('Erreur lors de l\'envoi de l\'avis.');
+        }
     }
 </script>
 </body>
