@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SCAN&TCHOP – Propriétaire</title>
 
-  <!-- Polices et Icônes -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- Librairies -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -21,7 +19,7 @@
       --primary: #e67e22; --primary-hover: #cf6f1b;
       --bg-color: #f0f4f8; --text-main: #0b1a2e; --text-muted: #64748b;
       --card-bg: rgba(255, 255, 255, 0.9); --border-color: #e2e8f0;
-      --success: #22c55e; --danger: #ef4444;
+      --success: #22c55e; --danger: #ef4444; --info: #3b82f6; --warning: #f59e0b;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -37,7 +35,7 @@
       width: 100vw;
     }
 
-    /* ====== SIDEBAR REVISITÉE ====== */
+    /* ====== SIDEBAR ====== */
     .sidebar {
       width: 280px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.5);
@@ -67,7 +65,7 @@
     }
     .sidebar .logout a:hover { background: #fee2e2; color: var(--danger); }
 
-    /* ====== MAIN CONTAINER (ANTI SCROLL HORIZONTAL) ====== */
+    /* ====== MAIN CONTAINER ====== */
     .main { margin-left: 280px; flex: 1; padding: 40px; min-height: 100vh; transition: var(--transition); width: calc(100vw - 280px); max-width: 100%; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 16px; }
     .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
@@ -96,24 +94,55 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    .stat-card { background: #fff; border-radius: 24px; padding: 28px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); text-align: center; transition: var(--transition); border: 1px solid transparent; }
-    .stat-card:hover { transform: translateY(-5px); border-color: rgba(230,126,34,0.3); box-shadow: 0 10px 25px rgba(230,126,34,0.1); }
-    .stat-card .number { font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; }
-    .stat-card .label { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
-    .stat-card .icon { font-size: 2rem; color: var(--primary); margin-bottom: 12px; }
+    /* ====== NOUVEAU DESIGN STAT CARDS (ANIMATION VAGUES) ====== */
+    .stat-card {
+      position: relative; overflow: hidden; border-radius: 24px; padding: 28px 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; transition: var(--transition);
+      color: #fff; z-index: 1;
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+    
+    .stat-card .content { position: relative; z-index: 2; }
+    .stat-card .number { font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .stat-card .label { font-size: 0.95rem; font-weight: 600; opacity: 0.9; }
+    .stat-card .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.9; }
 
-    /* ====== ABONNEMENTS DESIGN ====== */
+    /* Couleurs spécifiques pour chaque carte */
+    .card-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .card-green { background: linear-gradient(135deg, #10b981, #047857); }
+    .card-orange { background: linear-gradient(135deg, #f59e0b, #b45309); }
+    .card-purple { background: linear-gradient(135deg, #8b5cf6, #5b21b6); }
+
+    /* Animation des vagues d'eau */
+    .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+    .wave {
+      position: absolute; bottom: -50%; left: -50%; width: 200%; height: 200%;
+      background: rgba(255,255,255,0.15); border-radius: 40%;
+      animation: spinWave 8s linear infinite;
+    }
+    .wave:nth-child(2) { background: rgba(255,255,255,0.1); animation: spinWave 12s linear infinite; bottom: -55%; }
+    @keyframes spinWave { 100% { transform: rotate(360deg); } }
+
+    /* ====== ABONNEMENTS DESIGN AMÉLIORÉ ====== */
     .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
-    .price-card { background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center; border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden; }
-    .price-card.active-plan { border-color: var(--primary); box-shadow: 0 10px 30px rgba(230,126,34,0.15); }
-    .price-card.active-plan::top { background: var(--primary); color: white; }
-    .price-card .plan-badge { position: absolute; top: 15px; right: -30px; background: var(--primary); color: #fff; padding: 5px 30px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 700; }
-    .price-card h4 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
-    .price-card .price { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
-    .price-card .price span { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-    .price-card ul { list-style: none; padding: 0; margin-bottom: 25px; text-align: left; }
-    .price-card ul li { padding: 8px 0; font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 10px; }
-    .price-card ul li i { color: var(--success); }
+    .price-card {
+      background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center;
+      border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+    }
+    .price-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+    .price-card.active-plan { border-color: var(--primary); box-shadow: 0 15px 40px rgba(230,126,34,0.15); background: #fffcf9; }
+    
+    .price-card .plan-badge { position: absolute; top: 15px; right: -30px; background: var(--primary); color: #fff; padding: 5px 30px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .price-card h4 { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
+    .price-card .price { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .price-card .price span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+    .price-card .annual-price { font-size: 0.9rem; color: var(--success); font-weight: 700; margin-bottom: 25px; background: #dcfce7; padding: 5px 10px; border-radius: 8px; display: inline-block; }
+    
+    .price-card ul { list-style: none; padding: 0; margin-bottom: 30px; text-align: left; }
+    .price-card ul li { padding: 10px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9; }
+    .price-card ul li:last-child { border-bottom: none; }
+    .price-card ul li i { color: var(--success); font-size: 1.1rem; }
 
     /* ====== FORMULAIRES ====== */
     .form-group { margin-bottom: 20px; }
@@ -124,6 +153,7 @@
     }
     .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
     textarea.form-control { resize: vertical; min-height: 100px; }
+    select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; }
 
     /* ====== BOUTONS ====== */
     .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -136,14 +166,19 @@
     .btn-outline { background: transparent; border: 2px solid var(--border-color); color: #1e293b; }
     .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
     .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
 
-    /* ====== TABLEAUX OPTIMISÉS POUR SMARTPHONE ====== */
+    /* ====== TABLEAUX ====== */
     .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.95rem; white-space: nowrap; }
     th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
-    td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+    td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.3s; }
     tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: #fef3e8; }
+    tbody tr:hover td { background: #fef3e8; }
+    
+    /* Classe pour les plats désactivés */
+    tr.item-disabled td { opacity: 0.55; filter: grayscale(100%); background: #f8fafc; }
+    tr.item-disabled:hover td { background: #f1f5f9; opacity: 0.8; }
 
     /* ====== BADGES & SWITCHES ====== */
     .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -159,7 +194,7 @@
     input:checked + .slider { background: var(--primary); }
     input:checked + .slider:before { transform: translateX(22px); }
 
-    /* ====== MODALES SÉCURISÉES POUR MOBILE ====== */
+    /* ====== MODALES SÉCURISÉES ====== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(11,26,46,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -175,10 +210,11 @@
     }
     @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; shrink: 0; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; flex-shrink: 0; }
     .modal-header h3 { font-size: 1.3rem; font-weight: 800; margin: 0; }
-    .modal-body { padding: 24px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; shrink: 0; position: sticky; bottom: 0; }
+    /* Correction du scroll : ajout d'un padding bottom généreux */
+    .modal-body { padding: 24px 24px 60px 24px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; flex-shrink: 0; position: sticky; bottom: 0; z-index: 10; }
 
     /* ====== UPLOADS ====== */
     .upload-preview { display: flex; align-items: center; gap: 16px; margin: 10px 0; flex-wrap: wrap; }
@@ -199,7 +235,7 @@
 
     .filter-group { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
 
-    /* ====== RESPONSIVE ET ANTI-OVERFLOW TOTAL ====== */
+    /* ====== RESPONSIVE ====== */
     @media (max-width: 1024px) { 
       .grid-4 { grid-template-columns: repeat(2,1fr); } 
       .pricing-grid { grid-template-columns: repeat(2,1fr); }
@@ -216,7 +252,7 @@
       .filter-group { flex-direction: column; align-items: stretch; }
     }
     @media (max-width: 480px) {
-      .modal-body { padding:20px; }
+      .modal-body { padding:20px 20px 50px 20px; }
       .modal-footer { padding:15px 20px; flex-direction:column-reverse; }
       .modal-footer .btn { width:100%; }
       .header h1 { font-size:1.5rem; }
@@ -229,7 +265,6 @@
   </style>
 </head>
 <body>
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
@@ -249,7 +284,6 @@
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <div class="main">
     <div class="header">
       <div style="display:flex;align-items:center;gap:16px;">
@@ -259,13 +293,24 @@
       <div class="user-badge"><i class="fas fa-user-circle"></i> <span id="userEmail">Propriétaire</span></div>
     </div>
 
-    <!-- SECTION DASHBOARD -->
     <div id="section-dashboard" class="section active">
       <div class="grid-4" id="statsCards">
-        <div class="stat-card"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes aujourd'hui</div></div>
-        <div class="stat-card"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Chiffre d'affaires (jour)</div></div>
-        <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="statEmployes">0</div><div class="label">Employés actifs</div></div>
-        <div class="stat-card"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats au menu</div></div>
+        <div class="stat-card card-blue">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes du jour</div></div>
+        </div>
+        <div class="stat-card card-green">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Revenus (jour)</div></div>
+        </div>
+        <div class="stat-card card-orange">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="statEmployes">0</div><div class="label">Employés actifs</div></div>
+        </div>
+        <div class="stat-card card-purple">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats au menu</div></div>
+        </div>
       </div>
       <div class="card">
         <h3><i class="fas fa-chart-line"></i> Évolution des ventes (7 derniers jours)</h3>
@@ -279,7 +324,6 @@
       </div>
     </div>
 
-    <!-- SECTION RESTAURANT -->
     <div id="section-restaurant" class="section">
       <div class="card">
         <h3><i class="fas fa-store-alt"></i> Informations du restaurant</h3>
@@ -312,7 +356,6 @@
       </div>
     </div>
 
-    <!-- SECTION EMPLOYÉS -->
     <div id="section-employes" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
@@ -325,7 +368,6 @@
       </div>
     </div>
 
-    <!-- SECTION MENU -->
     <div id="section-menu" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
@@ -345,7 +387,6 @@
       </div>
     </div>
 
-    <!-- SECTION COMMANDES -->
     <div id="section-commandes" class="section">
       <div class="card">
         <h3 style="margin-bottom:10px;"><i class="fas fa-clipboard-list"></i> Historique et rapports des ventes</h3>
@@ -368,7 +409,6 @@
       </div>
     </div>
 
-    <!-- SECTION RETRAITS -->
     <div id="section-retraits" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
@@ -385,7 +425,6 @@
       </div>
     </div>
 
-    <!-- SECTION ABONNEMENTS -->
     <div id="section-abonnements" class="section">
       <div class="card">
         <h3><i class="fas fa-credit-card"></i> Abonnement & Publication</h3>
@@ -393,52 +432,48 @@
           Statut actuel de votre restaurant : <span id="subscriptionStatusBadge" class="badge badge-warning">Mode Configuration Réduite</span>
         </p>
         <div class="pricing-grid">
-          <!-- Starter -->
           <div class="price-card" id="plan-starter">
             <h4>Pack Starter</h4>
             <div class="price">11 900 F <span>/ mois</span></div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Ou 119 000 F/an</p>
+            <div class="annual-price">Ou 119 000 F / an</div>
             <ul>
               <li><i class="fas fa-check"></i> Menu QR par navigateur</li>
               <li><i class="fas fa-check"></i> Configuration autonome</li>
               <li><i class="fas fa-check"></i> Commandes WhatsApp</li>
               <li><i class="fas fa-check"></i> Paiement cash au comptoir</li>
             </ul>
-            <button class="btn btn-outline btn-sm" onclick="selectPlan('Starter')">Choisir ce plan</button>
+            <button class="btn btn-outline btn-block" onclick="selectPlan('Starter')">Choisir ce plan</button>
           </div>
-          <!-- Pro -->
           <div class="price-card" id="plan-pro">
             <h4>Pack Pro</h4>
             <div class="price">14 900 F <span>/ mois</span></div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Ou 149 000 F/an</p>
+            <div class="annual-price">Ou 149 000 F / an</div>
             <ul>
               <li><i class="fas fa-check"></i> Tout le pack Starter</li>
-              <li><i class="fas fa-check"></i> Commande directe sur le Dashboard</li>
-              <li><i class="fas fa-check"></i> Dashboard cuisine en temps réel</li>
+              <li><i class="fas fa-check"></i> Commande sur le Dashboard</li>
+              <li><i class="fas fa-check"></i> Dashboard cuisine (temps réel)</li>
               <li><i class="fas fa-check"></i> Intégration Mobile Money</li>
             </ul>
-            <button class="btn btn-outline btn-sm" onclick="selectPlan('Pro')">Choisir ce plan</button>
+            <button class="btn btn-outline btn-block" onclick="selectPlan('Pro')">Choisir ce plan</button>
           </div>
-          <!-- Premium -->
           <div class="price-card" id="plan-premium">
             <div class="plan-badge">Populaire</div>
             <h4>Pack Premium</h4>
             <div class="price">29 900 F <span>/ mois</span></div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Ou 299 000 F/an</p>
+            <div class="annual-price">Ou 299 000 F / an</div>
             <ul>
               <li><i class="fas fa-check"></i> Tout le pack Pro</li>
               <li><i class="fas fa-check"></i> Split-bill dynamique</li>
-              <li><i class="fas fa-check"></i> Live feed cuisine + alerte sonore</li>
-              <li><i class="fas fa-check"></i> Multi-comptes et rôles complets</li>
+              <li><i class="fas fa-check"></i> Alertes sonores cuisine</li>
+              <li><i class="fas fa-check"></i> Multi-comptes et rôles</li>
             </ul>
-            <button class="btn btn-primary btn-sm" onclick="selectPlan('Premium')">Choisir ce plan</button>
+            <button class="btn btn-primary btn-block" onclick="selectPlan('Premium')">Choisir ce plan</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODALE UNIVERSELLE OPTIMISÉE -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-header">
@@ -446,8 +481,7 @@
       </div>
       <form id="modalForm">
         <div class="modal-body" id="modalBody">
-          <!-- Contenu injecté dynamiquement -->
-        </div>
+          </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" id="modalCancel">Annuler</button>
           <button type="submit" class="btn btn-primary" id="modalSubmit">Enregistrer</button>
@@ -456,7 +490,6 @@
     </div>
   </div>
 
-  <!-- Firebase Legacy SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -603,14 +636,10 @@
       }
     }
 
-    window.selectPlan = async (planName) => {
+    window.selectPlan = (planName) => {
       if(!currentRestaurantId) return;
-      if(confirm(`Voulez-vous souscrire au Pack ${planName} pour votre restaurant ?`)) {
-        await db.collection('restaurants').doc(currentRestaurantId).update({ abonnement: planName });
-        restaurantData.abonnement = planName;
-        updateSubscriptionUI(planName);
-        alert(`🎉 Félicitations ! Votre abonnement au Pack ${planName} a bien été pris en compte.`);
-      }
+      // Redirection vers le fichier de paiement avec les paramètres nécessaires
+      window.location.href = `paiement_abonnement.html?plan=${planName}&restoId=${currentRestaurantId}`;
     }
 
     // ============================================================
@@ -710,18 +739,27 @@
     };
 
     // ============================================================
-    //  EMPLOYÉS COMPLÈTEMENT CORRIGÉS ET STABLES
+    //  EMPLOYÉS CORRIGÉS (Filtre côté client pour éviter le bug d'index Firestore)
     // ============================================================
     async function loadEmployes() {
       if (!currentRestaurantId) return;
+      // On récupère TOUS les utilisateurs du restaurant
       const snapshot = await db.collection('users')
         .where('restaurantId', '==', currentRestaurantId)
-        .where('role', '!=', 'proprietaire')
         .get();
+        
       const tbody = document.getElementById('employesList');
       tbody.innerHTML = '';
+      let activeEmployesCount = 0;
+
       snapshot.forEach(doc => {
         const data = doc.data();
+        
+        // CORRECTION DU BUG : On filtre manuellement le propriétaire ici
+        // Firestore bloquait car where('role', '!=', 'proprietaire') exigeait un index complexe
+        if(data.role === 'proprietaire') return; 
+        
+        activeEmployesCount++;
         const photo = data.photo ? `<img src="${data.photo}" style="width:45px;height:45px;object-fit:cover;border-radius:12px;" />` :
           '<div style="width:45px;height:45px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="color:#94a3b8;"></i></div>';
         
@@ -741,7 +779,7 @@
         `;
         tbody.appendChild(tr);
       });
-      document.getElementById('statEmployes').textContent = snapshot.size;
+      document.getElementById('statEmployes').textContent = activeEmployesCount;
     }
 
     window.supprimerEmploye = async (uid) => {
@@ -832,7 +870,7 @@
     });
 
     // ============================================================
-    //  GESTION DES PLATS SANS BUG DE BLOCAGE
+    //  GESTION DES PLATS ET VISUALISATION INDISPONIBLE
     // ============================================================
     async function loadMenu() {
       if (!currentRestaurantId) return;
@@ -843,20 +881,28 @@
       snapshot.forEach(doc => {
         count++;
         const data = doc.data();
+        const isDispo = data.disponible !== false;
+        
         const photo = data.image ? `<img src="${data.image}" style="width:55px;height:55px;object-fit:cover;border-radius:14px;" />` :
           '<div style="width:55px;height:55px;background:#f1f5f9;border-radius:14px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:#94a3b8;"></i></div>';
         const prixBarre = data.prixOriginal ? `<span style="text-decoration:line-through;color:#94a3b8;font-size:0.85rem;margin-right:5px;">${data.prixOriginal} F</span>` : '';
         const prixActuel = data.prix ? `<strong>${data.prix} F</strong>` : '';
         const promo = data.promotion ? '<span class="badge badge-success">Promo</span>' : '<span class="badge badge-info">Standard</span>';
         
+        // Badge spécifique pour la disponibilité
+        const dispoBadge = isDispo ? '' : '<br/><span class="badge badge-danger" style="margin-top:5px;">Non disponible</span>';
+        
         const tr = document.createElement('tr');
+        // Ajout d'une classe CSS si le plat est indisponible (pour le flouter)
+        if(!isDispo) tr.className = "item-disabled"; 
+
         tr.innerHTML = `
           <td>${photo}</td>
-          <td style="font-weight:600;">${data.nom}</td>
+          <td style="font-weight:600;">${data.nom} ${dispoBadge}</td>
           <td>${prixBarre} ${prixActuel}</td>
           <td>${promo}</td>
           <td>${data.categorie || 'Non classé'}</td>
-          <td><label class="switch"><input type="checkbox" ${data.disponible !== false ? 'checked' : ''} onchange="toggleDisponibilite('${doc.id}', this.checked)" /><span class="slider"></span></label></td>
+          <td><label class="switch"><input type="checkbox" ${isDispo ? 'checked' : ''} onchange="toggleDisponibilite('${doc.id}', this.checked)" /><span class="slider"></span></label></td>
           <td>
             <button class="btn btn-primary btn-sm" onclick="editPlat('${doc.id}')" title="Modifier"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="supprimerPlat('${doc.id}')" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
@@ -880,6 +926,7 @@
       const doc = await db.collection('menus').doc(id).get();
       const data = doc.data();
       const supps = data.supplements ? data.supplements.map(s => s.nom + ':' + s.prix).join(', ') : '';
+      
       const html = `
         <div class="form-group">
           <label>Photo du plat</label>
@@ -895,10 +942,20 @@
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
         <div class="grid-2">
-          <div class="form-group"><label>Prix de vente actuel (FCFA)</label><input type="number" id="platPrix" class="form-control" value="${data.prix || ''}" required /></div>
-          <div class="form-group"><label>Ancien prix (Optionnel - Barré)</label><input type="number" id="platPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
+          <div class="form-group"><label>Prix actuel (FCFA)</label><input type="number" id="platPrix" class="form-control" value="${data.prix || ''}" required /></div>
+          <div class="form-group"><label>Ancien prix (Optionnel)</label><input type="number" id="platPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
         </div>
-        <div class="form-group"><label>Catégorie du menu</label><input type="text" id="platCategorie" class="form-control" value="${data.categorie || ''}" placeholder="Ex: Entrées, Boissons..." /></div>
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select id="platCategorie" class="form-control" required>
+            <option value="Entrées" ${data.categorie=='Entrées'?'selected':''}>Entrées</option>
+            <option value="Plats Principaux" ${data.categorie=='Plats Principaux'?'selected':''}>Plats Principaux</option>
+            <option value="Desserts" ${data.categorie=='Desserts'?'selected':''}>Desserts</option>
+            <option value="Boissons" ${data.categorie=='Boissons'?'selected':''}>Boissons</option>
+            <option value="Snacks" ${data.categorie=='Snacks'?'selected':''}>Snacks / Fast-food</option>
+            <option value="Autre" ${data.categorie=='Autre'?'selected':''}>Autre</option>
+          </select>
+        </div>
         <div class="form-group"><label>Description exhaustive</label><textarea id="platDescription" class="form-control">${data.description || ''}</textarea></div>
         <div class="form-group"><label>Suppléments (Format -> Nom:Prix, Nom2:Prix2)</label><input type="text" id="platSupplements" class="form-control" value="${supps}" placeholder="Ex: Fromage:500, Extra Frites:1000" /></div>
       `;
@@ -940,7 +997,17 @@
           <div class="form-group"><label>Prix actuel (FCFA)</label><input type="number" id="platPrix" class="form-control" placeholder="4500" required /></div>
           <div class="form-group"><label>Ancien prix (Optionnel)</label><input type="number" id="platPrixOriginal" class="form-control" placeholder="5000" /></div>
         </div>
-        <div class="form-group"><label>Catégorie</label><input type="text" id="platCategorie" class="form-control" placeholder="Ex: Plats Locaux" /></div>
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select id="platCategorie" class="form-control" required>
+            <option value="Entrées">Entrées</option>
+            <option value="Plats Principaux" selected>Plats Principaux</option>
+            <option value="Desserts">Desserts</option>
+            <option value="Boissons">Boissons</option>
+            <option value="Snacks">Snacks / Fast-food</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" placeholder="Une description savoureuse..."></textarea></div>
         <div class="form-group"><label>Suppléments (Nom:Prix, séparés par une virgule)</label><input type="text" id="platSupplements" class="form-control" placeholder="Plantain frites:500, Piment:100" /></div>
       `;
@@ -986,12 +1053,15 @@
     }
 
     // ============================================================
-    //  QR CODE MENU PUBLIC GENERATION
+    //  QR CODE MENU PUBLIC GENERATION (Modification PDF QR)
     // ============================================================
     document.getElementById('generateMenuLink').addEventListener('click', () => {
       const container = document.getElementById('menuLinkContainer');
       container.style.display = 'block';
+      
+      // Lien vers la page menu public qui contiendra le bouton Commander pour les clients
       const url = `${window.location.origin}/menu_public.html?restaurant=${currentRestaurantId}`;
+      
       document.getElementById('menuLink').href = url;
       document.getElementById('menuLink').textContent = url;
       const qrDiv = document.getElementById('qrcode');
@@ -999,7 +1069,7 @@
       new QRCode(qrDiv, { text: url, width: 200, height: 200, colorDark: '#0b1a2e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
     });
 
-    document.getElementById('downloadQR').addEventListener('click', () => {
+    document.getElementById('downloadQR').addEventListener('click', async () => {
       const canvas = document.querySelector('#qrcode canvas');
       if (!canvas) { alert('Générez d\'abord le QR code.'); return; }
       const imgData = canvas.toDataURL('image/png');
@@ -1009,31 +1079,49 @@
       doc.setFillColor('#fef3e8');
       doc.rect(0, 0, 210, 297, 'F');
 
-      const logoUrl = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
-      doc.addImage(logoUrl, 'PNG', 65, 20, 80, 25);
-      doc.setFontSize(26);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor('#e67e22');
-      doc.text('SCAN&TCHOP', 105, 65, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor('#334155');
-      doc.text('Scannez pour découvrir notre menu', 105, 82, { align: 'center' });
+      // Mise en avant du restaurant dans l'affiche QR
+      const restaurantName = restaurantData?.nom || 'Mon Restaurant';
+      
+      // Si le resto a un logo, on l'utilise à la place de celui de l'application
+      if (restaurantData && restaurantData.logo) {
+          try {
+              // Convertir l'image URL en base64 pour jsPDF n'est pas toujours simple (CORS).
+              // Par précaution, nous ajoutons le nom en texte très visible
+              doc.setFontSize(28);
+              doc.setFont('helvetica', 'bold');
+              doc.setTextColor('#0b1a2e');
+              doc.text(restaurantName.toUpperCase(), 105, 45, { align: 'center' });
+          } catch(e) { console.log(e); }
+      } else {
+          doc.setFontSize(28);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor('#0b1a2e');
+          doc.text(restaurantName.toUpperCase(), 105, 45, { align: 'center' });
+      }
 
-      doc.addImage(imgData, 'PNG', 60, 100, 90, 90);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor('#e67e22');
+      doc.text('Scannez pour découvrir notre menu et commander', 105, 60, { align: 'center' });
+
+      doc.addImage(imgData, 'PNG', 60, 90, 90, 90);
 
       if (restaurantData) {
-        doc.setFontSize(18); doc.setFont('helvetica', 'bold'); doc.setTextColor('#0b1a2e');
-        doc.text(restaurantData.nom || 'Mon restaurant', 105, 215, { align: 'center' });
         doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.setTextColor('#475569');
-        if (restaurantData.adresse) doc.text(restaurantData.adresse, 105, 230, { align: 'center' });
-        if (restaurantData.telephone) doc.text(`📞 ${restaurantData.telephone}`, 105, 242, { align: 'center' });
+        if (restaurantData.adresse) doc.text(restaurantData.adresse, 105, 200, { align: 'center' });
+        if (restaurantData.telephone) doc.text(`📞 ${restaurantData.telephone}`, 105, 210, { align: 'center' });
       }
-      doc.save('Affiche_Menu_QR.pdf');
+      
+      // Petit rappel SCAN&TCHOP en bas
+      doc.setFontSize(10);
+      doc.setTextColor('#94a3b8');
+      doc.text('Propulsé par SCAN&TCHOP', 105, 280, { align: 'center' });
+      
+      doc.save(`Affiche_QR_${restaurantName.replace(/\s+/g, '_')}.pdf`);
     });
 
     // ============================================================
-    //  EXPORT PDF DES TRANSACTIONS INTÉGRANT LE LOGO DE L'ENTREPRISE
+    //  EXPORT PDF DES TRANSACTIONS AVEC LOGO DU RESTAURANT
     // ============================================================
     async function loadCommandes() {
       if (!currentRestaurantId) return;
@@ -1101,15 +1189,13 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // Ajout du logo entreprise en haut à gauche
-      const logoUrl = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
-      
-      // Initialisation du design du rapport PDF avec logo
-      doc.addImage(logoUrl, 'PNG', 14, 10, 45, 15);
+      // Logo SCAN&TCHOP à gauche
+      const appLogoUrl = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
+      doc.addImage(appLogoUrl, 'PNG', 14, 10, 40, 12);
       
       doc.setFontSize(18);
       doc.setTextColor(230,126,34);
-      doc.text("Rapport des Ventes & Transactions", 70, 20);
+      doc.text("Rapport des Ventes", 70, 20);
       
       doc.setFontSize(11);
       doc.setTextColor(80,80,80);
@@ -1121,11 +1207,11 @@
       
       doc.autoTable({
         html: '#tableCommandesExport',
-        startY: 53,
+        startY: 55,
         theme: 'striped',
         headStyles: { fillColor: [230,126,34] }
       });
-      doc.save(`Rapport_Ventes_ScanAndTchop.pdf`);
+      doc.save(`Rapport_Ventes_${restaurantData?.nom || 'ScanAndTchop'}.pdf`);
     });
 
     // ============================================================
@@ -1230,7 +1316,7 @@
 
     if (currentRestaurantId) {
       db.collection('menus').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => loadMenu());
-      db.collection('users').where('restaurantId', '==', currentRestaurantId).where('role', '!=', 'proprietaire').onSnapshot(() => loadEmployes());
+      db.collection('users').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => loadEmployes()); // Ecoute tous les users, le filtre se fait en JS
       db.collection('commandes').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => { loadCommandes(); updateChart(); });
     }
   </script>
