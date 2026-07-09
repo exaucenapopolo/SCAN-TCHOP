@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0b1a2e;
+            padding: 24px 16px 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .restaurant-header {
+            background: #fff;
+            border-radius: 28px;
+            padding: 30px 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 24px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .restaurant-header img.logo {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+        .restaurant-header .info {
+            flex: 1;
+        }
+        .restaurant-header .info h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .restaurant-header .info p {
+            color: #475569;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .restaurant-header .info .contacts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .restaurant-header .info .contacts a {
+            color: #e67e22;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .restaurant-header .info .contacts a:hover { text-decoration: underline; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .menu-card {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+        .menu-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .menu-card .body {
+            padding: 16px 18px 20px;
+        }
+        .menu-card .body h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .menu-card .body .price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+        }
+        .menu-card .body .price .original {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .menu-card .body .price .current {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        .menu-card .body .description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 8px 0 4px;
+        }
+        .menu-card .body .supplements {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 8px;
+        }
+        .menu-card .body .supplements span {
+            background: #f1f5f9;
+            padding: 2px 10px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 2px 4px 2px 0;
+            font-size: 0.75rem;
+        }
+        .badge-promo {
+            background: #22c55e;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+        }
+        .footer img { height: 30px; vertical-align: middle; margin-right: 8px; }
+        @media (max-width: 600px) {
+            .restaurant-header { flex-direction: column; text-align: center; }
+            .restaurant-header .info .contacts { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="restaurantInfo" class="restaurant-header">
+        <!-- Rempli par JS -->
+    </div>
+    <div id="menuContainer" class="menu-grid">
+        <!-- Rempli par JS -->
+    </div>
+    <div class="footer">
+        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
+        <span>SCAN&TCHOP – L'excellence du service à votre table.</span>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<script>
+    // Config Firebase (identique)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+        authDomain: "scan-et-tchop.firebaseapp.com",
+        projectId: "scan-et-tchop",
+        storageBucket: "scan-et-tchop.firebasestorage.app",
+        messagingSenderId: "648843762360",
+        appId: "1:648843762360:web:092b3d359eeae61ef2324d",
+        measurementId: "G-8DKXS67DKY"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Récupérer l'ID du restaurant depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const restaurantId = params.get('restaurant');
+
+    if (!restaurantId) {
+        document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Restaurant non spécifié.</p>';
+    } else {
+        loadRestaurant(restaurantId);
+    }
+
+    async function loadRestaurant(id) {
+        try {
+            // Infos du restaurant
+            const restoDoc = await db.collection('restaurants').doc(id).get();
+            if (!restoDoc.exists) {
+                document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Restaurant introuvable.</p>';
+                return;
+            }
+            const resto = restoDoc.data();
+
+            // Afficher les infos
+            const infoDiv = document.getElementById('restaurantInfo');
+            infoDiv.innerHTML = `
+                ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo" />` : ''}
+                <div class="info">
+                    <h1>${resto.nom || 'Restaurant'}</h1>
+                    ${resto.description ? `<p>${resto.description}</p>` : ''}
+                    <div class="contacts">
+                        ${resto.telephone ? `<a href="tel:${resto.telephone}"><i class="fas fa-phone"></i> ${resto.telephone}</a>` : ''}
+                        ${resto.whatsapp ? `<a href="https://wa.me/${resto.whatsapp.replace(/\s/g,'')}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
+                        ${resto.adresse ? `<span><i class="fas fa-map-pin"></i> ${resto.adresse}${resto.ville ? ', '+resto.ville : ''}</span>` : ''}
+                        ${resto.map ? `<a href="${resto.map}" target="_blank"><i class="fas fa-map-marked-alt"></i> Voir sur la carte</a>` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Charger les plats
+            const snapshot = await db.collection('menus')
+                .where('restaurantId', '==', id)
+                .where('disponible', '==', true)
+                .get();
+
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+            if (snapshot.empty) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Aucun plat disponible pour le moment.</p></div>`;
+                return;
+            }
+            snapshot.forEach(doc => {
+                const plat = doc.data();
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                const promo = plat.promotion ? `<span class="badge-promo">Promo</span>` : '';
+                const supps = plat.supplements && plat.supplements.length ? 
+                    plat.supplements.map(s => `<span>${s.nom} (+${s.prix} F)</span>`).join('') : '';
+                card.innerHTML = `
+                    ${plat.image ? `<img src="${plat.image}" alt="${plat.nom}" />` : ''}
+                    <div class="body">
+                        <h3>${plat.nom} ${promo}</h3>
+                        <div class="price">
+                            ${plat.prixOriginal ? `<span class="original">${plat.prixOriginal} F</span>` : ''}
+                            <span class="current">${plat.prix} FCFA</span>
+                        </div>
+                        ${plat.description ? `<p class="description">${plat.description}</p>` : ''}
+                        ${supps ? `<div class="supplements">Suppl. : ${supps}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        } catch (err) {
+            console.error(err);
+            document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Erreur de chargement.</p>';
+        }
+    }
+</script>
+</body>
+</html>
