@@ -18,6 +18,8 @@
             max-width: 900px;
             margin: 0 auto;
         }
+        
+        /* En-tête du restaurant */
         .restaurant-header {
             background: #fff;
             border-radius: 28px;
@@ -31,130 +33,100 @@
             border: 1px solid rgba(255,255,255,0.3);
         }
         .restaurant-header img.logo {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 20px;
+            width: 80px; height: 80px; object-fit: cover; border-radius: 20px;
         }
-        .restaurant-header .info {
-            flex: 1;
-        }
-        .restaurant-header .info h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .restaurant-header .info p {
-            color: #475569;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-        .restaurant-header .info .contacts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: 8px;
-        }
-        .restaurant-header .info .contacts a {
-            color: #e67e22;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .restaurant-header .info { flex: 1; }
+        .restaurant-header .info h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+        .restaurant-header .info p { color: #475569; font-size: 0.95rem; margin-bottom: 4px; }
+        .restaurant-header .info .contacts { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; }
+        .restaurant-header .info .contacts a, .restaurant-header .info .contacts span {
+            color: #e67e22; text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .restaurant-header .info .contacts a:hover { text-decoration: underline; }
 
+        /* Grille du menu */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 24px;
         }
+        
+        /* Carte de plat */
         .menu-card {
-            background: #fff;
-            border-radius: 24px;
-            overflow: hidden;
+            background: #fff; border-radius: 24px; overflow: hidden;
             box-shadow: 0 4px 16px rgba(0,0,0,0.04);
             transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid rgba(255,255,255,0.3);
+            display: flex; flex-direction: column;
         }
         .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
-        .menu-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
+        .menu-card img { width: 100%; height: 180px; object-fit: cover; }
+        .menu-card .body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
+        .menu-card .body h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+        
+        /* Style pour les plats indisponibles */
+        .menu-card.indisponible { opacity: 0.6; filter: grayscale(80%); }
+        .menu-card.indisponible:hover { transform: none; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+        .badge-indisponible {
+            background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 30px; display: inline-table; margin-bottom: 10px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .menu-card .body {
-            padding: 16px 18px 20px;
+
+        .price { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+        .price .original { text-decoration: line-through; color: #94a3b8; font-size: 0.9rem; }
+        .price .current { font-size: 1.2rem; font-weight: 700; color: #e67e22; }
+        .description { color: #64748b; font-size: 0.9rem; margin: 8px 0 4px; flex: 1; }
+        
+        .supplements {
+            font-size: 0.85rem; color: #475569; margin-top: 8px; margin-bottom: 15px;
+            border-top: 1px dashed #e2e8f0; padding-top: 8px;
         }
-        .menu-card .body h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .supplements span {
+            background: #f1f5f9; padding: 2px 10px; border-radius: 30px;
+            display: inline-block; margin: 2px 4px 2px 0; font-size: 0.75rem;
         }
-        .menu-card .body .price {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 8px 0;
-        }
-        .menu-card .body .price .original {
-            text-decoration: line-through;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        .menu-card .body .price .current {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #e67e22;
-        }
-        .menu-card .body .description {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin: 8px 0 4px;
-        }
-        .menu-card .body .supplements {
-            font-size: 0.85rem;
-            color: #475569;
-            margin-top: 8px;
-            border-top: 1px dashed #e2e8f0;
-            padding-top: 8px;
-        }
-        .menu-card .body .supplements span {
-            background: #f1f5f9;
-            padding: 2px 10px;
-            border-radius: 30px;
-            display: inline-block;
-            margin: 2px 4px 2px 0;
-            font-size: 0.75rem;
-        }
+        
         .badge-promo {
-            background: #22c55e;
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.7rem;
-            padding: 2px 10px;
-            border-radius: 30px;
-            display: inline-block;
-            margin-left: 8px;
+            background: #22c55e; color: #fff; font-weight: 600; font-size: 0.7rem;
+            padding: 2px 10px; border-radius: 30px; display: inline-block; margin-left: 8px;
         }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #94a3b8;
+
+        /* Bouton d'action (Paiement) */
+        .btn-commander {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #e67e22, #cf6f1b);
+            color: #fff; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: all 0.3s ease; margin-top: auto;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        .btn-commander:hover { box-shadow: 0 4px 15px rgba(230,126,34,0.3); transform: translateY(-2px); }
+        .btn-commander:disabled {
+            background: #cbd5e1; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none;
+        }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
         .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
 
-        .footer {
-            text-align: center;
-            margin-top: 48px;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 24px;
+        /* Pied de page et Publicité SaaS */
+        .footer { text-align: center; margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 30px; }
+        
+        .promo-saas {
+            background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
         }
-        .footer img { height: 30px; vertical-align: middle; margin-right: 8px; }
+        .promo-saas h4 { font-size: 1.1rem; color: #0b1a2e; margin-bottom: 8px; }
+        .promo-saas p { color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
+        .btn-saas {
+            display: inline-block; background: #0b1a2e; color: #fff; text-decoration: none;
+            padding: 10px 24px; border-radius: 12px; font-weight: 500; font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .btn-saas:hover { background: #1e293b; }
+
+        .footer-credits { font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .footer-credits img { height: 30px; }
+
         @media (max-width: 600px) {
             .restaurant-header { flex-direction: column; text-align: center; }
             .restaurant-header .info .contacts { justify-content: center; }
@@ -166,19 +138,30 @@
     <div id="restaurantInfo" class="restaurant-header">
         <!-- Rempli par JS -->
     </div>
+    
     <div id="menuContainer" class="menu-grid">
         <!-- Rempli par JS -->
     </div>
+    
     <div class="footer">
-        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
-        <span>SCAN&TCHOP – L'excellence du service à votre table.</span>
+        <!-- Espace promotionnel pour les restaurateurs -->
+        <div class="promo-saas">
+            <h4>Vous êtes restaurateur ?</h4>
+            <p>Digitalisez votre établissement, recevez des paiements et gérez vos commandes facilement.</p>
+            <a href="inscription.html" class="btn-saas">Créer mon menu QR gratuitement</a>
+        </div>
+
+        <div class="footer-credits">
+            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
+            <span>SCAN&TCHOP – L'excellence du service à votre table.</span>
+        </div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
-    // Config Firebase (identique)
+    // Configuration Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
         authDomain: "scan-et-tchop.firebaseapp.com",
@@ -196,7 +179,7 @@
     const restaurantId = params.get('restaurant');
 
     if (!restaurantId) {
-        document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Restaurant non spécifié.</p>';
+        document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Restaurant non spécifié dans le lien.</p>';
     } else {
         loadRestaurant(restaurantId);
     }
@@ -206,12 +189,12 @@
             // Infos du restaurant
             const restoDoc = await db.collection('restaurants').doc(id).get();
             if (!restoDoc.exists) {
-                document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Restaurant introuvable.</p>';
+                document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Restaurant introuvable.</p>';
                 return;
             }
             const resto = restoDoc.data();
 
-            // Afficher les infos
+            // Afficher les infos du restaurant
             const infoDiv = document.getElementById('restaurantInfo');
             infoDiv.innerHTML = `
                 ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo" />` : ''}
@@ -227,28 +210,49 @@
                 </div>
             `;
 
-            // Charger les plats
+            // Charger TOUS les plats (sans filtrer par disponibilité pour pouvoir les afficher en "épuisé")
             const snapshot = await db.collection('menus')
                 .where('restaurantId', '==', id)
-                .where('disponible', '==', true)
                 .get();
 
             const container = document.getElementById('menuContainer');
             container.innerHTML = '';
+            
             if (snapshot.empty) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Aucun plat disponible pour le moment.</p></div>`;
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Aucun plat configuré pour ce menu.</p></div>`;
                 return;
             }
+
             snapshot.forEach(doc => {
                 const plat = doc.data();
-                const card = document.createElement('div');
-                card.className = 'menu-card';
-                const promo = plat.promotion ? `<span class="badge-promo">Promo</span>` : '';
+                
+                // Définir l'état du plat en lisant la variable "disponible" gérée dans le tableau de bord
+                const isDispo = plat.disponible !== false; 
+                
+                // Gérer les suppléments
                 const supps = plat.supplements && plat.supplements.length ? 
                     plat.supplements.map(s => `<span>${s.nom} (+${s.prix} F)</span>`).join('') : '';
+
+                // Gérer l'affichage de la promotion
+                const promo = plat.promotion && isDispo ? `<span class="badge-promo">Promo</span>` : '';
+                
+                // Gérer le badge d'indisponibilité
+                const badgeIndispo = !isDispo ? `<div class="badge-indisponible">Non disponible aujourd'hui</div>` : '';
+
+                // Configurer le bouton d'action selon la disponibilité
+                // L'encodage URI permet de passer les noms avec des espaces ou accents dans l'URL sans casser le code
+                const boutonAction = isDispo 
+                    ? `<button class="btn-commander" onclick="allerAuPaiement('${doc.id}', '${encodeURIComponent(plat.nom)}', ${plat.prix})"><i class="fas fa-shopping-cart"></i> Commander & Payer</button>`
+                    : `<button class="btn-commander" disabled><i class="fas fa-times-circle"></i> Épuisé</button>`;
+
+                // Création de la carte
+                const card = document.createElement('div');
+                card.className = isDispo ? 'menu-card' : 'menu-card indisponible';
+                
                 card.innerHTML = `
                     ${plat.image ? `<img src="${plat.image}" alt="${plat.nom}" />` : ''}
                     <div class="body">
+                        ${badgeIndispo}
                         <h3>${plat.nom} ${promo}</h3>
                         <div class="price">
                             ${plat.prixOriginal ? `<span class="original">${plat.prixOriginal} F</span>` : ''}
@@ -256,14 +260,25 @@
                         </div>
                         ${plat.description ? `<p class="description">${plat.description}</p>` : ''}
                         ${supps ? `<div class="supplements">Suppl. : ${supps}</div>` : ''}
+                        
+                        ${boutonAction}
                     </div>
                 `;
                 container.appendChild(card);
             });
         } catch (err) {
             console.error(err);
-            document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444;">Erreur de chargement.</p>';
+            document.getElementById('restaurantInfo').innerHTML = '<p style="color:#ef4444; text-align:center;">Erreur lors du chargement du menu.</p>';
         }
+    }
+
+    // Fonction de redirection vers la page de paiement
+    function allerAuPaiement(platId, nomEncode, prix) {
+        // Redirige vers la page de paiement en passant toutes les informations nécessaires
+        const nomPlat = decodeURIComponent(nomEncode);
+        const urlPaiement = `paiement.html?restaurant=${restaurantId}&plat=${platId}&nom=${encodeURIComponent(nomPlat)}&prix=${prix}`;
+        
+        window.location.href = urlPaiement;
     }
 </script>
 </body>
