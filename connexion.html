@@ -6,6 +6,7 @@
     <title>Authentification - SCAN&TCHOP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS optimisé pour la rapidité et la fluidité */
         :root { 
             --primary: #E67E22; 
             --primary-hover: #cf6f1b; 
@@ -15,142 +16,91 @@
             --border-light: #E2E8F0; 
             --white: #FFFFFF;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-body); 
             color: var(--text-main); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            display: flex; justify-content: center; align-items: center; 
             min-height: 100vh; 
         }
-
         .auth-container { 
-            background: var(--white); 
-            padding: 40px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08); 
-            width: 100%; 
-            max-width: 420px; 
-            text-align: center;
-            overflow: hidden;
-            position: relative;
+            background: var(--white); padding: 40px; border-radius: 16px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08); width: 100%; max-width: 400px; 
+            text-align: center; animation: fadeIn 0.4s ease-out;
         }
-
-        .auth-container img { height: 60px; margin-bottom: 24px; }
-        .auth-container h2 { margin-bottom: 8px; color: #1A202C; font-size: 1.5rem; }
-        .auth-container p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px; }
-
-        .form-section { transition: all 0.3s ease; }
-        .hidden { display: none; }
-
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: #4A5568; }
-        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .auth-container img { height: 50px; margin-bottom: 20px; }
+        .auth-container h2 { font-size: 1.5rem; margin-bottom: 5px; color: #1A202C; }
+        .auth-container p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.85rem; }
         .form-control { 
-            width: 100%; 
-            padding: 12px 16px; 
-            border: 1.5px solid var(--border-light); 
-            border-radius: 8px; 
-            font-family: inherit; 
-            font-size: 1rem; 
-            transition: all 0.2s;
+            width: 100%; padding: 10px 15px; border: 1px solid var(--border-light); 
+            border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s;
         }
-        .form-control:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.15); 
-        }
-
+        .form-control:focus { outline: none; border-color: var(--primary); }
         .btn { 
-            display: inline-block; 
-            width: 100%; 
-            padding: 14px; 
-            background-color: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: 600; 
-            font-size: 1rem; 
-            cursor: pointer; 
-            transition: background 0.3s, transform 0.1s; 
+            width: 100%; padding: 12px; background-color: var(--primary); color: white; 
+            border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .btn:hover { background-color: var(--primary-hover); }
-        .btn:active { transform: scale(0.98); }
-
-        .toggle-link { 
-            display: block; 
-            margin-top: 24px; 
-            font-size: 0.95rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            cursor: pointer;
-        }
+        .toggle-link { margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; }
         .toggle-link span { color: var(--primary); font-weight: 600; }
-        .toggle-link:hover span { text-decoration: underline; }
-
-        .error-message { color: #E53E3E; font-size: 0.85rem; margin-bottom: 15px; display: none; }
+        .hidden { display: none; }
+        .error-message { color: #E53E3E; font-size: 0.85rem; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="auth-container">
+        <!-- Remplacer par ton vrai logo -->
         <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo SCAN&TCHOP">
         
-        <div id="login-section" class="form-section">
-            <h2>Bon retour !</h2>
-            <p>Connectez-vous à votre espace de travail</p>
+        <!-- SECTION CONNEXION -->
+        <div id="login-section">
+            <h2>Connexion</h2>
+            <p>Accédez à votre espace restaurant</p>
             <div id="login-error" class="error-message"></div>
-
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="login-email">Email professionnel</label>
-                    <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required>
+                    <label>Email</label>
+                    <input type="email" id="login-email" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="login-password">Mot de passe</label>
-                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-password" class="form-control" required>
                 </div>
                 <button type="submit" class="btn" id="login-btn">Se connecter</button>
             </form>
-            <p class="toggle-link" onclick="toggleForm()">Nouveau restaurant ? <span>Inscrire mon établissement</span></p>
+            <p class="toggle-link" onclick="toggleForm()">Nouveau ? <span>S'inscrire</span></p>
         </div>
 
-        <div id="register-section" class="form-section hidden">
-            <h2>Créer votre restaurant</h2>
-            <p>Devenez partenaire SCAN&TCHOP</p>
+        <!-- SECTION INSCRIPTION -->
+        <div id="register-section" class="hidden">
+            <h2>Créer un compte</h2>
+            <p>Simple et rapide, configurez votre restaurant plus tard.</p>
             <div id="register-error" class="error-message"></div>
-
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="reg-restaurant">Nom du restaurant</label>
-                    <input type="text" id="reg-restaurant" class="form-control" placeholder="Mon Super Restaurant" required>
+                    <label>Email du propriétaire</label>
+                    <input type="email" id="reg-email" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="reg-email">Email du propriétaire</label>
-                    <input type="email" id="reg-email" class="form-control" placeholder="proprietaire@email.com" required>
+                    <label>Mot de passe</label>
+                    <input type="password" id="reg-password" class="form-control" required>
                 </div>
-                <div class="form-group">
-                    <label for="reg-password">Mot de passe sécurisé</label>
-                    <input type="password" id="reg-password" class="form-control" placeholder="Min. 8 caractères" required>
-                </div>
-                <button type="submit" class="btn" id="register-btn">Créer mon compte Propriétaire</button>
+                <!-- Suppression du champ Nom du Restaurant ici -->
+                <button type="submit" class="btn" id="register-btn">S'inscrire</button>
             </form>
-            <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
+            <p class="toggle-link" onclick="toggleForm()">Déjà un compte ? <span>Se connecter</span></p>
         </div>
     </div>
 
     <script>
         function toggleForm() {
-            const loginSection = document.getElementById('login-section');
-            const registerSection = document.getElementById('register-section');
-            loginSection.classList.toggle('hidden');
-            registerSection.classList.toggle('hidden');
-            
-            // Réinitialiser les messages d'erreur
+            document.getElementById('login-section').classList.toggle('hidden');
+            document.getElementById('register-section').classList.toggle('hidden');
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('register-error').style.display = 'none';
         }
@@ -161,7 +111,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Ta configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
             authDomain: "scan-et-tchop.firebaseapp.com",
@@ -176,86 +125,47 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- LOGIQUE D'INSCRIPTION (PROPRIÉTAIRE) ---
+        // INSCRIPTION
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const restaurantName = document.getElementById('reg-restaurant').value;
             const btn = document.getElementById('register-btn');
-            const errorDiv = document.getElementById('register-error');
-
-            btn.innerText = "Création en cours...";
-            btn.style.opacity = "0.7";
-            errorDiv.style.display = 'none';
-
+            btn.innerText = "Création...";
             try {
-                // 1. Créer l'utilisateur dans Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                // 2. Enregistrer le rôle et les infos dans Firestore
-                await setDoc(doc(db, "users", user.uid), {
-                    email: email,
+                const userCred = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
+                // On sauvegarde dans la base de données sans le nom du restaurant
+                await setDoc(doc(db, "users", userCred.user.uid), {
+                    email: userCred.user.email,
                     role: "proprietaire",
-                    restaurantName: restaurantName,
+                    restaurantName: "", // Sera configuré dans le dashboard
+                    isConfigured: false,
                     createdAt: new Date()
                 });
-
-                // 3. Rediriger vers le tableau de bord propriétaire
                 window.location.href = 'dashboard_proprietaire.html';
             } catch (error) {
-                errorDiv.innerText = "Erreur : " + error.message;
-                errorDiv.style.display = 'block';
-                btn.innerText = "Créer mon compte Propriétaire";
-                btn.style.opacity = "1";
+                document.getElementById('register-error').innerText = "Erreur: " + error.message;
+                document.getElementById('register-error').style.display = 'block';
+                btn.innerText = "S'inscrire";
             }
         });
 
-        // --- LOGIQUE DE CONNEXION (TOUS LES RÔLES) ---
+        // CONNEXION
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
             const btn = document.getElementById('login-btn');
-            const errorDiv = document.getElementById('login-error');
-
             btn.innerText = "Connexion...";
-            btn.style.opacity = "0.7";
-            errorDiv.style.display = 'none';
-
             try {
-                // 1. Connecter l'utilisateur
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                // 2. Récupérer son rôle depuis Firestore
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-
+                const userCred = await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+                const docSnap = await getDoc(doc(db, "users", userCred.user.uid));
+                
                 if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    
-                    // 3. Redirection sécurisée selon le rôle
-                    if (userData.role === 'proprietaire') {
-                        window.location.href = 'dashboard_proprietaire.html';
-                    } else if (userData.role === 'comptable') {
-                        window.location.href = 'dashboard_comptable.html';
-                    } else if (userData.role === 'serveur') {
-                        window.location.href = 'dashboard_serveur.html';
-                    } else if (userData.role === 'cuisine') {
-                        window.location.href = 'dashboard_cuisine.html';
-                    } else {
-                        throw new Error("Rôle non reconnu.");
-                    }
-                } else {
-                    throw new Error("Aucune donnée utilisateur trouvée. Contactez le support.");
+                    const role = docSnap.data().role;
+                    if(role === 'proprietaire') window.location.href = 'dashboard_proprietaire.html';
+                    else window.location.href = `dashboard_${role}.html`; // Gère dynamiquement les autres rôles
                 }
             } catch (error) {
-                errorDiv.innerText = "Identifiants incorrects ou erreur de connexion.";
-                errorDiv.style.display = 'block';
+                document.getElementById('login-error').innerText = "Identifiants incorrects.";
+                document.getElementById('login-error').style.display = 'block';
                 btn.innerText = "Se connecter";
-                btn.style.opacity = "1";
             }
         });
     </script>

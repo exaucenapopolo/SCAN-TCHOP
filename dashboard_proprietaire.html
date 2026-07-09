@@ -3,106 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Propriétaire - SCAN&TCHOP</title>
+    <title>Tableau de Bord - SCAN&TCHOP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --primary: #E67E22; 
             --sidebar-bg: #1A202C;
-            --sidebar-text: #A0AEC0;
             --bg-body: #F4F7F6; 
-            --text-main: #2D3748; 
-            --card-bg: #FFFFFF;
+            --white: #FFFFFF;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { display: flex; height: 100vh; background-color: var(--bg-body); }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-
-        /* Sidebar */
-        .sidebar { width: 250px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid #2D3748; }
-        .sidebar-header img { height: 40px; }
-        .nav-menu { flex: 1; padding-top: 20px; }
-        .nav-item { padding: 15px 20px; color: var(--sidebar-text); text-decoration: none; display: block; font-weight: 500; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background-color: rgba(230, 126, 34, 0.1); color: var(--primary); border-left: 4px solid var(--primary); }
-        .logout-btn { padding: 15px 20px; color: #FC8181; cursor: pointer; border-top: 1px solid #2D3748; font-weight: 500; }
-        .logout-btn:hover { background-color: rgba(252, 129, 129, 0.1); }
-
-        /* Main Content */
-        .main-content { flex: 1; overflow-y: auto; padding: 30px; }
+        /* Menu latéral */
+        .sidebar { width: 250px; background-color: var(--sidebar-bg); color: var(--white); padding: 20px; }
+        .sidebar h2 { color: var(--primary); margin-bottom: 30px; font-size: 1.2rem; }
+        .nav-item { padding: 12px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background-color: var(--primary); }
+        
+        /* Contenu principal */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .header h1 { font-size: 1.8rem; color: #1A202C; }
-
-        /* Cards / Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); }
-        .stat-card h3 { font-size: 0.9rem; color: #718096; margin-bottom: 10px; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 700; color: #1A202C; }
-
-        /* Section Gestion du Personnel */
-        .management-section { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .management-section h2 { margin-bottom: 20px; font-size: 1.3rem; }
+        .card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .form-control, select { padding: 10px; border: 1px solid #E2E8F0; border-radius: 6px; font-family: inherit; width: 100%; }
-        .btn { padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn:hover { background-color: var(--primary-hover); }
-
+        /* Formulaires professionnels */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #4A5568; }
+        .form-control { width: 100%; max-width: 400px; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        .btn { padding: 12px 20px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        
+        /* Loader de sécurité */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
+    <!-- Écran de chargement pendant la vérification de sécurité -->
+    <div id="loader"><h2>Vérification sécurisée...</h2></div>
+
+    <!-- Menu latéral -->
     <div class="sidebar">
-        <div class="sidebar-header">
-            <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo">
-        </div>
-        <nav class="nav-menu">
-            <a href="#" class="nav-item active">Vue d'ensemble</a>
-            <a href="#" class="nav-item">Gestion du Menu</a>
-            <a href="#" class="nav-item">Rapports & Ventes</a>
-            <a href="#" class="nav-item">Mon Personnel</a>
-        </nav>
-        <div class="logout-btn" id="logout-btn">Déconnexion</div>
+        <h2>SCAN&TCHOP</h2>
+        <div class="nav-item active">⚙️ Configuration</div>
+        <div class="nav-item">🍔 Menu & Stock</div>
+        <div class="nav-item">👥 Personnel</div>
+        <div class="nav-item">📊 Statistiques</div>
+        <div class="nav-item" id="logout-btn" style="margin-top: 50px; background: #E53E3E;">Déconnexion</div>
     </div>
 
+    <!-- Contenu Principal -->
     <div class="main-content">
         <div class="header">
-            <h1>Tableau de Bord Propriétaire</h1>
-            <div id="user-info" style="font-weight: 500; color: var(--primary);">Chargement...</div>
+            <h1>Tableau de bord Administrateur</h1>
+            <p id="user-email-display">Chargement...</p>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Ventes du jour</h3>
-                <div class="value">145 000 FCFA</div>
-            </div>
-            <div class="stat-card">
-                <h3>Commandes en cours</h3>
-                <div class="value">12</div>
-            </div>
-            <div class="stat-card">
-                <h3>Produits en rupture</h3>
-                <div class="value" style="color: #E53E3E;">3</div>
-            </div>
-        </div>
-
-        <div class="management-section">
-            <h2>Créer un accès pour un employé</h2>
-            <p style="margin-bottom: 15px; color: #718096; font-size: 0.9rem;">
-                En tant que propriétaire, vous seul pouvez générer des comptes sécurisés pour votre équipe.
+        <div class="card">
+            <h3>Configuration de votre Restaurant</h3>
+            <p style="color: #718096; margin-bottom: 20px; font-size: 0.9rem;">
+                Modifiez les informations de votre établissement. Elles seront sauvegardées instantanément.
             </p>
-            <form id="create-staff-form">
-                <div class="form-grid">
-                    <input type="email" class="form-control" placeholder="Email de l'employé" required>
-                    <input type="password" class="form-control" placeholder="Mot de passe provisoire" required>
-                    <select class="form-control" required>
-                        <option value="">Sélectionner un rôle</option>
-                        <option value="cuisine">Cuisine</option>
-                        <option value="serveur">Serveur</option>
-                        <option value="comptable">Comptable</option>
-                    </select>
+            
+            <form id="configForm">
+                <div class="form-group">
+                    <label>Nom du restaurant</label>
+                    <input type="text" id="restaurant-name" class="form-control" placeholder="Ex: Le Petit Chef" required>
                 </div>
-                <button type="submit" class="btn">Créer le compte employé</button>
+                <div class="form-group">
+                    <label>Nombre d'employés prévus</label>
+                    <input type="number" id="employee-count" class="form-control" placeholder="Ex: 5" required>
+                </div>
+                <button type="submit" class="btn" id="save-config-btn">Enregistrer les modifications</button>
+                <span id="save-status" style="color: green; margin-left: 10px; display: none;">✅ Sauvegardé !</span>
             </form>
         </div>
     </div>
@@ -110,7 +83,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
@@ -118,45 +91,70 @@
             projectId: "scan-et-tchop",
             storageBucket: "scan-et-tchop.firebasestorage.app",
             messagingSenderId: "648843762360",
-            appId: "1:648843762360:web:092b3d359eeae61ef2324d",
-            measurementId: "G-8DKXS67DKY"
+            appId: "1:648843762360:web:092b3d359eeae61ef2324d"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Vérifier si l'utilisateur est bien connecté et est bien un propriétaire
+        let currentUserUid = null;
+
+        // VÉRIFICATION DE SÉCURITÉ (Auth Guard)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
+                currentUserUid = user.uid;
+                document.getElementById('user-email-display').innerText = user.email;
                 
-                if (docSnap.exists() && docSnap.data().role === 'proprietaire') {
-                    document.getElementById('user-info').innerText = "Restaurant : " + docSnap.data().restaurantName;
-                } else {
-                    // Si ce n'est pas un propriétaire, on le déconnecte par sécurité
-                    alert("Accès refusé. Vous n'êtes pas propriétaire.");
-                    signOut(auth).then(() => { window.location.href = 'connexion.html'; });
+                // Récupération des données existantes
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('restaurant-name').value = data.restaurantName || "";
+                    document.getElementById('employee-count').value = data.employeeCount || "";
                 }
+                
+                // Retirer l'écran de chargement
+                document.getElementById('loader').style.display = 'none';
             } else {
-                window.location.href = 'connexion.html';
+                // Redirection si non connecté
+                window.location.href = 'index.html';
             }
         });
 
-        // Déconnexion
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            signOut(auth).then(() => {
-                window.location.href = 'connexion.html';
-            });
+        // ENREGISTREMENT DIRECT DANS LA BASE DE DONNÉES
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('save-config-btn');
+            btn.innerText = "Enregistrement...";
+
+            const newName = document.getElementById('restaurant-name').value;
+            const newCount = document.getElementById('employee-count').value;
+
+            try {
+                // Mise à jour de la base de données Firestore
+                await updateDoc(doc(db, "users", currentUserUid), {
+                    restaurantName: newName,
+                    employeeCount: newCount,
+                    isConfigured: true
+                });
+                
+                btn.innerText = "Enregistrer les modifications";
+                const status = document.getElementById('save-status');
+                status.style.display = 'inline';
+                setTimeout(() => { status.style.display = 'none'; }, 3000); // Disparaît après 3s
+
+            } catch (error) {
+                alert("Erreur lors de la sauvegarde : " + error.message);
+                btn.innerText = "Enregistrer les modifications";
+            }
         });
 
-        // Interface de création de compte employé (Visuelle pour le moment)
-        document.getElementById('create-staff-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert("En développement : La création d'employés nécessitera une Firebase Cloud Function pour ne pas déconnecter le propriétaire actuel.");
-            // Note technique : Créer un utilisateur depuis le client déconnecte l'utilisateur actif sur Firebase. 
-            // Nous aborderons la création de rôles côté serveur plus tard !
+        // DÉCONNEXION
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            });
         });
     </script>
 </body>
