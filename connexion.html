@@ -5,169 +5,251 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authentification - SCAN&TCHOP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* CSS optimisé pour la rapidité et la fluidité */
-        :root { 
-            --primary: #E67E22; 
-            --primary-hover: #cf6f1b; 
-            --bg-body: #F4F7F6; 
-            --text-main: #2D3748; 
-            --text-muted: #718096;
-            --border-light: #E2E8F0; 
-            --white: #FFFFFF;
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter', sans-serif;
+            background:#f4f7f6;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; 
+        .auth-container {
+            background:#fff;
+            padding:40px 35px;
+            border-radius:20px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.06);
+            width:100%;
+            max-width:420px;
+            transition:all 0.2s;
         }
-        .auth-container { 
-            background: var(--white); padding: 40px; border-radius: 16px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08); width: 100%; max-width: 400px; 
-            text-align: center; animation: fadeIn 0.4s ease-out;
+        .auth-container img {
+            height:50px;
+            display:block;
+            margin:0 auto 20px;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .auth-container img { height: 50px; margin-bottom: 20px; }
-        .auth-container h2 { font-size: 1.5rem; margin-bottom: 5px; color: #1A202C; }
-        .auth-container p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.85rem; }
-        .form-control { 
-            width: 100%; padding: 10px 15px; border: 1px solid var(--border-light); 
-            border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s;
+        .auth-container h2 {
+            font-size:1.4rem;
+            font-weight:600;
+            color:#1a202c;
+            margin-bottom:4px;
         }
-        .form-control:focus { outline: none; border-color: var(--primary); }
-        .btn { 
-            width: 100%; padding: 12px; background-color: var(--primary); color: white; 
-            border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        .auth-container > p {
+            color:#718096;
+            font-size:0.9rem;
+            margin-bottom:28px;
         }
-        .btn:hover { background-color: var(--primary-hover); }
-        .toggle-link { margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; }
-        .toggle-link span { color: var(--primary); font-weight: 600; }
-        .hidden { display: none; }
-        .error-message { color: #E53E3E; font-size: 0.85rem; margin-bottom: 10px; display: none; }
+        .form-section { transition:opacity 0.2s; }
+        .hidden { display:none; }
+        .form-group {
+            margin-bottom:18px;
+            text-align:left;
+        }
+        .form-group label {
+            display:block;
+            font-weight:500;
+            font-size:0.85rem;
+            color:#4a5568;
+            margin-bottom:5px;
+        }
+        .form-group .form-control {
+            width:100%;
+            padding:12px 14px;
+            border:1.5px solid #e2e8f0;
+            border-radius:10px;
+            font-family:inherit;
+            font-size:0.95rem;
+            transition:border 0.15s, box-shadow 0.15s;
+        }
+        .form-group .form-control:focus {
+            outline:none;
+            border-color:#e67e22;
+            box-shadow:0 0 0 3px rgba(230,126,34,0.12);
+        }
+        .btn {
+            display:inline-block;
+            width:100%;
+            padding:13px;
+            background:#e67e22;
+            color:#fff;
+            border:none;
+            border-radius:10px;
+            font-weight:600;
+            font-size:1rem;
+            cursor:pointer;
+            transition:background 0.2s, transform 0.1s;
+            position:relative;
+        }
+        .btn:hover { background:#cf6f1b; }
+        .btn:active { transform:scale(0.97); }
+        .btn i { margin-right:8px; }
+        .btn .spinner { display:none; }
+        .btn.loading .spinner { display:inline-block; }
+        .btn.loading .btn-text { display:none; }
+        .toggle-link {
+            display:block;
+            margin-top:22px;
+            font-size:0.9rem;
+            color:#718096;
+            cursor:pointer;
+        }
+        .toggle-link span { color:#e67e22; font-weight:600; }
+        .toggle-link:hover span { text-decoration:underline; }
+        .error-message {
+            color:#e53e3e;
+            font-size:0.85rem;
+            margin-bottom:14px;
+            display:none;
+            background:#fff5f5;
+            padding:10px 12px;
+            border-radius:8px;
+        }
     </style>
 </head>
 <body>
+<div class="auth-container">
+    <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP">
 
-    <div class="auth-container">
-        <!-- Remplacer par ton vrai logo -->
-        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="Logo SCAN&TCHOP">
-        
-        <!-- SECTION CONNEXION -->
-        <div id="login-section">
-            <h2>Connexion</h2>
-            <p>Accédez à votre espace restaurant</p>
-            <div id="login-error" class="error-message"></div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Mot de passe</label>
-                    <input type="password" id="login-password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn" id="login-btn">Se connecter</button>
-            </form>
-            <p class="toggle-link" onclick="toggleForm()">Nouveau ? <span>S'inscrire</span></p>
-        </div>
-
-        <!-- SECTION INSCRIPTION -->
-        <div id="register-section" class="hidden">
-            <h2>Créer un compte</h2>
-            <p>Simple et rapide, configurez votre restaurant plus tard.</p>
-            <div id="register-error" class="error-message"></div>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label>Email du propriétaire</label>
-                    <input type="email" id="reg-email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Mot de passe</label>
-                    <input type="password" id="reg-password" class="form-control" required>
-                </div>
-                <!-- Suppression du champ Nom du Restaurant ici -->
-                <button type="submit" class="btn" id="register-btn">S'inscrire</button>
-            </form>
-            <p class="toggle-link" onclick="toggleForm()">Déjà un compte ? <span>Se connecter</span></p>
-        </div>
+    <!-- Login -->
+    <div id="login-section" class="form-section">
+        <h2>Bon retour</h2>
+        <p>Connectez-vous à votre espace</p>
+        <div id="login-error" class="error-message"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="login-email">Email professionnel</label>
+                <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Mot de passe</label>
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn" id="login-btn">
+                <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
+                <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+            </button>
+        </form>
+        <p class="toggle-link" onclick="toggleForm()">Nouveau restaurant ? <span>Inscrire mon établissement</span></p>
     </div>
 
-    <script>
-        function toggleForm() {
-            document.getElementById('login-section').classList.toggle('hidden');
-            document.getElementById('register-section').classList.toggle('hidden');
-            document.getElementById('login-error').style.display = 'none';
-            document.getElementById('register-error').style.display = 'none';
+    <!-- Register -->
+    <div id="register-section" class="form-section hidden">
+        <h2>Créer votre restaurant</h2>
+        <p>Devenez partenaire SCAN&TCHOP</p>
+        <div id="register-error" class="error-message"></div>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="reg-email">Email du propriétaire</label>
+                <input type="email" id="reg-email" class="form-control" placeholder="proprietaire@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Mot de passe sécurisé</label>
+                <input type="password" id="reg-password" class="form-control" placeholder="Min. 8 caractères" required>
+            </div>
+            <button type="submit" class="btn" id="register-btn">
+                <span class="btn-text"><i class="fas fa-user-plus"></i> Créer mon compte</span>
+                <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+            </button>
+        </form>
+        <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
+    </div>
+</div>
+
+<!-- Firebase compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+<script>
+    // Config Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+        authDomain: "scan-et-tchop.firebaseapp.com",
+        projectId: "scan-et-tchop",
+        storageBucket: "scan-et-tchop.firebasestorage.app",
+        messagingSenderId: "648843762360",
+        appId: "1:648843762360:web:092b3d359eeae61ef2324d",
+        measurementId: "G-8DKXS67DKY"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Basculer entre formulaires
+    function toggleForm() {
+        document.getElementById('login-section').classList.toggle('hidden');
+        document.getElementById('register-section').classList.toggle('hidden');
+        document.getElementById('login-error').style.display = 'none';
+        document.getElementById('register-error').style.display = 'none';
+    }
+
+    // Gestion de l'inscription
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const btn = document.getElementById('register-btn');
+        const errorDiv = document.getElementById('register-error');
+
+        btn.classList.add('loading');
+        errorDiv.style.display = 'none';
+
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            const user = cred.user;
+            // Enregistrer le rôle propriétaire
+            await db.collection('users').doc(user.uid).set({
+                email: email,
+                role: 'proprietaire',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            // Rediriger vers le dashboard
+            window.location.href = 'dashboard_proprietaire.html';
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.style.display = 'block';
+            btn.classList.remove('loading');
         }
-    </script>
+    });
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    // Gestion de la connexion
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const btn = document.getElementById('login-btn');
+        const errorDiv = document.getElementById('login-error');
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
-            authDomain: "scan-et-tchop.firebaseapp.com",
-            projectId: "scan-et-tchop",
-            storageBucket: "scan-et-tchop.firebasestorage.app",
-            messagingSenderId: "648843762360",
-            appId: "1:648843762360:web:092b3d359eeae61ef2324d",
-            measurementId: "G-8DKXS67DKY"
-        };
+        btn.classList.add('loading');
+        errorDiv.style.display = 'none';
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // INSCRIPTION
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('register-btn');
-            btn.innerText = "Création...";
-            try {
-                const userCred = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
-                // On sauvegarde dans la base de données sans le nom du restaurant
-                await setDoc(doc(db, "users", userCred.user.uid), {
-                    email: userCred.user.email,
-                    role: "proprietaire",
-                    restaurantName: "", // Sera configuré dans le dashboard
-                    isConfigured: false,
-                    createdAt: new Date()
-                });
+        try {
+            const cred = await auth.signInWithEmailAndPassword(email, password);
+            const user = cred.user;
+            // Récupérer le rôle
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) throw new Error("Aucun rôle trouvé.");
+            const role = doc.data().role;
+            // Redirection selon le rôle
+            if (role === 'proprietaire') {
                 window.location.href = 'dashboard_proprietaire.html';
-            } catch (error) {
-                document.getElementById('register-error').innerText = "Erreur: " + error.message;
-                document.getElementById('register-error').style.display = 'block';
-                btn.innerText = "S'inscrire";
+            } else if (role === 'comptable') {
+                window.location.href = 'dashboard_comptable.html';
+            } else if (role === 'serveur') {
+                window.location.href = 'dashboard_serveur.html';
+            } else if (role === 'cuisine') {
+                window.location.href = 'dashboard_cuisine.html';
+            } else {
+                throw new Error("Rôle inconnu.");
             }
-        });
-
-        // CONNEXION
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('login-btn');
-            btn.innerText = "Connexion...";
-            try {
-                const userCred = await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
-                const docSnap = await getDoc(doc(db, "users", userCred.user.uid));
-                
-                if (docSnap.exists()) {
-                    const role = docSnap.data().role;
-                    if(role === 'proprietaire') window.location.href = 'dashboard_proprietaire.html';
-                    else window.location.href = `dashboard_${role}.html`; // Gère dynamiquement les autres rôles
-                }
-            } catch (error) {
-                document.getElementById('login-error').innerText = "Identifiants incorrects.";
-                document.getElementById('login-error').style.display = 'block';
-                btn.innerText = "Se connecter";
-            }
-        });
-    </script>
+        } catch (err) {
+            errorDiv.textContent = "Identifiants incorrects ou erreur réseau.";
+            errorDiv.style.display = 'block';
+            btn.classList.remove('loading');
+        }
+    });
+</script>
 </body>
 </html>
