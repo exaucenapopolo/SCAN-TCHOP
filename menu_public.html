@@ -3,161 +3,250 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu - SCAN&TCHOP</title>
+    <title>Menu Public - SCAN&TCHOP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
+        /* ====== RESET & CONSTANTES ====== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             color: #0b1a2e;
             padding: 24px 16px 40px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
         
-        /* En-tête du restaurant */
+        /* ====== EN-TÊTE DU RESTAURANT (DESIGN PROFESSIONNEL CENTRÉ) ====== */
         .restaurant-header {
-            background: #fff; border-radius: 28px; padding: 30px 32px;
+            background: #fff; border-radius: 28px; padding: 32px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 28px;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 24px;
+            display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;
         }
-        .restaurant-header img.logo { width: 80px; height: 80px; object-fit: cover; border-radius: 20px; }
-        .restaurant-header .info { flex: 1; }
-        .restaurant-header .info h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
-        .restaurant-header .info p { color: #475569; font-size: 0.95rem; margin-bottom: 12px; }
+        .restaurant-header img.logo { width: 100px; height: 100px; object-fit: cover; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .restaurant-header .info-middle h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; color: #0b1a2e; }
+        .restaurant-header .info-middle .description { color: #475569; font-size: 1rem; max-width: 600px; margin: 0 auto 12px; line-height: 1.5; }
         
-        .btn-avis-header {
-            background: #f1f5f9; color: #0b1a2e; padding: 8px 16px; border-radius: 20px;
-            font-size: 0.85rem; font-weight: 600; text-decoration: none; border: none;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.3s;
-        }
-        .btn-avis-header:hover { background: #e2e8f0; }
-        .btn-avis-header i { color: #f59e0b; }
+        /* Note globale et étoiles */
+        .global-rating { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+        .global-rating .stars-display { color: #f59e0b; font-size: 1.1rem; }
+        .global-rating .rating-text { font-size: 0.9rem; color: #64748b; font-weight: 500; }
 
-        /* Grille du menu */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-        
-        /* Carte de plat */
+        .btn-site-web {
+            background: #f1f5f9; color: #0b1a2e; padding: 8px 16px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex;
+            align-items: center; gap: 6px; transition: 0.3s; margin-bottom: 4px;
+        }
+        .btn-site-web:hover { background: #e2e8f0; }
+
+        .restaurant-header .info-bottom {
+            width: 100%; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 8px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 24px;
+            color: #64748b; font-size: 0.9rem; font-weight: 500;
+        }
+        .restaurant-header .info-bottom span { display: flex; align-items: center; gap: 8px; }
+        .restaurant-header .info-bottom i { color: #e67e22; }
+
+        .btn-avis-header {
+            background: #fef3e8; color: #e67e22; padding: 10px 20px; border-radius: 20px;
+            font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; margin-top: 8px;
+        }
+        .btn-avis-header:hover { background: #fde8d0; transform: translateY(-1px); }
+
+        /* ====== BARRE DE FILTRES DES CATÉGORIES ====== */
+        .category-container {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;
+            scrollbar-width: none; -ms-overflow-style: none;
+        }
+        .category-container::-webkit-scrollbar { display: none; }
+        .category-btn {
+            background: #fff; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s ease;
+        }
+        .category-btn.active { background: #0b1a2e; color: #fff; border-color: #0b1a2e; }
+
+        /* ====== GRILLE ET CARTES DE PLAT ====== */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         .menu-card {
             background: #fff; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: transform 0.2s;
-            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; flex-direction: column; position: relative; border: 1px solid #f1f5f9;
         }
-        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
-        .menu-card img { 
-            width: 100%; height: 180px; object-fit: cover; cursor: zoom-in; 
-            transition: opacity 0.3s;
-        }
+        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+        .menu-card img { width: 100%; height: 190px; object-fit: cover; cursor: zoom-in; transition: opacity 0.3s; }
         .menu-card img:hover { opacity: 0.9; }
-        .menu-card .body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
-        .menu-card .body h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
-        .price { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
-        .price .current { font-size: 1.2rem; font-weight: 700; color: #e67e22; }
         
-        /* BOUTON COMMANDER - AMÉLIORÉ */
+        .menu-card .body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .menu-card .body h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; color: #0b1a2e; }
+        .menu-card .body .description-plat { color: #64748b; font-size: 0.88rem; line-height: 1.4; margin-bottom: 12px; flex-grow: 1; }
+        
+        .price { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .price .current { font-size: 1.25rem; font-weight: 800; color: #e67e22; }
+        .price .original { font-size: 0.95rem; font-weight: 500; color: #94a3b8; text-decoration: line-through; }
+        
+        /* ====== BOUTON COMMANDER ====== */
         .btn-commander {
             width: 100%; padding: 14px; margin-top: auto;
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff; border: none; border-radius: 16px; font-weight: 700; font-size: 1.05rem;
             cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-            animation: pulse 2s infinite; /* Animation pour attirer l'oeil */
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.25);
         }
         .btn-commander:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
-            animation: none; /* Stoppe l'animation au survol */
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
         }
 
-        /* MODALS (Fenêtres pop-up) */
+        /* ====== MODALS ====== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 26, 46, 0.8); backdrop-filter: blur(4px);
+            background: rgba(11, 26, 46, 0.6); backdrop-filter: blur(6px);
             display: flex; align-items: center; justify-content: center;
             z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px;
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        
         .modal-content {
-            background: #fff; border-radius: 24px; width: 100%; max-width: 400px;
-            padding: 24px; position: relative; transform: translateY(20px); transition: 0.3s;
-            max-height: 90vh; overflow-y: auto;
+            background: #fff; border-radius: 28px; width: 100%; max-width: 440px;
+            padding: 28px; position: relative; transform: translateY(20px); transition: 0.3s;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        
         .close-modal {
-            position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: none;
-            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;
-            color: #64748b; display: flex; align-items: center; justify-content: center;
+            position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none;
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+            color: #64748b; display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
+        .close-modal:hover { background: #e2e8f0; color: #0b1a2e; }
 
-        /* Image Zoom Lightbox */
         #zoomImage { max-width: 100%; max-height: 80vh; border-radius: 16px; object-fit: contain; }
 
-        /* Formulaire de commande dans le Modal */
-        .order-section { margin-bottom: 20px; }
-        .order-section h4 { font-size: 0.95rem; color: #475569; margin-bottom: 10px; }
+        /* Configuration sections dans le Modal */
+        .order-section { margin-bottom: 22px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
+        .order-section:last-of-type { border-bottom: none; }
+        .order-section h4 { font-size: 1rem; color: #0b1a2e; margin-bottom: 12px; font-weight: 600; }
         
-        .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 10px; border-radius: 16px; width: fit-content; }
-        .qty-btn { background: #fff; border: 1px solid #e2e8f0; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; }
-        .qty-val { font-weight: 700; font-size: 1.1rem; width: 20px; text-align: center; }
+        .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 8px 12px; border-radius: 16px; width: fit-content; border: 1px solid #e2e8f0; }
+        .qty-btn { background: #fff; border: 1px solid #cbd5e1; width: 34px; height: 34px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .qty-val { font-weight: 700; font-size: 1.1rem; width: 24px; text-align: center; }
 
-        .tip-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tip-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
         .tip-btn { 
-            padding: 8px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 20px;
-            cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s;
+            padding: 10px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 50px;
+            cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s; font-size: 0.9rem;
         }
         .tip-btn.active { background: #0b1a2e; color: #fff; border-color: #0b1a2e; }
+        .custom-tip-container { display: flex; align-items: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 2px 12px; margin-top: 8px; }
+        .custom-tip-container span { color: #94a3b8; font-weight: 600; font-size: 0.9rem; }
+        .custom-tip-input { border: none; outline: none; padding: 10px; width: 100%; font-family: inherit; font-size: 0.95rem; font-weight: 600; }
 
-        .split-options { display: flex; gap: 10px; margin-bottom: 10px; }
-        .split-btn { flex:1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; font-weight: 500; text-align: center; }
+        .split-options { display: flex; gap: 12px; margin-bottom: 10px; }
+        .split-btn { flex:1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; cursor: pointer; font-weight: 600; text-align: center; font-size: 0.95rem; transition: 0.2s; }
         .split-btn.active { background: #e67e22; color: white; border-color: #e67e22; }
-        #splitCountContainer { display: none; margin-top: 10px; }
-        .split-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; }
+        
+        #splitCountContainer { display: none; margin-top: 14px; background: #fffcf9; padding: 16px; border-radius: 16px; border: 1px dashed #fbd38d; }
+        .split-input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; font-weight: 600; outline: none; }
+        .split-input:focus { border-color: #e67e22; }
+        
+        /* Box QR Code Partage */
+        .qr-share-box { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 14px; background: #f8fafc; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; }
+        .qr-share-box img { width: 130px; height: 130px; border-radius: 8px; background: #fff; padding: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 8px; }
 
-        .total-display {
-            background: #f1f5f9; padding: 16px; border-radius: 16px; text-align: center; margin-top: 20px;
-        }
-        .total-display span { display: block; font-size: 0.9rem; color: #64748b; }
-        .total-display strong { font-size: 1.5rem; color: #0b1a2e; }
+        .total-display { background: #f1f5f9; padding: 18px; border-radius: 20px; text-align: center; margin-top: 10px; }
+        .total-display span { display: block; font-size: 0.9rem; color: #64748b; font-weight: 500; margin-bottom: 2px; }
+        .total-display strong { font-size: 1.6rem; color: #0b1a2e; font-weight: 800; }
 
         /* Formulaire Avis */
-        .stars { color: #e2e8f0; font-size: 2rem; cursor: pointer; display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+        .stars { color: #e2e8f0; font-size: 2.2rem; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .stars i.active { color: #f59e0b; }
-        textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 100px; margin-bottom: 16px; }
+        textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 110px; margin-bottom: 20px; outline: none; }
+        textarea:focus { border-color: #e67e22; }
+
+        /* ====== BAS DE PAGE (FOOTER PROFESSIONNEL BRANDÉ) ====== */
+        .app-footer {
+            margin-top: 60px; border-top: 1px solid #e2e8f0; padding-top: 32px;
+            display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
+        }
+        .footer-branding { display: flex; align-items: center; gap: 10px; }
+        .footer-branding img { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; }
+        .footer-branding p { font-size: 0.95rem; color: #64748b; }
+        .footer-branding strong { color: #0b1a2e; font-weight: 700; }
+        
+        .footer-cta { max-width: 500px; }
+        .footer-cta h5 { font-size: 1.05rem; font-weight: 700; color: #0b1a2e; margin-bottom: 6px; }
+        .footer-cta p { font-size: 0.88rem; color: #64748b; margin-bottom: 16px; line-height: 1.4; }
+        
+        .footer-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .btn-footer {
+            padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; font-weight: 700;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-footer.btn-primary-footer { background: #0b1a2e; color: #fff; }
+        .btn-footer.btn-primary-footer:hover { background: #162a45; }
+        .btn-footer.btn-outline-footer { background: transparent; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-footer.btn-outline-footer:hover { background: #f1f5f9; border-color: #94a3b8; }
     </style>
 </head>
 <body>
+
 <div class="container">
+    <!-- En-tête Dynamique -->
     <div id="restaurantInfo" class="restaurant-header">
-        <!-- Rempli par JS -->
+        <p style="color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
     </div>
+
+    <!-- Filtres de Catégories -->
+    <div class="category-container" id="categoryTabs">
+        <button class="category-btn active" onclick="filterCategory('Tous')">Tout le menu</button>
+        <button class="category-btn" onclick="filterCategory('Nourriture')">Nourriture</button>
+        <button class="category-btn" onclick="filterCategory('Boissons')">Boissons</button>
+        <button class="category-btn" onclick="filterCategory('Frites')">Frites</button>
+        <button class="category-btn" onclick="filterCategory('Compléments')">Compléments</button>
+        <button class="category-btn" onclick="filterCategory('Autre')">Autre</button>
+    </div>
+
+    <!-- Grille des Plats -->
     <div id="menuContainer" class="menu-grid">
-        <!-- Rempli par JS -->
+        <!-- Chargé par JavaScript -->
     </div>
 </div>
 
-<!-- Modal Zoom Image -->
+<!-- Bas de page SCAN&TCHOP -->
+<footer class="app-footer">
+    <div class="footer-branding">
+        <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP Logo" />
+        <p>Propulsé de manière sécurisée par <strong>SCAN&TCHOP</strong></p>
+    </div>
+    <div class="footer-cta">
+        <h5>Vous gérez un établissement ?</h5>
+        <p>Créez vous aussi votre menu digital interactif, recevez des commandes en direct et fidélisez vos clients dès aujourd'hui.</p>
+        <div class="footer-buttons">
+            <a href="connexion.html" class="btn-footer btn-primary-footer"><i class="fas fa-plus-circle"></i> Ajouter mon menu</a>
+            <a href="index.html" class="btn-footer btn-outline-footer"><i class="fas fa-info-circle"></i> C'est quoi SCAN&TCHOP ?</a>
+        </div>
+    </div>
+</footer>
+
+<!-- MODAL : ZOOM IMAGE -->
 <div class="modal-overlay" id="modalZoom" onclick="closeModal('modalZoom')">
-    <img id="zoomImage" src="" alt="Zoom Plat" onclick="event.stopPropagation()" />
+    <img id="zoomImage" src="" alt="Agrandissement" onclick="event.stopPropagation()" />
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- Modal Commande (Configuration) -->
+<!-- MODAL : COMMANDE & CONFIGURATION -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
-        <h2 id="orderPlatNom" style="margin-bottom: 20px; font-size:1.4rem;">Nom du plat</h2>
+        <h2 id="orderPlatNom" style="margin-bottom: 20px; font-size:1.4rem; font-weight:800; padding-right:24px;">Nom du plat</h2>
         
+        <!-- Quantité -->
         <div class="order-section">
-            <h4>Combien de plats ?</h4>
+            <h4>Sélectionnez la quantité</h4>
             <div class="qty-selector">
                 <button class="qty-btn" onclick="updateQty(-1)">-</button>
                 <span class="qty-val" id="orderQty">1</span>
@@ -165,46 +254,58 @@
             </div>
         </div>
 
+        <!-- Pourboire déplacé stratégiquement ici -->
         <div class="order-section">
             <h4>Soutenir l'équipe (Pourboire)</h4>
             <div class="tip-options">
                 <button class="tip-btn active" onclick="setTip(0, this)">0 F</button>
+                <button class="tip-btn" onclick="setTip(200, this)">200 F</button>
                 <button class="tip-btn" onclick="setTip(500, this)">500 F</button>
                 <button class="tip-btn" onclick="setTip(1000, this)">1000 F</button>
             </div>
+            <div class="custom-tip-container">
+                <span>Autre montant :</span>
+                <input type="number" id="customTipInput" class="custom-tip-input" placeholder="Ex: 350" min="0" oninput="handleCustomTip(this.value)" />
+                <span>FCFA</span>
+            </div>
         </div>
 
+        <!-- Mode de paiement & Partage d'addition instantané -->
         <div class="order-section">
-            <h4>Paiement</h4>
+            <h4>Règlement de l'addition</h4>
             <div class="split-options">
                 <div class="split-btn active" id="btnPayerSeul" onclick="setSplit(false)">Je paie seul</div>
                 <div class="split-btn" id="btnPartager" onclick="setSplit(true)">Partager l'addition</div>
             </div>
             <div id="splitCountContainer">
-                <input type="number" id="splitCount" class="split-input" placeholder="Vous êtes combien au total ?" min="2" oninput="calculateTotal()" />
-                <p style="font-size:0.85rem; color:#64748b; margin-top:8px;">
-                    <i class="fas fa-info-circle"></i> Un QR code de paiement partagé sera généré à l'étape suivante.
-                </p>
+                <input type="number" id="splitCount" class="split-input" placeholder="Nombre de personnes au total ?" min="2" oninput="calculateTotal()" />
+                <div id="qrShareContainer" class="qr-share-box" style="display:none;">
+                    <img id="qrShareImg" src="" alt="QR Code Addition Partagée" />
+                    <p style="font-size:0.8rem; color:#64748b; font-weight:500;">
+                        <i class="fas fa-qrcode"></i> Faites scanner ce QR code à vos amis pour diviser l'addition en temps réel !
+                    </p>
+                </div>
             </div>
         </div>
 
+        <!-- Affichage du Prix Global -->
         <div class="total-display">
             <span id="totalLabel">Total à payer :</span>
             <strong id="orderTotal">0 FCFA</strong>
         </div>
 
-        <button class="btn-commander" style="margin-top:20px; animation:none;" onclick="validerCommande()">
-            Aller au paiement <i class="fas fa-arrow-right"></i>
+        <button class="btn-commander" style="margin-top:20px;" onclick="validerCommande()">
+            Aller au paiement sécurisé <i class="fas fa-arrow-right"></i>
         </button>
     </div>
 </div>
 
-<!-- Modal Avis -->
+<!-- MODAL : SOUVEGARDER UN AVIS -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
-        <h2 style="text-align: center; margin-bottom: 10px;">Laissez un avis</h2>
-        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Votre avis aide le restaurant à s'améliorer.</p>
+        <h2 style="text-align: center; margin-bottom: 8px; font-weight:800;">Votre avis compte</h2>
+        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Aidez l'établissement à parfaire son service.</p>
         
         <div class="stars" id="starContainer">
             <i class="fas fa-star" data-value="1"></i>
@@ -214,17 +315,19 @@
             <i class="fas fa-star" data-value="5"></i>
         </div>
         
-        <textarea id="avisCommentaire" placeholder="Dites-nous ce que vous avez aimé..."></textarea>
+        <textarea id="avisCommentaire" placeholder="Qu'avez-vous pensé de l'accueil, du cadre ou de la saveur des plats ?..."></textarea>
         
-        <button class="btn-commander" style="animation:none;" onclick="soumettreAvis()">
-            Envoyer mon avis
+        <button class="btn-commander" onclick="soumettreAvis()">
+            Transmettre mon avis
         </button>
     </div>
 </div>
 
+<!-- Liens Firebase Compat v10.8.1 -->
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
+    // Configuration d'initialisation Firestore
     const firebaseConfig = {
         apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
         authDomain: "scan-et-tchop.firebaseapp.com",
@@ -239,46 +342,136 @@
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('restaurant');
 
-    // Variables pour la commande en cours
+    // Variables d'état globales (Côté Client)
+    let allPlats = [];
     let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
     let currentRating = 0;
+    let selectedCategory = 'Tous';
 
-    if (restaurantId) loadRestaurant(restaurantId);
+    if (restaurantId) {
+        initPage();
+    } else {
+        document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold;">Aucun identifiant de restaurant spécifié dans l\'URL.</p>';
+    }
 
-    async function loadRestaurant(id) {
-        const restoDoc = await db.collection('restaurants').doc(id).get();
-        if (!restoDoc.exists) return;
-        const resto = restoDoc.data();
+    async function initPage() {
+        await loadRestaurantData();
+        await loadMenuData();
+    }
 
-        document.getElementById('restaurantInfo').innerHTML = `
-            ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo" />` : ''}
-            <div class="info">
-                <h1>${resto.nom}</h1>
-                <p>${resto.description || 'Bienvenue dans notre établissement'}</p>
-                <button class="btn-avis-header" onclick="openModal('modalAvis')">
-                    <i class="fas fa-star"></i> Donner mon avis
-                </button>
-            </div>
-        `;
+    // Chargement et agrégation des données du restaurant (Infos + Avis Globaux)
+    async function loadRestaurantData() {
+        try {
+            const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
+            if (!restoDoc.exists) {
+                document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold;">Établissement introuvable.</p>';
+                return;
+            }
+            const resto = restoDoc.data();
 
-        const snapshot = await db.collection('menus').where('restaurantId', '==', id).get();
+            // Récupération des avis associés (Requête simple sans index composite requis)
+            const avisSnapshot = await db.collection('avis').where('restaurantId', '==', restaurantId).get();
+            
+            let totalAvis = 0;
+            let sommeNotes = 0;
+            let etoilesHtml = '';
+            let noteMoyenne = 0;
+
+            avisSnapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.note) {
+                    sommeNotes += data.note;
+                    totalAvis++;
+                }
+            });
+
+            if (totalAvis > 0) {
+                noteMoyenne = (sommeNotes / totalAvis).toFixed(1);
+                const pleinStars = Math.round(noteMoyenne);
+                for (let i = 1; i <= 5; i++) {
+                    etoilesHtml += i <= pleinStars ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+                }
+            } else {
+                etoilesHtml = '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
+            }
+
+            // Génération dynamique de l'en-tête restructuré
+            document.getElementById('restaurantInfo').innerHTML = `
+                ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo de ${resto.nom}" />` : ''}
+                <div class="info-middle">
+                    <h1>${resto.nom}</h1>
+                    <p class="description">${resto.description || 'Bienvenue dans notre établissement gastonomique.'}</p>
+                    
+                    <div class="global-rating">
+                        <span class="stars-display">${etoilesHtml}</span>
+                        <span class="rating-text">${totalAvis > 0 ? `${noteMoyenne}/5 (${totalAvis} avis)` : 'Aucun avis pour le moment'}</span>
+                    </div>
+
+                    ${resto.siteWeb ? `<a href="${resto.siteWeb}" target="_blank" class="btn-site-web"><i class="fas fa-globe"></i> Visiter notre site web</a><br/>` : ''}
+                    
+                    <button class="btn-avis-header" onclick="openModal('modalAvis')">
+                        <i class="fas fa-star"></i> Laisser un avis sur l'établissement
+                    </button>
+                </div>
+                
+                <div class="info-bottom">
+                    ${resto.telephone ? `<span><i class="fas fa-phone-alt"></i> ${resto.telephone}</span>` : ''}
+                    <span><i class="fas fa-map-marker-alt"></i> ${resto.adresse || 'Adresse non configurée'}, ${resto.ville || ''}, ${resto.pays || 'Cameroun'}</span>
+                </div>
+            `;
+        } catch (error) {
+            console.error("Erreur d'initialisation de l'en-tête :", error);
+        }
+    }
+
+    // Récupération globale du catalogue des plats (Filtrage ultérieur fait côté client)
+    async function loadMenuData() {
+        try {
+            const snapshot = await db.collection('menus').where('restaurantId', '==', restaurantId).get();
+            allPlats = [];
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.disponible !== false) { // On écarte uniquement les plats marqués indisponibles
+                    allPlats.push({ id: doc.id, ...data });
+                }
+            });
+            
+            renderMenu();
+        } catch (error) {
+            document.getElementById('menuContainer').innerHTML = '<p>Erreur lors de la récupération de la carte des menus.</p>';
+        }
+    }
+
+    // Injection et filtrage dynamique des plats
+    function renderMenu() {
         const container = document.getElementById('menuContainer');
         container.innerHTML = '';
-        
-        snapshot.forEach(doc => {
-            const plat = doc.data();
-            if(plat.disponible === false) return; // On cache les plats indisponibles pour simplifier
 
+        const platsFiltres = allPlats.filter(plat => {
+            if (selectedCategory === 'Tous') return true;
+            return plat.categorie === selectedCategory;
+        });
+
+        if(platsFiltres.length === 0) {
+            container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding: 40px 0;">Aucun élément disponible dans la catégorie "${selectedCategory}".</p>`;
+            return;
+        }
+
+        platsFiltres.forEach(plat => {
             const card = document.createElement('div');
             card.className = 'menu-card';
             card.innerHTML = `
-                ${plat.image ? `<img src="${plat.image}" onclick="openZoom('${plat.image}')" title="Cliquez pour agrandir" />` : ''}
+                ${plat.image ? `<img src="${plat.image}" onclick="openZoom('${plat.image}')" title="Cliquez pour agrandir l'image" alt="${plat.nom}" />` : ''}
                 <div class="body">
                     <h3>${plat.nom}</h3>
-                    <div class="price"><span class="current">${plat.prix} FCFA</span></div>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom:16px;">${plat.description || ''}</p>
-                    <button class="btn-commander" onclick="openOrderModal('${doc.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})">
-                        <i class="fas fa-shopping-cart"></i> Commander
+                    <p class="description-plat">${plat.description || 'Aucune description fournie pour ce plat.'}</p>
+                    <div class="price">
+                        <span class="current">${plat.prix} FCFA</span>
+                        ${plat.prixOriginal && plat.prixOriginal > plat.prix ? `<span class="original">${plat.prixOriginal} FCFA</span>` : ''}
+                    </div>
+                    <button class="btn-commander" onclick="openOrderModal('${plat.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})">
+                        <i class="fas fa-shopping-cart"></i> Sélectionner le plat
                     </button>
                 </div>
             `;
@@ -286,24 +479,40 @@
         });
     }
 
-    /* === GESTION DES MODALS === */
+    // Gestion du clic sur les onglets de catégories
+    function filterCategory(catName) {
+        selectedCategory = catName;
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            if(btn.innerText.includes(catName) || (catName === 'Tous' && btn.innerText.includes('Tout'))) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        renderMenu();
+    }
+
+    /* ====== BOÎTES DE DIALOGUE (MODALS) ====== */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    /* === ZOOM IMAGE === */
     function openZoom(url) {
         document.getElementById('zoomImage').src = url;
         openModal('modalZoom');
     }
 
-    /* === LOGIQUE DE COMMANDE === */
+    /* ====== CONFIGURATION ET CALCULE DU PANIER ====== */
     function openOrderModal(id, nom, prix) {
         currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
         document.getElementById('orderPlatNom').innerText = nom;
         document.getElementById('orderQty').innerText = 1;
         document.getElementById('splitCount').value = '';
-        setTip(0, document.querySelectorAll('.tip-btn')[0]); // Remettre le pourboire à 0
-        setSplit(false); // Remettre à "Paie seul"
+        document.getElementById('customTipInput').value = '';
+        
+        // Reset boutons de pourboires
+        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tip-btn')[0].classList.add('active');
+        
+        setSplit(false);
         calculateTotal();
         openModal('modalOrder');
     }
@@ -318,8 +527,17 @@
 
     function setTip(amount, btnElement) {
         currentOrder.tip = amount;
+        document.getElementById('customTipInput').value = ''; // Clear custom tip input
         document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
+        if (btnElement) btnElement.classList.add('active');
+        calculateTotal();
+    }
+
+    function handleCustomTip(value) {
+        const amount = parseFloat(value) || 0;
+        currentOrder.tip = amount;
+        // Désactiver la sélection des boutons fixes si l'utilisateur saisit un montant libre
+        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
         calculateTotal();
     }
 
@@ -333,6 +551,7 @@
             document.getElementById('btnPayerSeul').classList.add('active');
             document.getElementById('btnPartager').classList.remove('active');
             document.getElementById('splitCountContainer').style.display = 'none';
+            document.getElementById('qrShareContainer').style.display = 'none';
             currentOrder.splitCount = 1;
         }
         calculateTotal();
@@ -347,24 +566,39 @@
             
             if(currentOrder.splitCount > 1) {
                 let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
-                document.getElementById('totalLabel').innerText = `Total par personne (${currentOrder.splitCount} pers) :`;
+                document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} personnes) :`;
                 document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
+                
+                // Génération instantanée du QR Code de partage d'addition
+                generateShareQR(perPerson);
                 return;
             }
         }
         
-        document.getElementById('totalLabel').innerText = "Total à payer :";
+        document.getElementById('qrShareContainer').style.display = 'none';
+        document.getElementById('totalLabel').innerText = "Montant total de l'addition :";
         document.getElementById('orderTotal').innerText = `${baseTotal} FCFA`;
     }
 
+    // Génération automatique d'un QR code via une API tierce légère et sécurisée
+    function generateShareQR(amountPerPerson) {
+        const containerQr = document.getElementById('qrShareContainer');
+        const imgQr = document.getElementById('qrShareImg');
+        
+        // Construction de l'URL cible de paiement partagé
+        const shareUrl = `${window.location.origin}/paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&pourboire=${currentOrder.tip}&split=true&splitCount=${currentOrder.splitCount}`;
+        
+        // Utilisation de l'API universelle de génération de QR Code QRServer
+        imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}&color=0b1a2e`;
+        containerQr.style.display = 'flex';
+    }
+
     function validerCommande() {
-        // Redirige vers la page de paiement en passant TOUS les détails de configuration
-        // La page paiement.html s'occupera d'afficher le bon montant et de générer le QR code pour les amis si l'option split est activée.
         const url = `paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&pourboire=${currentOrder.tip}&split=${currentOrder.isSplit}&splitCount=${currentOrder.splitCount}`;
         window.location.href = url;
     }
 
-    /* === GESTION DES AVIS === */
+    /* ====== INTERACTION DES AVIS CLIENTS ====== */
     const stars = document.querySelectorAll('#starContainer i');
     stars.forEach(star => {
         star.addEventListener('click', function() {
@@ -375,8 +609,8 @@
     });
 
     async function soumettreAvis() {
-        const commentaire = document.getElementById('avisCommentaire').value;
-        if(currentRating === 0) { alert('Veuillez sélectionner au moins une étoile.'); return; }
+        const commentaire = document.getElementById('avisCommentaire').value.trim();
+        if(currentRating === 0) { alert('Merci de sélectionner une note par les étoiles.'); return; }
         
         try {
             await db.collection('avis').add({
@@ -385,14 +619,19 @@
                 commentaire: commentaire,
                 date: firebase.firestore.FieldValue.serverTimestamp()
             });
-            alert('Merci beaucoup pour votre avis !');
+            
+            alert('Votre précieux retour a été enregistré avec succès ! Merci.');
             closeModal('modalAvis');
-            // Réinitialiser le formulaire
+            
+            // Réinitialisation du formulaire interne
             document.getElementById('avisCommentaire').value = '';
             stars.forEach(s => s.classList.remove('active'));
             currentRating = 0;
+            
+            // Rechargement immédiat des scores en-tête
+            await loadRestaurantData();
         } catch (e) {
-            alert('Erreur lors de l\'envoi de l\'avis.');
+            alert('Un problème est survenu lors de la transmission de l\'avis.');
         }
     }
 </script>
