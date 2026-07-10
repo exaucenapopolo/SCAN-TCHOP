@@ -3,23 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SCAN&TCHOP – Propriétaire</title>
+  <title>SCAN&TCHOP – Espace Propriétaire</title>
 
+  <!-- Polices et Icônes -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+  <!-- Scripts externes -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <!-- Ajout de SweetAlert2 pour des alertes professionnelles et belles -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     /* ====== VARIABLES & RESET ====== */
     :root {
       --primary: #e67e22; --primary-hover: #cf6f1b;
-      --bg-color: #f0f4f8; --text-main: #0b1a2e; --text-muted: #64748b;
-      --card-bg: rgba(255, 255, 255, 0.9); --border-color: #e2e8f0;
-      --success: #22c55e; --danger: #ef4444; --info: #3b82f6; --warning: #f59e0b;
+      --bg-color: #f8fafc; --text-main: #0f172a; --text-muted: #64748b;
+      --card-bg: #ffffff; --border-color: #e2e8f0;
+      --success: #10b981; --danger: #ef4444; --info: #3b82f6; --warning: #f59e0b;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -31,13 +35,13 @@
       color: var(--text-main);
       display: flex;
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow-x: hidden; /* Empêche strictement le scroll horizontal */
       width: 100vw;
     }
 
     /* ====== SIDEBAR ====== */
     .sidebar {
-      width: 280px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+      width: 280px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.5);
       padding: 30px 20px; display: flex; flex-direction: column; position: fixed;
       top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
@@ -49,34 +53,36 @@
     .sidebar .logo span { font-weight: 800; font-size: 1.3rem; color: var(--text-main); letter-spacing: -0.5px; }
 
     .sidebar nav a {
-      display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 16px;
+      display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 12px;
       color: #334155; text-decoration: none; transition: var(--transition); margin-bottom: 8px;
       font-weight: 500; font-size: 0.95rem; cursor: pointer;
     }
     .sidebar nav a i { width: 24px; text-align: center; font-size: 1.1rem; transition: var(--transition); }
-    .sidebar nav a:hover { background: #eef2f6; transform: translateX(5px); }
-    .sidebar nav a.active { background: #fef3e8; color: var(--primary); font-weight: 600; box-shadow: 0 4px 15px rgba(230,126,34,0.1); }
+    .sidebar nav a:hover { background: #f1f5f9; transform: translateX(5px); color: var(--primary); }
+    .sidebar nav a.active { background: #fff7ed; color: var(--primary); font-weight: 600; box-shadow: inset 3px 0 0 var(--primary); }
     .sidebar nav a.active i { transform: scale(1.1); }
 
     .sidebar .logout { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px; }
     .sidebar .logout a {
-      color: #334155; display: flex; align-items: center; gap: 14px; padding: 14px 18px;
-      border-radius: 16px; transition: var(--transition); cursor: pointer; text-decoration: none; font-weight: 500;
+      color: #ef4444; display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+      border-radius: 12px; transition: var(--transition); cursor: pointer; text-decoration: none; font-weight: 600;
     }
-    .sidebar .logout a:hover { background: #fee2e2; color: var(--danger); }
+    .sidebar .logout a:hover { background: #fee2e2; }
 
     /* ====== MAIN CONTAINER ====== */
     .main { margin-left: 280px; flex: 1; padding: 40px; min-height: 100vh; transition: var(--transition); width: calc(100vw - 280px); max-width: 100%; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 16px; }
-    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
-    .header-actions { display: flex; align-items: center; gap: 15px; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; background: #fff; padding: 20px 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+    .header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; color: #1e293b; }
+    
+    .header-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     
     .user-badge {
-      background: #fff; padding: 10px 24px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border-color);
+      background: #f8fafc; padding: 10px 20px; border-radius: 12px;
+      font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color); color: #334155;
     }
     .user-badge i { color: var(--primary); font-size: 1.2rem; }
-    .hamburger { display: none; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .hamburger { display: none; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 15px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: var(--primary); }
 
     .section { display: none; animation: fadeIn 0.5s ease; }
     .section.active { display: block; }
@@ -84,37 +90,40 @@
 
     /* ====== CARTES & GRILLES ====== */
     .card {
-      background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-radius: 24px; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      background: var(--card-bg); border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
       padding: 32px; margin-bottom: 30px; transition: var(--transition);
     }
-    .card:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.06); transform: translateY(-2px); }
-    .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-    .card h3 i { color: var(--primary); background: #fef3e8; padding: 10px; border-radius: 12px; font-size: 1.1rem; }
+    .card:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.06); }
+    .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; color: #1e293b; }
+    .card h3 i { color: var(--primary); background: #fff7ed; padding: 12px; border-radius: 12px; font-size: 1.1rem; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    /* ====== NOUVEAU DESIGN STAT CARDS ====== */
+    /* ====== NOUVEAU DESIGN STAT CARDS CLIQUABLES ====== */
     .stat-card {
       position: relative; overflow: hidden; border-radius: 24px; padding: 28px 24px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; transition: var(--transition);
-      color: #fff; z-index: 1;
+      color: #fff; z-index: 1; cursor: pointer; /* Indique que c'est cliquable */
     }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+    .stat-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
     
     .stat-card .content { position: relative; z-index: 2; }
-    .stat-card .number { font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .stat-card .label { font-size: 0.95rem; font-weight: 600; opacity: 0.9; }
-    .stat-card .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.9; }
+    .stat-card .number { font-size: 2.4rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .stat-card .label { font-size: 0.95rem; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .icon { font-size: 2.2rem; margin-bottom: 15px; opacity: 0.9; }
+    
+    /* Bouton d'action subtil dans la carte */
+    .stat-card .action-hint { font-size: 0.8rem; opacity: 0.7; margin-top: 15px; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+    .stat-card:hover .action-hint { opacity: 1; background: rgba(255,255,255,0.3); }
 
     .card-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
     .card-green { background: linear-gradient(135deg, #10b981, #047857); }
     .card-orange { background: linear-gradient(135deg, #f59e0b, #b45309); }
     .card-purple { background: linear-gradient(135deg, #8b5cf6, #5b21b6); }
 
-    .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+    .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; }
     .wave {
       position: absolute; bottom: -50%; left: -50%; width: 200%; height: 200%;
       background: rgba(255,255,255,0.15); border-radius: 40%;
@@ -123,151 +132,138 @@
     .wave:nth-child(2) { background: rgba(255,255,255,0.1); animation: spinWave 12s linear infinite; bottom: -55%; }
     @keyframes spinWave { 100% { transform: rotate(360deg); } }
 
+    /* ====== BOUTONS ====== */
+    .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.4); }
+    .btn-success { background: var(--success); color: #fff; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+    .btn-success:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+    .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+    .btn-info { background: #1e293b; color: #fff; box-shadow: 0 4px 15px rgba(30,41,59,0.3); }
+    .btn-info:hover { background: #0f172a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,41,59,0.4); }
+    .btn-outline { background: transparent; border: 2px solid var(--border-color); color: #1e293b; }
+    .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
+    
+    /* Bouton Info pour les abonnements */
+    .info-btn { background-color: #f1f5f9; color: var(--text-muted); border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.3s; }
+    .info-btn:hover { background-color: var(--primary); color: white; transform: scale(1.1); }
+
     /* ====== ABONNEMENTS ====== */
     .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
     .price-card {
       background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center;
       border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column;
     }
     .price-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: #cbd5e1; }
     .price-card.active-plan { border-color: var(--primary); box-shadow: 0 15px 40px rgba(230,126,34,0.15); background: #fffcf9; }
     
-    .price-card .plan-badge { position: absolute; top: 15px; right: -30px; background: var(--primary); color: #fff; padding: 5px 30px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .price-card .plan-badge { position: absolute; top: 15px; right: -30px; background: var(--primary); color: #fff; padding: 5px 30px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-transform: uppercase; }
     .price-card h4 { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
     .price-card .price { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .price-card .price span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
-    .price-card .annual-price { font-size: 0.9rem; color: var(--success); font-weight: 700; margin-bottom: 25px; background: #dcfce7; padding: 5px 10px; border-radius: 8px; display: inline-block; }
+    .price-card .annual-price { font-size: 0.9rem; color: var(--success); font-weight: 700; margin-bottom: 25px; background: #dcfce7; padding: 5px 12px; border-radius: 8px; display: inline-block; }
     
-    .price-card ul { list-style: none; padding: 0; margin-bottom: 30px; text-align: left; }
-    .price-card ul li { padding: 10px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9; }
+    .price-card ul { list-style: none; padding: 0; margin-bottom: 30px; text-align: left; flex-grow: 1; }
+    .price-card ul li { padding: 12px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; }
     .price-card ul li:last-child { border-bottom: none; }
-    .price-card ul li i { color: var(--success); font-size: 1.1rem; }
+    .price-card ul li i.fa-check { color: var(--success); font-size: 1.1rem; margin-right: 10px; }
+    .price-card ul li div { display: flex; align-items: center; }
 
     /* ====== FORMULAIRES ====== */
     .form-group { margin-bottom: 20px; }
     .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #1e293b; }
     .form-control {
-      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 16px;
-      font-family: inherit; font-size: 0.95rem; background: #fff; transition: var(--transition);
+      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 12px;
+      font-family: inherit; font-size: 0.95rem; background: #f8fafc; transition: var(--transition); color: #334155;
     }
-    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
-    textarea.form-control { resize: vertical; min-height: 100px; }
-    select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; }
-
-    /* ====== BOUTONS ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.4); }
-    .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
-    .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
-    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
-    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
-    .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
-    .btn-info:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
-    .btn-outline { background: transparent; border: 2px solid var(--border-color); color: #1e293b; }
-    .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
-    .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; }
-    .btn-block { width: 100%; }
+    .form-control:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
+    textarea.form-control { resize: vertical; min-height: 120px; }
 
     /* ====== TABLEAUX ====== */
-    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     table { width: 100%; border-collapse: collapse; font-size: 0.95rem; white-space: nowrap; }
-    th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
+    th { text-align: left; padding: 18px 16px; background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
     td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.3s; }
-    tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #fef3e8; }
-    
+    tbody tr:hover td { background: #fff7ed; }
     tr.item-disabled td { opacity: 0.55; filter: grayscale(100%); background: #f8fafc; }
-    tr.item-disabled:hover td { background: #f1f5f9; opacity: 0.8; }
 
     /* ====== BADGES & SWITCHES ====== */
-    .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
     .badge-success { background: #dcfce7; color: #166534; }
     .badge-warning { background: #fef9c3; color: #854d0e; }
     .badge-danger { background: #fee2e2; color: #991b1b; }
-    .badge-info { background: #dbeafe; color: #1e40af; }
 
     .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; border-radius: 26px; transition: 0.4s; }
     .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.4s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    input:checked + .slider { background: var(--primary); }
+    input:checked + .slider { background: var(--success); }
     input:checked + .slider:before { transform: translateX(22px); }
 
-    /* ====== MODALES SÉCURISÉES (CORRECTION BUG DÉFILEMENT) ====== */
+    /* ====== MODALES SÉCURISÉES ====== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(11,26,46,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      display: none; align-items: center; justify-content: center; z-index: 999; padding: 15px;
+      background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
     }
     .modal-overlay.open { display: flex; animation: fadeInOverlay 0.3s; }
     @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
 
     .modal {
-      background: #fff; border-radius: 28px; width: 100%; max-width: 650px; 
-      max-height: 90vh; /* Empêche la modale de dépasser l'écran */
-      display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+      background: #fff; border-radius: 24px; width: 100%; max-width: 600px; 
+      max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
       animation: modalIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); overflow: hidden;
     }
     @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-    #modalForm {
-        display: flex; flex-direction: column; height: 100%; overflow: hidden;
-    }
-
-    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; flex-shrink: 0; }
-    .modal-header h3 { font-size: 1.3rem; font-weight: 800; margin: 0; }
-    
-    /* Correction du scroll ici */
-    .modal-body { 
-        padding: 24px 24px; 
-        overflow-y: auto; 
-        flex: 1; 
-        -webkit-overflow-scrolling: touch; 
-    }
-    
-    .modal-footer { 
-        padding: 18px 24px; 
-        border-top: 1px solid var(--border-color); 
-        display: flex; gap: 12px; justify-content: flex-end; 
-        background: #f8fafc; 
-        flex-shrink: 0; 
-    }
+    #modalForm { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    .modal-header { padding: 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.4rem; font-weight: 800; margin: 0; color: #1e293b; }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .modal-footer { padding: 20px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; flex-shrink: 0; }
 
     /* ====== UPLOADS ====== */
     .upload-preview { display: flex; align-items: center; gap: 16px; margin: 10px 0; flex-wrap: wrap; }
-    .upload-preview img { width: 70px; height: 70px; object-fit: cover; border-radius: 16px; border: 2px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .upload-preview img { width: 80px; height: 80px; object-fit: contain; border-radius: 12px; border: 2px solid var(--border-color); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); padding: 5px;}
     .upload-btn {
-      background: #f1f5f9; padding: 10px 20px; border-radius: 14px; cursor: pointer;
-      font-weight: 600; font-size: 0.9rem; border: 2px dashed #cbd5e1; transition: var(--transition);
+      background: #fff; padding: 12px 24px; border-radius: 12px; cursor: pointer;
+      font-weight: 600; font-size: 0.95rem; border: 2px dashed #cbd5e1; transition: var(--transition);
       display: inline-flex; align-items: center; gap: 10px; color: var(--text-muted);
     }
-    .upload-btn:hover { background: #eef2f6; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .upload-btn:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
     .upload-btn input[type="file"] { display: none; }
 
-    .upload-progress { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 12px; display: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-    .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #f1c40f); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+    .upload-progress { width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 15px; display: none; }
+    .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--warning)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
 
-    /* ====== QR CODE SECTION ====== */
-    .qr-container { display: flex; flex-direction: column; align-items: center; gap: 20px; margin: 20px 0; }
-    .qr-box-wrapper { background: #fff; padding: 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(230,126,34,0.15); border: 2px solid var(--primary); display: inline-block;}
-    #qrcode canvas, #qrcode img { border-radius: 10px; }
+    /* ====== ZONE MENU PUBLIC & QR (DESIGN ÉPURÉ) ====== */
+    .menu-banner {
+        background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px; padding: 40px;
+        color: white; display: flex; flex-direction: column; align-items: center; text-align: center;
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.2); margin-bottom: 30px; position: relative; overflow: hidden;
+    }
+    .menu-banner::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(230,126,34,0.15) 0%, rgba(0,0,0,0) 70%); pointer-events: none;
+    }
+    .menu-banner h4 { font-size: 1.6rem; margin-bottom: 15px; font-weight: 800; z-index: 1;}
+    .menu-banner p { font-size: 1rem; color: #cbd5e1; margin-bottom: 30px; max-width: 600px; z-index: 1;}
     
-    .qr-collapsible-content {
-        max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out, padding 0.5s ease-out; opacity: 0;
-    }
-    .qr-collapsible-content.expanded {
-        max-height: 1000px; opacity: 1; margin-top: 20px;
-    }
-
-    .filter-group { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
+    .menu-actions { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; z-index: 1; margin-bottom: 20px;}
+    
+    .qr-collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.6s ease-out, opacity 0.6s ease-out; opacity: 0; }
+    .qr-collapsible-content.expanded { max-height: 500px; opacity: 1; margin-top: 20px; }
+    .qr-box-wrapper { background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: inline-block; }
+    #qrcode canvas, #qrcode img { border-radius: 12px; }
 
     /* ====== RESPONSIVE ====== */
-    @media (max-width: 1024px) { 
+    @media (max-width: 1100px) { 
       .grid-4 { grid-template-columns: repeat(2,1fr); } 
       .pricing-grid { grid-template-columns: repeat(2,1fr); }
-      .main { padding:30px; } 
     }
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
@@ -275,75 +271,109 @@
       .main { margin-left:0; padding:20px; width: 100vw; }
       .grid-2, .grid-3, .grid-4, .pricing-grid { grid-template-columns:1fr; }
       .hamburger { display:block; }
-      .stat-card { padding:20px; }
-      .card { padding:24px 20px; }
-      .filter-group { flex-direction: column; align-items: stretch; }
-      .header-actions { flex-direction: column; align-items: flex-start; gap: 10px;}
+      .header { padding: 15px 20px; }
+      .menu-banner { padding: 30px 20px; }
     }
     @media (max-width: 480px) {
       .modal-body { padding:20px; }
       .modal-footer { padding:15px 20px; flex-direction:column-reverse; }
       .modal-footer .btn { width:100%; }
-      .header h1 { font-size:1.5rem; }
-      .upload-preview { flex-direction:column; align-items:flex-start; }
+      .header-actions { flex-direction: column; align-items: stretch; width: 100%;}
+      .user-badge { justify-content: center; }
+      .menu-actions { flex-direction: column; width: 100%; }
+      .menu-actions .btn { width: 100%; }
     }
 
-    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
   </style>
 </head>
 <body>
+
+  <!-- Menu Latéral -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
       <span>SCAN&TCHOP</span>
     </div>
     <nav>
-      <a class="active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Tableau de bord</a>
-      <a data-section="restaurant"><i class="fas fa-store-alt"></i> Mon restaurant</a>
-      <a data-section="employes"><i class="fas fa-users"></i> Employés</a>
-      <a data-section="menu"><i class="fas fa-utensils"></i> Menu</a>
-      <a data-section="commandes"><i class="fas fa-clipboard-list"></i> Commandes & PDF</a>
-      <a data-section="retraits"><i class="fas fa-hand-holding-usd"></i> Retraits</a>
-      <a data-section="abonnements"><i class="fas fa-credit-card"></i> Abonnements</a>
+      <a class="active" data-section="dashboard" onclick="switchSection('dashboard')"><i class="fas fa-chart-pie"></i> Tableau de bord</a>
+      <a data-section="restaurant" onclick="switchSection('restaurant')"><i class="fas fa-store-alt"></i> Mon restaurant</a>
+      <a data-section="employes" onclick="switchSection('employes')"><i class="fas fa-users"></i> Employés</a>
+      <a data-section="menu" onclick="switchSection('menu')"><i class="fas fa-utensils"></i> Menu & QR Code</a>
+      <a data-section="commandes" onclick="switchSection('commandes')"><i class="fas fa-clipboard-list"></i> Commandes</a>
+      <a data-section="retraits" onclick="switchSection('retraits')"><i class="fas fa-hand-holding-usd"></i> Retraits</a>
+      <a data-section="abonnements" onclick="switchSection('abonnements')"><i class="fas fa-credit-card"></i> Abonnements</a>
     </nav>
     <div class="logout">
       <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
     </div>
   </aside>
 
+  <!-- Contenu Principal -->
   <div class="main">
+    
+    <!-- En-tête amélioré -->
     <div class="header">
       <div style="display:flex;align-items:center;gap:16px;">
         <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
         <h1 id="pageTitle">Tableau de bord</h1>
       </div>
       <div class="header-actions">
-        <button class="btn btn-info" id="btnVoirRestaurant" style="display: none;"><i class="fas fa-eye"></i> Voir mon menu public</button>
-        <div class="user-badge"><i class="fas fa-user-circle"></i> <span id="userEmail">Propriétaire</span></div>
+        <!-- Remplacement de l'email par le nom du restaurant -->
+        <div class="user-badge" id="headerRestoBadge">
+            <i class="fas fa-store"></i> <span id="headerRestoName">Chargement...</span>
+        </div>
+        <button class="btn btn-info" id="btnVoirRestaurant" style="display: none;">
+            <i class="fas fa-external-link-alt"></i> Voir le menu public
+        </button>
       </div>
     </div>
 
+    <!-- Section : Tableau de bord -->
     <div id="section-dashboard" class="section active">
+      <!-- Cartes de stats cliquables -->
       <div class="grid-4" id="statsCards">
-        <div class="stat-card card-blue">
+        <div class="stat-card card-blue" onclick="switchSection('commandes')">
           <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
-          <div class="content"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes du jour</div></div>
+          <div class="content">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="number" id="statCommandes">0</div>
+            <div class="label">Commandes du jour</div>
+            <div class="action-hint">Voir les commandes <i class="fas fa-arrow-right"></i></div>
+          </div>
         </div>
-        <div class="stat-card card-green">
+        <div class="stat-card card-green" onclick="switchSection('retraits')">
           <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
-          <div class="content"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Revenus (jour)</div></div>
+          <div class="content">
+            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="number" id="statCA">0 F</div>
+            <div class="label">Revenus (jour)</div>
+            <div class="action-hint">Gérer la caisse <i class="fas fa-arrow-right"></i></div>
+          </div>
         </div>
-        <div class="stat-card card-orange">
+        <div class="stat-card card-orange" onclick="switchSection('employes')">
           <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
-          <div class="content"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="statEmployes">0</div><div class="label">Employés actifs</div></div>
+          <div class="content">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="number" id="statEmployes">0</div>
+            <div class="label">Employés actifs</div>
+            <div class="action-hint">Gérer l'équipe <i class="fas fa-arrow-right"></i></div>
+          </div>
         </div>
-        <div class="stat-card card-purple">
+        <div class="stat-card card-purple" onclick="switchSection('menu')">
           <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
-          <div class="content"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats au menu</div></div>
+          <div class="content">
+            <div class="icon"><i class="fas fa-utensils"></i></div>
+            <div class="number" id="statPlats">0</div>
+            <div class="label">Plats au menu</div>
+            <div class="action-hint">Modifier le menu <i class="fas fa-arrow-right"></i></div>
+          </div>
         </div>
       </div>
+
       <div class="card">
         <h3><i class="fas fa-chart-line"></i> Évolution des ventes (7 derniers jours)</h3>
         <div style="position:relative; height:250px; width:100%;"><canvas id="salesChart"></canvas></div>
@@ -356,6 +386,7 @@
       </div>
     </div>
 
+    <!-- Section : Mon restaurant -->
     <div id="section-restaurant" class="section">
       <div class="card">
         <h3><i class="fas fa-store-alt"></i> Informations du restaurant</h3>
@@ -366,7 +397,7 @@
               <div class="upload-preview">
                 <img id="restoLogoPreview" src="" alt="Logo" style="display:none;" />
                 <label class="upload-btn">
-                  <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
+                  <i class="fas fa-cloud-upload-alt"></i> Choisir une image
                   <input type="file" id="restoLogoInput" accept="image/*" />
                 </label>
                 <span id="restoLogoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
@@ -375,23 +406,24 @@
             </div>
             <div class="form-group"><label>Nom du restaurant</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
             <div class="form-group"><label>Nom du propriétaire (Optionnel)</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" /></div>
-            <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" /></div>
+            <div class="form-group"><label>Email de contact</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" /></div>
             <div class="form-group"><label>Téléphone (appels)</label><input type="text" id="restoTel" class="form-control" placeholder="+237 ..." /></div>
             <div class="form-group"><label>Téléphone WhatsApp</label><input type="text" id="restoWhatsapp" class="form-control" placeholder="+237 ..." /></div>
             <div class="form-group"><label>Adresse physique</label><input type="text" id="restoAdresse" class="form-control" placeholder="Rue, Quartier..." /></div>
             <div class="form-group"><label>Ville</label><input type="text" id="restoVille" class="form-control" placeholder="Douala" /></div>
             <div class="form-group"><label>Localisation (Google Maps)</label><input type="url" id="restoMap" class="form-control" placeholder="https://maps.app.goo.gl/..." /></div>
           </div>
-          <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez votre établissement..."></textarea></div>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Mettre à jour les informations</button>
+          <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'ambiance et la spécialité de votre établissement..."></textarea></div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer les modifications</button>
         </form>
       </div>
     </div>
 
+    <!-- Section : Employés -->
     <div id="section-employes" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
-          <h3 style="margin:0;"><i class="fas fa-users"></i> Gestion des employés</h3>
+          <h3 style="margin:0;"><i class="fas fa-users"></i> Équipe du restaurant</h3>
           <button class="btn btn-primary" id="openAddEmploye"><i class="fas fa-plus"></i> Ajouter un employé</button>
         </div>
         <div class="table-wrap">
@@ -400,34 +432,37 @@
       </div>
     </div>
 
+    <!-- Section : Menu -->
     <div id="section-menu" class="section">
+      
+      <!-- NOUVELLE ZONE MENU & QR CODE EPURÉE -->
+      <div id="menuLinkContainer" style="display:none;" class="menu-banner">
+        <h4><i class="fas fa-rocket"></i> Votre menu est en ligne !</h4>
+        <p>Générez vos supports visuels professionnels pour vos tables. Vos clients n'ont plus qu'à scanner pour commander.</p>
+        
+        <div class="menu-actions">
+            <button class="btn btn-primary" onclick="copyMenuLink()"><i class="fas fa-link"></i> Copier le lien du menu</button>
+            <button class="btn btn-success" onclick="downloadQRPDF()"><i class="fas fa-file-pdf"></i> Télécharger le PDF du QR Code</button>
+        </div>
+
+        <button class="btn btn-outline" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); font-size: 0.85rem;" id="toggleQrBtn">
+            Afficher le QR Code à l'écran <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div id="qrCollapsible" class="qr-collapsible-content">
+            <div class="qr-box-wrapper">
+                <div id="qrcode"></div>
+            </div>
+            <p style="color:var(--success); font-weight:bold; margin-top:15px; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Ce QR Code n'expire jamais.</p>
+        </div>
+      </div>
+
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
-          <h3 style="margin:0;"><i class="fas fa-utensils"></i> Gestion du menu</h3>
+          <h3 style="margin:0;"><i class="fas fa-utensils"></i> Carte et Plats</h3>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="openAddPlat"><i class="fas fa-plus"></i> Nouveau Plat</button>
-            <button class="btn btn-success" id="generateMenuLink" style="display:none;"><i class="fas fa-qrcode"></i> Créer mon QR de Table</button>
-          </div>
-        </div>
-        
-        <!-- SECTION QR CODE DÉPLIABLE -->
-        <div id="menuLinkContainer" style="display:none; background:#f8fafc; padding:30px; border-radius:24px; margin-bottom:30px; border:1px solid var(--border-color); text-align:center;">
-          <h4 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--text-main);">Lien et QR Code de votre menu</h4>
-          <p style="font-size:0.95rem; margin-bottom:20px; color: var(--text-muted);">
-            Votre menu est en ligne : <a id="menuLink" href="#" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;"></a>
-          </p>
-          
-          <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-              <button class="btn btn-outline" id="toggleQrBtn"><i class="fas fa-chevron-down"></i> Afficher le QR Code</button>
-              <button class="btn btn-outline" onclick="copyMenuLink()"><i class="fas fa-copy"></i> Copier le lien</button>
-              <button class="btn btn-success" id="downloadQR"><i class="fas fa-file-pdf"></i> Générer l'affiche de Table (PDF)</button>
-          </div>
-
-          <div id="qrCollapsible" class="qr-collapsible-content">
-              <div class="qr-container">
-                  <div class="qr-box-wrapper"><div id="qrcode"></div></div>
-                  <p style="color:var(--success); font-weight:bold; margin-top:5px;"><i class="fas fa-lock"></i> Ce QR Code intègre votre logo et est imprimable à vie.</p>
-              </div>
+            <button class="btn btn-info" id="generateMenuLink" style="display:none;"><i class="fas fa-magic"></i> Générer mon Menu Web</button>
           </div>
         </div>
         
@@ -437,12 +472,13 @@
       </div>
     </div>
 
+    <!-- Section : Commandes -->
     <div id="section-commandes" class="section">
       <div class="card">
         <h3 style="margin-bottom:10px;"><i class="fas fa-clipboard-list"></i> Historique et rapports des ventes</h3>
-        <div class="filter-group">
+        <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px;">
           <div style="flex:1;">
-            <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:5px;">Période :</label>
+            <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:5px;">Filtrer la période :</label>
             <select id="filterDateCommandes" class="form-control" style="max-width:300px;">
               <option value="all">Toutes les commandes</option>
               <option value="today">Aujourd'hui</option>
@@ -459,12 +495,13 @@
       </div>
     </div>
 
+    <!-- Section : Retraits -->
     <div id="section-retraits" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
           <div>
             <h3 style="margin-bottom:8px;"><i class="fas fa-hand-holding-usd"></i> Caisse et retraits</h3>
-            <p style="color:var(--text-muted); font-size:1.1rem;">Solde disponible : <strong id="soldeDisplay" style="color:var(--text-main); font-size:1.4rem;">0 FCFA</strong></p>
+            <p style="color:var(--text-muted); font-size:1.1rem;">Solde disponible : <strong id="soldeDisplay" style="color:var(--success); font-size:1.6rem; font-weight:800;">0 FCFA</strong></p>
           </div>
           <button class="btn btn-primary" id="openDemandeRetrait"><i class="fas fa-arrow-up"></i> Demander un retrait</button>
         </div>
@@ -475,63 +512,67 @@
       </div>
     </div>
 
+    <!-- Section : Abonnements -->
     <div id="section-abonnements" class="section">
       <div class="card">
-        <h3><i class="fas fa-credit-card"></i> Abonnement & Publication</h3>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">
-          Statut actuel de votre restaurant : <span id="subscriptionStatusBadge" class="badge badge-warning">Mode Configuration Réduite</span>
+        <h3><i class="fas fa-credit-card"></i> Gestion de l'abonnement</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 1.05rem;">
+          Statut de votre établissement : <span id="subscriptionStatusBadge" class="badge badge-warning">Mode Configuration Réduite</span>
         </p>
+        
         <div class="pricing-grid">
           <div class="price-card" id="plan-starter">
             <h4>Pack Starter</h4>
             <div class="price">11 900 F <span>/ mois</span></div>
             <div class="annual-price">Ou 119 000 F / an</div>
             <ul>
-              <li><i class="fas fa-check"></i> Menu QR par navigateur</li>
-              <li><i class="fas fa-check"></i> Configuration autonome</li>
-              <li><i class="fas fa-check"></i> Commandes WhatsApp</li>
-              <li><i class="fas fa-check"></i> Paiement cash au comptoir</li>
+              <li><div><i class="fas fa-check"></i> Menu QR web</div> <button type="button" class="info-btn" onclick="showInfo('Menu QR sans application', 'Le client scanne le QR code physique sur sa table et le menu s\'affiche instantanément sans rien installer.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Commande WhatsApp</div> <button type="button" class="info-btn" onclick="showInfo('Commande via WhatsApp', 'Les commandes sont envoyées directement sur le numéro WhatsApp de votre restaurant, prêtes à être lues.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Paiement cash comptoir</div> <button type="button" class="info-btn" onclick="showInfo('Paiement cash au comptoir', 'Le client commande à table mais règle l\'addition en espèces de façon classique à la caisse.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Gestion des ruptures</div> <button type="button" class="info-btn" onclick="showInfo('Gestion des ruptures', 'Un produit est épuisé ? Masquez-le vous-même depuis votre espace en 1 clic.')">?</button></li>
             </ul>
-            <button class="btn btn-outline btn-block" onclick="selectPlan('Starter')">Choisir ce plan</button>
+            <button class="btn btn-outline btn-block" onclick="selectPlan('Starter')">Souscrire au Starter</button>
           </div>
+          
           <div class="price-card" id="plan-pro">
             <h4>Pack Pro</h4>
             <div class="price">14 900 F <span>/ mois</span></div>
             <div class="annual-price">Ou 149 000 F / an</div>
             <ul>
-              <li><i class="fas fa-check"></i> Tout le pack Starter</li>
-              <li><i class="fas fa-check"></i> Commande sur le Dashboard</li>
-              <li><i class="fas fa-check"></i> Dashboard cuisine (temps réel)</li>
-              <li><i class="fas fa-check"></i> Intégration Mobile Money</li>
+              <li><div><i class="fas fa-check"></i> Tout le pack Starter</div></li>
+              <li><div><i class="fas fa-check"></i> Commandes sur Dashboard</div> <button type="button" class="info-btn" onclick="showInfo('Commande vers Dashboard', 'Toutes les commandes arrivent dans cette interface sécurisée. Impossible de perdre un bon.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Paiement Mobile Money</div> <button type="button" class="info-btn" onclick="showInfo('Paiement Mobile Money', 'Vos clients paient via MoMo ou Orange Money depuis leur téléphone. L\'argent arrive sur votre solde ici.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Export Excel (Rapports)</div> <button type="button" class="info-btn" onclick="showInfo('Export Excel', 'Téléchargez toutes vos ventes pour faire votre bilan comptable rapidement.')">?</button></li>
             </ul>
-            <button class="btn btn-outline btn-block" onclick="selectPlan('Pro')">Choisir ce plan</button>
+            <button class="btn btn-outline btn-block" onclick="selectPlan('Pro')">Souscrire au Pro</button>
           </div>
+          
           <div class="price-card" id="plan-premium">
-            <div class="plan-badge">Populaire</div>
+            <div class="plan-badge">Choix N°1</div>
             <h4>Pack Premium</h4>
             <div class="price">29 900 F <span>/ mois</span></div>
             <div class="annual-price">Ou 299 000 F / an</div>
             <ul>
-              <li><i class="fas fa-check"></i> Tout le pack Pro</li>
-              <li><i class="fas fa-check"></i> Split-bill dynamique</li>
-              <li><i class="fas fa-check"></i> Alertes sonores cuisine</li>
-              <li><i class="fas fa-check"></i> Multi-comptes et rôles</li>
+              <li><div><i class="fas fa-check"></i> Tout le pack Pro</div></li>
+              <li><div><i class="fas fa-check"></i> Alertes Cuisine Live</div> <button type="button" class="info-btn" onclick="showInfo('Alerte Sonore Cuisine', 'Une tablette en cuisine sonne à chaque commande et affiche le bon virtuel.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Partage d'addition</div> <button type="button" class="info-btn" onclick="showInfo('Partage d\'addition', 'Un groupe d\'amis peut diviser l\'addition et chacun paie sa part depuis son téléphone.')">?</button></li>
+              <li><div><i class="fas fa-check"></i> Multi-comptes avancé</div> <button type="button" class="info-btn" onclick="showInfo('Multi-comptes', 'Créez des accès séparés pour le serveur, le cuisinier et le comptable avec des droits limités.')">?</button></li>
             </ul>
-            <button class="btn btn-primary btn-block" onclick="selectPlan('Premium')">Choisir ce plan</button>
+            <button class="btn btn-primary btn-block" onclick="selectPlan('Premium')">Souscrire au Premium</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Modale Standard (pour les formulaires) -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-header">
         <h3 id="modalTitle">Titre</h3>
       </div>
       <form id="modalForm">
-        <div class="modal-body" id="modalBody">
-          </div>
+        <div class="modal-body" id="modalBody"></div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" id="modalCancel">Annuler</button>
           <button type="submit" class="btn btn-primary" id="modalSubmit">Enregistrer</button>
@@ -540,13 +581,199 @@
     </div>
   </div>
 
+  <!-- Scripts Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
   <script>
     // ============================================================
-    //  CONFIGURATION FIREBASE + CLOUDINARY
+    //  NAVIGATION & UI FONCTIONS (AMÉLIORÉES)
+    // ============================================================
+    
+    // Fonction pour afficher une belle modale d'info pour les abonnements
+    function showInfo(title, desc) {
+        Swal.fire({
+            title: title,
+            text: desc,
+            icon: 'info',
+            confirmButtonColor: '#e67e22',
+            confirmButtonText: 'Compris',
+            customClass: { popup: 'custom-swal-popup' }
+        });
+    }
+
+    // Gestion de la navigation entre sections
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+      
+      const targetSection = document.getElementById('section-' + sectionId);
+      if(targetSection) targetSection.classList.add('active');
+      
+      const targetLink = document.querySelector(`.sidebar nav a[data-section="${sectionId}"]`);
+      if(targetLink) targetLink.classList.add('active');
+
+      // Mettre à jour le titre
+      const pageTitle = document.getElementById('pageTitle');
+      if (targetLink) {
+        pageTitle.innerHTML = targetLink.innerHTML;
+      }
+      
+      // Fermer le menu sur mobile
+      if(window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+      }
+    }
+
+    // Gestion du menu mobile
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Toggle pour le QR Code
+    document.getElementById('toggleQrBtn').addEventListener('click', function() {
+        const qrContent = document.getElementById('qrCollapsible');
+        const isExpanded = qrContent.classList.contains('expanded');
+        
+        if(isExpanded) {
+            qrContent.classList.remove('expanded');
+            this.innerHTML = "Afficher le QR Code à l'écran <i class='fas fa-chevron-down'></i>";
+        } else {
+            qrContent.classList.add('expanded');
+            this.innerHTML = "Masquer le QR Code <i class='fas fa-chevron-up'></i>";
+        }
+    });
+
+    // Copier le lien
+    function copyMenuLink() {
+        const link = restaurantData?.menuUrl;
+        if(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success', title: 'Lien copié avec succès !',
+                    showConfirmButton: false, timer: 3000
+                });
+            });
+        }
+    }
+
+    // ============================================================
+    //  GÉNÉRATION DU PDF HAUT DE GAMME (AVEC LOGO)
+    // ============================================================
+    async function downloadQRPDF() {
+        if (!restaurantData || !restaurantData.menuUrl) {
+            Swal.fire('Erreur', 'Veuillez d\'abord générer le menu en ajoutant des plats.', 'error');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Création du PDF...',
+            html: 'Génération d\'un design haut de gamme...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading() }
+        });
+
+        setTimeout(async () => {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ format: 'a4', unit: 'mm' });
+
+                // Fond
+                doc.setFillColor(250, 250, 252);
+                doc.rect(0, 0, 210, 297, 'F');
+
+                // Bandeau supérieur Orange
+                doc.setFillColor(230, 126, 34);
+                doc.rect(0, 0, 210, 15, 'F');
+
+                let currentY = 40;
+
+                // Ajouter le logo du restaurant s'il existe
+                if (restaurantData.logo) {
+                    const logoB64 = await getBase64ImageFromURL(restaurantData.logo);
+                    if (logoB64) {
+                        doc.addImage(logoB64, 'PNG', 85, currentY, 40, 40);
+                        currentY += 50;
+                    }
+                }
+
+                // Nom du restaurant
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(28);
+                doc.setTextColor(15, 23, 42);
+                doc.text(restaurantData.nom || 'Votre Restaurant', 105, currentY, { align: 'center' });
+                currentY += 15;
+
+                // Texte d'instruction
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.setTextColor(100, 116, 139);
+                doc.text("Scannez ce QR Code avec votre appareil photo", 105, currentY, { align: 'center' });
+                currentY += 8;
+                doc.text("pour découvrir le menu et commander.", 105, currentY, { align: 'center' });
+                currentY += 20;
+
+                // Récupérer le QR Canvas et ajouter le logo SCAN&TCHOP au centre
+                const qrCanvas = document.querySelector('#qrcode canvas');
+                if (qrCanvas) {
+                    const canvasSize = 1000;
+                    const compositeCanvas = document.createElement('canvas');
+                    compositeCanvas.width = canvasSize;
+                    compositeCanvas.height = canvasSize;
+                    const ctx = compositeCanvas.getContext('2d');
+
+                    // Dessiner le QR
+                    ctx.drawImage(qrCanvas, 0, 0, canvasSize, canvasSize);
+
+                    // Dessiner le logo au milieu
+                    try {
+                        const appLogoB64 = await getBase64ImageFromURL(APP_LOGO_URL);
+                        if(appLogoB64) {
+                            const logoImg = new Image();
+                            logoImg.src = appLogoB64;
+                            await new Promise(resolve => { logoImg.onload = resolve; });
+
+                            const logoSize = canvasSize * 0.22; // 22% de la taille
+                            const centerPos = (canvasSize - logoSize) / 2;
+
+                            // Cercle blanc derrière le logo
+                            ctx.fillStyle = 'white';
+                            ctx.beginPath();
+                            ctx.arc(canvasSize/2, canvasSize/2, (logoSize/2) + 15, 0, 2 * Math.PI);
+                            ctx.fill();
+
+                            // Dessiner l'image
+                            ctx.drawImage(logoImg, centerPos, centerPos, logoSize, logoSize);
+                        }
+                    } catch(e) { console.log("Erreur intégration logo application", e); }
+
+                    const finalQrData = compositeCanvas.toDataURL('image/png');
+                    doc.addImage(finalQrData, 'PNG', 55, currentY, 100, 100);
+                    currentY += 120;
+                }
+
+                // Pied de page
+                doc.setFont("helvetica", "italic");
+                doc.setFontSize(22);
+                doc.setTextColor(230, 126, 34); // Primary color
+                doc.text("Merci et Bon Appétit !", 105, currentY, { align: 'center' });
+
+                // Sauvegarde
+                doc.save(`Affiche_Table_${(restaurantData.nom || 'Restaurant').replace(/\s+/g, '_')}.pdf`);
+                Swal.close();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'PDF téléchargé !', showConfirmButton: false, timer: 3000 });
+
+            } catch (error) {
+                Swal.close();
+                Swal.fire('Erreur', 'Impossible de générer le PDF.', 'error');
+                console.error(error);
+            }
+        }, 500); // Petit délai pour laisser Swal s'afficher
+    }
+
+    // ============================================================
+    //  CONFIGURATION FIREBASE + CLOUDINARY (INCHANGÉES)
     // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
@@ -561,16 +788,12 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
-    const secondaryAuth = secondaryApp.auth();
-
     const CLOUDINARY_CLOUD_NAME = 'do83voiqy';
     const CLOUDINARY_UPLOAD_PRESET = 'afrikdigitalo_upload';
     const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-    
     const APP_LOGO_URL = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
 
-    // Fonction utilitaire pour convertir les images pour jsPDF (Évite les bugs CORS)
+    // Fonction utilitaire pour convertir les images pour jsPDF
     function getBase64ImageFromURL(url) {
       return new Promise((resolve, reject) => {
         if(!url) { resolve(null); return; }
@@ -583,7 +806,7 @@
           ctx.drawImage(img, 0, 0);
           resolve(canvas.toDataURL("image/png"));
         };
-        img.onerror = () => resolve(null); // On ne bloque pas si erreur
+        img.onerror = () => resolve(null); 
         img.src = url;
       });
     }
@@ -595,15 +818,11 @@
       const xhr = new XMLHttpRequest();
       xhr.open('POST', CLOUDINARY_UPLOAD_URL, true);
       if (onProgress) {
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) onProgress((e.loaded / e.total) * 100);
-        };
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress((e.loaded / e.total) * 100); };
       }
       xhr.onload = () => {
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          onComplete(null, data.secure_url);
-        } else onComplete('Erreur HTTP ' + xhr.status);
+        if (xhr.status === 200) { onComplete(null, JSON.parse(xhr.responseText).secure_url); } 
+        else onComplete('Erreur HTTP ' + xhr.status);
       };
       xhr.onerror = () => onComplete('Erreur réseau');
       xhr.send(formData);
@@ -616,8 +835,6 @@
     let currentRestaurantId = null;
     let restaurantData = null;
     let salesChart = null;
-    let toutesLesCommandes = [];
-    let qrCanvasWithLogo = null; // Stocker le canvas QR avec le logo au milieu
 
     // ============================================================
     //  AUTHENTIFICATION & INITIALISATION
@@ -625,15 +842,13 @@
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'connexion.html'; return; }
       currentUser = user;
-      document.getElementById('userEmail').textContent = user.email;
 
       const userDoc = await db.collection('users').doc(user.uid).get();
       if (!userDoc.exists || userDoc.data().role !== 'proprietaire') {
-        alert('Accès réservé aux propriétaires.'); auth.signOut(); return;
+        Swal.fire('Accès refusé', 'Accès réservé aux propriétaires.', 'error').then(() => auth.signOut());
+        return;
       }
       await initRestaurant(user.uid);
-      loadDashboard();
-      initChart();
     });
 
     async function initRestaurant(uid) {
@@ -642,38 +857,26 @@
         const doc = snapshot.docs[0];
         currentRestaurantId = doc.id;
         restaurantData = doc.data();
-        populateRestaurantForm(restaurantData);
-        updateSubscriptionUI(restaurantData.abonnement || 'Aucun');
-        updateQRUI();
-        return;
+      } else {
+        const newResto = {
+          proprietaireId: uid, nom: 'Mon Restaurant', proprietaireNom: '',
+          email: currentUser.email, telephone: '', whatsapp: '', adresse: '',
+          ville: '', map: '', description: '', logo: '', solde: 0,
+          abonnement: 'Aucun', menuUrl: '', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        const docRef = await db.collection('restaurants').add(newResto);
+        currentRestaurantId = docRef.id;
+        restaurantData = newResto;
+        await db.collection('users').doc(uid).update({ restaurantId: currentRestaurantId });
       }
-      const newResto = {
-        proprietaireId: uid,
-        nom: 'Mon restaurant',
-        proprietaireNom: '',
-        email: currentUser.email,
-        telephone: '',
-        whatsapp: '',
-        adresse: '',
-        ville: '',
-        map: '',
-        description: '',
-        logo: '',
-        solde: 0,
-        abonnement: 'Aucun',
-        menuUrl: '', 
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      const docRef = await db.collection('restaurants').add(newResto);
-      currentRestaurantId = docRef.id;
-      restaurantData = newResto;
-      populateRestaurantForm(newResto);
-      updateSubscriptionUI('Aucun');
+      populateRestaurantForm(restaurantData);
+      updateSubscriptionUI(restaurantData.abonnement || 'Aucun');
       updateQRUI();
-      await db.collection('users').doc(uid).update({ restaurantId: currentRestaurantId });
     }
 
     function populateRestaurantForm(data) {
+      document.getElementById('headerRestoName').textContent = data.nom || 'Mon Restaurant';
+      
       document.getElementById('restoNom').value = data.nom || '';
       document.getElementById('restoProprio').value = data.proprietaireNom || '';
       document.getElementById('restoEmail').value = data.email || '';
@@ -684,6 +887,7 @@
       document.getElementById('restoMap').value = data.map || '';
       document.getElementById('restoDescription').value = data.description || '';
       document.getElementById('soldeDisplay').textContent = (data.solde || 0).toLocaleString('fr-FR') + ' FCFA';
+      
       if (data.logo) {
         const img = document.getElementById('restoLogoPreview');
         img.src = data.logo;
@@ -719,30 +923,28 @@
       const progressBar = document.getElementById('restoLogoProgressBar');
       progressDiv.style.display = 'block';
       progressBar.style.width = '0%';
+      
       uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
         progressDiv.style.display = 'none';
         progressBar.style.width = '0%';
-        if (err) { alert('Erreur upload : ' + err); return; }
+        if (err) { Swal.fire('Erreur', err, 'error'); return; }
+        
         const img = document.getElementById('restoLogoPreview');
         img.src = url; img.style.display = 'block';
         document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
         document.getElementById('restoLogoUrl').dataset.url = url;
-        
-        // Re-générer le QR code si le logo change
-        if(restaurantData && restaurantData.menuUrl) {
-            restaurantData.logo = url; // Mise à jour temporaire avant save
-            generateQRWithLogo(restaurantData.menuUrl);
-        }
       });
     });
 
     document.getElementById('restaurantForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentRestaurantId) return;
+      
       const btn = e.target.querySelector('button[type="submit"]');
       const orig = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
       btn.disabled = true;
+      
       const data = {
         nom: document.getElementById('restoNom').value,
         proprietaireNom: document.getElementById('restoProprio').value,
@@ -755,772 +957,63 @@
         description: document.getElementById('restoDescription').value,
         logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
       };
+      
       await db.collection('restaurants').doc(currentRestaurantId).update(data);
       restaurantData = { ...restaurantData, ...data };
-      btn.innerHTML = '<i class="fas fa-check"></i> Mise à jour !';
-      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1500);
-    });
-
-    // Bouton Voir Mon Restaurant
-    document.getElementById('btnVoirRestaurant').addEventListener('click', () => {
-        if(restaurantData && restaurantData.menuUrl) {
-            window.open(restaurantData.menuUrl, '_blank');
-        }
-    });
-
-    // ============================================================
-    //  NAVIGATION & MODALES
-    // ============================================================
-    document.querySelectorAll('nav a[data-section]').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelectorAll('nav a[data-section]').forEach(a => a.classList.remove('active'));
-        link.classList.add('active');
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById('section-' + link.dataset.section).classList.add('active');
-        document.getElementById('pageTitle').textContent = link.textContent.trim();
-        document.getElementById('sidebar').classList.remove('open');
-      });
-    });
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('open');
-    });
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-
-    function openModal(title, html, onSubmit) {
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('modalBody').innerHTML = html;
-      document.getElementById('modalOverlay').classList.add('open');
-      const form = document.getElementById('modalForm');
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('modalSubmit');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-        btn.disabled = true;
-        await onSubmit(e);
-        btn.innerHTML = orig;
-        btn.disabled = false;
-        closeModal();
-      };
-    }
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('open');
-      document.getElementById('modalForm').onsubmit = null;
-    }
-    document.getElementById('modalCancel').addEventListener('click', closeModal);
-
-    window.copyText = (text) => {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('📋 Copié avec succès !');
-      }).catch(err => alert('Erreur lors de la copie'));
-    };
-    
-    window.copyMenuLink = () => {
-        if(restaurantData && restaurantData.menuUrl) {
-            copyText(restaurantData.menuUrl);
-        }
-    };
-
-    // ============================================================
-    //  EMPLOYÉS (AVEC ROLES DYNAMIQUES)
-    // ============================================================
-    async function loadEmployes() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('users').where('restaurantId', '==', currentRestaurantId).get();
-      const tbody = document.getElementById('employesList');
-      tbody.innerHTML = '';
-      let activeEmployesCount = 0;
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if(data.role === 'proprietaire') return; 
-        
-        activeEmployesCount++;
-        const photo = data.photo ? `<img src="${data.photo}" style="width:45px;height:45px;object-fit:cover;border-radius:12px;" />` :
-          '<div style="width:45px;height:45px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="color:#94a3b8;"></i></div>';
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${photo}</td>
-          <td style="font-weight:600;">${data.nom || 'Sans nom'}</td>
-          <td>${data.email}</td>
-          <td><code>${data.motDePasse || '******'}</code></td>
-          <td><span class="badge badge-info">${data.role}</span></td>
-          <td><code style="color:var(--primary); font-weight:bold;">${data.codeRestaurant || 'N/A'}</code></td>
-          <td>
-            <button class="btn btn-outline btn-sm" onclick="copyText('Email: ${data.email}\\nMot de passe: ${data.motDePasse || 'password123'}\\nCode: ${data.codeRestaurant}')" title="Copier les identifiants"><i class="fas fa-copy"></i> Copier</button>
-            <button class="btn btn-primary btn-sm" onclick="editEmploye('${doc.id}')" title="Modifier"><i class="fas fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="supprimerEmploye('${doc.id}')" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('statEmployes').textContent = activeEmployesCount;
-    }
-
-    window.supprimerEmploye = async (uid) => {
-      if (!confirm('Supprimer cet employé définitivement ?')) return;
-      await db.collection('users').doc(uid).delete();
-      loadEmployes();
-    };
-
-    window.editEmploye = async (uid) => {
-      const doc = await db.collection('users').doc(uid).get();
-      const data = doc.data();
-      const html = `
-        <div class="form-group">
-          <label>Photo de profil</label>
-          <div class="upload-preview">
-            <img id="editEmpPhotoPreview" src="${data.photo || ''}" style="width:70px;height:70px;object-fit:cover;border-radius:12px;${data.photo?'':'display:none;'}" />
-            <label class="upload-btn"><i class="fas fa-camera"></i> Changer la photo<input type="file" id="editEmpPhotoInput" accept="image/*" /></label>
-            <span id="editEmpPhotoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;" data-url="${data.photo || ''}"></span>
-          </div>
-          <div class="upload-progress" id="editEmpPhotoProgress"><div class="upload-progress-bar" id="editEmpPhotoProgressBar"></div></div>
-        </div>
-        <div class="form-group"><label>Nom complet de l'employé</label><input type="text" id="editEmpNom" class="form-control" value="${data.nom || ''}" required /></div>
-        <div class="form-group">
-            <label>Rôle (Sélectionnez ou créez un nouveau poste)</label>
-            <input list="roleOptions" id="editEmpRole" class="form-control" value="${data.role || ''}" required />
-            <datalist id="roleOptions">
-              <option value="Serveur"></option>
-              <option value="Cuisine"></option>
-              <option value="Comptable"></option>
-              <option value="Manager"></option>
-              <option value="Barman"></option>
-            </datalist>
-        </div>
-        <div class="form-group"><label>Email (Non modifiable)</label><input type="email" class="form-control" value="${data.email}" disabled style="background:#f1f5f9; color:#94a3b8;" /></div>
-      `;
-      openModal('Modifier l\'employé', html, async () => {
-        await db.collection('users').doc(uid).update({
-          nom: document.getElementById('editEmpNom').value,
-          role: document.getElementById('editEmpRole').value,
-          photo: document.getElementById('editEmpPhotoUrl').dataset.url || ''
-        });
-        loadEmployes();
-      });
-
-      // Attacher upload
-      setTimeout(() => {
-        document.getElementById('editEmpPhotoInput').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('editEmpPhotoProgress');
-          const progressBar = document.getElementById('editEmpPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { alert(err); return; }
-            const img = document.getElementById('editEmpPhotoPreview');
-            img.src = url; img.style.display = 'block';
-            document.getElementById('editEmpPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Photo prête';
-            document.getElementById('editEmpPhotoUrl').dataset.url = url;
-          });
-        });
-      }, 100);
-    };
-
-    document.getElementById('openAddEmploye').addEventListener('click', () => {
-      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-      const html = `
-        <div class="form-group">
-          <label>Photo de profil (Optionnel)</label>
-          <div class="upload-preview">
-            <img id="empPhotoPreview" src="" alt="Photo" style="display:none;" />
-            <label class="upload-btn"><i class="fas fa-image"></i> Choisir une photo<input type="file" id="empPhotoInput" accept="image/*" /></label>
-            <span id="empPhotoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
-          </div>
-          <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
-        </div>
-        <div class="form-group"><label>Nom complet de l'employé</label><input type="text" id="empNom" class="form-control" placeholder="Ex: Marc Alvès" required /></div>
-        <div class="form-group"><label>Email de connexion</label><input type="email" id="empEmail" class="form-control" placeholder="employe@restaurant.com" required /></div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Rôle (Sélectionnez ou tapez)</label>
-            <input list="roleOptionsAdd" id="empRole" class="form-control" placeholder="Ex: Serveur" required />
-            <datalist id="roleOptionsAdd">
-              <option value="Serveur"></option>
-              <option value="Cuisine"></option>
-              <option value="Comptable"></option>
-              <option value="Manager"></option>
-              <option value="Plongeur"></option>
-            </datalist>
-          </div>
-          <div class="form-group"><label>Code restaurant unique</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
-        </div>
-        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
-      `;
-      openModal('Ajouter un employé', html, async (e) => {
-        const nom = document.getElementById('empNom').value;
-        const email = document.getElementById('empEmail').value;
-        const password = document.getElementById('empPassword').value;
-        const role = document.getElementById('empRole').value;
-        const codeRestaurant = document.getElementById('empCode').value;
-        const photoUrl = document.getElementById('empPhotoUrl').dataset.url || '';
-
-        try {
-          const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-          await db.collection('users').doc(cred.user.uid).set({
-            nom, email, role, restaurantId: currentRestaurantId,
-            codeRestaurant, photo: photoUrl, motDePasse: password,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          await secondaryAuth.signOut();
-          loadEmployes();
-          alert(`✅ Employé enregistré avec succès !`);
-        } catch (err) { alert('Erreur : ' + err.message); }
-      });
-
-      setTimeout(() => {
-        document.getElementById('empPhotoInput').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('empPhotoProgress');
-          const progressBar = document.getElementById('empPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { alert(err); return; }
-            const img = document.getElementById('empPhotoPreview');
-            img.src = url; img.style.display = 'block';
-            document.getElementById('empPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Photo prête';
-            document.getElementById('empPhotoUrl').dataset.url = url;
-          });
-        });
-      }, 100);
-    });
-
-    // ============================================================
-    //  GESTION DES PLATS ET CATÉGORIES (AMÉLIORÉES)
-    // ============================================================
-    const categoriesMenu = [
-        "Plats locaux", "Plats occidentaux", "Nourriture", "Boissons", "Entrées", 
-        "Frites", "Compléments", "Desserts", "Amuse-gueules", "Friandises", "Autre"
-    ];
-
-    function generateCategoryOptions(selected = "Nourriture") {
-        return categoriesMenu.map(cat => `<option value="${cat}" ${cat === selected ? 'selected' : ''}>${cat}</option>`).join('');
-    }
-
-    async function loadMenu() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('menus').where('restaurantId', '==', currentRestaurantId).get();
-      const tbody = document.getElementById('menuList');
-      tbody.innerHTML = '';
-      let count = 0;
-      snapshot.forEach(doc => {
-        count++;
-        const data = doc.data();
-        const isDispo = data.disponible !== false; 
-        
-        const photo = data.image ? `<img src="${data.image}" style="width:55px;height:55px;object-fit:cover;border-radius:14px;" />` :
-          '<div style="width:55px;height:55px;background:#f1f5f9;border-radius:14px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:#94a3b8;"></i></div>';
-        const prixBarre = data.prixOriginal ? `<span style="text-decoration:line-through;color:#94a3b8;font-size:0.85rem;margin-right:5px;">${data.prixOriginal} F</span>` : '';
-        const prixActuel = data.prix ? `<strong>${data.prix} F</strong>` : '';
-        const promo = data.promotion ? '<span class="badge badge-success">Promo</span>' : '<span class="badge badge-info">Standard</span>';
-        
-        const dispoBadge = isDispo ? '' : '<br/><span class="badge badge-danger" style="margin-top:5px;">Non disponible</span>';
-        
-        const tr = document.createElement('tr');
-        if(!isDispo) tr.className = "item-disabled"; 
-
-        tr.innerHTML = `
-          <td>${photo}</td>
-          <td style="font-weight:600;">
-            ${data.nom} ${dispoBadge}
-            ${data.description ? `<div style="font-size:0.8rem; color:#64748b; margin-top:4px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${data.description}</div>` : ''}
-          </td>
-          <td>${prixBarre} ${prixActuel}</td>
-          <td>${promo}</td>
-          <td>${data.categorie || 'Non classé'}</td>
-          <td><label class="switch"><input type="checkbox" ${isDispo ? 'checked' : ''} onchange="toggleDisponibilite('${doc.id}', this.checked)" /><span class="slider"></span></label></td>
-          <td>
-            <button class="btn btn-primary btn-sm" onclick="editPlat('${doc.id}')" title="Modifier"><i class="fas fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="supprimerPlat('${doc.id}')" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('statPlats').textContent = count;
-    }
-
-    window.toggleDisponibilite = async (id, checked) => {
-      await db.collection('menus').doc(id).update({ disponible: checked });
-    };
-    window.supprimerPlat = async (id) => {
-      if (!confirm('Retirer ce plat définitivement ?')) return;
-      await db.collection('menus').doc(id).delete();
-      loadMenu();
-    };
-
-    window.editPlat = async (id) => {
-      const doc = await db.collection('menus').doc(id).get();
-      const data = doc.data();
-      const supps = data.supplements ? data.supplements.map(s => s.nom + ':' + s.prix).join(', ') : '';
+      document.getElementById('headerRestoName').textContent = data.nom; // Update Header
       
-      const html = `
-        <div class="form-group">
-          <label>Photo du plat</label>
-          <div class="upload-preview">
-            <img id="platPhotoPreview" src="${data.image || ''}" style="width:80px;height:80px;object-fit:cover;border-radius:16px;${data.image?'':'display:none;'}" />
-            <label class="upload-btn"><i class="fas fa-camera"></i> Changer d'image<input type="file" id="platPhotoInput" accept="image/*" /></label>
-            <span id="platPhotoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
-          </div>
-          <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
-        </div>
-        <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
-        
-        <div class="form-group">
-          <label>Description explicite (Ingrédients, préparation...)</label>
-          <textarea id="platDescription" class="form-control" placeholder="Décrivez les saveurs et ingrédients de ce plat..." required>${data.description || ''}</textarea>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group"><label>Prix actuel (FCFA)</label><input type="number" id="platPrix" class="form-control" value="${data.prix || ''}" required /></div>
-          <div class="form-group"><label>Ancien prix (si en promotion)</label><input type="number" id="platPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
-        </div>
-        <div class="form-group">
-          <label>Catégorie (Classification du menu)</label>
-          <select id="platCategorie" class="form-control" required>
-            ${generateCategoryOptions(data.categorie)}
-          </select>
-        </div>
-        
-        <div class="form-group"><label>Suppléments (Format -> Nom:Prix, Nom2:Prix2)</label><input type="text" id="platSupplements" class="form-control" value="${supps}" placeholder="Ex: Fromage:500, Extra Frites:1000" /></div>
-      `;
-      openModal('Modifier le plat', html, async () => {
-        const image = document.getElementById('platPhotoUrl').dataset.url || data.image || '';
-        const nom = document.getElementById('platNom').value;
-        const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
-        const prix = parseFloat(document.getElementById('platPrix').value) || 0;
-        const categorie = document.getElementById('platCategorie').value;
-        const description = document.getElementById('platDescription').value;
-        const suppsStr = document.getElementById('platSupplements').value;
-        const supplements = suppsStr ? suppsStr.split(',').map(s => { const parts = s.trim().split(':'); return { nom: parts[0], prix: parseFloat(parts[1]) || 0 }; }) : [];
-        
-        await db.collection('menus').doc(id).update({
-          nom, prix, prixOriginal, categorie, description, image, supplements,
-          promotion: prixOriginal > prix
-        });
-        loadMenu();
-      });
-      setTimeout(() => attachPlatUpload(), 100);
-    };
-
-    document.getElementById('openAddPlat').addEventListener('click', () => {
-      const html = `
-        <div class="form-group">
-          <label>Photo du plat <span style="color:var(--danger)">*</span></label>
-          <div class="upload-preview">
-            <img id="platPhotoPreview" src="" style="display:none;width:80px;height:80px;object-fit:cover;border-radius:16px;" />
-            <label class="upload-btn"><i class="fas fa-camera"></i> Prendre / Choisir<input type="file" id="platPhotoInput" accept="image/*" required /></label>
-            <span id="platPhotoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
-          </div>
-          <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
-        </div>
-        <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" placeholder="Ex: Ndolé Royal aux Crevettes" required /></div>
-        
-        <div class="form-group">
-          <label>Description du plat</label>
-          <textarea id="platDescription" class="form-control" placeholder="Détaillez les ingrédients pour donner envie au client..." required></textarea>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group"><label>Prix actuel (FCFA)</label><input type="number" id="platPrix" class="form-control" placeholder="4500" required /></div>
-          <div class="form-group"><label>Ancien prix (Laissez vide si pas de promo)</label><input type="number" id="platPrixOriginal" class="form-control" placeholder="5000" /></div>
-        </div>
-        <div class="form-group">
-          <label>Catégorie (Bien choisir pour l'affichage client)</label>
-          <select id="platCategorie" class="form-control" required>
-            ${generateCategoryOptions("Plats locaux")}
-          </select>
-        </div>
-        <div class="form-group"><label>Suppléments (Nom:Prix, séparés par une virgule)</label><input type="text" id="platSupplements" class="form-control" placeholder="Plantain frites:500, Piment:100" /></div>
-      `;
-      openModal('Ajouter un plat', html, async () => {
-        const image = document.getElementById('platPhotoUrl').dataset.url;
-        if (!image) { alert('Veuillez charger l\'image du plat avant de valider.'); return; }
-        const nom = document.getElementById('platNom').value;
-        const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
-        const prix = parseFloat(document.getElementById('platPrix').value) || 0;
-        const categorie = document.getElementById('platCategorie').value;
-        const description = document.getElementById('platDescription').value;
-        const suppsStr = document.getElementById('platSupplements').value;
-        const supplements = suppsStr ? suppsStr.split(',').map(s => { const parts = s.trim().split(':'); return { nom: parts[0], prix: parseFloat(parts[1]) || 0 }; }) : [];
-        
-        await db.collection('menus').add({
-          restaurantId: currentRestaurantId, nom, prix, prixOriginal, categorie, description, image, supplements,
-          promotion: prixOriginal > prix, disponible: true,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        loadMenu();
-      });
-      setTimeout(() => attachPlatUpload(), 100);
+      btn.innerHTML = '<i class="fas fa-check"></i> Mise à jour réussie';
+      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+      
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Informations sauvegardées', showConfirmButton: false, timer: 3000 });
     });
 
-    function attachPlatUpload() {
-      document.getElementById('platPhotoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const progressDiv = document.getElementById('platPhotoProgress');
-        const progressBar = document.getElementById('platPhotoProgressBar');
-        progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-        uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-          progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-          if (err) { alert(err); return; }
-          const img = document.getElementById('platPhotoPreview');
-          img.src = url; img.style.display = 'block';
-          document.getElementById('platPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Photo chargée';
-          document.getElementById('platPhotoUrl').dataset.url = url;
-        });
-      });
-    }
-
-    // ============================================================
-    //  QR CODE MENU (Logo au centre + PDF Design PRO)
-    // ============================================================
+    // Fonction fictive pour générer l'UI du QR Code basé sur l'URL
     function updateQRUI() {
         const qrContainer = document.getElementById('menuLinkContainer');
-        const btnGen = document.getElementById('generateMenuLink');
-        const btnVoir = document.getElementById('btnVoirRestaurant');
-        
-        if (restaurantData && restaurantData.menuUrl) {
-            btnGen.style.display = 'none';
-            qrContainer.style.display = 'block';
-            btnVoir.style.display = 'inline-flex';
+        const generateBtn = document.getElementById('generateMenuLink');
+        const btnVoirResto = document.getElementById('btnVoirRestaurant');
+
+        if(restaurantData && restaurantData.menuUrl) {
+            generateBtn.style.display = 'none';
+            qrContainer.style.display = 'flex';
+            btnVoirResto.style.display = 'inline-flex';
             
-            document.getElementById('menuLink').href = restaurantData.menuUrl;
-            document.getElementById('menuLink').textContent = restaurantData.menuUrl;
-            
-            generateQRWithLogo(restaurantData.menuUrl);
+            btnVoirResto.onclick = () => window.open(restaurantData.menuUrl, '_blank');
+
+            // Génération basique du QR Code dans la div
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: restaurantData.menuUrl,
+                width: 250, height: 250,
+                colorDark : "#0f172a", colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
         } else {
-            btnGen.style.display = 'inline-flex';
+            generateBtn.style.display = 'inline-flex';
             qrContainer.style.display = 'none';
-            btnVoir.style.display = 'none';
+            btnVoirResto.style.display = 'none';
         }
     }
 
-    // Fonction pour générer le QR et dessiner le logo par-dessus
-    function generateQRWithLogo(url) {
-        const qrDiv = document.getElementById('qrcode');
-        qrDiv.innerHTML = ''; // Nettoyer
-        
-        // Générer le QR Code basique
-        new QRCode(qrDiv, { text: url, width: 250, height: 250, colorDark: '#0b1a2e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-        
-        // Attendre que QRCode.js ait créé le canvas, puis dessiner le logo
-        setTimeout(async () => {
-            const canvas = qrDiv.querySelector('canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            
-            // Décider quel logo utiliser
-            const logoToUse = restaurantData.logo ? restaurantData.logo : APP_LOGO_URL;
-            const logoDataUrl = await getBase64ImageFromURL(logoToUse);
-            
-            if(logoDataUrl) {
-                const img = new Image();
-                img.onload = () => {
-                    const size = canvas.width * 0.25; // Le logo occupe 25% de la taille
-                    const x = (canvas.width - size) / 2;
-                    const y = (canvas.height - size) / 2;
-                    
-                    // Dessiner un fond blanc pour le logo
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.roundRect(x - 5, y - 5, size + 10, size + 10, 8); // Coins arrondis
-                    ctx.fill();
-                    
-                    // Dessiner le logo
-                    ctx.drawImage(img, x, y, size, size);
-                    
-                    // Sauvegarder le canvas final pour le PDF
-                    qrCanvasWithLogo = canvas.toDataURL('image/png');
-                };
-                img.src = logoDataUrl;
-            } else {
-                qrCanvasWithLogo = canvas.toDataURL('image/png');
+    // Déconnexion
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        Swal.fire({
+            title: 'Déconnexion',
+            text: 'Voulez-vous vraiment vous déconnecter ?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Oui, me déconnecter',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                auth.signOut();
             }
-        }, 150);
-    }
-
-    // Toggle bouton QR
-    document.getElementById('toggleQrBtn').addEventListener('click', function() {
-        const content = document.getElementById('qrCollapsible');
-        content.classList.toggle('expanded');
-        if(content.classList.contains('expanded')) {
-            this.innerHTML = '<i class="fas fa-chevron-up"></i> Masquer le QR Code';
-        } else {
-            this.innerHTML = '<i class="fas fa-chevron-down"></i> Afficher le QR Code';
-        }
-    });
-
-    document.getElementById('generateMenuLink').addEventListener('click', async () => {
-      const url = `${window.location.origin}/menu_public.html?restaurant=${currentRestaurantId}`;
-      await db.collection('restaurants').doc(currentRestaurantId).update({ menuUrl: url });
-      restaurantData.menuUrl = url;
-      updateQRUI();
-      alert("Félicitations ! Le lien de votre menu est créé et sauvegardé de manière permanente.");
-    });
-
-    document.getElementById('downloadQR').addEventListener('click', async () => {
-      if (!qrCanvasWithLogo) { alert('QR code en cours de génération, veuillez patienter une seconde.'); return; }
-      
-      const restaurantName = restaurantData?.nom || 'Notre Restaurant';
-      const { jsPDF } = window.jspdf;
-      
-      // A5 Portrait pour chevalet de table
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-      
-      // 1. Fond principal (Blanc cassé élégant)
-      doc.setFillColor(252, 253, 255);
-      doc.rect(0, 0, 148, 210, 'F');
-
-      // 2. Forme colorée en haut (Vague ou header plein)
-      doc.setFillColor(11, 26, 46); // Dark Blue SCAN&TCHOP
-      doc.rect(0, 0, 148, 45, 'F');
-
-      // 3. Cadre interne (Bordure discrète)
-      doc.setDrawColor(230, 126, 34); // Orange
-      doc.setLineWidth(1.5);
-      doc.roundedRect(6, 6, 136, 198, 4, 4);
-
-      // 4. Logo SCAN&TCHOP (Petit en haut à droite pour la marque blanche)
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if (appLogoBase64) {
-          doc.addImage(appLogoBase64, 'PNG', 110, 12, 25, 8);
-      }
-
-      // 5. Nom du Restaurant (En Blanc sur le fond sombre)
-      doc.setFontSize(26);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255);
-      doc.text(restaurantName.toUpperCase(), 74, 30, { align: 'center', maxWidth: 120 });
-
-      // 6. Section "Scannez moi"
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(230, 126, 34); // Orange
-      doc.text("DÉCOUVREZ NOTRE MENU", 74, 65, { align: 'center' });
-      
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 116, 139);
-      doc.text("Scannez le QR code ci-dessous pour", 74, 73, { align: 'center' });
-      doc.text("consulter nos plats et commander.", 74, 79, { align: 'center' });
-
-      // 7. Conteneur stylisé pour le QR Code
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(226, 232, 240);
-      doc.setLineWidth(0.5);
-      // Ombre légère simulée
-      doc.setFillColor(241, 245, 249);
-      doc.roundedRect(32, 87, 84, 84, 6, 6, 'F');
-      doc.setFillColor(255, 255, 255);
-      doc.roundedRect(30, 85, 84, 84, 6, 6, 'FD');
-
-      // 8. Le QR Code avec Logo
-      doc.addImage(qrCanvasWithLogo, 'PNG', 34, 89, 76, 76);
-
-      // 9. Pied de page pro (sans WhatsApp)
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(11, 26, 46);
-      doc.text('Simple • Rapide • Savoureux', 74, 185, { align: 'center' });
-      
-      doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
-    });
-
-    // ============================================================
-    //  EXPORT PDF DES COMMANDES
-    // ============================================================
-    async function loadCommandes() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('commandes').where('restaurantId', '==', currentRestaurantId).orderBy('createdAt', 'desc').limit(200).get();
-      toutesLesCommandes = [];
-      let totalJour = 0, countJour = 0;
-      const today = new Date(); today.setHours(0,0,0,0);
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        data.id = doc.id;
-        data.dateObj = data.createdAt?.toDate?.() || new Date();
-        toutesLesCommandes.push(data);
-        if (data.dateObj >= today) { totalJour += data.total || 0; countJour++; }
-      });
-      document.getElementById('statCommandes').textContent = countJour;
-      document.getElementById('statCA').textContent = totalJour.toLocaleString('fr-FR') + ' F';
-      afficherCommandes();
-    }
-
-    function afficherCommandes() {
-      const filtre = document.getElementById('filterDateCommandes').value;
-      const tbody = document.getElementById('allOrders');
-      const lastOrdersBbody = document.getElementById('lastOrders');
-      tbody.innerHTML = ''; lastOrdersBbody.innerHTML = '';
-      
-      const now = new Date();
-      const debutAujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const debutHier = new Date(debutAujourdhui); debutHier.setDate(debutHier.getDate() - 1);
-      const debutSemaine = new Date(debutAujourdhui); debutSemaine.setDate(debutSemaine.getDate() - 7);
-      const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      let count = 0;
-      toutesLesCommandes.forEach(data => {
-        let inclure = false;
-        if (filtre === 'all') inclure = true;
-        else if (filtre === 'today' && data.dateObj >= debutAujourdhui) inclure = true;
-        else if (filtre === 'yesterday' && data.dateObj >= debutHier && data.dateObj < debutAujourdhui) inclure = true;
-        else if (filtre === 'week' && data.dateObj >= debutSemaine) inclure = true;
-        else if (filtre === 'month' && data.dateObj >= debutMois) inclure = true;
-
-        if (inclure) {
-          const badge = data.status === 'terminé' ? 'badge-success' : (data.status === 'en cours' ? 'badge-warning' : 'badge-danger');
-          const rowHtml = `
-            <td><code>#${data.id.slice(0,8).toUpperCase()}</code></td>
-            <td style="font-weight:700;">${(data.total||0).toLocaleString('fr-FR')} F</td>
-            <td><span class="badge ${badge}">${data.status || 'en attente'}</span></td>
-            <td>${data.dateObj.toLocaleString('fr-FR')}</td>
-          `;
-          
-          const tr1 = document.createElement('tr'); tr1.innerHTML = rowHtml; tbody.appendChild(tr1);
-          if(count < 5) {
-            const tr2 = document.createElement('tr'); tr2.innerHTML = rowHtml; lastOrdersBbody.appendChild(tr2);
-            count++;
-          }
-        }
-      });
-    }
-
-    document.getElementById('filterDateCommandes').addEventListener('change', afficherCommandes);
-
-    document.getElementById('btnExportPDF').addEventListener('click', async () => {
-      const selectText = document.getElementById('filterDateCommandes').options[document.getElementById('filterDateCommandes').selectedIndex].text;
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if(appLogoBase64) doc.addImage(appLogoBase64, 'PNG', 14, 10, 40, 12);
-      
-      if (restaurantData && restaurantData.logo) {
-          const restoLogoBase64 = await getBase64ImageFromURL(restaurantData.logo);
-          if(restoLogoBase64) doc.addImage(restoLogoBase64, 'PNG', 160, 10, 30, 20, undefined, 'FAST');
-      }
-
-      doc.setFontSize(18);
-      doc.setTextColor(230,126,34);
-      doc.text("Rapport des Ventes", 14, 40);
-      
-      doc.setFontSize(11);
-      doc.setTextColor(80,80,80);
-      doc.text(`Établissement : ${restaurantData?.nom || "Mon Restaurant"}`, 14, 50);
-      if(restaurantData?.proprietaireNom) {
-        doc.text(`Propriétaire : ${restaurantData.proprietaireNom}`, 14, 56);
-      }
-      doc.text(`Période du filtre : ${selectText}`, 14, 62);
-      
-      doc.setDrawColor(220, 220, 220);
-      doc.line(14, 67, 196, 67);
-
-      doc.autoTable({
-        html: '#tableCommandesExport',
-        startY: 72,
-        theme: 'striped',
-        headStyles: { fillColor: [230,126,34] }
-      });
-      doc.save(`Rapport_Ventes_${restaurantData?.nom || 'ScanAndTchop'}.pdf`);
-    });
-
-    // ============================================================
-    //  RETRAITS EN CAISSE
-    // ============================================================
-    async function loadRetraits() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('retraits').where('restaurantId', '==', currentRestaurantId).orderBy('createdAt', 'desc').limit(20).get();
-      const tbody = document.getElementById('retraitsList');
-      tbody.innerHTML = '';
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const badge = data.status === 'approuvé' ? 'badge-success' : (data.status === 'refusé' ? 'badge-danger' : 'badge-warning');
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="font-weight:700;">${data.montant.toLocaleString('fr-FR')} FCFA</td>
-          <td><span class="badge ${badge}">${data.status || 'en attente'}</span></td>
-          <td>${data.createdAt?.toDate?.()?.toLocaleString('fr-FR') || ''}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById('openDemandeRetrait').addEventListener('click', () => {
-      const html = `
-        <div class="form-group"><label>Montant du retrait (FCFA)</label><input type="number" id="retraitMontant" class="form-control" placeholder="Ex: 25000" required /></div>
-        <div class="form-group"><label>Méthode de réception</label><select id="retraitMethode" class="form-control"><option value="mobile_money">Mobile Money (Mtn/Orange)</option><option value="bank">Virement bancaire</option></select></div>
-      `;
-      openModal('Demander un retrait', html, async () => {
-        const montant = parseFloat(document.getElementById('retraitMontant').value);
-        if (montant <= 0 || montant > (restaurantData.solde || 0)) {
-          alert('Le solde disponible est insuffisant pour effectuer ce retrait.'); return;
-        }
-        await db.collection('retraits').add({
-          restaurantId: currentRestaurantId, montant, methode: document.getElementById('retraitMethode').value,
-          status: 'en attente', createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        const newSolde = (restaurantData.solde || 0) - montant;
-        await db.collection('restaurants').doc(currentRestaurantId).update({ solde: newSolde });
-        restaurantData.solde = newSolde;
-        document.getElementById('soldeDisplay').textContent = newSolde.toLocaleString('fr-FR') + ' FCFA';
-        loadRetraits();
-        alert('Votre demande de retrait de fonds a été transmise avec succès !');
-      });
     });
 
-    // ============================================================
-    //  GRAPHIQUE CHARTJS
-    // ============================================================
-    function initChart() {
-      Chart.defaults.font.family = "'Inter', sans-serif";
-      Chart.defaults.color = '#64748b';
-      salesChart = new Chart(document.getElementById('salesChart').getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
-          datasets: [{
-            label: 'Ventes (FCFA)', data: [0,0,0,0,0,0,0], borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.1)',
-            fill: true, tension: 0.4, borderWidth: 4, pointBackgroundColor: '#fff', pointBorderColor: '#e67e22', pointBorderWidth: 3, pointRadius: 5
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
-      });
-      updateChart();
-    }
-
-    async function updateChart() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('commandes').where('restaurantId', '==', currentRestaurantId).get();
-      const jours = Array(7).fill(0); const now = new Date();
-      snapshot.forEach(doc => {
-        const date = doc.data().createdAt?.toDate?.();
-        if (date) {
-          const diff = Math.floor((now - date) / (1000*60*60*24));
-          if (diff >= 0 && diff < 7) jours[6 - diff] += doc.data().total || 0;
-        }
-      });
-      if (salesChart) { salesChart.data.datasets[0].data = jours; salesChart.update(); }
-    }
-
-    // ============================================================
-    //  CHARGEMENT GLOBAL ET ÉCOUTE EN TEMPS RÉEL
-    // ============================================================
-    function loadDashboard() {
-      loadEmployes(); loadCommandes(); loadMenu(); loadRetraits();
-    }
-
-    if (currentRestaurantId) {
-      db.collection('menus').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => loadMenu());
-      db.collection('users').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => loadEmployes()); 
-      db.collection('commandes').where('restaurantId', '==', currentRestaurantId).onSnapshot(() => { loadCommandes(); updateChart(); });
-    }
   </script>
 </body>
 </html>
