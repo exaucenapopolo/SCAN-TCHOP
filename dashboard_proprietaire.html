@@ -787,6 +787,65 @@
       });
     }
 
+    function waitForAllImages(root) {
+      const images = Array.from(root.querySelectorAll('img'));
+      return Promise.all(images.map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      }));
+    }
+
+    async function normalizeLogoForDarkBackground(url) {
+      const base64 = await getBase64ImageFromURL(url);
+      if (!base64) return null;
+
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imageData.data;
+
+            for (let i = 0; i < d.length; i += 4) {
+              const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+              const brightness = (r + g + b) / 3;
+              const isNearWhite = brightness > 245 && a > 0;
+              const isVeryLightGray = brightness > 235 && r > 230 && g > 230 && b > 230;
+
+              if (isNearWhite || isVeryLightGray) {
+                d[i + 3] = 0;
+              }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } catch (e) {
+            resolve(base64);
+          }
+        };
+        img.onerror = () => resolve(base64);
+        img.src = base64;
+      });
+    }
+
+    function toTitleSafeFileName(name) {
+      return String(name || 'Restaurant')
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, '');
+    }
+
     function uploadImage(file, onProgress, onComplete) {
       const formData = new FormData();
       formData.append('file', file);
@@ -1395,24 +1454,24 @@
     // Génération du PDF Haut de Gamme via html2canvas
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) { showToast('QR code en cours de génération, veuillez patienter...', 'warning'); return; }
-      
+
       const btn = document.getElementById('downloadQR');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération du design...';
       btn.disabled = true;
 
       try {
-          // 1. Remplir le template caché avec les données
           const template = document.getElementById('pdf-premium-template');
           const restaurantName = restaurantData?.nom || 'MON RESTAURANT';
+
           document.getElementById('pdf-template-name').textContent = restaurantName.toUpperCase();
           document.getElementById('pdf-template-qr').src = qrCanvasWithLogo;
-          
+
           const logoImg = document.getElementById('pdf-template-logo');
           if (restaurantData && restaurantData.logo) {
-             const base64Logo = await getBase64ImageFromURL(restaurantData.logo);
-             if (base64Logo) {
-                 logoImg.src = base64Logo;
+             const normalizedLogo = await normalizeLogoForDarkBackground(restaurantData.logo);
+             if (normalizedLogo) {
+                 logoImg.src = normalizedLogo;
                  logoImg.style.display = 'block';
              } else {
                  logoImg.style.display = 'none';
@@ -1421,18 +1480,42 @@
               logoImg.style.display = 'none';
           }
 
-          // Laisser un petit temps au DOM pour appliquer les images
-          await new Promise(r => setTimeout(r, 500));
+          await document.fonts.ready.catch(() => {});
+          await waitForAllImages(template);
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-          // 2. Capturer le HTML en image Canvas avec html2canvas
           const canvas = await html2canvas(template, {
-              scale: 2, // Haute résolution
-              useCORS: true, // Autoriser les images externes (unsplash)
+              scale: 3,
+              useCORS: true,
               backgroundColor: '#0b0c10',
-              logging: false
+              logging: false,
+              allowTaint: false,
+              imageTimeout: 0,
+              scrollX: 0,
+              scrollY: 0,
+              width: template.offsetWidth,
+              height: template.offsetHeight
           });
 
           const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+          pdf.addImage(imgData, 'JPEG', 0, 0, 148, 210);
+
+          pdf.save(`Support_Table_Premium_${toTitleSafeFileName(restaurantName)}.pdf`);
+          showToast("Fichier PDF Premium prêt et téléchargé !");
+
+      } catch (error) {
+          console.error(error);
+          showToast("Erreur lors de la génération du PDF", "error");
+      } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+      }
+    });
+
+const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
           // 3. Injecter l'image parfaite dans jsPDF
           const { jsPDF } = window.jspdf;
