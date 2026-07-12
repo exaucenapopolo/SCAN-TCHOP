@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <!-- NOUVEAU : html2canvas pour la génération du PDF Haut de Gamme -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     /* ====== VARIABLES & RESET ====== */
@@ -34,6 +36,13 @@
       overflow-x: hidden;
       width: 100vw;
     }
+
+    /* ====== ANIMATIONS GLOBALES ====== */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .section { display: none; animation: fadeIn 0.5s ease; }
+    .section.active { display: block; }
 
     /* ====== SIDEBAR & OVERLAY ====== */
     .sidebar-overlay {
@@ -86,10 +95,6 @@
     }
     .user-badge i { color: var(--primary); font-size: 1.3rem; }
     .hamburger { display: none; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 15px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
-    .section { display: none; animation: fadeIn 0.5s ease; }
-    .section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ====== CARTES & GRILLES ====== */
     .card {
@@ -145,7 +150,12 @@
       background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center;
       border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden;
       box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+      animation: slideUpFade 0.5s ease backwards;
     }
+    .price-card:nth-child(1) { animation-delay: 0.1s; }
+    .price-card:nth-child(2) { animation-delay: 0.2s; }
+    .price-card:nth-child(3) { animation-delay: 0.3s; }
+
     .price-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: #cbd5e1; }
     .price-card.active-plan { border-color: var(--primary); box-shadow: 0 15px 40px rgba(230,126,34,0.15); background: #fffcf9; }
     
@@ -156,7 +166,8 @@
     .price-card .annual-price { font-size: 0.9rem; color: var(--success); font-weight: 700; margin-bottom: 25px; background: #dcfce7; padding: 5px 10px; border-radius: 8px; display: inline-block; }
     
     .price-card ul { list-style: none; padding: 0; margin-bottom: 30px; text-align: left; }
-    .price-card ul li { padding: 12px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; border-bottom: 1px solid #f1f5f9; position: relative; }
+    .price-card ul li { padding: 12px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; border-bottom: 1px solid #f1f5f9; position: relative; transition: var(--transition); }
+    .price-card ul li:hover { padding-left: 5px; color: var(--text-main); }
     .price-card ul li:last-child { border-bottom: none; }
     .price-card ul li i.fa-check { color: var(--success); font-size: 1.1rem; margin-right: 12px; }
     
@@ -179,7 +190,11 @@
     select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; }
 
     /* ====== BOUTONS ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; }
+    .btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.5); opacity: 0; border-radius: 100%; transform: scale(1, 1) translate(-50%); transform-origin: 50% 50%; }
+    .btn:active::after { animation: ripple 0.6s ease-out; }
+    @keyframes ripple { 0% { transform: scale(0, 0); opacity: 0.5; } 100% { transform: scale(30, 30); opacity: 0; } }
+    
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.4); }
     .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
@@ -197,8 +212,13 @@
     .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.95rem; white-space: nowrap; }
     th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
-    td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.3s; }
+    td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.3s, transform 0.2s; }
     tr:last-child td { border-bottom: none; }
+    tbody tr { animation: slideUpFade 0.4s ease forwards; opacity: 0; }
+    /* Décalage d'animation pour les lignes */
+    tbody tr:nth-child(1) { animation-delay: 0.05s; } tbody tr:nth-child(2) { animation-delay: 0.1s; }
+    tbody tr:nth-child(3) { animation-delay: 0.15s; } tbody tr:nth-child(4) { animation-delay: 0.2s; }
+    
     tbody tr:hover td { background: #fef3e8; }
     
     tr.item-disabled td { opacity: 0.55; filter: grayscale(100%); background: #f8fafc; }
@@ -256,7 +276,7 @@
     .upload-progress { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 12px; display: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
     .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #f1c40f); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
 
-    /* ====== QR CODE SECTION (NOUVEAU DESIGN ÉPURÉ) ====== */
+    /* ====== QR CODE SECTION ====== */
     .qr-promo-box {
       background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 24px;
       padding: 35px 30px; margin-bottom: 30px; border: 1px solid var(--border-color);
@@ -285,6 +305,74 @@
     }
     @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+    /* ====== CSS POUR LE GABARIT PDF CACHÉ (PREMIUM) ====== */
+    #pdf-premium-template {
+      position: absolute; top: -9999px; left: -9999px; /* Caché de l'écran */
+      width: 800px; height: 1131px; /* Proportions A5 (environ 1:1.414) */
+      background-color: #0b0c10; /* Noir profond / charbon */
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 40px;
+    }
+    
+    /* Images de nourriture dans les coins avec fondu */
+    .pdf-corner-img {
+      position: absolute; width: 350px; height: 350px; object-fit: cover; z-index: 0;
+      /* Masque radial pour fondre l'image dans le fond noir */
+      -webkit-mask-image: radial-gradient(circle at center, black 10%, transparent 70%);
+      mask-image: radial-gradient(circle at center, black 10%, transparent 70%);
+      opacity: 0.8;
+    }
+    .pdf-tl { top: -50px; left: -50px; } /* Viande */
+    .pdf-tr { top: -50px; right: -50px; } /* Salade */
+    .pdf-bl { bottom: -50px; left: -50px; } /* Riz */
+    .pdf-br { bottom: -50px; right: -50px; } /* Ragoût */
+
+    /* Contenu du PDF */
+    .pdf-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: space-between; }
+    
+    .pdf-header { text-align: center; margin-top: 20px; }
+    .pdf-logo { width: 120px; height: 120px; object-fit: contain; margin-bottom: 15px; }
+    .pdf-resto-name { font-size: 42px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+    .pdf-separator { width: 80px; height: 4px; background: #e67e22; margin: 15px auto 0 auto; border-radius: 2px; }
+
+    .pdf-cta { text-align: center; margin: 20px 0; }
+    .pdf-cta-small { font-size: 28px; font-weight: 600; letter-spacing: 4px; margin-bottom: 5px; }
+    .pdf-cta-large { 
+      font-size: 65px; font-weight: 900; letter-spacing: 2px; margin: 0;
+      background: linear-gradient(to right, #f97316, #eab308); /* Dégradé orange vers jaune */
+      -webkit-background-clip: text; color: transparent; 
+      text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+
+    .pdf-qr-wrapper {
+      background: #ffffff; padding: 25px; border-radius: 24px;
+      border: 4px solid #d4af37; /* Bordure dorée fine */
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .pdf-qr-wrapper img { width: 300px; height: 300px; display: block; }
+
+    .pdf-benefits { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; }
+    .pdf-benefit-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .pdf-benefit-icon { color: #d4af37; font-size: 24px; }
+    .pdf-benefit-text { font-size: 16px; font-weight: 600; letter-spacing: 1px; color: #e2e8f0; }
+
+    .pdf-footer { margin-bottom: 10px; }
+    .pdf-footer-btn {
+      background: linear-gradient(135deg, #f59e0b, #e67e22);
+      color: #fff; font-size: 20px; font-weight: 700; padding: 15px 40px;
+      border-radius: 50px; text-transform: uppercase; letter-spacing: 1px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
 
     /* ====== RESPONSIVE ====== */
     @media (max-width: 1024px) { 
@@ -449,7 +537,8 @@
                 <!-- Section alignée en bas à droite pour les boutons finaux -->
                 <div style="display: flex; justify-content: flex-end; gap: 15px; flex-wrap: wrap; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
                     <button class="btn btn-outline" onclick="copyMenuLink()"><i class="fas fa-copy"></i> Copier le lien</button>
-                    <button class="btn btn-danger" id="downloadQR"><i class="fas fa-file-pdf"></i> Télécharger le PDF Affiche</button>
+                    <!-- Bouton de téléchargement du PDF Premium -->
+                    <button class="btn btn-danger" id="downloadQR"><i class="fas fa-file-pdf"></i> Télécharger le Support de Table</button>
                 </div>
             </div>
         </div>
@@ -572,6 +661,47 @@
     </div>
   </div>
 
+  <!-- GABARIT HTML CACHÉ POUR LE PDF HAUT DE GAMME -->
+  <div id="pdf-premium-template">
+    <!-- Images des plats aux 4 coins (provenance Unsplash pour une qualité réaliste marketing) -->
+    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80" crossorigin="anonymous" class="pdf-corner-img pdf-tl" alt="Viande grillée">
+    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" crossorigin="anonymous" class="pdf-corner-img pdf-tr" alt="Salade">
+    <img src="https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=500&q=80" crossorigin="anonymous" class="pdf-corner-img pdf-bl" alt="Riz">
+    <img src="https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=500&q=80" crossorigin="anonymous" class="pdf-corner-img pdf-br" alt="Ragoût">
+
+    <div class="pdf-content">
+      <!-- Zone Haute : Logo et Nom -->
+      <div class="pdf-header">
+        <img id="pdf-template-logo" src="" class="pdf-logo" style="display:none;" crossorigin="anonymous">
+        <h1 id="pdf-template-name" class="pdf-resto-name">NOM DU RESTAURANT</h1>
+        <div class="pdf-separator"></div>
+      </div>
+
+      <!-- Zone Centrale : Appel à l'action et QR Code -->
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="pdf-cta">
+          <div class="pdf-cta-small">SCANNEZ POUR</div>
+          <div class="pdf-cta-large">COMMANDER</div>
+        </div>
+        
+        <div class="pdf-qr-wrapper">
+          <img id="pdf-template-qr" src="" alt="QR Code">
+        </div>
+
+        <div class="pdf-benefits">
+          <div class="pdf-benefit-item"><i class="fas fa-bolt pdf-benefit-icon"></i><span class="pdf-benefit-text">RAPIDE</span></div>
+          <div class="pdf-benefit-item"><i class="fas fa-mobile-alt pdf-benefit-icon"></i><span class="pdf-benefit-text">FACILE</span></div>
+          <div class="pdf-benefit-item"><i class="fas fa-lock pdf-benefit-icon"></i><span class="pdf-benefit-text">SÉCURISÉ</span></div>
+        </div>
+      </div>
+
+      <!-- Zone Basse : Message final -->
+      <div class="pdf-footer">
+        <div class="pdf-footer-btn">MERCI ET BON APPÉTIT</div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -640,7 +770,6 @@
     
     const APP_LOGO_URL = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
 
-    // Utilitaires Image vers Base64 pour jsPDF (évite CORS)
     function getBase64ImageFromURL(url) {
       return new Promise((resolve, reject) => {
         if(!url) { resolve(null); return; }
@@ -803,7 +932,6 @@
         
         if(restaurantData && restaurantData.menuUrl) {
             restaurantData.logo = url;
-            // On régénère le QR si besoin, même si on utilise le logo Scan&Tchop au centre désormais
             generateQRWithLogo(restaurantData.menuUrl);
         }
       });
@@ -867,7 +995,6 @@
     
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
-    // Fonction standard d'ouverture de modal avec formulaire
     function openModal(title, html, onSubmit) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalBody').innerHTML = html;
@@ -890,7 +1017,6 @@
       };
     }
 
-    // Nouvelle fonction dédiée à la Modale d'Information (Mode Lecture)
     window.showInfoModal = function(title, text) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalBody').innerHTML = `
@@ -899,14 +1025,10 @@
           <p style="font-size:1.1rem; line-height:1.6; color:#334155;">${text}</p>
         </div>
       `;
-      // Masquer le bouton de validation et re-styler le bouton annuler
       document.getElementById('modalSubmit').style.display = 'none';
       document.getElementById('modalCancel').textContent = 'Compris';
       document.getElementById('modalCancel').className = 'btn btn-primary';
-      
       document.getElementById('modalOverlay').classList.add('open');
-      
-      // On retire la logique de soumission par sécurité
       document.getElementById('modalForm').onsubmit = (e) => { e.preventDefault(); closeModal(); };
     };
     
@@ -1197,7 +1319,7 @@
     }
 
     // ============================================================
-    //  QR CODE MENU (Logo Scan&Tchop Central + Affiche Premium)
+    //  QR CODE MENU (Logo Scan&Tchop Central + Affiche Premium via html2canvas)
     // ============================================================
     function updateQRUI() {
         const qrContainer = document.getElementById('menuLinkContainer');
@@ -1221,7 +1343,6 @@
         const qrDiv = document.getElementById('qrcode');
         qrDiv.innerHTML = '';
         
-        // Couleur Noire imposée comme demandé
         new QRCode(qrDiv, { text: url, width: 250, height: 250, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
         
         setTimeout(async () => {
@@ -1229,7 +1350,6 @@
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            // STRICT : Utiliser UNIQUEMENT le logo de Scan&Tchop au centre
             const logoDataUrl = await getBase64ImageFromURL(APP_LOGO_URL);
             
             if(logoDataUrl) {
@@ -1272,91 +1392,65 @@
       showToast("Félicitations ! Le lien de votre menu digital est créé.");
     });
 
-    // Génération du PDF Haut de Gamme
+    // Génération du PDF Haut de Gamme via html2canvas
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) { showToast('QR code en cours de génération, veuillez patienter...', 'warning'); return; }
       
-      const restaurantName = restaurantData?.nom || 'Notre Restaurant';
-      const { jsPDF } = window.jspdf;
-      
-      // Format A5
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-      
-      // Fond léger pour faire ressortir le cadre
-      doc.setFillColor(252, 253, 255);
-      doc.rect(0, 0, 148, 210, 'F');
+      const btn = document.getElementById('downloadQR');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération du design...';
+      btn.disabled = true;
 
-      // Bordure externe chic (Orange Theme)
-      doc.setDrawColor(230, 126, 34);
-      doc.setLineWidth(1.5);
-      doc.roundedRect(6, 6, 136, 198, 4, 4);
-
-      // --- ZONE LOGO RESTAURANT ---
-      let yOffsetText = 30;
-      if (restaurantData && restaurantData.logo) {
-          const restoLogoBase64 = await getBase64ImageFromURL(restaurantData.logo);
-          if (restoLogoBase64) {
-              // On crée un carré blanc parfait pour loger le logo de manière élégante
-              doc.setFillColor(255, 255, 255);
-              doc.setDrawColor(220, 220, 220); // Bordure très fine et discrète
-              doc.setLineWidth(0.3);
-              doc.roundedRect(59, 12, 30, 30, 3, 3, 'FD'); // Boîte 30x30 centrée (148/2 = 74 -> 74-15 = 59)
-              
-              // On insère l'image avec un léger padding
-              doc.addImage(restoLogoBase64, 'PNG', 61.5, 14.5, 25, 25);
-              yOffsetText = 52; // On décale le texte plus bas
+      try {
+          // 1. Remplir le template caché avec les données
+          const template = document.getElementById('pdf-premium-template');
+          const restaurantName = restaurantData?.nom || 'MON RESTAURANT';
+          document.getElementById('pdf-template-name').textContent = restaurantName.toUpperCase();
+          document.getElementById('pdf-template-qr').src = qrCanvasWithLogo;
+          
+          const logoImg = document.getElementById('pdf-template-logo');
+          if (restaurantData && restaurantData.logo) {
+             const base64Logo = await getBase64ImageFromURL(restaurantData.logo);
+             if (base64Logo) {
+                 logoImg.src = base64Logo;
+                 logoImg.style.display = 'block';
+             } else {
+                 logoImg.style.display = 'none';
+             }
+          } else {
+              logoImg.style.display = 'none';
           }
+
+          // Laisser un petit temps au DOM pour appliquer les images
+          await new Promise(r => setTimeout(r, 500));
+
+          // 2. Capturer le HTML en image Canvas avec html2canvas
+          const canvas = await html2canvas(template, {
+              scale: 2, // Haute résolution
+              useCORS: true, // Autoriser les images externes (unsplash)
+              backgroundColor: '#0b0c10',
+              logging: false
+          });
+
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+          // 3. Injecter l'image parfaite dans jsPDF
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+          
+          // Dimensions A5 : 148 x 210 mm
+          pdf.addImage(imgData, 'JPEG', 0, 0, 148, 210);
+          
+          pdf.save(`Support_Table_Premium_${restaurantName.replace(/\s+/g, '_')}.pdf`);
+          showToast("Fichier PDF Premium prêt et téléchargé !");
+
+      } catch (error) {
+          console.error(error);
+          showToast("Erreur lors de la génération du PDF", "error");
+      } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
       }
-
-      // --- NOM DU RESTAURANT (Stylé) ---
-      doc.setFont('times', 'bolditalic');
-      doc.setFontSize(26);
-      
-      // 1. Ombre subtile (Gris clair)
-      doc.setTextColor(210, 215, 220);
-      doc.text(restaurantName.toUpperCase(), 75, yOffsetText + 0.5, { align: 'center', maxWidth: 120 });
-      
-      // 2. Texte principal coloré
-      doc.setTextColor(230, 126, 34); // Orange Primaire
-      doc.text(restaurantName.toUpperCase(), 74, yOffsetText, { align: 'center', maxWidth: 120 });
-
-      // --- INSTRUCTIONS ---
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(11, 26, 46); // Texte foncé
-      doc.text("SCANNEZ POUR COMMANDER", 74, yOffsetText + 18, { align: 'center' });
-
-      // --- CONTENEUR DU QR CODE ---
-      const qrSize = 76;
-      const qrX = (148 - qrSize) / 2; // Centré : 36
-      const qrY = yOffsetText + 28;
-
-      // Ombre du cadre
-      doc.setFillColor(241, 245, 249);
-      doc.roundedRect(qrX + 2, qrY + 2, qrSize, qrSize, 5, 5, 'F');
-      
-      // Cadre Blanc principal
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(qrX, qrY, qrSize, qrSize, 5, 5, 'FD');
-
-      // Le QR Code noir (Avec Scan&Tchop au milieu)
-      doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
-
-      // --- PIED DE PAGE ---
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(14);
-      doc.text('Merci et Bon Appétit !', 74, 185, { align: 'center' });
-      
-      // Branding final
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if (appLogoBase64) {
-          doc.addImage(appLogoBase64, 'PNG', 64, 192, 20, 6.5);
-      }
-      
-      doc.save(`Menu_QR_${restaurantName.replace(/\s+/g, '_')}.pdf`);
-      showToast("Fichier PDF prêt et téléchargé !");
     });
 
     // ============================================================
