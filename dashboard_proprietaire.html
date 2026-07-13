@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SCAN&TCHOP – Propriétaire</title>
 
-  <!-- TYPOGRAPHIE PREMIUM : Playfair Display pour les titres & Inter pour le texte courant -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -21,14 +20,15 @@
       --primary-hover: #cf6f1b;
       --primary-light: #fef3e8;
       --primary-dark: #b85e1a;
+      --primary-subtle: rgba(230, 126, 34, 0.06);
       --gold: #d4af37;
       --gold-light: #f0d080;
-      /* Nouveau fond orange très subtil et élégant pour casser le blanc brut */
-      --bg-color: #faf6f0; 
+      --bg-color: #f8f5f0;
+      --bg-card: #ffffff;
       --text-main: #0b1a2e;
       --text-muted: #64748b;
       --card-bg: rgba(255, 255, 255, 0.95);
-      --border-color: #e2e8f0;
+      --border-color: #e8e3dc;
       --success: #22c55e;
       --danger: #ef4444;
       --info: #3b82f6;
@@ -37,25 +37,23 @@
       --shadow-sm: 0 4px 20px rgba(0,0,0,0.04);
       --shadow-md: 0 10px 30px rgba(0,0,0,0.06);
       --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
+      --radius: 24px;
+      --radius-sm: 16px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Inter', sans-serif;
-      /* Un dégradé radial doux de fond crème-orange discret */
-      background: radial-gradient(circle at top right, #fffaf5 0%, var(--bg-color) 100%);
+      background: var(--bg-color);
       color: var(--text-main);
       display: flex;
       min-height: 100vh;
       overflow-x: hidden;
       width: 100vw;
-    }
-
-    /* ====== TYPOGRAPHIE PREMIUM ====== */
-    h1, h2, h3, .pricing-grid h4 {
-      font-family: 'Playfair Display', serif;
-      letter-spacing: -0.2px;
+      background-image: radial-gradient(ellipse at 20% 50%, rgba(230,126,34,0.04) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(230,126,34,0.03) 0%, transparent 50%);
+      background-attachment: fixed;
     }
 
     /* ====== SIDEBAR & OVERLAY ====== */
@@ -67,7 +65,7 @@
     .sidebar-overlay.open { display: block; opacity: 1; }
 
     .sidebar {
-      width: 280px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+      width: 280px; background: rgba(255,255,255,0.88); backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.5);
       padding: 30px 20px; display: flex; flex-direction: column; position: fixed;
       top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
@@ -76,12 +74,12 @@
     }
     .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 45px; justify-content: center; }
     .sidebar .logo img { height: 48px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .sidebar .logo span { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.3rem; color: var(--text-main); letter-spacing: -0.5px; }
+    .sidebar .logo span { font-weight: 800; font-size: 1.3rem; color: var(--text-main); letter-spacing: -0.5px; }
 
     .sidebar nav a {
       display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 16px;
       color: #334155; text-decoration: none; transition: var(--transition); margin-bottom: 8px;
-      font-weight: 500; font-size: 0.95rem; cursor: pointer;
+      font-weight: 500; font-size: 0.95rem; cursor: pointer; position: relative;
     }
     .sidebar nav a i { width: 24px; text-align: center; font-size: 1.1rem; transition: var(--transition); }
     .sidebar nav a:hover { background: #eef2f6; transform: translateX(5px); }
@@ -99,7 +97,7 @@
     .main { margin-left: 280px; flex: 1; padding: 40px; min-height: 100vh; transition: var(--transition); width: calc(100vw - 280px); max-width: 100%; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
     .header-left { display: flex; align-items: center; gap: 16px; }
-    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--text-main), #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; font-family: 'Playfair Display', serif; background: linear-gradient(135deg, var(--text-main), #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .header-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     
     .user-badge {
@@ -111,42 +109,17 @@
     .hamburger { display: none; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 15px; font-size: 1.5rem; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); }
     .hamburger:hover { background: var(--primary-light); border-color: var(--primary); }
 
-    /* SKELETON LOADERS */
-    @keyframes skeletonGlow {
-      0% { background-color: #f1f5f9; }
-      50% { background-color: #e2e8f0; }
-      100% { background-color: #f1f5f9; }
-    }
-    .skeleton-text { display: inline-block; height: 1em; width: 100%; border-radius: 4px; animation: skeletonGlow 1.5s ease-in-out infinite; vertical-align: middle; }
-    .skeleton-round { border-radius: 50%; animation: skeletonGlow 1.5s ease-in-out infinite; }
-
-    /* ====== MICRO-INTERACTIONS PREMIUM ====== */
-    .btn {
-      position: relative; overflow: hidden; transform: translate3d(0,0,0);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn:active { transform: scale(0.96) translateY(1px) !important; filter: brightness(0.92); }
-    
-    .card, .price-card, .stat-card {
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
-    }
-    .card:hover { transform: translateY(-3px); }
-
-    tbody tr { animation: slideUpFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    @keyframes slideUpFade {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .section { display: none; }
-    .section.active { display: block; animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .section { display: none; animation: fadeIn 0.5s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ====== CARTES & GRILLES ====== */
     .card {
       background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-radius: 24px; border: 1px solid rgba(255,255,255,0.8); box-shadow: var(--shadow-md);
-      padding: 32px; margin-bottom: 30px;
+      border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.8); box-shadow: var(--shadow-md);
+      padding: 32px; margin-bottom: 30px; transition: var(--transition);
     }
+    .card:hover { box-shadow: var(--shadow-lg); }
     .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
     .card h3 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 12px; font-size: 1.1rem; }
 
@@ -154,52 +127,66 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    /* ====== STAT CARDS AVEC COULEURS PREMIUM PLUS SOMBRES ET WAVE INTENSE ====== */
+    /* ====== STAT CARDS ====== */
     .stat-card {
-      position: relative; overflow: hidden; border-radius: 24px; padding: 28px 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; transition: var(--transition);
+      position: relative; overflow: hidden; border-radius: var(--radius); padding: 28px 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       color: #fff; z-index: 1; cursor: pointer;
     }
     .stat-card::after {
       content: 'Voir plus \f105'; font-family: "Font Awesome 6 Free"; font-weight: 900;
       position: absolute; bottom: 10px; left: 0; right: 0; font-size: 0.8rem; opacity: 0;
-      transition: var(--transition); text-transform: uppercase; letter-spacing: 1px;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); text-transform: uppercase; letter-spacing: 1px;
     }
-    .stat-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.15); padding-bottom: 35px; }
-    .stat-card:hover::after { opacity: 1; transform: translateY(-5px); }
+    .stat-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 45px rgba(0,0,0,0.2); padding-bottom: 38px; }
+    .stat-card:hover::after { opacity: 1; transform: translateY(-4px); }
+    .stat-card:active { transform: scale(0.96); }
     
     .stat-card .content { position: relative; z-index: 2; transition: var(--transition); }
-    .stat-card:hover .content { transform: translateY(-5px); }
+    .stat-card:hover .content { transform: translateY(-4px); }
     .stat-card .number { font-size: 2.2rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     .stat-card .label { font-size: 0.95rem; font-weight: 600; opacity: 0.9; }
     .stat-card .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.9; }
 
-    /* Couleurs de fond sombres et ultra premium */
-    .card-blue { background: linear-gradient(135deg, #1e3a8a, #0f172a); } 
-    .card-green { background: linear-gradient(135deg, #064e3b, #022c22); } 
-    .card-orange { background: linear-gradient(135deg, #7c2d12, #431407); } 
-    .card-purple { background: linear-gradient(135deg, #4c1d95, #2e1065); } 
+    .card-blue { background: linear-gradient(145deg, #1a2a6c, #0f1a4a); }
+    .card-green { background: linear-gradient(145deg, #0d5c3e, #06402a); }
+    .card-orange { background: linear-gradient(145deg, #8b4a1a, #5c3010); }
+    .card-purple { background: linear-gradient(145deg, #3d1f6e, #241345); }
 
-    /* Animation d'eau plus marquée et contrastée */
-    .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; mix-blend-mode: overlay; opacity: 0.8; }
-    .wave {
-      position: absolute; bottom: -45%; left: -50%; width: 200%; height: 200%;
-      background: rgba(255,255,255,0.28); border-radius: 38%;
-      animation: spinWave 6s linear infinite;
+    .wave-container {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden;
+      opacity: 0.6;
     }
-    .wave:nth-child(2) { background: rgba(255,255,255,0.18); animation: spinWave 9s linear infinite; bottom: -48%; }
-    @keyframes spinWave { 100% { transform: rotate(360deg); } }
-
-    /* ====== MULTI-STEP WIZARD PROGRESS ====== */
-    .wizard-progress-container { margin-bottom: 35px; }
-    .wizard-step-node { display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
-    .wizard-step-content { animation: slideUpFade 0.4s ease; }
+    .wave {
+      position: absolute; bottom: -50%; left: -50%; width: 200%; height: 200%;
+      background: rgba(255,255,255,0.12); border-radius: 42% 38% 48% 44%;
+      animation: spinWave 10s linear infinite;
+      transform-origin: center center;
+      will-change: transform;
+    }
+    .wave:nth-child(2) {
+      background: rgba(255,255,255,0.08); 
+      animation: spinWave 14s linear infinite reverse;
+      bottom: -55%; left: -45%;
+      border-radius: 44% 42% 38% 48%;
+    }
+    .wave:nth-child(3) {
+      background: rgba(255,255,255,0.05);
+      animation: spinWave 18s linear infinite;
+      bottom: -60%; left: -40%;
+      border-radius: 36% 48% 44% 42%;
+    }
+    @keyframes spinWave { 
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.05); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
 
     /* ====== ABONNEMENTS ====== */
     .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
     .price-card {
-      background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center;
-      border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden;
+      background: #fff; border-radius: var(--radius); padding: 35px 25px; text-align: center;
+      border: 2px solid var(--border-color); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
     .price-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: #cbd5e1; }
@@ -227,38 +214,68 @@
     .form-group { margin-bottom: 20px; }
     .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #1e293b; }
     .form-control {
-      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 16px;
+      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: var(--radius-sm);
       font-family: inherit; font-size: 0.95rem; background: #fff; transition: var(--transition);
     }
     .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
     textarea.form-control { resize: vertical; min-height: 100px; }
     select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; }
 
-    /* ====== BOUTONS ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+    /* ====== BOUTONS AVEC RIPPLE ====== */
+    .btn {
+      padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+      position: relative; overflow: hidden;
+    }
+    .btn .ripple {
+      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.3);
+      transform: scale(0); animation: rippleAnim 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.4); }
+    .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(230,126,34,0.4); }
+    .btn-primary:active { transform: scale(0.96); }
     .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
-    .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+    .btn-success:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(34,197,94,0.4); }
+    .btn-success:active { transform: scale(0.96); }
     .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
-    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+    .btn-danger:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(239,68,68,0.4); }
+    .btn-danger:active { transform: scale(0.96); }
     .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
-    .btn-info:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+    .btn-info:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(59,130,246,0.4); }
+    .btn-info:active { transform: scale(0.96); }
     .btn-outline { background: #fff; border: 2px solid var(--border-color); color: #1e293b; }
     .btn-outline:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .btn-outline:active { transform: scale(0.96); }
     .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; }
     .btn-block { width: 100%; }
+    .btn-export-pdf { background: linear-gradient(135deg, #d4af37, #b8941e); color: #fff; box-shadow: 0 4px 15px rgba(212,175,55,0.3); }
+    .btn-export-pdf:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(212,175,55,0.4); }
 
     /* ====== TABLEAUX ====== */
-    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.95rem; white-space: nowrap; }
-    th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
+    th { text-align: left; padding: 16px; background: #f8f5f0; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
     td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.3s; }
     tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--primary-light); }
+    tbody tr { transition: background-color 0.3s; }
     
     tr.item-disabled td { opacity: 0.55; filter: grayscale(100%); background: #f8fafc; }
     tr.item-disabled:hover td { background: #f1f5f9; opacity: 0.8; }
+    
+    /* Nouvelle ligne animée */
+    .row-enter {
+      animation: rowEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes rowEnter {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
     /* ====== BADGES & SWITCHES ====== */
     .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -266,6 +283,7 @@
     .badge-warning { background: #fef9c3; color: #854d0e; }
     .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-info { background: #dbeafe; color: #1e40af; }
+    .badge-gold { background: var(--gold-light); color: #7a5d1a; }
 
     .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
     .switch input { opacity: 0; width: 0; height: 0; }
@@ -274,7 +292,7 @@
     input:checked + .slider { background: var(--primary); }
     input:checked + .slider:before { transform: translateX(22px); }
 
-    /* ====== MODALES ====== */
+    /* ====== MODALES SÉCURISÉES ====== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(11,26,46,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -286,20 +304,21 @@
     .modal {
       background: #fff; border-radius: 28px; width: 100%; max-width: 650px; 
       max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-      animation: modalIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); overflow: hidden;
+      animation: modalIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;
     }
     @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
     #modalForm { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; flex-shrink: 0; }
-    .modal-header h3 { font-size: 1.3rem; font-weight: 800; margin: 0; color: var(--text-main); }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8f5f0; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.3rem; font-weight: 800; margin: 0; color: var(--text-main); font-family: 'Playfair Display', serif; }
     
     .modal-body { padding: 24px 24px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; flex-shrink: 0; }
+    
+    .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8f5f0; flex-shrink: 0; }
 
     /* ====== UPLOADS ====== */
     .upload-preview { display: flex; align-items: center; gap: 16px; margin: 10px 0; flex-wrap: wrap; }
-    .upload-preview img { width: 70px; height: 70px; object-fit: cover; border-radius: 16px; border: 2px solid var(--border-color); box-shadow: var(--shadow-sm); }
+    .upload-preview img { width: 70px; height: 70px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--border-color); box-shadow: var(--shadow-sm); }
     .upload-btn {
       background: #f1f5f9; padding: 10px 20px; border-radius: 14px; cursor: pointer;
       font-weight: 600; font-size: 0.9rem; border: 2px dashed #cbd5e1; transition: var(--transition);
@@ -307,13 +326,15 @@
     }
     .upload-btn:hover { background: #eef2f6; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
     .upload-btn input[type="file"] { display: none; }
+    .upload-btn i { transition: transform 0.3s ease; }
+    .upload-btn:hover i { transform: scale(1.1); }
 
     .upload-progress { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 12px; display: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
     .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #f1c40f); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
 
     /* ====== QR CODE SECTION ====== */
     .qr-promo-box {
-      background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 24px;
+      background: linear-gradient(145deg, #ffffff, #f8f5f0); border-radius: var(--radius);
       padding: 35px 30px; margin-bottom: 30px; border: 1px solid var(--border-color);
       box-shadow: var(--shadow-md); text-align: center; position: relative; overflow: hidden;
     }
@@ -324,7 +345,7 @@
     .qr-promo-content { position: relative; z-index: 1; }
     
     .qr-container { display: flex; flex-direction: column; align-items: center; gap: 20px; margin: 20px 0; }
-    .qr-box-wrapper { background: #fff; padding: 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(230,126,34,0.15); border: 2px solid var(--primary); display: inline-block;}
+    .qr-box-wrapper { background: #fff; padding: 20px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(230,126,34,0.15); border: 2px solid var(--primary); display: inline-block;}
     #qrcode canvas, #qrcode img { border-radius: 10px; }
     
     .qr-collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease; opacity: 0; }
@@ -336,16 +357,95 @@
     #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
     .toast {
       background: #fff; border-left: 5px solid; box-shadow: 0 10px 35px rgba(0,0,0,0.1); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: 600; color: #1e293b; pointer-events: auto;
-      animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
     @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
-    /* ====== RESPONSIVE SANS DÉBORDEMENT ====== */
+    /* ====== EMPTY STATES ====== */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 50px 30px; text-align: center; gap: 16px;
+    }
+    .empty-state .empty-icon {
+      font-size: 4.5rem; color: #d1d5db; margin-bottom: 8px;
+      opacity: 0.6;
+    }
+    .empty-state .empty-icon svg { width: 100px; height: 100px; }
+    .empty-state h4 { font-size: 1.3rem; font-weight: 700; color: var(--text-main); font-family: 'Playfair Display', serif; }
+    .empty-state p { color: var(--text-muted); max-width: 400px; font-size: 0.95rem; }
+    .empty-state .btn { margin-top: 8px; }
+
+    /* ====== SKELETON LOADING ====== */
+    .skeleton {
+      background: linear-gradient(90deg, #e8e3dc 25%, #f0ece6 50%, #e8e3dc 75%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeletonShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-text { height: 16px; width: 100%; margin-bottom: 8px; border-radius: 6px; }
+    .skeleton-text.w-75 { width: 75%; }
+    .skeleton-text.w-50 { width: 50%; }
+    .skeleton-card { height: 120px; border-radius: var(--radius); }
+    .skeleton-table-row { height: 48px; border-bottom: 1px solid #f1f5f9; }
+    .skeleton-avatar { width: 45px; height: 45px; border-radius: 50%; }
+
+    /* ====== LOGO HINT ====== */
+    .logo-hint {
+      font-size: 0.8rem; color: var(--text-muted); background: #f8f5f0;
+      padding: 8px 14px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border-color); margin-top: 6px;
+    }
+    .logo-hint i { color: var(--primary); }
+
+    /* ====== EXPORT TOGGLE ====== */
+    .export-options {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      padding: 16px 20px; background: #f8f5f0; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color); margin-bottom: 20px;
+    }
+    .export-options label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .export-options input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+    /* ====== RESTAURANT SUMMARY ====== */
+    .resto-summary {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .resto-summary .info-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .resto-summary .info-item .label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+    .resto-summary .info-item .value { font-size: 1rem; font-weight: 600; color: var(--text-main); word-break: break-word; }
+    .resto-summary .info-item .value a { color: var(--primary); text-decoration: none; }
+    .resto-summary .info-item .value a:hover { text-decoration: underline; }
+    .resto-summary .info-logo { display: flex; justify-content: center; align-items: center; grid-column: span 2; }
+    .resto-summary .info-logo img { max-width: 120px; max-height: 120px; border-radius: var(--radius-sm); border: 2px solid var(--border-color); padding: 8px; background: #fff; box-shadow: var(--shadow-sm); object-fit: contain; }
+
+    /* ====== SECTION STEPS ====== */
+    .step-indicator {
+      display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;
+    }
+    .step-dot {
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; background: #e8e3dc; color: #94a3b8; transition: var(--transition);
+      border: 2px solid transparent;
+    }
+    .step-dot.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
+    .step-dot.done { background: var(--success); color: #fff; border-color: var(--success); }
+    .step-line { width: 40px; height: 2px; background: #e8e3dc; }
+    .step-line.done { background: var(--success); }
+
+    /* ====== RESPONSIVE ====== */
     @media (max-width: 1024px) { 
       .grid-4 { grid-template-columns: repeat(2,1fr); } 
       .pricing-grid { grid-template-columns: repeat(2,1fr); }
       .main { padding:30px; } 
+      .resto-summary { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
@@ -359,6 +459,12 @@
       .header { flex-direction: column; align-items: flex-start; }
       .header-right { width: 100%; justify-content: space-between; }
       .user-badge { max-width: 180px; }
+      .resto-summary { grid-template-columns: 1fr; }
+      .resto-summary .info-logo { grid-column: span 1; }
+      .export-options { flex-direction: column; align-items: flex-start; }
+      .step-indicator { gap: 8px; }
+      .step-line { width: 20px; }
+      .step-dot { width: 30px; height: 30px; font-size: 0.75rem; }
     }
     @media (max-width: 480px) {
       .modal-body { padding:20px; }
@@ -367,6 +473,8 @@
       .header h1 { font-size:1.5rem; }
       .upload-preview { flex-direction:column; align-items:flex-start; }
       .btn { font-size: 0.85rem; padding: 10px 18px; }
+      .empty-state .empty-icon { font-size: 3rem; }
+      .empty-state h4 { font-size: 1.1rem; }
     }
 
     ::-webkit-scrollbar { width:6px; height:6px; }
@@ -385,9 +493,22 @@
     .qr-promo-box .btn-outline { border-color: var(--primary); color: var(--primary); }
     .qr-promo-box .btn-outline:hover { background: var(--primary); color: #fff; }
     #qrcode canvas { display: block; margin: 0 auto; }
-    #section-menu .card .btn { transition: all 0.3s ease; }
-    .upload-btn i { transition: transform 0.3s ease; }
-    .upload-btn:hover i { transform: scale(1.1); }
+
+    .card .btn { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* Animation d'apparition des cartes */
+    .card {
+      opacity: 0; transform: translateY(20px);
+      animation: cardAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .card:nth-child(2) { animation-delay: 0.05s; }
+    .card:nth-child(3) { animation-delay: 0.10s; }
+    .card:nth-child(4) { animation-delay: 0.15s; }
+    .card:nth-child(5) { animation-delay: 0.20s; }
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -395,7 +516,6 @@
   <div id="toastContainer"></div>
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- ====== SIDEBAR BARRE DE NAVIGATION ====== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
@@ -415,7 +535,6 @@
     </div>
   </aside>
 
-  <!-- ====== ESPACE CENTRAL ====== -->
   <div class="main">
     <div class="header">
       <div class="header-left">
@@ -428,65 +547,83 @@
       </div>
     </div>
 
-    <!-- ====== SECTION 1: TABLEAU DE BORD (DASHBOARD) ====== -->
     <div id="section-dashboard" class="section active">
       <div class="grid-4" id="statsCards">
         <div class="stat-card card-blue" onclick="navigateToSection('commandes')">
-          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
           <div class="content"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes du jour</div></div>
         </div>
         <div class="stat-card card-green" onclick="navigateToSection('retraits')">
-          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
           <div class="content"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Revenus (jour)</div></div>
         </div>
         <div class="stat-card card-orange" onclick="navigateToSection('employes')">
-          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
           <div class="content"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="statEmployes">0</div><div class="label">Employés actifs</div></div>
         </div>
         <div class="stat-card card-purple" onclick="navigateToSection('menu')">
-          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
           <div class="content"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats au menu</div></div>
         </div>
       </div>
-      
       <div class="card">
         <h3><i class="fas fa-chart-line"></i> Évolution des ventes (7 derniers jours)</h3>
-        <div style="position:relative; height:250px; width:100%;"><canvas id="salesChart"></canvas></div>
+        <div style="position:relative; height:250px; width:100%;">
+          <canvas id="salesChart"></canvas>
+          <div id="salesChartEmpty" class="empty-state" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px;">
+            <div style="font-size:2.5rem; opacity:0.3;"><i class="fas fa-chart-bar"></i></div>
+            <p style="color:var(--text-muted); font-size:0.9rem; max-width:250px;">Aucune donnée de vente sur les 7 derniers jours.</p>
+          </div>
+        </div>
       </div>
-      
       <div class="card">
         <h3><i class="fas fa-clock"></i> Dernières commandes</h3>
-        <div class="table-wrap">
-          <table><thead><tr><th>Référence</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead><tbody id="lastOrders"></tbody></table>
+        <div id="lastOrdersContainer">
+          <div class="table-wrap" id="lastOrdersTableWrap">
+            <table><thead><tr><th>Référence</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead><tbody id="lastOrders"></tbody></table>
+          </div>
+          <div id="lastOrdersEmpty" class="empty-state" style="display:none;">
+            <div style="font-size:3rem; opacity:0.3;"><i class="fas fa-clipboard-list"></i></div>
+            <h4>Aucune commande récente</h4>
+            <p>Les commandes apparaîtront ici dès que vos clients passeront leurs premières commandes.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 2: MON RESTAURANT ====== -->
     <div id="section-restaurant" class="section">
-      <div id="restaurant-content">
-        <!-- Rendu dynamique intelligent (Configurateur en étapes ou Fiche récapitulative) -->
+      <div class="card">
+        <h3><i class="fas fa-store-alt"></i> Mon restaurant</h3>
+        <div id="restaurantContent">
+          <!-- Le contenu sera généré par JS -->
+        </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 3: EMPLOYÉS ====== -->
     <div id="section-employes" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
           <h3 style="margin:0;"><i class="fas fa-users"></i> Gestion des employés</h3>
           <button class="btn btn-primary" id="openAddEmploye"><i class="fas fa-plus"></i> Ajouter un employé</button>
         </div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
+        <div id="employesContainer">
+          <div class="table-wrap" id="employesTableWrap">
+            <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
+          </div>
+          <div id="employesEmpty" class="empty-state" style="display:none;">
+            <div style="font-size:3rem; opacity:0.3;"><i class="fas fa-user-plus"></i></div>
+            <h4>Vous n'avez pas encore d'employé</h4>
+            <p>Ajoutez votre première équipe pour commencer à gérer votre restaurant.</p>
+            <button class="btn btn-primary" id="emptyEmployesCta"><i class="fas fa-plus"></i> Ajouter un employé</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 4: GESTION DU MENU ====== -->
     <div id="section-menu" class="section">
       <div id="menuLinkContainer" class="qr-promo-box" style="display:none;">
         <div class="qr-promo-content">
-            <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 8px;">Votre Menu Digital est en ligne !</h2>
+            <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 8px; font-family: 'Playfair Display', serif;">Votre Menu Digital est en ligne !</h2>
             <p style="color: var(--text-muted); font-size: 1rem;">Partagez facilement votre menu avec vos clients.</p>
             
             <button class="btn btn-outline" id="toggleQrBtn" style="margin-top: 15px;"><i class="fas fa-share-alt"></i> Afficher les options de partage</button>
@@ -511,19 +648,25 @@
             <button class="btn btn-success" id="generateMenuLink" style="display:none;"><i class="fas fa-magic"></i> Générer mon Menu Digital</button>
           </div>
         </div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Photo</th><th>Nom</th><th>Prix</th><th>Promo</th><th>Catégorie</th><th>Dispo.</th><th>Actions</th></tr></thead><tbody id="menuList"></tbody></table>
+        <div id="menuContainer">
+          <div class="table-wrap" id="menuTableWrap">
+            <table><thead><tr><th>Photo</th><th>Nom</th><th>Prix</th><th>Promo</th><th>Catégorie</th><th>Dispo.</th><th>Actions</th></tr></thead><tbody id="menuList"></tbody></table>
+          </div>
+          <div id="menuEmpty" class="empty-state" style="display:none;">
+            <div style="font-size:3rem; opacity:0.3;"><i class="fas fa-utensils"></i></div>
+            <h4>Votre carte est vide</h4>
+            <p>Commencez par ajouter votre premier plat pour proposer un menu à vos clients.</p>
+            <button class="btn btn-primary" id="emptyMenuCta"><i class="fas fa-plus"></i> Ajouter un plat</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 5: HISTORIQUE ET RAPPORTS DES COMMANDES ====== -->
     <div id="section-commandes" class="section">
       <div class="card">
         <h3 style="margin-bottom:10px;"><i class="fas fa-clipboard-list"></i> Historique et rapports des ventes</h3>
-        
-        <div class="filter-group" style="align-items: center; justify-content: space-between; width: 100%;">
-          <div style="flex:1; min-width: 250px;">
+        <div class="filter-group">
+          <div style="flex:1;">
             <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:5px;">Période :</label>
             <select id="filterDateCommandes" class="form-control" style="max-width:300px;">
               <option value="all">Toutes les commandes</option>
@@ -533,26 +676,31 @@
               <option value="month">Ce mois-ci</option>
             </select>
           </div>
-          
-          <!-- Option de calcul automatique (Cochée par défaut) -->
-          <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
-            <label class="switch">
-              <input type="checkbox" id="calcTotalsToggle" checked />
-              <span class="slider"></span>
-            </label>
-            <span style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Calculer automatiquement les totaux</span>
-          </div>
-
-          <button class="btn btn-export-pdf" id="btnExportPDF" style="margin-top: 20px;"><i class="fas fa-file-pdf"></i> Exporter en PDF</button>
+          <button class="btn btn-export-pdf" id="btnExportPDF"><i class="fas fa-file-pdf"></i> Exporter en PDF</button>
         </div>
 
-        <div class="table-wrap">
-          <table id="tableCommandesExport"><thead><tr><th>Référence</th><th>Montant (FCFA)</th><th>Statut</th><th>Date & Heure</th></tr></thead><tbody id="allOrders"></tbody></table>
+        <!-- Options d'export -->
+        <div class="export-options">
+          <label>
+            <input type="checkbox" id="exportAutoCalc" checked />
+            <span>Calcul automatique des totaux et résumé</span>
+          </label>
+          <span style="font-size:0.85rem; color:var(--text-muted);">(activé par défaut)</span>
+        </div>
+
+        <div id="commandesContainer">
+          <div class="table-wrap" id="commandesTableWrap">
+            <table id="tableCommandesExport"><thead><tr><th>Référence</th><th>Montant (FCFA)</th><th>Statut</th><th>Date & Heure</th></tr></thead><tbody id="allOrders"></tbody></table>
+          </div>
+          <div id="commandesEmpty" class="empty-state" style="display:none;">
+            <div style="font-size:3rem; opacity:0.3;"><i class="fas fa-receipt"></i></div>
+            <h4>Aucune commande pour le moment</h4>
+            <p>Une fois votre restaurant configuré et vos clients actifs, les commandes apparaîtront ici.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 6: CAISSE ET RETRAITS ====== -->
     <div id="section-retraits" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
@@ -564,12 +712,20 @@
         </div>
         <div style="margin-top:30px;">
           <h4 style="font-size:1.1rem; font-weight:700; margin-bottom:16px;">Historique des retraits</h4>
-          <div class="table-wrap"><table><thead><tr><th>Montant</th><th>Statut</th><th>Date de demande</th></tr></thead><tbody id="retraitsList"></tbody></table></div>
+          <div id="retraitsContainer">
+            <div class="table-wrap" id="retraitsTableWrap">
+              <table><thead><tr><th>Montant</th><th>Statut</th><th>Date de demande</th></tr></thead><tbody id="retraitsList"></tbody></table>
+            </div>
+            <div id="retraitsEmpty" class="empty-state" style="display:none;">
+              <div style="font-size:3rem; opacity:0.3;"><i class="fas fa-clock"></i></div>
+              <h4>Aucun historique de retrait</h4>
+              <p>Vous n'avez pas encore effectué de demande de retrait.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== SECTION 7: ABONNEMENTS ====== -->
     <div id="section-abonnements" class="section">
       <div class="card">
         <h3><i class="fas fa-credit-card"></i> Abonnement & Publication</h3>
@@ -619,7 +775,6 @@
     </div>
   </div>
 
-  <!-- ====== SYSTEM SÉCURISÉ DES MODALES ====== -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-header">
@@ -635,7 +790,6 @@
     </div>
   </div>
 
-  <!-- ====== FIREBASE SDK ====== -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -658,74 +812,27 @@
       container.appendChild(toast);
       
       setTimeout(() => {
-        toast.style.animation = 'toastSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        toast.style.animation = 'toastSlideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
         setTimeout(() => toast.remove(), 400);
       }, 4000);
     };
 
     // ============================================================
-    //  UTILITAIRE: DESIGN DES ÉTATS VIDES PREMIUM (SVGs)
+    //  EFFET RIPPLE SUR LES BOUTONS
     // ============================================================
-    function getEmptyStateHTML(type, title, message, actionText, actionId) {
-      let svg = '';
-      if (type === 'menu') {
-        svg = `<svg viewBox="0 0 64 64" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
-          <circle cx="32" cy="32" r="22" />
-          <circle cx="32" cy="32" r="15" stroke-dasharray="4 4" />
-          <path d="M12 26v12M52 26v12M32 24v16M24 32h16" />
-        </svg>`;
-      } else if (type === 'employes') {
-        svg = `<svg viewBox="0 0 64 64" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
-          <path d="M20 44a8 8 0 0 1 16 0M44 44a6 6 0 0 1 10 0" />
-          <circle cx="28" cy="24" r="6" />
-          <circle cx="49" cy="26" r="4" />
-        </svg>`;
-      } else if (type === 'commandes') {
-        svg = `<svg viewBox="0 0 64 64" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
-          <rect x="18" y="14" width="28" height="38" rx="4" />
-          <path d="M26 14h12V10a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v4z" />
-          <path d="M26 26h12M26 34h8M26 42h12" />
-        </svg>`;
-      } else {
-        svg = `<svg viewBox="0 0 64 64" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
-          <path d="M10 20h44v24a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V20z" />
-          <path d="M10 20l22 14 22-14" />
-        </svg>`;
-      }
-
-      return `
-        <div class="empty-state-container" style="text-align: center; padding: 50px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; width:100%;">
-          <div style="margin-bottom: 20px; animation: bounce 2s infinite alternate;">${svg}</div>
-          <h4 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); font-family: 'Playfair Display', serif;">${title}</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 420px; margin-bottom: 20px; line-height: 1.5; white-space: normal;">${message}</p>
-          ${actionText && actionId ? `<button class="btn btn-primary btn-sm" id="${actionId}"><i class="fas fa-plus"></i> ${actionText}</button>` : ''}
-        </div>
-      `;
-    }
-
-    // ============================================================
-    //  SKELETONS DE CHARGEMENT INTÉGRÉS
-    // ============================================================
-    function showSkeletons() {
-      document.getElementById('statCommandes').innerHTML = '<span class="skeleton-text" style="width:40px;"></span>';
-      document.getElementById('statCA').innerHTML = '<span class="skeleton-text" style="width:60px;"></span>';
-      document.getElementById('statEmployes').innerHTML = '<span class="skeleton-text" style="width:30px;"></span>';
-      document.getElementById('statPlats').innerHTML = '<span class="skeleton-text" style="width:30px;"></span>';
-      
-      document.getElementById('lastOrders').innerHTML = `
-        <tr><td><span class="skeleton-text" style="width:60px;"></span></td><td><span class="skeleton-text" style="width:50px;"></span></td><td><span class="skeleton-text" style="width:70px;"></span></td><td><span class="skeleton-text" style="width:40px;"></span></td></tr>
-        <tr><td><span class="skeleton-text"></span></td><td><span class="skeleton-text"></span></td><td><span class="skeleton-text"></span></td><td><span class="skeleton-text"></span></td></tr>
-      `;
-      document.getElementById('employesList').innerHTML = `
-        <tr><td><span class="skeleton-round" style="width:45px;height:45px;display:block;"></span></td><td><span class="skeleton-text" style="width:80px;"></span></td><td><span class="skeleton-text" style="width:120px;"></span></td><td><span class="skeleton-text" style="width:60px;"></span></td><td><span class="skeleton-text" style="width:70px;"></span></td><td><span class="skeleton-text" style="width:80px;"></span></td><td><span class="skeleton-text" style="width:90px;"></span></td></tr>
-      `;
-      document.getElementById('menuList').innerHTML = `
-        <tr><td><span class="skeleton-round" style="width:45px;height:45px;display:block;"></span></td><td><span class="skeleton-text" style="width:100px;"></span></td><td><span class="skeleton-text" style="width:60px;"></span></td><td><span class="skeleton-text" style="width:50px;"></span></td><td><span class="skeleton-text" style="width:80px;"></span></td><td><span class="skeleton-text" style="width:40px;"></span></td><td><span class="skeleton-text" style="width:90px;"></span></td></tr>
-      `;
-      document.getElementById('allOrders').innerHTML = `
-        <tr><td><span class="skeleton-text" style="width:60px;"></span></td><td><span class="skeleton-text" style="width:80px;"></span></td><td><span class="skeleton-text" style="width:70px;"></span></td><td><span class="skeleton-text" style="width:100px;"></span></td></tr>
-      `;
-    }
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+      ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
 
     // ============================================================
     //  NAVIGATION RAPIDE DES CARTES STATISTIQUES
@@ -769,7 +876,7 @@
 
     // Utilitaires Image vers Base64 pour jsPDF
     function getBase64ImageFromURL(url) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         if(!url) { resolve(null); return; }
         const img = new Image();
         img.crossOrigin = "Anonymous";
@@ -785,7 +892,6 @@
       });
     }
 
-    // Masque circulaire et fondu premium pour l'affiche
     function getMaskedImageBase64(url) {
       return new Promise((resolve) => {
         if(!url) { resolve(null); return; }
@@ -793,32 +899,27 @@
         img.crossOrigin = "Anonymous";
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          canvas.width = img.width; canvas.height = img.height;
+          canvas.width = img.width;
+          canvas.height = img.height;
           const ctx = canvas.getContext("2d");
-
           ctx.fillStyle = "rgb(10, 10, 12)";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-
           const maskCanvas = document.createElement("canvas");
-          maskCanvas.width = canvas.width; maskCanvas.height = canvas.height;
+          maskCanvas.width = canvas.width;
+          maskCanvas.height = canvas.height;
           const maskCtx = maskCanvas.getContext("2d");
-
           const cx = maskCanvas.width / 2;
           const cy = maskCanvas.height / 2;
           const rMin = Math.min(cx, cy) * 0.45; 
           const rMax = Math.min(cx, cy) * 0.95; 
-
           const gradient = maskCtx.createRadialGradient(cx, cy, rMin, cx, cy, rMax);
-          gradient.addColorStop(0, 'rgba(255, 255, 255, 1)'); 
-          gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.2)'); 
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); 
-
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+          gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.2)');
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
           maskCtx.fillStyle = gradient;
           maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-
           maskCtx.globalCompositeOperation = 'source-in';
           maskCtx.drawImage(img, 0, 0, maskCanvas.width, maskCanvas.height);
-
           ctx.drawImage(maskCanvas, 0, 0);
           resolve(canvas.toDataURL("image/jpeg", 0.95));
         };
@@ -827,7 +928,6 @@
       });
     }
 
-    // Fonction d'upload générique
     function uploadImage(file, onProgress, onComplete) {
       const formData = new FormData();
       formData.append('file', file);
@@ -858,7 +958,6 @@
     let salesChart = null;
     let toutesLesCommandes = [];
     let qrCanvasWithLogo = null;
-    window.restaurantEditMode = false;
 
     // ============================================================
     //  AUTHENTIFICATION & INITIALISATION
@@ -867,8 +966,6 @@
       if (!user) { window.location.href = 'connexion.html'; return; }
       currentUser = user;
       
-      showSkeletons();
-      
       const userDoc = await db.collection('users').doc(user.uid).get();
       if (!userDoc.exists || userDoc.data().role !== 'proprietaire') {
         showToast('Accès réservé aux propriétaires.', 'error'); 
@@ -876,6 +973,7 @@
       }
       await initRestaurant(user.uid);
       loadDashboard();
+      initChart();
     });
 
     async function initRestaurant(uid) {
@@ -884,9 +982,10 @@
         const doc = snapshot.docs[0];
         currentRestaurantId = doc.id;
         restaurantData = doc.data();
-        renderRestaurantSection();
+        populateRestaurantForm(restaurantData);
         updateSubscriptionUI(restaurantData.abonnement || 'Aucun');
         updateQRUI();
+        renderRestaurantContent();
         return;
       }
       const newResto = {
@@ -897,10 +996,32 @@
       const docRef = await db.collection('restaurants').add(newResto);
       currentRestaurantId = docRef.id;
       restaurantData = newResto;
-      renderRestaurantSection();
+      populateRestaurantForm(newResto);
       updateSubscriptionUI('Aucun');
       updateQRUI();
+      renderRestaurantContent();
       await db.collection('users').doc(uid).update({ restaurantId: currentRestaurantId });
+    }
+
+    function populateRestaurantForm(data) {
+      document.getElementById('headerRestoName').textContent = data.nom || currentUser.email;
+      document.getElementById('restoNom').value = data.nom || '';
+      document.getElementById('restoProprio').value = data.proprietaireNom || '';
+      document.getElementById('restoEmail').value = data.email || '';
+      document.getElementById('restoTel').value = data.telephone || '';
+      document.getElementById('restoWhatsapp').value = data.whatsapp || '';
+      document.getElementById('restoAdresse').value = data.adresse || '';
+      document.getElementById('restoVille').value = data.ville || '';
+      document.getElementById('restoMap').value = data.map || '';
+      document.getElementById('restoDescription').value = data.description || '';
+      document.getElementById('soldeDisplay').textContent = (data.solde || 0).toLocaleString('fr-FR') + ' FCFA';
+      
+      if (data.logo) {
+        const img = document.getElementById('restoLogoPreview');
+        img.src = data.logo; img.style.display = 'block';
+        document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
+        document.getElementById('restoLogoUrl').dataset.url = data.logo;
+      }
     }
 
     function updateSubscriptionUI(plan) {
@@ -922,425 +1043,311 @@
       window.location.href = `paiement_abonnement.html?plan=${planName}&restoId=${currentRestaurantId}`;
     }
 
-    document.getElementById('btnVoirRestaurant').addEventListener('click', () => {
-        if(restaurantData && restaurantData.menuUrl) window.open(restaurantData.menuUrl, '_blank');
-    });
-
     // ============================================================
-    //  LOGIQUE FORMULAIRE DYNAMIQUE : SECTION RESTAURANT
+    //  SECTION RESTAURANT : ÉTAPES OU FICHE RÉCAP
     // ============================================================
-    function renderRestaurantSection() {
-      const data = restaurantData || {};
-      const container = document.getElementById('restaurant-content');
-      if (!container) return;
-
-      document.getElementById('headerRestoName').textContent = data.nom || currentUser.email;
-      document.getElementById('soldeDisplay').textContent = (data.solde || 0).toLocaleString('fr-FR') + ' FCFA';
-
-      // Critères de complétude réelle (non basée uniquement sur le préremplissage de l'Auth)
-      const isComplete = data.logo && data.telephone && data.adresse && data.ville && data.description;
-
-      if (window.restaurantEditMode || !isComplete) {
-        container.innerHTML = getMultiStepFormHTML(data, isComplete);
-        initMultiStepFormEvents();
-      } else {
-        container.innerHTML = getRestaurantSummaryHTML(data);
+    function renderRestaurantContent() {
+      const container = document.getElementById('restaurantContent');
+      if (!restaurantData) {
+        container.innerHTML = '<div class="empty-state"><div style="font-size:2.5rem; opacity:0.3;"><i class="fas fa-spinner fa-spin"></i></div><p>Chargement...</p></div>';
+        return;
       }
-    }
 
-    function getMultiStepFormHTML(data, isComplete) {
-      const logoUrl = data.logo || '';
-      const logoPreviewStyle = logoUrl ? 'block' : 'none';
-      const logoUrlText = logoUrl ? '<i class="fas fa-check-circle"></i> Logo chargé avec succès' : '';
+      // Vérifier si la configuration est complète
+      const requiredFields = ['nom', 'email', 'telephone', 'adresse', 'ville'];
+      const isComplete = requiredFields.every(f => restaurantData[f] && restaurantData[f].trim() !== '');
+      // On considère aussi que le logo est optionnel mais un plus
+      const hasLogo = restaurantData.logo && restaurantData.logo.trim() !== '';
 
-      return `
-        <div class="card" style="position: relative; overflow: hidden; animation: fadeIn 0.4s ease;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-            <h3 style="margin: 0;"><i class="fas fa-sliders-h"></i> ${isComplete ? 'Modifier la configuration' : 'Configuration étape par étape'}</h3>
-            ${isComplete ? `<button class="btn btn-outline btn-sm" onclick="window.restaurantEditMode = false; renderRestaurantSection();"><i class="fas fa-times"></i> Annuler</button>` : ''}
-          </div>
+      if (!isComplete) {
+        // Mode étapes
+        let steps = [
+          { label: 'Infos de base', done: !!(restaurantData.nom && restaurantData.nom.trim() !== '') },
+          { label: 'Coordonnées', done: !!(restaurantData.telephone && restaurantData.telephone.trim() !== '') },
+          { label: 'Adresse', done: !!(restaurantData.adresse && restaurantData.adresse.trim() !== '' && restaurantData.ville && restaurantData.ville.trim() !== '') },
+          { label: 'Logo & Description', done: !!(restaurantData.logo && restaurantData.logo.trim() !== '') }
+        ];
+        const progress = steps.filter(s => s.done).length / steps.length * 100;
 
-          <!-- Wizard Progress Bar -->
-          <div class="wizard-progress-container" style="display: flex; justify-content: space-between; position: relative; margin-bottom: 40px; padding: 0 10px;">
-            <div class="wizard-progress-line" style="position: absolute; top: 15px; left: 10%; right: 10%; height: 4px; background: #e2e8f0; z-index: 1;">
-              <div id="wizard-progress-bar" style="height: 100%; width: 0%; background: var(--primary); transition: width 0.4s ease;"></div>
+        let stepsHtml = `
+          <div style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+              <span style="font-weight:600; color:var(--text-muted);">Progression de configuration</span>
+              <span style="font-weight:800; color:var(--primary);">${Math.round(progress)}%</span>
             </div>
-            <div class="wizard-step-node active" data-step="1" style="position: relative; z-index: 2; text-align: center; width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 2.5px solid var(--primary); color: var(--primary); font-weight: 700; line-height: 27px; transition: var(--transition);">1</div>
-            <div class="wizard-step-node" data-step="2" style="position: relative; z-index: 2; text-align: center; width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 2.5px solid #e2e8f0; color: #94a3b8; font-weight: 700; line-height: 27px; transition: var(--transition);">2</div>
-            <div class="wizard-step-node" data-step="3" style="position: relative; z-index: 2; text-align: center; width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 2.5px solid #e2e8f0; color: #94a3b8; font-weight: 700; line-height: 27px; transition: var(--transition);">3</div>
+            <div style="height:6px; background:#e8e3dc; border-radius:10px; overflow:hidden;">
+              <div style="height:100%; width:${progress}%; background:linear-gradient(90deg, var(--primary), var(--gold)); border-radius:10px; transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);"></div>
+            </div>
           </div>
+          <div class="step-indicator">
+            ${steps.map((s, i) => `
+              <div class="step-dot ${s.done ? 'done' : 'active'}">${s.done ? '<i class="fas fa-check"></i>' : i+1}</div>
+              ${i < steps.length-1 ? `<div class="step-line ${s.done ? 'done' : ''}"></div>` : ''}
+            `).join('')}
+          </div>
+          <p style="color:var(--text-muted); text-align:center; margin-bottom:20px;">
+            ${progress === 100 ? '🎉 Tous les champs obligatoires sont remplis !' : 'Remplissez les informations ci-dessous pour configurer votre restaurant.'}
+          </p>
+        `;
 
-          <form id="restaurantFormStep">
-            <!-- STEP 1 -->
-            <div class="wizard-step-content" id="step-1-content">
-              <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-                <span style="background: var(--primary-light); color: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">1</span>
-                Identité du restaurant
-              </h4>
-              
+        // Formulaire complet (le même qu'avant)
+        const formHtml = `
+          <form id="restaurantForm">
+            <div class="grid-2">
               <div class="form-group">
                 <label>Logo du restaurant</label>
-                <div class="upload-preview" style="background: #fafaf9; padding: 15px; border-radius: 16px; border: 1.5px dashed var(--border-color);">
-                  <img id="restoLogoPreviewStep" src="${logoUrl}" alt="Logo" style="display:${logoPreviewStyle}; width:80px; height:80px; border-radius:16px; object-fit:cover; margin-bottom: 10px;" />
-                  <div style="flex: 1; min-width: 200px;">
-                    <label class="upload-btn">
-                      <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
-                      <input type="file" id="restoLogoInputStep" accept="image/*" />
-                    </label>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
-                      <i class="fas fa-info-circle" style="color: var(--primary);"></i> <strong>Note :</strong> Privilégiez un logo avec un **fond transparent** (PNG). Rendu optimal sur les QR codes et affiches.
-                    </div>
-                    <span id="restoLogoUrlStep" data-url="${logoUrl}" style="font-size:0.85rem;color:var(--success);font-weight:600;display:block;margin-top:5px;">${logoUrlText}</span>
-                  </div>
+                <div class="upload-preview">
+                  <img id="restoLogoPreview" src="" alt="Logo" style="display:none;" />
+                  <label class="upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
+                    <input type="file" id="restoLogoInput" accept="image/*" />
+                  </label>
+                  <span id="restoLogoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
                 </div>
-                <div class="upload-progress" id="restoLogoProgressStep"><div class="upload-progress-bar" id="restoLogoProgressBarStep"></div></div>
+                <div class="logo-hint"><i class="fas fa-info-circle"></i> Idéalement, utilisez un logo avec fond transparent pour un meilleur rendu sur le QR code et les supports imprimés.</div>
+                <div class="upload-progress" id="restoLogoProgress"><div class="upload-progress-bar" id="restoLogoProgressBar"></div></div>
               </div>
-
-              <div class="form-group">
-                <label>Nom du restaurant</label>
-                <input type="text" id="restoNomStep" class="form-control" placeholder="Ex: Le Petit Chef" value="${data.nom || ''}" required />
-              </div>
-
-              <div class="form-group">
-                <label>Nom du propriétaire</label>
-                <input type="text" id="restoProprioStep" class="form-control" placeholder="Ex: Jean Dupont" value="${data.proprietaireNom || ''}" />
-              </div>
-
-              <div class="form-group">
-                <label>Description / Slogan</label>
-                <textarea id="restoDescriptionStep" class="form-control" placeholder="Ex: Une cuisine traditionnelle revisitée dans un cadre chaleureux." required>${data.description || ''}</textarea>
-              </div>
+              <div class="form-group"><label>Nom du restaurant *</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
+              <div class="form-group"><label>Nom du propriétaire (Optionnel)</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" /></div>
+              <div class="form-group"><label>Email *</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" required /></div>
+              <div class="form-group"><label>Téléphone (appels) *</label><input type="text" id="restoTel" class="form-control" placeholder="+237 ..." required /></div>
+              <div class="form-group"><label>Téléphone WhatsApp</label><input type="text" id="restoWhatsapp" class="form-control" placeholder="+237 ..." /></div>
+              <div class="form-group"><label>Adresse physique *</label><input type="text" id="restoAdresse" class="form-control" placeholder="Rue, Quartier..." required /></div>
+              <div class="form-group"><label>Ville *</label><input type="text" id="restoVille" class="form-control" placeholder="Douala" required /></div>
+              <div class="form-group"><label>Localisation (Google Maps)</label><input type="url" id="restoMap" class="form-control" placeholder="https://maps.app.goo.gl/..." /></div>
             </div>
-
-            <!-- STEP 2 -->
-            <div class="wizard-step-content" id="step-2-content" style="display: none;">
-              <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-                <span style="background: var(--primary-light); color: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">2</span>
-                Informations de contact
-              </h4>
-
-              <div class="form-group">
-                <label>Email de contact</label>
-                <input type="email" id="restoEmailStep" class="form-control" placeholder="contact@restaurant.com" value="${data.email || ''}" required />
-              </div>
-
-              <div class="form-group">
-                <label>Téléphone (Appels clients)</label>
-                <input type="text" id="restoTelStep" class="form-control" placeholder="Ex: +237 6XX XX XX XX" value="${data.telephone || ''}" required />
-              </div>
-
-              <div class="form-group">
-                <label>Téléphone WhatsApp (Réception des commandes)</label>
-                <input type="text" id="restoWhatsappStep" class="form-control" placeholder="Ex: +237 6XX XX XX XX" value="${data.whatsapp || ''}" required />
-              </div>
-            </div>
-
-            <!-- STEP 3 -->
-            <div class="wizard-step-content" id="step-3-content" style="display: none;">
-              <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-                <span style="background: var(--primary-light); color: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">3</span>
-                Localisation & Maps
-              </h4>
-
-              <div class="form-group">
-                <label>Adresse physique (Rue, Quartier...)</label>
-                <input type="text" id="restoAdresseStep" class="form-control" placeholder="Ex: Rue de la Joie, Bastos" value="${data.adresse || ''}" required />
-              </div>
-
-              <div class="form-group">
-                <label>Ville</label>
-                <input type="text" id="restoVilleStep" class="form-control" placeholder="Ex: Yaoundé" value="${data.ville || ''}" required />
-              </div>
-
-              <div class="form-group">
-                <label>Localisation Google Maps (Lien)</label>
-                <input type="url" id="restoMapStep" class="form-control" placeholder="https://maps.app.goo.gl/..." value="${data.map || ''}" />
-              </div>
-            </div>
-
-            <!-- NAVIGATION BUTTONS -->
-            <div style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-              <button type="button" class="btn btn-outline" id="wizard-prev-btn" style="visibility: hidden;"><i class="fas fa-arrow-left"></i> Précédent</button>
-              <button type="button" class="btn btn-primary" id="wizard-next-btn">Suivant <i class="fas fa-arrow-right"></i></button>
-              <button type="submit" class="btn btn-success" id="wizard-submit-btn" style="display: none;"><i class="fas fa-check-double"></i> Enregistrer la configuration</button>
-            </div>
+            <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez votre établissement..."></textarea></div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer et continuer</button>
           </form>
-        </div>
-      `;
-    }
+        `;
 
-    function getRestaurantSummaryHTML(data) {
-      const logoHtml = data.logo 
-        ? `<img src="${data.logo}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: var(--shadow-md);" />`
-        : `<div style="width: 100px; height: 100px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: var(--shadow-md);"><i class="fas fa-store-alt" style="font-size: 2.5rem;"></i></div>`;
+        container.innerHTML = stepsHtml + formHtml;
 
-      return `
-        <div class="card" style="animation: fadeIn 0.4s ease; border-top: 4px solid var(--primary);">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px;">
-            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-              ${logoHtml}
-              <div>
-                <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${data.nom}</h2>
-                ${data.description ? `<p style="color: var(--text-muted); font-size: 1rem; font-style: italic; max-width: 500px;">"${data.description}"</p>` : ''}
-                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                  <span class="badge badge-success" style="font-size: 0.8rem;"><i class="fas fa-check-circle"></i> Configuration active</span>
-                  <span class="badge badge-info" style="font-size: 0.8rem;"><i class="fas fa-credit-card"></i> Pack : ${data.abonnement || 'Starter'}</span>
-                </div>
-              </div>
-            </div>
-            <button class="btn btn-outline" onclick="window.restaurantEditMode = true; renderRestaurantSection();" style="border-color: var(--primary); color: var(--primary);"><i class="fas fa-edit"></i> Modifier les informations</button>
-          </div>
-
-          <div class="grid-2">
-            <div style="background: #fafaf9; padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
-              <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-address-book" style="color: var(--primary);"></i> Contacts & Réception
-              </h4>
-              <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
-                <li style="display: flex; align-items: center; gap: 12px; color: #475569;">
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);"><i class="fas fa-envelope" style="color: #ef4444;"></i></div>
-                  <div>
-                    <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8;">Email</strong>
-                    <span>${data.email || 'Non renseigné'}</span>
-                  </div>
-                </li>
-                <li style="display: flex; align-items: center; gap: 12px; color: #475569;">
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);"><i class="fas fa-phone-alt" style="color: #3b82f6;"></i></div>
-                  <div>
-                    <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8;">Téléphone</strong>
-                    <span>${data.telephone || 'Non renseigné'}</span>
-                  </div>
-                </li>
-                <li style="display: flex; align-items: center; gap: 12px; color: #475569;">
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);"><i class="fab fa-whatsapp" style="color: #22c55e; font-size: 1.2rem;"></i></div>
-                  <div>
-                    <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8;">WhatsApp (Commandes)</strong>
-                    <span>${data.whatsapp || 'Non renseigné'}</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            <div style="background: #fafaf9; padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
-              <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> Localisation de l'établissement
-              </h4>
-              <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
-                <li style="display: flex; align-items: center; gap: 12px; color: #475569;">
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);"><i class="fas fa-city" style="color: #8b5cf6;"></i></div>
-                  <div>
-                    <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8;">Ville</strong>
-                    <span>${data.ville || 'Non renseignée'}</span>
-                  </div>
-                </li>
-                <li style="display: flex; align-items: center; gap: 12px; color: #475569;">
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);"><i class="fas fa-map-marked-alt" style="color: #f59e0b;"></i></div>
-                  <div>
-                    <strong style="display: block; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8;">Adresse exacte</strong>
-                    <span>${data.adresse || 'Non renseignée'}</span>
-                  </div>
-                </li>
-                ${data.map ? `
-                <li style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
-                  <a href="${data.map}" target="_blank" class="btn btn-outline btn-sm btn-block" style="background: #fff; border-color: #cbd5e1; font-size: 0.85rem; color: #1e293b; display: inline-flex; align-items: center; gap: 8px; justify-content: center;">
-                    <i class="fas fa-map-pin" style="color: #ef4444;"></i> Ouvrir sur Google Maps
-                  </a>
-                </li>` : ''}
-              </ul>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function initMultiStepFormEvents() {
-      let currentStep = 1;
-      const totalSteps = 3;
-
-      function updateStepsVisibility() {
-        document.getElementById('step-1-content').style.display = currentStep === 1 ? 'block' : 'none';
-        document.getElementById('step-2-content').style.display = currentStep === 2 ? 'block' : 'none';
-        document.getElementById('step-3-content').style.display = currentStep === 3 ? 'block' : 'none';
-
-        document.querySelectorAll('.wizard-step-node').forEach(node => {
-          const stepNum = parseInt(node.dataset.step);
-          if (stepNum < currentStep) {
-            node.style.background = 'var(--primary)';
-            node.style.borderColor = 'var(--primary)';
-            node.style.color = '#fff';
-            node.innerHTML = '<i class="fas fa-check" style="font-size:0.75rem;"></i>';
-          } else if (stepNum === currentStep) {
-            node.style.background = '#fff';
-            node.style.borderColor = 'var(--primary)';
-            node.style.color = 'var(--primary)';
-            node.textContent = stepNum;
-          } else {
-            node.style.background = '#fff';
-            node.style.borderColor = '#e2e8f0';
-            node.style.color = '#94a3b8';
-            node.textContent = stepNum;
-          }
-        });
-
-        const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
-        document.getElementById('wizard-progress-bar').style.width = progressPercent + '%';
-        document.getElementById('wizard-prev-btn').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
-
-        if (currentStep === totalSteps) {
-          document.getElementById('wizard-next-btn').style.display = 'none';
-          document.getElementById('wizard-submit-btn').style.display = 'inline-flex';
-        } else {
-          document.getElementById('wizard-next-btn').style.display = 'inline-flex';
-          document.getElementById('wizard-submit-btn').style.display = 'none';
-        }
-      }
-
-      updateStepsVisibility();
-
-      document.getElementById('wizard-prev-btn').onclick = () => {
-        if (currentStep > 1) { currentStep--; updateStepsVisibility(); }
-      };
-
-      document.getElementById('wizard-next-btn').onclick = () => {
-        let isValid = true;
-        if (currentStep === 1) {
-          isValid = document.getElementById('restoNomStep').reportValidity() && document.getElementById('restoDescriptionStep').reportValidity();
-        } else if (currentStep === 2) {
-          isValid = document.getElementById('restoEmailStep').reportValidity() && document.getElementById('restoTelStep').reportValidity() && document.getElementById('restoWhatsappStep').reportValidity();
-        }
-        if (isValid && currentStep < totalSteps) { currentStep++; updateStepsVisibility(); }
-      };
-
-      const fileInputStep = document.getElementById('restoLogoInputStep');
-      if (fileInputStep) {
-        fileInputStep.addEventListener('change', function(e) {
+        // Réattacher les événements du formulaire
+        document.getElementById('restoLogoInput').addEventListener('change', function(e) {
           const file = e.target.files[0];
           if (!file) return;
-          const progressDiv = document.getElementById('restoLogoProgressStep');
-          const progressBar = document.getElementById('restoLogoProgressBarStep');
+          const progressDiv = document.getElementById('restoLogoProgress');
+          const progressBar = document.getElementById('restoLogoProgressBar');
           progressDiv.style.display = 'block'; progressBar.style.width = '0%';
           uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
             progressDiv.style.display = 'none'; progressBar.style.width = '0%';
             if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            document.getElementById('restoLogoPreviewStep').src = url;
-            document.getElementById('restoLogoPreviewStep').style.display = 'block';
-            const textUrl = document.getElementById('restoLogoUrlStep');
-            textUrl.innerHTML = '<i class="fas fa-check-circle"></i> Logo chargé';
-            textUrl.dataset.url = url;
+            const img = document.getElementById('restoLogoPreview');
+            img.src = url; img.style.display = 'block';
+            document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
+            document.getElementById('restoLogoUrl').dataset.url = url;
             if(restaurantData && restaurantData.menuUrl) {
                 restaurantData.logo = url;
                 generateQRWithLogo(restaurantData.menuUrl);
             }
           });
         });
-      }
 
-      const formStep = document.getElementById('restaurantFormStep');
-      formStep.onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('wizard-submit-btn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalisation...'; btn.disabled = true;
-
-        const data = {
-          nom: document.getElementById('restoNomStep').value,
-          proprietaireNom: document.getElementById('restoProprioStep').value,
-          email: document.getElementById('restoEmailStep').value,
-          telephone: document.getElementById('restoTelStep').value,
-          whatsapp: document.getElementById('restoWhatsappStep').value,
-          adresse: document.getElementById('restoAdresseStep').value,
-          ville: document.getElementById('restoVilleStep').value,
-          map: document.getElementById('restoMapStep').value,
-          description: document.getElementById('restoDescriptionStep').value,
-          logo: document.getElementById('restoLogoUrlStep').dataset.url || restaurantData.logo || ''
-        };
-
-        try {
+        document.getElementById('restaurantForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (!currentRestaurantId) return;
+          const btn = e.target.querySelector('button[type="submit"]');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...'; btn.disabled = true;
+          const data = {
+            nom: document.getElementById('restoNom').value, proprietaireNom: document.getElementById('restoProprio').value,
+            email: document.getElementById('restoEmail').value, telephone: document.getElementById('restoTel').value,
+            whatsapp: document.getElementById('restoWhatsapp').value, adresse: document.getElementById('restoAdresse').value,
+            ville: document.getElementById('restoVille').value, map: document.getElementById('restoMap').value,
+            description: document.getElementById('restoDescription').value, logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
+          };
           await db.collection('restaurants').doc(currentRestaurantId).update(data);
           restaurantData = { ...restaurantData, ...data };
-          showToast('Configuration mise à jour avec succès !');
-          window.restaurantEditMode = false;
-          renderRestaurantSection();
-          updateQRUI();
-        } catch (err) {
-          showToast('Erreur de sauvegarde : ' + err.message, 'error');
-        } finally {
-          btn.disabled = false;
+          document.getElementById('headerRestoName').textContent = data.nom; 
+          showToast('Informations du restaurant mises à jour !');
+          btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
+          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; renderRestaurantContent(); }, 1500);
+        });
+
+        // Pré-remplir les champs
+        document.getElementById('restoNom').value = restaurantData.nom || '';
+        document.getElementById('restoProprio').value = restaurantData.proprietaireNom || '';
+        document.getElementById('restoEmail').value = restaurantData.email || '';
+        document.getElementById('restoTel').value = restaurantData.telephone || '';
+        document.getElementById('restoWhatsapp').value = restaurantData.whatsapp || '';
+        document.getElementById('restoAdresse').value = restaurantData.adresse || '';
+        document.getElementById('restoVille').value = restaurantData.ville || '';
+        document.getElementById('restoMap').value = restaurantData.map || '';
+        document.getElementById('restoDescription').value = restaurantData.description || '';
+        if (restaurantData.logo) {
+          const img = document.getElementById('restoLogoPreview');
+          img.src = restaurantData.logo; img.style.display = 'block';
+          document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
+          document.getElementById('restoLogoUrl').dataset.url = restaurantData.logo;
         }
-      };
+
+      } else {
+        // Mode fiche récapitulative
+        const fields = [
+          { label: 'Nom du restaurant', key: 'nom', icon: 'fa-store' },
+          { label: 'Propriétaire', key: 'proprietaireNom', icon: 'fa-user' },
+          { label: 'Email', key: 'email', icon: 'fa-envelope' },
+          { label: 'Téléphone', key: 'telephone', icon: 'fa-phone' },
+          { label: 'WhatsApp', key: 'whatsapp', icon: 'fa-whatsapp' },
+          { label: 'Adresse', key: 'adresse', icon: 'fa-map-pin' },
+          { label: 'Ville', key: 'ville', icon: 'fa-city' },
+          { label: 'Localisation', key: 'map', icon: 'fa-map', isLink: true },
+          { label: 'Description', key: 'description', icon: 'fa-align-left' },
+        ];
+
+        let summaryHtml = `
+          <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+            <button class="btn btn-outline" id="editRestoBtn"><i class="fas fa-pen"></i> Modifier</button>
+          </div>
+          <div class="resto-summary">
+            <div class="info-logo">
+              ${restaurantData.logo ? `<img src="${restaurantData.logo}" alt="Logo" />` : `<div style="width:120px;height:120px;background:#f1f5f9;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;border:2px dashed var(--border-color);"><i class="fas fa-store" style="font-size:2.5rem;color:#94a3b8;"></i></div>`}
+            </div>
+            ${fields.map(f => {
+              const val = restaurantData[f.key] || '';
+              if (!val && f.key !== 'description') return '';
+              if (f.key === 'proprietaireNom' && !val) return '';
+              if (f.key === 'whatsapp' && !val) return '';
+              if (f.key === 'map' && !val) return '';
+              if (f.key === 'description' && !val) return '';
+              let displayVal = val;
+              if (f.isLink && val) {
+                displayVal = `<a href="${val}" target="_blank">${val}</a>`;
+              }
+              return `
+                <div class="info-item">
+                  <span class="label"><i class="fas ${f.icon}" style="margin-right:6px;"></i> ${f.label}</span>
+                  <span class="value">${displayVal}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border-color); display:flex; gap:12px; flex-wrap:wrap;">
+            <span class="badge badge-success" style="font-size:0.9rem; padding:8px 16px;"><i class="fas fa-check-circle"></i> Configuration complète</span>
+            <span style="color:var(--text-muted); font-size:0.9rem;">Toutes les informations essentielles sont renseignées.</span>
+          </div>
+        `;
+
+        container.innerHTML = summaryHtml;
+
+        document.getElementById('editRestoBtn').addEventListener('click', () => {
+          // Passer en mode édition : on réaffiche le formulaire
+          // On va simplement "casser" la complétude pour afficher les étapes
+          // On force le mode étapes en supprimant temporairement un champ
+          // Mais on va plutôt réafficher le formulaire directement
+          const container = document.getElementById('restaurantContent');
+          const formHtml = `
+            <form id="restaurantForm">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Logo du restaurant</label>
+                  <div class="upload-preview">
+                    <img id="restoLogoPreview" src="" alt="Logo" style="display:none;" />
+                    <label class="upload-btn">
+                      <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
+                      <input type="file" id="restoLogoInput" accept="image/*" />
+                    </label>
+                    <span id="restoLogoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+                  </div>
+                  <div class="logo-hint"><i class="fas fa-info-circle"></i> Idéalement, utilisez un logo avec fond transparent pour un meilleur rendu sur le QR code et les supports imprimés.</div>
+                  <div class="upload-progress" id="restoLogoProgress"><div class="upload-progress-bar" id="restoLogoProgressBar"></div></div>
+                </div>
+                <div class="form-group"><label>Nom du restaurant *</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
+                <div class="form-group"><label>Nom du propriétaire (Optionnel)</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" /></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" required /></div>
+                <div class="form-group"><label>Téléphone (appels) *</label><input type="text" id="restoTel" class="form-control" placeholder="+237 ..." required /></div>
+                <div class="form-group"><label>Téléphone WhatsApp</label><input type="text" id="restoWhatsapp" class="form-control" placeholder="+237 ..." /></div>
+                <div class="form-group"><label>Adresse physique *</label><input type="text" id="restoAdresse" class="form-control" placeholder="Rue, Quartier..." required /></div>
+                <div class="form-group"><label>Ville *</label><input type="text" id="restoVille" class="form-control" placeholder="Douala" required /></div>
+                <div class="form-group"><label>Localisation (Google Maps)</label><input type="url" id="restoMap" class="form-control" placeholder="https://maps.app.goo.gl/..." /></div>
+              </div>
+              <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez votre établissement..."></textarea></div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Mettre à jour</button>
+            </form>
+          `;
+          container.innerHTML = formHtml;
+
+          // Réattacher les événements
+          document.getElementById('restoLogoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const progressDiv = document.getElementById('restoLogoProgress');
+            const progressBar = document.getElementById('restoLogoProgressBar');
+            progressDiv.style.display = 'block'; progressBar.style.width = '0%';
+            uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+              progressDiv.style.display = 'none'; progressBar.style.width = '0%';
+              if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
+              const img = document.getElementById('restoLogoPreview');
+              img.src = url; img.style.display = 'block';
+              document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
+              document.getElementById('restoLogoUrl').dataset.url = url;
+              if(restaurantData && restaurantData.menuUrl) {
+                  restaurantData.logo = url;
+                  generateQRWithLogo(restaurantData.menuUrl);
+              }
+            });
+          });
+
+          document.getElementById('restaurantForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentRestaurantId) return;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...'; btn.disabled = true;
+            const data = {
+              nom: document.getElementById('restoNom').value, proprietaireNom: document.getElementById('restoProprio').value,
+              email: document.getElementById('restoEmail').value, telephone: document.getElementById('restoTel').value,
+              whatsapp: document.getElementById('restoWhatsapp').value, adresse: document.getElementById('restoAdresse').value,
+              ville: document.getElementById('restoVille').value, map: document.getElementById('restoMap').value,
+              description: document.getElementById('restoDescription').value, logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
+            };
+            await db.collection('restaurants').doc(currentRestaurantId).update(data);
+            restaurantData = { ...restaurantData, ...data };
+            document.getElementById('headerRestoName').textContent = data.nom; 
+            showToast('Informations du restaurant mises à jour !');
+            btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
+            setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; renderRestaurantContent(); }, 1500);
+          });
+
+          // Pré-remplir
+          document.getElementById('restoNom').value = restaurantData.nom || '';
+          document.getElementById('restoProprio').value = restaurantData.proprietaireNom || '';
+          document.getElementById('restoEmail').value = restaurantData.email || '';
+          document.getElementById('restoTel').value = restaurantData.telephone || '';
+          document.getElementById('restoWhatsapp').value = restaurantData.whatsapp || '';
+          document.getElementById('restoAdresse').value = restaurantData.adresse || '';
+          document.getElementById('restoVille').value = restaurantData.ville || '';
+          document.getElementById('restoMap').value = restaurantData.map || '';
+          document.getElementById('restoDescription').value = restaurantData.description || '';
+          if (restaurantData.logo) {
+            const img = document.getElementById('restoLogoPreview');
+            img.src = restaurantData.logo; img.style.display = 'block';
+            document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
+            document.getElementById('restoLogoUrl').dataset.url = restaurantData.logo;
+          }
+        });
+      }
     }
 
     // ============================================================
-    //  NAVIGATION & DÉCONNEXION
-    // ============================================================
-    document.querySelectorAll('nav a[data-section]').forEach(link => {
-      link.addEventListener('click', () => { window.navigateToSection(link.dataset.section); fermerSidebar(); });
-    });
-    
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.add('open');
-      document.getElementById('sidebarOverlay').classList.add('open');
-    });
-
-    document.getElementById('sidebarOverlay').addEventListener('click', fermerSidebar);
-
-    function fermerSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('sidebarOverlay').classList.remove('open');
-    }
-    
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-
-    // Modales Sécurisées
-    function openModal(title, html, onSubmit) {
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('modalBody').innerHTML = html;
-      document.getElementById('modalSubmit').style.display = 'inline-flex';
-      document.getElementById('modalCancel').textContent = 'Annuler';
-      document.getElementById('modalCancel').className = 'btn btn-outline';
-      document.getElementById('modalOverlay').classList.add('open');
-      
-      const form = document.getElementById('modalForm');
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('modalSubmit');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...'; btn.disabled = true;
-        await onSubmit(e);
-        btn.innerHTML = orig; btn.disabled = false;
-        closeModal();
-      };
-    }
-
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('open');
-      document.getElementById('modalForm').onsubmit = null;
-    }
-    document.getElementById('modalCancel').addEventListener('click', closeModal);
-
-    window.copyText = (text) => {
-      navigator.clipboard.writeText(text).then(() => showToast('Copié dans le presse-papier !')).catch(() => showToast('Erreur lors de la copie', 'error'));
-    };
-    
-    window.copyMenuLink = () => {
-        if(restaurantData && restaurantData.menuUrl) copyText(restaurantData.menuUrl);
-    };
-
-    // ============================================================
-    //  GESTION DES EMPLOYÉS & PHOTOS D'IDENTITÉ
+    //  EMPLOYÉS AVEC PHOTO
     // ============================================================
     async function loadEmployes() {
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('users').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('employesList');
+      const wrap = document.getElementById('employesTableWrap');
+      const empty = document.getElementById('employesEmpty');
       tbody.innerHTML = '';
       let count = 0;
-      
       snapshot.forEach(doc => {
         const data = doc.data();
         if(data.role === 'proprietaire') return; 
         count++;
         const photo = data.photo ? `<img src="${data.photo}" style="width:45px;height:45px;object-fit:cover;border-radius:12px;" />` : '<div style="width:45px;height:45px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="color:#94a3b8;"></i></div>';
         const tr = document.createElement('tr');
+        tr.className = 'row-enter';
         tr.innerHTML = `
           <td>${photo}</td><td style="font-weight:600;">${data.nom || 'Sans nom'}</td><td>${data.email}</td>
           <td><code>${data.motDePasse || '******'}</code></td><td><span class="badge badge-info">${data.role}</span></td>
@@ -1353,128 +1360,123 @@
         `;
         tbody.appendChild(tr);
       });
-
-      if (count === 0) {
-        tbody.innerHTML = `<tr><td colspan="7">${getEmptyStateHTML('employes', "Vous n'avez pas d'employés", "Ajoutez des membres d'équipe pour vous aider à gérer la salle ou la cuisine en direct.", "Créer ma première fiche", "btnEmptyAddEmploye")}</td></tr>`;
-        const btn = document.getElementById('btnEmptyAddEmploye');
-        if (btn) btn.onclick = () => document.getElementById('openAddEmploye').click();
-      }
       document.getElementById('statEmployes').textContent = count;
+      
+      if (count === 0) {
+        wrap.style.display = 'none';
+        empty.style.display = 'flex';
+      } else {
+        wrap.style.display = 'block';
+        empty.style.display = 'none';
+      }
     }
+
+    document.getElementById('emptyEmployesCta').addEventListener('click', () => {
+      document.getElementById('openAddEmploye').click();
+    });
 
     window.supprimerEmploye = async (uid) => {
       if (!confirm('Supprimer cet employé définitivement ?')) return;
       await db.collection('users').doc(uid).delete();
-      showToast('Employé supprimé', 'info'); loadEmployes();
+      showToast('Employé retiré', 'info'); loadEmployes();
     };
 
     window.editEmploye = async (uid) => {
       const doc = await db.collection('users').doc(uid).get();
       const data = doc.data();
-      const activePhoto = data.photo || '';
-      
+      const photoHtml = data.photo ? `<div class="upload-preview"><img src="${data.photo}" style="width:70px;height:70px;object-fit:cover;border-radius:12px;" id="editEmpPhotoPreview" /></div>` : '';
       const html = `
-        <div class="form-group"><label>Photo de l'employé</label>
-          <div class="upload-preview" style="background:#fafaf9; padding:10px; border-radius:12px; border:1px dashed var(--border-color);">
-            <img id="empPhotoPreview" src="${activePhoto}" alt="Aperçu" style="display:${activePhoto ? 'block' : 'none'}; width:60px; height:60px; border-radius:12px; object-fit:cover;" />
+        ${photoHtml}
+        <div class="form-group"><label>Photo</label>
+          <div class="upload-preview">
             <label class="upload-btn">
-              <i class="fas fa-camera"></i> Choisir une photo
-              <input type="file" id="empPhotoInput" accept="image/*" />
+              <i class="fas fa-cloud-upload-alt"></i> Changer la photo
+              <input type="file" id="editEmpPhotoInput" accept="image/*" />
             </label>
-            <span id="empPhotoUrl" data-url="${activePhoto}" style="font-size:0.8rem; color:var(--success); font-weight:600;">${activePhoto ? '<i class="fas fa-check-circle"></i> Image active' : ''}</span>
           </div>
-          <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
+          <div class="upload-progress" id="editEmpPhotoProgress"><div class="upload-progress-bar" id="editEmpPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom</label><input type="text" id="editEmpNom" class="form-control" value="${data.nom || ''}" required /></div>
         <div class="form-group"><label>Rôle</label><input list="roleOptions" id="editEmpRole" class="form-control" value="${data.role || ''}" required />
-        <datalist id="roleOptions"><option value="Serveur"></option><option value="Cuisine"></option><option value="Comptable"></option><option value="Manager"></option></datalist></div>`;
-      
+        <datalist id="roleOptions"><option value="Serveur"></option><option value="Cuisine"></option><option value="Comptable"></option><option value="Manager"></option></datalist></div>
+      `;
       openModal('Modifier l\'employé', html, async () => {
+        let photoUrl = data.photo || '';
+        const fileInput = document.getElementById('editEmpPhotoInput');
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const progressDiv = document.getElementById('editEmpPhotoProgress');
+          const progressBar = document.getElementById('editEmpPhotoProgressBar');
+          progressDiv.style.display = 'block';
+          await new Promise((resolve) => {
+            uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+              progressDiv.style.display = 'none';
+              if (!err) { photoUrl = url; }
+              resolve();
+            });
+          });
+        }
         await db.collection('users').doc(uid).update({ 
           nom: document.getElementById('editEmpNom').value, 
           role: document.getElementById('editEmpRole').value,
-          photo: document.getElementById('empPhotoUrl').dataset.url || ''
+          photo: photoUrl
         });
         showToast('Profil employé mis à jour'); loadEmployes();
       });
-
-      const input = document.getElementById('empPhotoInput');
-      if (input) {
-        input.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('empPhotoProgress');
-          const progressBar = document.getElementById('empPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            document.getElementById('empPhotoPreview').src = url;
-            document.getElementById('empPhotoPreview').style.display = 'block';
-            document.getElementById('empPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Photo chargée';
-            document.getElementById('empPhotoUrl').dataset.url = url;
-          });
-        });
-      }
     };
 
     document.getElementById('openAddEmploye').addEventListener('click', () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase();
       const html = `
-        <div class="form-group"><label>Photo de l'employé</label>
-          <div class="upload-preview" style="background:#fafaf9; padding:10px; border-radius:12px; border:1px dashed var(--border-color);">
-            <img id="empPhotoPreview" src="" alt="Aperçu" style="display:none; width:60px; height:60px; border-radius:12px; object-fit:cover;" />
+        <div class="form-group"><label>Photo</label>
+          <div class="upload-preview">
             <label class="upload-btn">
-              <i class="fas fa-camera"></i> Télécharger une photo
+              <i class="fas fa-cloud-upload-alt"></i> Télécharger une photo
               <input type="file" id="empPhotoInput" accept="image/*" />
             </label>
-            <span id="empPhotoUrl" style="font-size:0.8rem; color:var(--success); font-weight:600;"></span>
+            <span id="empPhotoStatus" style="font-size:0.85rem;color:var(--text-muted);"></span>
           </div>
           <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom complet</label><input type="text" id="empNom" class="form-control" required /></div>
         <div class="form-group"><label>Email de connexion</label><input type="email" id="empEmail" class="form-control" required /></div>
         <div class="grid-2">
-          <div class="form-group"><label>Rôle</label><input list="roleOptionsAdd" id="empRole" class="form-control" required /><datalist id="roleOptionsAdd"><option value="Serveur"></option><option value="Cuisine"></option><option value="Manager"></option></datalist></div>
+          <div class="form-group"><label>Rôle</label><input list="roleOptionsAdd" id="empRole" class="form-control" required /><datalist id="roleOptionsAdd"><option value="Serveur"></option><option value="Cuisine"></option></datalist></div>
           <div class="form-group"><label>Code restaurant</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
         </div>
-        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>`;
-      
+        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
+      `;
       openModal('Ajouter un employé', html, async () => {
+        let photoUrl = '';
+        const fileInput = document.getElementById('empPhotoInput');
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const progressDiv = document.getElementById('empPhotoProgress');
+          const progressBar = document.getElementById('empPhotoProgressBar');
+          progressDiv.style.display = 'block';
+          await new Promise((resolve) => {
+            uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+              progressDiv.style.display = 'none';
+              if (!err) { photoUrl = url; }
+              resolve();
+            });
+          });
+        }
         try {
           const cred = await secondaryAuth.createUserWithEmailAndPassword(document.getElementById('empEmail').value, document.getElementById('empPassword').value);
           await db.collection('users').doc(cred.user.uid).set({
             nom: document.getElementById('empNom').value, email: document.getElementById('empEmail').value, role: document.getElementById('empRole').value,
             restaurantId: currentRestaurantId, codeRestaurant: document.getElementById('empCode').value, motDePasse: document.getElementById('empPassword').value,
-            photo: document.getElementById('empPhotoUrl').dataset.url || '',
+            photo: photoUrl,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await secondaryAuth.signOut(); showToast('✅ Employé enregistré !'); loadEmployes();
         } catch (err) { showToast('Erreur : ' + err.message, 'error'); }
       });
-
-      const input = document.getElementById('empPhotoInput');
-      if (input) {
-        input.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('empPhotoProgress');
-          const progressBar = document.getElementById('empPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            document.getElementById('empPhotoPreview').src = url;
-            document.getElementById('empPhotoPreview').style.display = 'block';
-            document.getElementById('empPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Photo chargée';
-            document.getElementById('empPhotoUrl').dataset.url = url;
-          });
-        });
-      }
     });
 
     // ============================================================
-    //  GESTION DU MENU (PLATS & PHOTOS REELLES)
+    //  GESTION DU MENU AVEC UPLOAD IMAGE
     // ============================================================
     const categoriesMenu = ["Plats locaux", "Plats occidentaux", "Nourriture", "Boissons", "Entrées", "Frites", "Compléments", "Desserts", "Amuse-gueules", "Friandises", "Autre"];
     function generateCategoryOptions(selected = "Nourriture") { return categoriesMenu.map(cat => `<option value="${cat}" ${cat === selected ? 'selected' : ''}>${cat}</option>`).join(''); }
@@ -1483,9 +1485,10 @@
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('menus').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('menuList');
+      const wrap = document.getElementById('menuTableWrap');
+      const empty = document.getElementById('menuEmpty');
       tbody.innerHTML = '';
       let count = 0;
-      
       snapshot.forEach(doc => {
         count++;
         const data = doc.data();
@@ -1496,7 +1499,8 @@
         const promo = data.promotion ? '<span class="badge badge-success">Promo</span>' : '<span class="badge badge-info">Standard</span>';
         
         const tr = document.createElement('tr');
-        if(!isDispo) tr.className = "item-disabled"; 
+        tr.className = 'row-enter';
+        if(!isDispo) tr.className += ' item-disabled'; 
         tr.innerHTML = `
           <td>${photo}</td><td style="font-weight:600;">${data.nom}</td><td>${prixBarre} ${prixActuel}</td><td>${promo}</td><td>${data.categorie || 'Non classé'}</td>
           <td><label class="switch"><input type="checkbox" ${isDispo ? 'checked' : ''} onchange="toggleDisponibilite('${doc.id}', this.checked)" /><span class="slider"></span></label></td>
@@ -1507,18 +1511,24 @@
         `;
         tbody.appendChild(tr);
       });
-
-      if (count === 0) {
-        tbody.innerHTML = `<tr><td colspan="7">${getEmptyStateHTML('menu', "Votre carte est vide !", "Commencez à ajouter vos délicieux repas et boissons pour donner faim à vos clients !", "Ajouter mon premier plat", "btnEmptyAddPlat")}</td></tr>`;
-        const btn = document.getElementById('btnEmptyAddPlat');
-        if (btn) btn.onclick = () => document.getElementById('openAddPlat').click();
-      }
       document.getElementById('statPlats').textContent = count;
+      
+      if (count === 0) {
+        wrap.style.display = 'none';
+        empty.style.display = 'flex';
+      } else {
+        wrap.style.display = 'block';
+        empty.style.display = 'none';
+      }
     }
+
+    document.getElementById('emptyMenuCta').addEventListener('click', () => {
+      document.getElementById('openAddPlat').click();
+    });
 
     window.toggleDisponibilite = async (id, checked) => {
       await db.collection('menus').doc(id).update({ disponible: checked });
-      showToast(checked ? 'Plat remis en vente' : 'Plat marqué indisponible', 'info');
+      showToast(checked ? 'Plat remis à la carte' : 'Plat retiré de la carte temporairement', 'info');
       loadMenu(); 
     };
     
@@ -1530,19 +1540,18 @@
     window.editPlat = async (id) => {
       const doc = await db.collection('menus').doc(id).get();
       const data = doc.data();
-      const platImage = data.image || "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop";
-      
+      const photoHtml = data.image ? `<div class="upload-preview"><img src="${data.image}" style="width:70px;height:70px;object-fit:cover;border-radius:12px;" id="editPlatPhotoPreview" /></div>` : '';
       const html = `
-        <div class="form-group"><label>Photo du plat</label>
-          <div class="upload-preview" style="background:#fafaf9; padding:10px; border-radius:12px; border:1px dashed var(--border-color);">
-            <img id="platPhotoPreview" src="${platImage}" alt="Aperçu" style="width:60px; height:60px; border-radius:12px; object-fit:cover;" />
+        ${photoHtml}
+        <div class="form-group"><label>Image du plat</label>
+          <div class="upload-preview">
             <label class="upload-btn">
-              <i class="fas fa-camera"></i> Choisir une photo
-              <input type="file" id="platPhotoInput" accept="image/*" />
+              <i class="fas fa-cloud-upload-alt"></i> Télécharger une image
+              <input type="file" id="editPlatPhotoInput" accept="image/*" />
             </label>
-            <span id="platPhotoUrl" data-url="${platImage}" style="font-size:0.8rem; color:var(--success); font-weight:600;"><i class="fas fa-check-circle"></i> Image active</span>
+            <span id="editPlatPhotoStatus" style="font-size:0.85rem;color:var(--text-muted);"></span>
           </div>
-          <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
+          <div class="upload-progress" id="editPlatPhotoProgress"><div class="upload-progress-bar" id="editPlatPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" required>${data.description || ''}</textarea></div>
@@ -1552,48 +1561,42 @@
         </div>
         <div class="form-group"><label>Catégorie</label><select id="platCategorie" class="form-control" required>${generateCategoryOptions(data.categorie)}</select></div>
       `;
-      
       openModal('Modifier le plat', html, async () => {
+        let imageUrl = data.image || '';
+        const fileInput = document.getElementById('editPlatPhotoInput');
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const progressDiv = document.getElementById('editPlatPhotoProgress');
+          const progressBar = document.getElementById('editPlatPhotoProgressBar');
+          progressDiv.style.display = 'block';
+          await new Promise((resolve) => {
+            uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+              progressDiv.style.display = 'none';
+              if (!err) { imageUrl = url; }
+              resolve();
+            });
+          });
+        }
         const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
           description: document.getElementById('platDescription').value, promotion: prixOriginal > prix,
-          image: document.getElementById('platPhotoUrl').dataset.url || platImage
+          image: imageUrl
         });
         showToast('Plat mis à jour avec succès'); loadMenu();
       });
-
-      const photoInput = document.getElementById('platPhotoInput');
-      if (photoInput) {
-        photoInput.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('platPhotoProgress');
-          const progressBar = document.getElementById('platPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            document.getElementById('platPhotoPreview').src = url;
-            document.getElementById('platPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
-            document.getElementById('platPhotoUrl').dataset.url = url;
-          });
-        });
-      }
     };
 
     document.getElementById('openAddPlat').addEventListener('click', () => {
-      const defaultImg = "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop";
       const html = `
-        <div class="form-group"><label>Photo du plat</label>
-          <div class="upload-preview" style="background:#fafaf9; padding:10px; border-radius:12px; border:1px dashed var(--border-color);">
-            <img id="platPhotoPreview" src="${defaultImg}" alt="Aperçu" style="width:60px; height:60px; border-radius:12px; object-fit:cover;" />
+        <div class="form-group"><label>Image du plat</label>
+          <div class="upload-preview">
             <label class="upload-btn">
-              <i class="fas fa-camera"></i> Télécharger l'image
+              <i class="fas fa-cloud-upload-alt"></i> Télécharger une image
               <input type="file" id="platPhotoInput" accept="image/*" />
             </label>
-            <span id="platPhotoUrl" data-url="${defaultImg}" style="font-size:0.8rem; color:var(--success); font-weight:600;"></span>
+            <span id="platPhotoStatus" style="font-size:0.85rem;color:var(--text-muted);"></span>
           </div>
           <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
         </div>
@@ -1605,39 +1608,38 @@
         </div>
         <div class="form-group"><label>Catégorie</label><select id="platCategorie" class="form-control" required>${generateCategoryOptions("Plats locaux")}</select></div>
       `;
-      
       openModal('Ajouter un plat', html, async () => {
+        let imageUrl = '';
+        const fileInput = document.getElementById('platPhotoInput');
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const progressDiv = document.getElementById('platPhotoProgress');
+          const progressBar = document.getElementById('platPhotoProgressBar');
+          progressDiv.style.display = 'block';
+          await new Promise((resolve) => {
+            uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+              progressDiv.style.display = 'none';
+              if (!err) { imageUrl = url; }
+              resolve();
+            });
+          });
+        } else {
+          // Fallback sur une image par défaut
+          imageUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
+        }
         const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
         await db.collection('menus').add({
           restaurantId: currentRestaurantId, nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
-          description: document.getElementById('platDescription').value, image: document.getElementById('platPhotoUrl').dataset.url || defaultImg, promotion: prixOriginal > prix, disponible: true,
+          description: document.getElementById('platDescription').value, image: imageUrl, promotion: prixOriginal > prix, disponible: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Plat ajouté à la carte.'); loadMenu();
       });
-
-      const photoInput = document.getElementById('platPhotoInput');
-      if (photoInput) {
-        photoInput.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('platPhotoProgress');
-          const progressBar = document.getElementById('platPhotoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            document.getElementById('platPhotoPreview').src = url;
-            document.getElementById('platPhotoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
-            document.getElementById('platPhotoUrl').dataset.url = url;
-          });
-        });
-      }
     });
 
     // ============================================================
-    //  GÉNÉRATION & PARTAGE DE QR CODE AVEC LOGO CENTRAL SÉCURISÉ
+    //  QR CODE MENU
     // ============================================================
     function updateQRUI() {
         const qrContainer = document.getElementById('menuLinkContainer');
@@ -1667,7 +1669,20 @@
                 const img = new Image();
                 img.onload = () => {
                     const size = canvas.width * 0.25; const x = (canvas.width - size) / 2; const y = (canvas.height - size) / 2;
-                    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.roundRect(x - 6, y - 6, size + 12, size + 12, 10); ctx.fill();
+                    ctx.fillStyle = '#ffffff'; ctx.beginPath(); 
+                    // roundRect polyfill pour les navigateurs
+                    const w = size + 12, h = size + 12, rx = 10;
+                    ctx.moveTo(x - 6 + rx, y - 6);
+                    ctx.lineTo(x - 6 + w - rx, y - 6);
+                    ctx.quadraticCurveTo(x - 6 + w, y - 6, x - 6 + w, y - 6 + rx);
+                    ctx.lineTo(x - 6 + w, y - 6 + h - rx);
+                    ctx.quadraticCurveTo(x - 6 + w, y - 6 + h, x - 6 + w - rx, y - 6 + h);
+                    ctx.lineTo(x - 6 + rx, y - 6 + h);
+                    ctx.quadraticCurveTo(x - 6, y - 6 + h, x - 6, y - 6 + h - rx);
+                    ctx.lineTo(x - 6, y - 6 + rx);
+                    ctx.quadraticCurveTo(x - 6, y - 6, x - 6 + rx, y - 6);
+                    ctx.closePath();
+                    ctx.fill();
                     ctx.drawImage(img, x, y, size, size);
                     qrCanvasWithLogo = canvas.toDataURL('image/png');
                 };
@@ -1681,402 +1696,30 @@
     document.getElementById('toggleQrBtn').addEventListener('click', function() {
         const content = document.getElementById('qrCollapsible');
         content.classList.toggle('expanded');
-        this.innerHTML = content.classList.contains('expanded') ? '<i class="fas fa-times"></i> Masquer les options de partage' : '<i class="fas fa-share-alt"></i> Afficher les options de partage';
+        this.innerHTML = content.classList.contains('expanded') ? '<i class="fas fa-times"></i> Masquer les options' : '<i class="fas fa-share-alt"></i> Afficher les options de partage';
     });
 
     document.getElementById('generateMenuLink').addEventListener('click', async () => {
       const url = `${window.location.origin}/menu_public.html?restaurant=${currentRestaurantId}`;
       await db.collection('restaurants').doc(currentRestaurantId).update({ menuUrl: url });
-      restaurantData.menuUrl = url; updateQRUI(); showToast("Félicitations ! Votre menu digital de luxe est publié.");
+      restaurantData.menuUrl = url; updateQRUI(); showToast("Félicitations ! Le lien de votre menu digital est créé.");
     });
 
     // ============================================================
-    //  REVENUS ET COURBE DES VENTES SUR DONNÉES RÉELLES (7 JOURS)
-    // ============================================================
-    async function initChart() {
-      if (!currentRestaurantId) return;
-      
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      sevenDaysAgo.setHours(0,0,0,0);
-      
-      const snapshot = await db.collection('commandes')
-        .where('restaurantId', '==', currentRestaurantId)
-        .where('createdAt', '>=', firebase.firestore.Timestamp.fromDate(sevenDaysAgo))
-        .get();
-        
-      const labels = [];
-      const salesData = [];
-      const daysMap = {};
-      
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const label = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
-        labels.push(label);
-        daysMap[d.toDateString()] = 0;
-      }
-      
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.statut !== 'Annulée') { 
-          const orderDate = data.createdAt ? data.createdAt.toDate() : null;
-          if (orderDate) {
-            const dateStr = orderDate.toDateString();
-            if (daysMap[dateStr] !== undefined) {
-              daysMap[dateStr] += parseFloat(data.total || data.montant || 0);
-            }
-          }
-        }
-      });
-      
-      labels.forEach((lbl, idx) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (6 - idx));
-        salesData.push(daysMap[d.toDateString()]);
-      });
-      
-      const ctx = document.getElementById('salesChart').getContext('2d');
-      if (salesChart) salesChart.destroy();
-      
-      const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-      gradient.addColorStop(0, 'rgba(230, 126, 34, 0.45)');
-      gradient.addColorStop(1, 'rgba(230, 126, 34, 0.01)');
-      
-      salesChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Ventes réelles (FCFA)',
-            data: salesData,
-            borderColor: '#e67e22',
-            borderWidth: 3,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#e67e22',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            fill: true,
-            backgroundColor: gradient,
-            tension: 0.35
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              grid: { color: 'rgba(226, 232, 240, 0.5)' },
-              ticks: {
-                color: '#64748b',
-                font: { family: 'Inter', size: 10 },
-                callback: (val) => val.toLocaleString('fr-FR') + ' F'
-              }
-            },
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } } }
-          }
-        }
-      });
-    }
-
-    // ============================================================
-    //  GESTION DES COMMANDES (FILTRE & RAPPORTS EXPORT EXCEL/PDF)
-    // ============================================================
-    function getStatusBadgeClass(status) {
-      switch (status) {
-        case 'Validée': case 'Payée': case 'Prête': return 'badge-success';
-        case 'En attente': case 'Nouveau': return 'badge-warning';
-        case 'Annulée': case 'Remboursée': return 'badge-danger';
-        case 'En préparation': return 'badge-info';
-        default: return 'badge-info';
-      }
-    }
-
-    function filterAndDisplayCommandes() {
-      const filter = document.getElementById('filterDateCommandes').value;
-      const tbody = document.getElementById('allOrders');
-      tbody.innerHTML = '';
-      
-      let filtered = [...toutesLesCommandes];
-      const now = new Date();
-      
-      if (filter === 'today') {
-        const today = new Date(); today.setHours(0,0,0,0);
-        filtered = toutesLesCommandes.filter(o => o.orderDate && o.orderDate >= today);
-      } else if (filter === 'yesterday') {
-        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0,0,0,0);
-        const today = new Date(); today.setHours(0,0,0,0);
-        filtered = toutesLesCommandes.filter(o => o.orderDate && o.orderDate >= yesterday && o.orderDate < today);
-      } else if (filter === 'week') {
-        const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7); weekAgo.setHours(0,0,0,0);
-        filtered = toutesLesCommandes.filter(o => o.orderDate && o.orderDate >= weekAgo);
-      } else if (filter === 'month') {
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        filtered = toutesLesCommandes.filter(o => o.orderDate && o.orderDate >= monthStart);
-      }
-      
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4">${getEmptyStateHTML('commandes', "Aucune commande trouvée", "Il n'y a aucune commande enregistrée pour la période sélectionnée.", null, null)}</td></tr>`;
-        return;
-      }
-      
-      filtered.forEach(order => {
-        const ref = order.reference || order.id.substring(0, 8).toUpperCase();
-        const total = (order.total || order.montant || 0).toLocaleString('fr-FR') + ' F';
-        const statusClass = getStatusBadgeClass(order.statut);
-        const dateStr = order.orderDate ? order.orderDate.toLocaleString('fr-FR', {dateStyle: 'short', timeStyle: 'short'}) : 'N/A';
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="font-weight:700; color:var(--primary);">#${ref}</td>
-          <td><strong>${total}</strong></td>
-          <td><span class="badge ${statusClass}">${order.statut || 'En attente'}</span></td>
-          <td>${dateStr}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById('filterDateCommandes').addEventListener('change', filterAndDisplayCommandes);
-
-    // EXPORT PDF CALCULÉ TYPE FEUILLE DE CALCUL (SANS CASSER LES FONCTIONNALITÉS)
-    document.getElementById('btnExportPDF').addEventListener('click', () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const calcTotals = document.getElementById('calcTotalsToggle').checked;
-      const rows = [];
-      let grandTotal = 0;
-      let orderCount = 0;
-      
-      const trs = document.querySelectorAll('#allOrders tr');
-      trs.forEach(tr => {
-        const tds = tr.querySelectorAll('td');
-        if (tds.length >= 4) {
-          const ref = tds[0].innerText;
-          const montantRaw = tds[1].innerText.replace(/[^0-9.-]+/g, "");
-          const montant = parseFloat(montantRaw) || 0;
-          const status = tds[2].innerText;
-          const date = tds[3].innerText;
-          
-          rows.push([ref, montant.toLocaleString('fr-FR') + ' FCFA', status, date]);
-          
-          if (status !== 'Annulée') {
-            grandTotal += montant;
-            orderCount++;
-          }
-        }
-      });
-      
-      if (calcTotals && rows.length > 0) {
-        rows.push(['------------------------------------', '----------------------', '-------------', '---------------------']);
-        rows.push([
-          'Nombre total de ventes : ' + orderCount,
-          'REVENU TOTAL : ' + grandTotal.toLocaleString('fr-FR') + ' FCFA',
-          'Export calculé',
-          'Généré automatiquement'
-        ]);
-      }
-      
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text('Rapport des Ventes - ' + (restaurantData?.nom || 'SCAN&TCHOP'), 14, 20);
-      
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text('Généré le : ' + new Date().toLocaleDateString('fr-FR') + ' à ' + new Date().toLocaleTimeString('fr-FR'), 14, 28);
-      
-      doc.autoTable({
-        startY: 35,
-        head: [['Référence', 'Montant', 'Statut', 'Date & Heure']],
-        body: rows,
-        theme: 'striped',
-        headStyles: { fillColor: [230, 126, 34] },
-        didParseCell: function (data) {
-          if (calcTotals && data.row.index === rows.length - 1) {
-            data.cell.styles.fontStyle = 'bold';
-            data.cell.styles.fillColor = [254, 243, 232];
-            data.cell.styles.textColor = [11, 26, 46];
-          }
-        }
-      });
-      
-      doc.save('rapport_ventes_' + (restaurantData?.nom || 'restaurant') + '.pdf');
-      showToast('Exportation réussie !');
-    });
-
-    // ============================================================
-    //  DEMANDES DE RETRAITS & COMPTABILITÉ
-    // ============================================================
-    async function loadRetraits() {
-      if (!currentRestaurantId) return;
-      const tbody = document.getElementById('retraitsList');
-      tbody.innerHTML = '';
-      
-      const snapshot = await db.collection('retraits')
-        .where('restaurantId', '==', currentRestaurantId)
-        .orderBy('createdAt', 'desc')
-        .get();
-        
-      let count = 0;
-      snapshot.forEach(doc => {
-        count++;
-        const data = doc.data();
-        const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString('fr-FR') : 'N/A';
-        const amount = (data.montant || 0).toLocaleString('fr-FR') + ' F';
-        const statusClass = data.statut === 'Payé' ? 'badge-success' : (data.statut === 'Réfusé' ? 'badge-danger' : 'badge-warning');
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${amount}</strong></td>
-          <td><span class="badge ${statusClass}">${data.statut || 'En cours'}</span></td>
-          <td>${dateStr}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      if (count === 0) {
-        tbody.innerHTML = `<tr><td colspan="3">${getEmptyStateHTML('generic', "Aucun virement demandé", "Les détails de vos virements apparaîtront ici dès que vous ferez une demande de retrait.", null, null)}</td></tr>`;
-      }
-    }
-
-    document.getElementById('openDemandeRetrait').addEventListener('click', () => {
-      const currentSolde = restaurantData?.solde || 0;
-      const html = `
-        <div style="text-align: center; margin-bottom: 20px;">
-          <p style="color: var(--text-muted); font-size: 0.95rem;">Votre solde retirable actuel :</p>
-          <h2 style="color: var(--primary); font-size: 2.2rem; font-weight: 800; margin-top: 5px;">${currentSolde.toLocaleString('fr-FR')} FCFA</h2>
-        </div>
-        <div class="form-group">
-          <label>Montant du retrait (FCFA)</label>
-          <input type="number" id="retraitMontant" class="form-control" min="1000" max="${currentSolde}" placeholder="Montant minimum 1 000" required />
-        </div>
-        <div class="form-group">
-          <label>Méthode préférée</label>
-          <select id="retraitMethode" class="form-control" required>
-            <option value="Mobile Money">MTN Mobile Money</option>
-            <option value="Orange Money">Orange Money</option>
-            <option value="Virement Bancaire">Virement Bancaire</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Coordonnées de transaction (Téléphone ou IBAN)</label>
-          <input type="text" id="retraitCoordonnees" class="form-control" placeholder="+237 ..." required />
-        </div>
-      `;
-      
-      openModal('Initier un retrait de solde', html, async () => {
-        const amount = parseFloat(document.getElementById('retraitMontant').value) || 0;
-        if (amount > currentSolde) { showToast('Fonds insuffisants.', 'error'); return; }
-        if (amount < 1000) { showToast('Le montant minimum est de 1 000 FCFA.', 'warning'); return; }
-        
-        try {
-          await db.collection('retraits').add({
-            restaurantId: currentRestaurantId, montant: amount,
-            methode: document.getElementById('retraitMethode').value,
-            coordonnees: document.getElementById('retraitCoordonnees').value,
-            statut: 'En attente', createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          const newSolde = currentSolde - amount;
-          await db.collection('restaurants').doc(currentRestaurantId).update({ solde: newSolde });
-          restaurantData.solde = newSolde;
-          document.getElementById('soldeDisplay').textContent = newSolde.toLocaleString('fr-FR') + ' FCFA';
-          
-          showToast('Votre demande a été soumise au service comptabilité !');
-          loadRetraits();
-        } catch(err) {
-          showToast('Erreur : ' + err.message, 'error');
-        }
-      });
-    });
-
-    // ============================================================
-    //  SYNCHRONISATION ET CHARGEMENT DU DASHBOARD GLOBAL
-    // ============================================================
-    function loadDashboard() {
-      if (!currentRestaurantId) return;
-      
-      const startOfToday = new Date();
-      startOfToday.setHours(0,0,0,0);
-      
-      // Écoute directe des commandes (Temps réel sécurisé)
-      db.collection('commandes')
-        .where('restaurantId', '==', currentRestaurantId)
-        .onSnapshot(snapshot => {
-          toutesLesCommandes = [];
-          let todayCount = 0;
-          let todayCA = 0;
-          
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const orderDate = data.createdAt ? data.createdAt.toDate() : null;
-            toutesLesCommandes.push({ id: doc.id, ...data, orderDate });
-          });
-          
-          toutesLesCommandes.sort((a,b) => (b.orderDate || 0) - (a.orderDate || 0));
-          
-          toutesLesCommandes.forEach(order => {
-            if (order.orderDate && order.orderDate >= startOfToday) {
-              todayCount++;
-              if (order.statut !== 'Annulée') {
-                todayCA += parseFloat(order.total || order.montant || 0);
-              }
-            }
-          });
-          
-          document.getElementById('statCommandes').textContent = todayCount;
-          document.getElementById('statCA').textContent = todayCA.toLocaleString('fr-FR') + ' F';
-          
-          const lastOrdersTbody = document.getElementById('lastOrders');
-          lastOrdersTbody.innerHTML = '';
-          const recent = toutesLesCommandes.slice(0, 5);
-          
-          if (recent.length === 0) {
-            lastOrdersTbody.innerHTML = `<tr><td colspan="4">${getEmptyStateHTML('commandes', "Aucune commande aujourd'hui", "Les commandes passées par vos clients s'afficheront ici en direct.", null, null)}</td></tr>`;
-          } else {
-            recent.forEach(order => {
-              const ref = order.reference || order.id.substring(0, 8).toUpperCase();
-              const total = (order.total || order.montant || 0).toLocaleString('fr-FR') + ' F';
-              const statusClass = getStatusBadgeClass(order.statut);
-              const dateStr = order.orderDate ? order.orderDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : 'N/A';
-              
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td style="font-weight:700; color:var(--primary);">#${ref}</td>
-                <td><strong>${total}</strong></td>
-                <td><span class="badge ${statusClass}">${order.statut || 'En attente'}</span></td>
-                <td>${dateStr}</td>
-              `;
-              lastOrdersTbody.appendChild(tr);
-            });
-          }
-          
-          filterAndDisplayCommandes();
-          initChart();
-        });
-        
-      loadEmployes();
-      loadMenu();
-      loadRetraits();
-    }
-
-    // ============================================================
-    //  AFFICHE COMMERCIALE QR CODE (CONSERVATION DES REQUÊTES)
+    //  GÉNÉRATION DU PDF HAUT DE GAMME
     // ============================================================
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) {
-        showToast('Préparation du QR code, réessayez dans un instant...', 'warning');
+        showToast('QR code en cours de génération, veuillez patienter...', 'warning');
         return;
       }
 
-      const restaurantName = restaurantData?.nom || 'SCAN&TCHOP';
+      const restaurantName = restaurantData?.nom || 'DELICO';
       const restoLogo = restaurantData?.logo || null;
       
       const btn = document.getElementById('downloadQR');
       const origText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
       btn.disabled = true;
 
       try {
@@ -2085,11 +1728,9 @@
           const pageWidth = 148;
           const pageHeight = 210;
 
-          // Fond sombre et premium
           doc.setFillColor(10, 10, 12);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-          // Dessins de plats de fond circulaires fondus (Alpha Clipping)
           const foodItems = [
             { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -20, y: -15, w: 75, h: 75 }, 
             { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -25, y: 35, w: 68, h: 68 }, 
@@ -2099,7 +1740,9 @@
 
           for (const item of foodItems) {
             const base64 = await getMaskedImageBase64(item.url); 
-            if (base64) doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
+            if (base64) {
+              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
+            }
           }
 
           let startY = 12;
@@ -2124,7 +1767,7 @@
           let sloganY = nameY + 6;
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(8);
-          doc.setTextColor(255, 190, 0); 
+          doc.setTextColor(255, 190, 0);
           doc.text('SAVEURS • QUALITÉ • PASSION', pageWidth / 2, sloganY, { align: 'center' });
           
           let lineY = sloganY + 4;
@@ -2162,30 +1805,456 @@
           doc.roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4, 4, 'S');
           doc.setFillColor(255, 255, 255);
           doc.roundedRect(qrX, qrY, qrSize, qrSize, 2, 2, 'F');
-          
           doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
 
-          let brandY = qrY + qrSize + 8;
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10);
-          doc.setTextColor(255, 190, 0);
-          doc.text('SCAN & TCHOP', pageWidth / 2, brandY, { align: 'center' });
+          const dotR = 0.4;
+          doc.setFillColor(100, 100, 100);
+          for(let i = 0; i < 11; i++) { 
+              for(let j = 0; j < 3; j++) { 
+                  doc.circle(12 + j*4, qrY + 8 + i*4, dotR, 'F');
+                  doc.circle(pageWidth - 20 + j*4, qrY + 8 + i*4, dotR, 'F');
+              }
+          }
+          doc.setFillColor(255, 190, 0); 
+          [ [16, 16], [12, 28], [20, 40], [pageWidth-16, 20], [pageWidth-20, 32], [pageWidth-12, 44] ].forEach(pos => {
+              doc.circle(pos[0], qrY + pos[1], dotR + 0.2, 'F');
+          });
 
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(180, 180, 180);
-          doc.text('Commandes instantanées au comptoir ou en table', pageWidth / 2, brandY + 4, { align: 'center' });
+          let advY = qrY + qrSize + 12; 
+          
+          const drawIconText = (x, title, subtitle, drawFunc) => {
+              drawFunc(x, advY + 2);
+              doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+              doc.text(title, x + 7, advY + 1);
+              doc.setTextColor(200, 200, 200); doc.setFontSize(5); doc.setFont('helvetica', 'normal');
+              doc.text(subtitle, x + 7, advY + 4);
+          };
 
-          doc.save(`Affiche_Menu_QR_${restaurantName}.pdf`);
-          showToast('Votre affiche menu QR-Code premium a été générée !');
-      } catch (err) {
-          showToast('Erreur lors de l\'export PDF : ' + err.message, 'error');
-          console.error(err);
+          drawIconText(10, 'RAPIDE', 'COMMANDEZ EN\nQUELQUES SECONDES', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.circle(x, y, 4, 'S'); doc.line(x, y-4, x, y-5); doc.line(x+3, y-2, x+4, y-3); doc.line(x, y, x+1.5, y-1.5);
+          });
+          drawIconText(60, 'FACILE', 'PARCOUREZ\nNOTRE MENU', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.line(x-4.5, y+3.5, x+4.5, y+3.5); doc.ellipse(x, y+2, 3.5, 3);
+              doc.setFillColor(10, 10, 12); doc.rect(x-5, y+2.5, 10, 4, 'F');
+              doc.setDrawColor(255, 190, 0); doc.line(x-4, y+3, x+4, y+3); doc.circle(x, y-1, 0.8, 'S'); 
+          });
+          drawIconText(110, 'SÉCURISÉ', 'PAIEMENT EN\nTOUTE SÉCURITÉ', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.line(x-3.5, y-1.5, x+3.5, y-1.5); doc.line(x-3.5, y-1.5, x, y+4.5); doc.line(x+3.5, y-1.5, x, y+4.5);
+              doc.line(x-1.5, y+0.5, x-0.2, y+2); doc.line(x-0.2, y+2, x+2, y-1);
+          });
+
+          let bannerY = 196; 
+          doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.3);
+          doc.line(0, bannerY + 4.5, pageWidth, bannerY + 4.5);
+
+          const pillW = 60; const pillX = (pageWidth - pillW) / 2;
+          doc.setFillColor(255, 190, 0); doc.roundedRect(pillX, bannerY, pillW, 9, 4.5, 4.5, 'F');
+
+          doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+          doc.text('MERCI !', pageWidth / 2, bannerY + 5, { align: 'center' });
+          
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(5);
+          doc.text('— BON APPÉTIT —', pageWidth / 2, bannerY + 7.5, { align: 'center' });
+
+          doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
+          showToast("Affiche de table générée avec succès !");
+
+      } catch (error) {
+          console.error(error);
+          showToast("Erreur lors de la génération du PDF", "error");
       } finally {
           btn.innerHTML = origText;
           btn.disabled = false;
       }
     });
+
+    // ============================================================
+    //  EXPORT PDF DES COMMANDES AVEC OPTION AUTO-CALC
+    // ============================================================
+    async function loadCommandes() {
+      if (!currentRestaurantId) return;
+      const snapshot = await db.collection('commandes').where('restaurantId', '==', currentRestaurantId).orderBy('createdAt', 'desc').limit(200).get();
+      toutesLesCommandes = [];
+      let totalJour = 0, countJour = 0;
+      const today = new Date(); today.setHours(0,0,0,0);
+
+      snapshot.forEach(doc => {
+        const data = doc.data(); data.id = doc.id; data.dateObj = data.createdAt?.toDate?.() || new Date();
+        toutesLesCommandes.push(data);
+        if (data.dateObj >= today) { totalJour += data.total || 0; countJour++; }
+      });
+      document.getElementById('statCommandes').textContent = countJour;
+      document.getElementById('statCA').textContent = totalJour.toLocaleString('fr-FR') + ' F';
+      afficherCommandes();
+      
+      // Mettre à jour le graphique avec les vraies données
+      updateChartWithRealData();
+    }
+
+    function afficherCommandes() {
+      const filtre = document.getElementById('filterDateCommandes').value;
+      const tbody = document.getElementById('allOrders');
+      const lastOrdersBbody = document.getElementById('lastOrders');
+      const wrap = document.getElementById('commandesTableWrap');
+      const empty = document.getElementById('commandesEmpty');
+      const lastWrap = document.getElementById('lastOrdersTableWrap');
+      const lastEmpty = document.getElementById('lastOrdersEmpty');
+      
+      tbody.innerHTML = ''; lastOrdersBbody.innerHTML = '';
+      
+      const now = new Date();
+      const debutAujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const debutHier = new Date(debutAujourdhui); debutHier.setDate(debutHier.getDate() - 1);
+      const debutSemaine = new Date(debutAujourdhui); debutSemaine.setDate(debutSemaine.getDate() - 7);
+      const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      let filtered = [];
+      toutesLesCommandes.forEach(data => {
+        let inclure = false;
+        if (filtre === 'all') inclure = true;
+        else if (filtre === 'today' && data.dateObj >= debutAujourdhui) inclure = true;
+        else if (filtre === 'yesterday' && data.dateObj >= debutHier && data.dateObj < debutAujourdhui) inclure = true;
+        else if (filtre === 'week' && data.dateObj >= debutSemaine) inclure = true;
+        else if (filtre === 'month' && data.dateObj >= debutMois) inclure = true;
+
+        if (inclure) filtered.push(data);
+      });
+
+      if (filtered.length === 0) {
+        wrap.style.display = 'none';
+        empty.style.display = 'flex';
+      } else {
+        wrap.style.display = 'block';
+        empty.style.display = 'none';
+        filtered.forEach((data, index) => {
+          const badge = data.status === 'terminé' ? 'badge-success' : (data.status === 'en cours' ? 'badge-warning' : 'badge-danger');
+          const rowHtml = `
+            <td><code>#${data.id.slice(0,8).toUpperCase()}</code></td><td style="font-weight:700;">${(data.total||0).toLocaleString('fr-FR')} F</td>
+            <td><span class="badge ${badge}">${data.status || 'en attente'}</span></td><td>${data.dateObj.toLocaleString('fr-FR')}</td>
+          `;
+          const tr1 = document.createElement('tr');
+          tr1.className = 'row-enter';
+          tr1.style.animationDelay = (index * 0.03) + 's';
+          tr1.innerHTML = rowHtml;
+          tbody.appendChild(tr1);
+        });
+      }
+
+      // Dernières commandes (5)
+      const last5 = toutesLesCommandes.slice(0, 5);
+      if (last5.length === 0) {
+        lastWrap.style.display = 'none';
+        lastEmpty.style.display = 'flex';
+      } else {
+        lastWrap.style.display = 'block';
+        lastEmpty.style.display = 'none';
+        last5.forEach((data, index) => {
+          const badge = data.status === 'terminé' ? 'badge-success' : (data.status === 'en cours' ? 'badge-warning' : 'badge-danger');
+          const rowHtml = `
+            <td><code>#${data.id.slice(0,8).toUpperCase()}</code></td><td style="font-weight:700;">${(data.total||0).toLocaleString('fr-FR')} F</td>
+            <td><span class="badge ${badge}">${data.status || 'en attente'}</span></td><td>${data.dateObj.toLocaleString('fr-FR')}</td>
+          `;
+          const tr = document.createElement('tr');
+          tr.className = 'row-enter';
+          tr.style.animationDelay = (index * 0.05) + 's';
+          tr.innerHTML = rowHtml;
+          lastOrdersBbody.appendChild(tr);
+        });
+      }
+    }
+
+    document.getElementById('filterDateCommandes').addEventListener('change', afficherCommandes);
+
+    document.getElementById('btnExportPDF').addEventListener('click', async () => {
+      const selectText = document.getElementById('filterDateCommandes').options[document.getElementById('filterDateCommandes').selectedIndex].text;
+      const autoCalc = document.getElementById('exportAutoCalc').checked;
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
+      if(appLogoBase64) {
+          doc.addImage(appLogoBase64, 'PNG', 14, 10, 20, 20);
+      }
+      doc.setFontSize(18);
+      doc.text('Rapport des Commandes', 40, 20);
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text('Période: ' + selectText, 40, 28);
+      
+      // Filtrage selon la période sélectionnée
+      const now = new Date();
+      const debutAujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const debutHier = new Date(debutAujourdhui); debutHier.setDate(debutHier.getDate() - 1);
+      const debutSemaine = new Date(debutAujourdhui); debutSemaine.setDate(debutSemaine.getDate() - 7);
+      const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
+      const filtre = document.getElementById('filterDateCommandes').value;
+      
+      let filteredData = toutesLesCommandes.filter(data => {
+        if (filtre === 'all') return true;
+        if (filtre === 'today') return data.dateObj >= debutAujourdhui;
+        if (filtre === 'yesterday') return data.dateObj >= debutHier && data.dateObj < debutAujourdhui;
+        if (filtre === 'week') return data.dateObj >= debutSemaine;
+        if (filtre === 'month') return data.dateObj >= debutMois;
+        return true;
+      });
+
+      const bodyData = filteredData.map(c => [
+        '#' + c.id.slice(0,8).toUpperCase(),
+        (c.total||0).toLocaleString('fr-FR') + ' F',
+        c.status || 'en attente',
+        c.dateObj.toLocaleString('fr-FR')
+      ]);
+
+      doc.autoTable({
+          startY: 35,
+          head: [['Référence', 'Montant', 'Statut', 'Date']],
+          body: bodyData,
+          theme: 'striped',
+          headStyles: { fillColor: [230, 126, 34] }
+      });
+
+      // Si auto-calc activé, ajouter un résumé
+      if (autoCalc && filteredData.length > 0) {
+        const totalCA = filteredData.reduce((sum, c) => sum + (c.total || 0), 0);
+        const count = filteredData.length;
+        const avg = totalCA / count;
+        const startY = doc.lastAutoTable.finalY + 10;
+        
+        doc.setFillColor(248, 245, 240);
+        doc.roundedRect(14, startY, 182, 40, 4, 4, 'F');
+        doc.setDrawColor(230, 126, 34);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(14, startY, 182, 40, 4, 4, 'S');
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RÉSUMÉ', 20, startY + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        doc.text(`Total des commandes : ${count}`, 20, startY + 18);
+        doc.text(`Chiffre d'affaires total : ${totalCA.toLocaleString('fr-FR')} FCFA`, 20, startY + 26);
+        doc.text(`Panier moyen : ${Math.round(avg).toLocaleString('fr-FR')} FCFA`, 20, startY + 34);
+      }
+
+      doc.save('Rapport_Commandes.pdf');
+      showToast('Export PDF réussi !');
+    });
+
+    // ============================================================
+    //  DEMANDE DE RETRAIT
+    // ============================================================
+    document.getElementById('openDemandeRetrait').addEventListener('click', () => {
+        const html = `
+          <div class="form-group"><label>Montant à retirer (FCFA)</label><input type="number" id="retraitMontant" class="form-control" required /></div>
+          <div class="form-group"><label>Moyen de paiement</label>
+            <select id="retraitMoyen" class="form-control" required><option value="Orange Money">Orange Money</option><option value="MTN Mobile Money">MTN Mobile Money</option><option value="Virement Bancaire">Virement Bancaire</option></select>
+          </div>
+          <div class="form-group"><label>Numéro de compte / téléphone</label><input type="text" id="retraitCompte" class="form-control" required /></div>
+        `;
+        openModal('Demander un retrait', html, async () => {
+            const m = parseFloat(document.getElementById('retraitMontant').value);
+            if(!m || m <= 0) { showToast('Montant invalide', 'error'); return; }
+            if(restaurantData && m > restaurantData.solde) { showToast('Solde insuffisant', 'error'); return; }
+            // Ajouter la demande dans Firestore
+            await db.collection('retraits').add({
+              restaurantId: currentRestaurantId,
+              montant: m,
+              moyen: document.getElementById('retraitMoyen').value,
+              compte: document.getElementById('retraitCompte').value,
+              statut: 'en attente',
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast('Demande de retrait envoyée avec succès !');
+            loadRetraits();
+        });
+    });
+
+    async function loadRetraits() {
+      if (!currentRestaurantId) return;
+      const snapshot = await db.collection('retraits').where('restaurantId', '==', currentRestaurantId).orderBy('createdAt', 'desc').get();
+      const tbody = document.getElementById('retraitsList');
+      const wrap = document.getElementById('retraitsTableWrap');
+      const empty = document.getElementById('retraitsEmpty');
+      tbody.innerHTML = '';
+      let count = 0;
+      snapshot.forEach(doc => {
+        count++;
+        const data = doc.data();
+        const date = data.createdAt?.toDate?.() || new Date();
+        const badge = data.statut === 'validé' ? 'badge-success' : (data.statut === 'rejeté' ? 'badge-danger' : 'badge-warning');
+        const tr = document.createElement('tr');
+        tr.className = 'row-enter';
+        tr.innerHTML = `
+          <td style="font-weight:700;">${(data.montant||0).toLocaleString('fr-FR')} F</td>
+          <td><span class="badge ${badge}">${data.statut || 'en attente'}</span></td>
+          <td>${date.toLocaleString('fr-FR')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (count === 0) {
+        wrap.style.display = 'none';
+        empty.style.display = 'flex';
+      } else {
+        wrap.style.display = 'block';
+        empty.style.display = 'none';
+      }
+    }
+
+    // ============================================================
+    //  CHART AVEC DONNÉES RÉELLES
+    // ============================================================
+    function initChart() {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      salesChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+              datasets: [{ 
+                label: 'Ventes (FCFA)', 
+                data: [0, 0, 0, 0, 0, 0, 0], 
+                borderColor: '#e67e22', 
+                backgroundColor: 'rgba(230, 126, 34, 0.1)', 
+                borderWidth: 3, 
+                fill: true, 
+                tension: 0.4 
+              }]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString('fr-FR') + ' F'; } } }
+            }
+          }
+      });
+      updateChartWithRealData();
+    }
+
+    function updateChartWithRealData() {
+      if (!salesChart || toutesLesCommandes.length === 0) {
+        // Afficher l'état vide
+        document.getElementById('salesChartEmpty').style.display = 'flex';
+        return;
+      }
+      document.getElementById('salesChartEmpty').style.display = 'none';
+
+      // Calculer les ventes des 7 derniers jours
+      const now = new Date();
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        d.setHours(0,0,0,0);
+        days.push(d);
+      }
+
+      const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+      const labels = days.map(d => dayNames[d.getDay()]);
+      
+      const totals = days.map(day => {
+        const nextDay = new Date(day);
+        nextDay.setDate(nextDay.getDate() + 1);
+        let sum = 0;
+        toutesLesCommandes.forEach(cmd => {
+          if (cmd.dateObj >= day && cmd.dateObj < nextDay) {
+            sum += cmd.total || 0;
+          }
+        });
+        return sum;
+      });
+
+      salesChart.data.labels = labels;
+      salesChart.data.datasets[0].data = totals;
+      salesChart.update();
+    }
+
+    // ============================================================
+    //  NAVIGATION & MODALES
+    // ============================================================
+    document.querySelectorAll('nav a[data-section]').forEach(link => {
+      link.addEventListener('click', () => { 
+        window.navigateToSection(link.dataset.section); 
+        fermerSidebar(); 
+        // Re-render le contenu du restaurant si on y va
+        if (link.dataset.section === 'restaurant') renderRestaurantContent();
+        if (link.dataset.section === 'menu') loadMenu();
+        if (link.dataset.section === 'employes') loadEmployes();
+        if (link.dataset.section === 'commandes') loadCommandes();
+        if (link.dataset.section === 'retraits') loadRetraits();
+      });
+    });
+    
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('open');
+    });
+
+    document.getElementById('sidebarOverlay').addEventListener('click', fermerSidebar);
+
+    function fermerSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+    
+    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+    function openModal(title, html, onSubmit) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('modalSubmit').style.display = 'inline-flex';
+      document.getElementById('modalCancel').textContent = 'Annuler';
+      document.getElementById('modalCancel').className = 'btn btn-outline';
+      document.getElementById('modalOverlay').classList.add('open');
+      
+      const form = document.getElementById('modalForm');
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('modalSubmit');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...'; btn.disabled = true;
+        await onSubmit(e);
+        btn.innerHTML = orig; btn.disabled = false;
+        closeModal();
+      };
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('modalForm').onsubmit = null;
+    }
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+
+    window.copyText = (text) => {
+      navigator.clipboard.writeText(text).then(() => showToast('Copié dans le presse-papier !')).catch(err => showToast('Erreur', 'error'));
+    };
+    
+    window.copyMenuLink = () => {
+        if(restaurantData && restaurantData.menuUrl) copyText(restaurantData.menuUrl);
+    };
+
+    // ============================================================
+    //  CHARGEMENT DES DONNÉES
+    // ============================================================
+    function loadDashboard() {
+        loadEmployes();
+        loadMenu();
+        loadCommandes();
+        loadRetraits();
+    }
+
+    // ============================================================
+    //  RÉINITIALISATION DES EMPTY STATES SUR LES BOUTONS
+    // ============================================================
+    // Les boutons des empty states sont déjà gérés via les event listeners ci-dessus
+
+    console.log('🚀 SCAN&TCHOP Dashboard Propriétaire chargé avec succès !');
   </script>
 </body>
 </html>
