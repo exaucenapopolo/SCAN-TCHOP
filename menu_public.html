@@ -4,104 +4,134 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menu Public - SCAN&TCHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         /* ====== RESET & CONSTANTES ====== */
+        :root {
+            --primary: #e67e22;
+            --primary-hover: #cf6f1b;
+            --primary-light: #fef3e8;
+            --bg-color: #fdf8f4;
+            --text-main: #0b1a2e;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            color: #0b1a2e;
-            padding: 24px 16px 40px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px 16px 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
         .container { max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
         
-        /* ====== EN-TÊTE DU RESTAURANT (DESIGN PROFESSIONNEL CENTRÉ) ====== */
+        /* ====== EN-TÊTE DU RESTAURANT ====== */
         .restaurant-header {
-            background: #fff; border-radius: 28px; padding: 32px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 28px;
+            background: #fff; border-radius: 28px; padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(230,126,34,0.05); margin-bottom: 28px;
             display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;
+            position: relative; overflow: hidden; border: 1px solid rgba(230,126,34,0.1);
         }
-        .restaurant-header img.logo { width: 100px; height: 100px; object-fit: cover; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .restaurant-header .info-middle h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; color: #0b1a2e; }
-        .restaurant-header .info-middle .description { color: #475569; font-size: 1rem; max-width: 600px; margin: 0 auto 12px; line-height: 1.5; }
+        .restaurant-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, var(--primary), #f1c40f);
+        }
+        .restaurant-header img.logo { 
+            width: 110px; height: 110px; object-fit: contain; /* object-fit: contain pour fond transparent */
+            border-radius: 24px; background: transparent; margin-bottom: 5px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 5px; border: 1px solid var(--border-color);
+        }
+        .restaurant-header h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
+        .restaurant-header .description { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 12px; line-height: 1.6; }
         
-        /* Note globale et étoiles */
-        .global-rating { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+        /* Note globale et avis */
+        .global-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 8px 16px; background: #f8fafc; border-radius: 50px; transition: var(--transition); border: 1px solid var(--border-color); }
+        .global-rating:hover { background: var(--primary-light); border-color: rgba(230,126,34,0.3); }
         .global-rating .stars-display { color: #f59e0b; font-size: 1.1rem; }
-        .global-rating .rating-text { font-size: 0.9rem; color: #64748b; font-weight: 500; }
+        .global-rating .rating-text { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
 
-        .btn-site-web {
-            background: #f1f5f9; color: #0b1a2e; padding: 8px 16px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex;
-            align-items: center; gap: 6px; transition: 0.3s; margin-bottom: 4px;
+        /* Boutons de contact */
+        .contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; width: 100%; }
+        .btn-contact {
+            padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; cursor: pointer;
         }
-        .btn-site-web:hover { background: #e2e8f0; }
-
-        .restaurant-header .info-bottom {
-            width: 100%; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 8px;
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 24px;
-            color: #64748b; font-size: 0.9rem; font-weight: 500;
-        }
-        .restaurant-header .info-bottom span { display: flex; align-items: center; gap: 8px; }
-        .restaurant-header .info-bottom i { color: #e67e22; }
-
-        .btn-avis-header {
-            background: #fef3e8; color: #e67e22; padding: 10px 20px; border-radius: 20px;
-            font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; margin-top: 8px;
-        }
-        .btn-avis-header:hover { background: #fde8d0; transform: translateY(-1px); }
+        .btn-whatsapp { background: #25D366; color: white; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2); }
+        .btn-whatsapp:hover { background: #128C7E; transform: translateY(-2px); }
+        .btn-location { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
+        .btn-location:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-avis-header { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(230,126,34,0.2); }
+        .btn-avis-header:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
         /* ====== BARRE DE FILTRES DES CATÉGORIES ====== */
         .category-container {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;
-            scrollbar-width: none; -ms-overflow-style: none;
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 24px;
+            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
         }
         .category-container::-webkit-scrollbar { display: none; }
         .category-btn {
-            background: #fff; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px;
-            border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer;
-            white-space: nowrap; transition: all 0.2s ease;
+            background: #fff; color: var(--text-muted); border: 1.5px solid var(--border-color); padding: 10px 22px;
+            border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+            white-space: nowrap; transition: var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .category-btn.active { background: #0b1a2e; color: #fff; border-color: #0b1a2e; }
+        .category-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .category-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
 
         /* ====== GRILLE ET CARTES DE PLAT ====== */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         .menu-card {
             background: #fff; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;
-            display: flex; flex-direction: column; position: relative; border: 1px solid #f1f5f9;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04); transition: var(--transition);
+            display: flex; flex-direction: column; position: relative; border: 1px solid var(--border-color);
         }
-        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
-        .menu-card img { width: 100%; height: 190px; object-fit: cover; cursor: zoom-in; transition: opacity 0.3s; }
-        .menu-card img:hover { opacity: 0.9; }
+        .menu-card:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+        .menu-card img { width: 100%; height: 200px; object-fit: cover; cursor: zoom-in; transition: transform 0.4s; }
+        .menu-card:hover img { transform: scale(1.05); }
+        .image-container { overflow: hidden; position: relative; }
         
-        .menu-card .body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .menu-card .body h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; color: #0b1a2e; }
-        .menu-card .body .description-plat { color: #64748b; font-size: 0.88rem; line-height: 1.4; margin-bottom: 12px; flex-grow: 1; }
+        .badge-promo {
+            position: absolute; top: 12px; right: 12px; background: #ef4444; color: white;
+            padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 800;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); z-index: 2; text-transform: uppercase;
+        }
+
+        /* Plat désactivé / Flouté */
+        .menu-card.disabled-item .image-container::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            backdrop-filter: blur(4px); background: rgba(255,255,255,0.4); z-index: 1;
+        }
+        .menu-card.disabled-item img { filter: grayscale(80%); }
+        .disabled-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(11, 26, 46, 0.85); color: white; padding: 10px 20px; border-radius: 50px;
+            font-weight: 700; font-size: 0.95rem; z-index: 3; white-space: nowrap; backdrop-filter: blur(4px);
+        }
         
-        .price { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .price .current { font-size: 1.25rem; font-weight: 800; color: #e67e22; }
-        .price .original { font-size: 0.95rem; font-weight: 500; color: #94a3b8; text-decoration: line-through; }
+        .menu-card .body { padding: 22px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 2; background: #fff; }
+        .menu-card .body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); line-height: 1.3; }
+        .menu-card .body .description-plat { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; flex-grow: 1; }
         
-        /* ====== BOUTON COMMANDER ====== */
+        .price { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .price .current { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
+        .price .original { font-size: 1rem; font-weight: 600; color: #94a3b8; text-decoration: line-through; }
+        
+        /* ====== BOUTONS COMMANDER ====== */
         .btn-commander {
             width: 100%; padding: 14px; margin-top: auto;
-            background: linear-gradient(135deg, #f97316, #ea580c);
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: #fff; border: none; border-radius: 16px; font-weight: 700; font-size: 1.05rem;
-            cursor: pointer; transition: all 0.3s ease;
+            cursor: pointer; transition: var(--transition);
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.25);
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.25);
         }
-        .btn-commander:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
-        }
+        .btn-commander:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35); }
+        .btn-commander:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; color: #64748b; }
 
         /* ====== MODALS ====== */
         .modal-overlay {
@@ -112,84 +142,88 @@
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-content {
-            background: #fff; border-radius: 28px; width: 100%; max-width: 440px;
-            padding: 28px; position: relative; transform: translateY(20px); transition: 0.3s;
-            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            background: #fff; border-radius: 28px; width: 100%; max-width: 460px;
+            padding: 32px; position: relative; transform: translateY(20px); transition: 0.3s;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
         .close-modal {
             position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none;
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
-            color: #64748b; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: var(--transition);
         }
-        .close-modal:hover { background: #e2e8f0; color: #0b1a2e; }
+        .close-modal:hover { background: #e2e8f0; color: var(--text-main); transform: rotate(90deg); }
 
         #zoomImage { max-width: 100%; max-height: 80vh; border-radius: 16px; object-fit: contain; }
 
-        /* Configuration sections dans le Modal */
-        .order-section { margin-bottom: 22px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
+        /* Configuration sections dans le Modal Commande */
+        .order-section { margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         .order-section:last-of-type { border-bottom: none; }
-        .order-section h4 { font-size: 1rem; color: #0b1a2e; margin-bottom: 12px; font-weight: 600; }
+        .order-section h4 { font-size: 1.05rem; color: var(--text-main); margin-bottom: 14px; font-weight: 700; }
         
-        .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 8px 12px; border-radius: 16px; width: fit-content; border: 1px solid #e2e8f0; }
-        .qty-btn { background: #fff; border: 1px solid #cbd5e1; width: 34px; height: 34px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; }
-        .qty-val { font-weight: 700; font-size: 1.1rem; width: 24px; text-align: center; }
+        .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 8px 12px; border-radius: 16px; width: fit-content; border: 1px solid var(--border-color); }
+        .qty-btn { background: #fff; border: 1px solid #cbd5e1; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .qty-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+        .qty-val { font-weight: 800; font-size: 1.15rem; width: 28px; text-align: center; }
 
-        .tip-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-        .tip-btn { 
-            padding: 10px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 50px;
-            cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s; font-size: 0.9rem;
-        }
-        .tip-btn.active { background: #0b1a2e; color: #fff; border-color: #0b1a2e; }
-        .custom-tip-container { display: flex; align-items: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 2px 12px; margin-top: 8px; }
-        .custom-tip-container span { color: #94a3b8; font-weight: 600; font-size: 0.9rem; }
-        .custom-tip-input { border: none; outline: none; padding: 10px; width: 100%; font-family: inherit; font-size: 0.95rem; font-weight: 600; }
-
-        .split-options { display: flex; gap: 12px; margin-bottom: 10px; }
-        .split-btn { flex:1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; cursor: pointer; font-weight: 600; text-align: center; font-size: 0.95rem; transition: 0.2s; }
-        .split-btn.active { background: #e67e22; color: white; border-color: #e67e22; }
+        .split-options { display: flex; gap: 12px; margin-bottom: 14px; }
+        .split-btn { flex:1; padding: 14px; border: 2px solid var(--border-color); border-radius: 16px; background: #fff; cursor: pointer; font-weight: 600; text-align: center; font-size: 0.95rem; transition: var(--transition); }
+        .split-btn.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
         
-        #splitCountContainer { display: none; margin-top: 14px; background: #fffcf9; padding: 16px; border-radius: 16px; border: 1px dashed #fbd38d; }
-        .split-input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; font-weight: 600; outline: none; }
-        .split-input:focus { border-color: #e67e22; }
+        #splitCountContainer { display: none; margin-top: 14px; background: #fffcf9; padding: 18px; border-radius: 16px; border: 1.5px dashed #fbd38d; }
+        .split-input { width: 100%; padding: 14px; border: 1.5px solid var(--border-color); border-radius: 12px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.3s; }
+        .split-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
         
         /* Box QR Code Partage */
-        .qr-share-box { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 14px; background: #f8fafc; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; }
-        .qr-share-box img { width: 130px; height: 130px; border-radius: 8px; background: #fff; padding: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 8px; }
+        .qr-share-box { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 16px; background: #fff; padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .qr-share-box img { width: 150px; height: 150px; border-radius: 12px; background: #fff; padding: 8px; border: 2px solid var(--primary); margin-bottom: 12px; }
 
-        .total-display { background: #f1f5f9; padding: 18px; border-radius: 20px; text-align: center; margin-top: 10px; }
-        .total-display span { display: block; font-size: 0.9rem; color: #64748b; font-weight: 500; margin-bottom: 2px; }
-        .total-display strong { font-size: 1.6rem; color: #0b1a2e; font-weight: 800; }
+        .total-display { background: #f8fafc; padding: 20px; border-radius: 20px; text-align: center; margin-top: 10px; border: 1px solid var(--border-color); }
+        .total-display span { display: block; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+        .total-display strong { font-size: 1.8rem; color: var(--text-main); font-weight: 800; }
 
-        /* Formulaire Avis */
+        /* Formulaire & Liste Avis */
         .stars { color: #e2e8f0; font-size: 2.2rem; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .stars i.active { color: #f59e0b; }
-        textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 110px; margin-bottom: 20px; outline: none; }
-        textarea:focus { border-color: #e67e22; }
+        textarea { width: 100%; padding: 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 120px; margin-bottom: 20px; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
+        
+        .avis-list-container { margin-top: 20px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .avis-item { background: #f8fafc; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); }
+        .avis-item-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .avis-item-stars { color: #f59e0b; font-size: 0.9rem; }
+        .avis-item-text { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); }
 
-        /* ====== BAS DE PAGE (FOOTER PROFESSIONNEL BRANDÉ) ====== */
+        /* ====== BAS DE PAGE (FOOTER PREMIUM) ====== */
         .app-footer {
-            margin-top: 60px; border-top: 1px solid #e2e8f0; padding-top: 32px;
+            margin-top: 60px; background: linear-gradient(180deg, #1e293b, #0f172a); padding: 50px 20px 40px;
             display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
+            border-radius: 40px 40px 0 0; color: white;
         }
-        .footer-branding { display: flex; align-items: center; gap: 10px; }
-        .footer-branding img { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; }
-        .footer-branding p { font-size: 0.95rem; color: #64748b; }
-        .footer-branding strong { color: #0b1a2e; font-weight: 700; }
+        .footer-branding { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .footer-branding img { width: 44px; height: 44px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .footer-branding p { font-size: 1.05rem; color: #94a3b8; margin: 0; }
+        .footer-branding strong { color: white; font-weight: 800; letter-spacing: 0.5px; }
         
         .footer-cta { max-width: 500px; }
-        .footer-cta h5 { font-size: 1.05rem; font-weight: 700; color: #0b1a2e; margin-bottom: 6px; }
-        .footer-cta p { font-size: 0.88rem; color: #64748b; margin-bottom: 16px; line-height: 1.4; }
+        .footer-cta h5 { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 10px; }
+        .footer-cta p { font-size: 0.95rem; color: #94a3b8; margin-bottom: 24px; line-height: 1.6; }
         
-        .footer-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .footer-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
         .btn-footer {
-            padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; font-weight: 700;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+            padding: 12px 24px; border-radius: 50px; font-size: 0.95rem; font-weight: 700;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition);
         }
-        .btn-footer.btn-primary-footer { background: #0b1a2e; color: #fff; }
-        .btn-footer.btn-primary-footer:hover { background: #162a45; }
-        .btn-footer.btn-outline-footer { background: transparent; color: #475569; border: 1px solid #cbd5e1; }
-        .btn-footer.btn-outline-footer:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .btn-footer.btn-primary-footer { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.3); }
+        .btn-footer.btn-primary-footer:hover { background: var(--primary-hover); transform: translateY(-3px); }
+        .btn-footer.btn-outline-footer { background: transparent; color: white; border: 2px solid #475569; }
+        .btn-footer.btn-outline-footer:hover { background: #334155; border-color: #64748b; transform: translateY(-3px); }
+        
+        .footer-copyright { border-top: 1px solid #334155; width: 100%; max-width: 800px; padding-top: 20px; margin-top: 20px; font-size: 0.85rem; color: #64748b; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .menu-card { animation: fadeIn 0.5s ease backwards; }
     </style>
 </head>
 <body>
@@ -197,17 +231,12 @@
 <div class="container">
     <!-- En-tête Dynamique -->
     <div id="restaurantInfo" class="restaurant-header">
-        <p style="color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
+        <p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
     </div>
 
-    <!-- Filtres de Catégories -->
+    <!-- Filtres de Catégories (Générés dynamiquement) -->
     <div class="category-container" id="categoryTabs">
-        <button class="category-btn active" onclick="filterCategory('Tous')">Tout le menu</button>
-        <button class="category-btn" onclick="filterCategory('Nourriture')">Nourriture</button>
-        <button class="category-btn" onclick="filterCategory('Boissons')">Boissons</button>
-        <button class="category-btn" onclick="filterCategory('Frites')">Frites</button>
-        <button class="category-btn" onclick="filterCategory('Compléments')">Compléments</button>
-        <button class="category-btn" onclick="filterCategory('Autre')">Autre</button>
+        <!-- Rempli par JavaScript -->
     </div>
 
     <!-- Grille des Plats -->
@@ -216,19 +245,22 @@
     </div>
 </div>
 
-<!-- Bas de page SCAN&TCHOP -->
+<!-- Bas de page SCAN&TCHOP Premium -->
 <footer class="app-footer">
     <div class="footer-branding">
         <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP Logo" />
-        <p>Propulsé de manière sécurisée par <strong>SCAN&TCHOP</strong></p>
+        <p>Propulsé par <strong>SCAN&TCHOP</strong></p>
     </div>
     <div class="footer-cta">
         <h5>Vous gérez un établissement ?</h5>
-        <p>Créez vous aussi votre menu digital interactif, recevez des commandes en direct et fidélisez vos clients dès aujourd'hui.</p>
+        <p>Digitalisez votre menu, augmentez vos ventes et offrez une expérience moderne à vos clients en quelques minutes.</p>
         <div class="footer-buttons">
-            <a href="connexion.html" class="btn-footer btn-primary-footer"><i class="fas fa-plus-circle"></i> Ajouter mon menu</a>
-            <a href="index.html" class="btn-footer btn-outline-footer"><i class="fas fa-info-circle"></i> C'est quoi SCAN&TCHOP ?</a>
+            <a href="connexion.html" class="btn-footer btn-primary-footer"><i class="fas fa-rocket"></i> Créer mon menu digital</a>
+            <a href="index.html" class="btn-footer btn-outline-footer"><i class="fas fa-info-circle"></i> Découvrir SCAN&TCHOP</a>
         </div>
+    </div>
+    <div class="footer-copyright">
+        &copy; <span id="currentYear"></span> SCAN&TCHOP. Tous droits réservés.
     </div>
 </footer>
 
@@ -242,31 +274,15 @@
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
-        <h2 id="orderPlatNom" style="margin-bottom: 20px; font-size:1.4rem; font-weight:800; padding-right:24px;">Nom du plat</h2>
+        <h2 id="orderPlatNom" style="margin-bottom: 24px; font-size:1.5rem; font-weight:800; padding-right:24px; color:var(--text-main); font-family: 'Playfair Display', serif;">Nom du plat</h2>
         
         <!-- Quantité -->
         <div class="order-section">
-            <h4>Sélectionnez la quantité</h4>
+            <h4>Combien en souhaitez-vous ?</h4>
             <div class="qty-selector">
-                <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                <button class="qty-btn" onclick="updateQty(-1)"><i class="fas fa-minus" style="font-size:0.8rem;"></i></button>
                 <span class="qty-val" id="orderQty">1</span>
-                <button class="qty-btn" onclick="updateQty(1)">+</button>
-            </div>
-        </div>
-
-        <!-- Pourboire déplacé stratégiquement ici -->
-        <div class="order-section">
-            <h4>Soutenir l'équipe (Pourboire)</h4>
-            <div class="tip-options">
-                <button class="tip-btn active" onclick="setTip(0, this)">0 F</button>
-                <button class="tip-btn" onclick="setTip(200, this)">200 F</button>
-                <button class="tip-btn" onclick="setTip(500, this)">500 F</button>
-                <button class="tip-btn" onclick="setTip(1000, this)">1000 F</button>
-            </div>
-            <div class="custom-tip-container">
-                <span>Autre montant :</span>
-                <input type="number" id="customTipInput" class="custom-tip-input" placeholder="Ex: 350" min="0" oninput="handleCustomTip(this.value)" />
-                <span>FCFA</span>
+                <button class="qty-btn" onclick="updateQty(1)"><i class="fas fa-plus" style="font-size:0.8rem;"></i></button>
             </div>
         </div>
 
@@ -275,14 +291,14 @@
             <h4>Règlement de l'addition</h4>
             <div class="split-options">
                 <div class="split-btn active" id="btnPayerSeul" onclick="setSplit(false)">Je paie seul</div>
-                <div class="split-btn" id="btnPartager" onclick="setSplit(true)">Partager l'addition</div>
+                <div class="split-btn" id="btnPartager" onclick="setSplit(true)">Diviser l'addition</div>
             </div>
             <div id="splitCountContainer">
                 <input type="number" id="splitCount" class="split-input" placeholder="Nombre de personnes au total ?" min="2" oninput="calculateTotal()" />
                 <div id="qrShareContainer" class="qr-share-box" style="display:none;">
                     <img id="qrShareImg" src="" alt="QR Code Addition Partagée" />
-                    <p style="font-size:0.8rem; color:#64748b; font-weight:500;">
-                        <i class="fas fa-qrcode"></i> Faites scanner ce QR code à vos amis pour diviser l'addition en temps réel !
+                    <p style="font-size:0.85rem; color:var(--text-muted); font-weight:600; line-height: 1.4;">
+                        <i class="fas fa-qrcode" style="color:var(--primary);"></i> Faites scanner ce QR code à vos amis pour partager l'addition instantanément !
                     </p>
                 </div>
             </div>
@@ -295,7 +311,7 @@
         </div>
 
         <button class="btn-commander" style="margin-top:20px;" onclick="validerCommande()">
-            Aller au paiement sécurisé <i class="fas fa-arrow-right"></i>
+            Passer au paiement <i class="fas fa-arrow-right"></i>
         </button>
     </div>
 </div>
@@ -304,8 +320,8 @@
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
-        <h2 style="text-align: center; margin-bottom: 8px; font-weight:800;">Votre avis compte</h2>
-        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Aidez l'établissement à parfaire son service.</p>
+        <h2 style="text-align: center; margin-bottom: 8px; font-weight:800; color:var(--text-main); font-family: 'Playfair Display', serif;">Votre avis compte</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Aidez l'établissement à parfaire son service.</p>
         
         <div class="stars" id="starContainer">
             <i class="fas fa-star" data-value="1"></i>
@@ -318,8 +334,19 @@
         <textarea id="avisCommentaire" placeholder="Qu'avez-vous pensé de l'accueil, du cadre ou de la saveur des plats ?..."></textarea>
         
         <button class="btn-commander" onclick="soumettreAvis()">
-            Transmettre mon avis
+            Transmettre mon avis <i class="fas fa-paper-plane"></i>
         </button>
+    </div>
+</div>
+
+<!-- MODAL : LISTE DES AVIS -->
+<div class="modal-overlay" id="modalListeAvis">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('modalListeAvis')"><i class="fas fa-times"></i></button>
+        <h2 style="margin-bottom: 20px; font-weight:800; color:var(--text-main); font-family: 'Playfair Display', serif;">Avis des clients</h2>
+        <div class="avis-list-container" id="avisListContainer">
+            <!-- Rempli par JavaScript -->
+        </div>
     </div>
 </div>
 
@@ -327,6 +354,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
     // Configuration d'initialisation Firestore
     const firebaseConfig = {
         apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
@@ -342,16 +371,17 @@
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('restaurant');
 
-    // Variables d'état globales (Côté Client)
+    // Variables d'état globales
     let allPlats = [];
-    let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
+    let allReviews = [];
+    let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, isSplit: false, splitCount: 1 };
     let currentRating = 0;
     let selectedCategory = 'Tous';
 
     if (restaurantId) {
         initPage();
     } else {
-        document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold;">Aucun identifiant de restaurant spécifié dans l\'URL.</p>';
+        document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold; padding: 40px;">Aucun identifiant de restaurant spécifié dans l\'URL.</p>';
     }
 
     async function initPage() {
@@ -359,7 +389,7 @@
         await loadMenuData();
     }
 
-    // Chargement et agrégation des données du restaurant (Infos + Avis Globaux)
+    // Chargement des données du restaurant et des avis
     async function loadRestaurantData() {
         try {
             const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
@@ -369,21 +399,23 @@
             }
             const resto = restoDoc.data();
 
-            // Récupération des avis associés (Requête simple sans index composite requis)
+            // Récupération des avis
             const avisSnapshot = await db.collection('avis').where('restaurantId', '==', restaurantId).get();
-            
-            let totalAvis = 0;
+            allReviews = [];
             let sommeNotes = 0;
-            let etoilesHtml = '';
-            let noteMoyenne = 0;
 
             avisSnapshot.forEach(doc => {
                 const data = doc.data();
-                if(data.note) {
-                    sommeNotes += data.note;
-                    totalAvis++;
-                }
+                allReviews.push(data);
+                if(data.note) sommeNotes += data.note;
             });
+
+            // Tri des avis du plus récent au plus ancien (approximatif si pas de timestamp parfait)
+            allReviews.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+
+            const totalAvis = allReviews.length;
+            let noteMoyenne = 0;
+            let etoilesHtml = '';
 
             if (totalAvis > 0) {
                 noteMoyenne = (sommeNotes / totalAvis).toFixed(1);
@@ -395,55 +427,77 @@
                 etoilesHtml = '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
             }
 
-            // Génération dynamique de l'en-tête restructuré
+            // Génération des boutons de contact (WhatsApp et Localisation depuis le dashboard)
+            let btnWhatsAppHtml = '';
+            if (resto.whatsapp) {
+                const waMessage = encodeURIComponent(`Bonjour ${resto.nom}, j'ai trouvé votre menu sur SCAN&TCHOP. Je voudrais savoir...`);
+                btnWhatsAppHtml = `<a href="https://wa.me/${resto.whatsapp}?text=${waMessage}" target="_blank" class="btn-contact btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+            }
+
+            let btnLocalisationHtml = '';
+            if (resto.lienLocalisation) {
+                btnLocalisationHtml = `<a href="${resto.lienLocalisation}" target="_blank" class="btn-contact btn-location"><i class="fas fa-map-marked-alt"></i> S'y rendre</a>`;
+            }
+
+            // Affichage de l'en-tête
             document.getElementById('restaurantInfo').innerHTML = `
                 ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo de ${resto.nom}" />` : ''}
-                <div class="info-middle">
-                    <h1>${resto.nom}</h1>
-                    <p class="description">${resto.description || 'Bienvenue dans notre établissement gastonomique.'}</p>
-                    
-                    <div class="global-rating">
-                        <span class="stars-display">${etoilesHtml}</span>
-                        <span class="rating-text">${totalAvis > 0 ? `${noteMoyenne}/5 (${totalAvis} avis)` : 'Aucun avis pour le moment'}</span>
-                    </div>
-
-                    ${resto.siteWeb ? `<a href="${resto.siteWeb}" target="_blank" class="btn-site-web"><i class="fas fa-globe"></i> Visiter notre site web</a><br/>` : ''}
-                    
-                    <button class="btn-avis-header" onclick="openModal('modalAvis')">
-                        <i class="fas fa-star"></i> Laisser un avis sur l'établissement
-                    </button>
-                </div>
+                <h1>${resto.nom}</h1>
+                <p class="description">${resto.description || 'Bienvenue dans notre établissement.'}</p>
                 
-                <div class="info-bottom">
-                    ${resto.telephone ? `<span><i class="fas fa-phone-alt"></i> ${resto.telephone}</span>` : ''}
-                    <span><i class="fas fa-map-marker-alt"></i> ${resto.adresse || 'Adresse non configurée'}, ${resto.ville || ''}, ${resto.pays || 'Cameroun'}</span>
+                <div class="global-rating" onclick="openModalListeAvis()" title="Voir les avis">
+                    <span class="stars-display">${etoilesHtml}</span>
+                    <span class="rating-text">${totalAvis > 0 ? `${noteMoyenne}/5 (${totalAvis} avis)` : 'Aucun avis'}</span>
+                    <i class="fas fa-chevron-right" style="color:var(--text-muted); font-size: 0.8rem; margin-left: 5px;"></i>
+                </div>
+
+                <div class="contact-buttons">
+                    ${btnWhatsAppHtml}
+                    ${btnLocalisationHtml}
+                    <button class="btn-contact btn-avis-header" onclick="openModal('modalAvis')">
+                        <i class="fas fa-star"></i> Laisser un avis
+                    </button>
                 </div>
             `;
         } catch (error) {
-            console.error("Erreur d'initialisation de l'en-tête :", error);
+            console.error("Erreur d'initialisation :", error);
         }
     }
 
-    // Récupération globale du catalogue des plats (Filtrage ultérieur fait côté client)
+    // Récupération de tous les plats et extraction des catégories
     async function loadMenuData() {
         try {
             const snapshot = await db.collection('menus').where('restaurantId', '==', restaurantId).get();
             allPlats = [];
+            const categoriesSet = new Set();
+            categoriesSet.add('Tous');
             
             snapshot.forEach(doc => {
                 const data = doc.data();
-                if (data.disponible !== false) { // On écarte uniquement les plats marqués indisponibles
-                    allPlats.push({ id: doc.id, ...data });
+                allPlats.push({ id: doc.id, ...data });
+                if (data.categorie) {
+                    categoriesSet.add(data.categorie);
                 }
             });
             
+            // Générer dynamiquement les onglets de catégories
+            const catContainer = document.getElementById('categoryTabs');
+            catContainer.innerHTML = '';
+            categoriesSet.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `category-btn ${cat === 'Tous' ? 'active' : ''}`;
+                btn.innerText = cat === 'Tous' ? 'Tout le menu' : cat;
+                btn.onclick = () => filterCategory(cat);
+                catContainer.appendChild(btn);
+            });
+
             renderMenu();
         } catch (error) {
-            document.getElementById('menuContainer').innerHTML = '<p>Erreur lors de la récupération de la carte des menus.</p>';
+            document.getElementById('menuContainer').innerHTML = '<p>Erreur lors de la récupération du menu.</p>';
         }
     }
 
-    // Injection et filtrage dynamique des plats
+    // Affichage des plats avec gestion de la disponibilité et des promotions
     function renderMenu() {
         const container = document.getElementById('menuContainer');
         container.innerHTML = '';
@@ -454,24 +508,34 @@
         });
 
         if(platsFiltres.length === 0) {
-            container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding: 40px 0;">Aucun élément disponible dans la catégorie "${selectedCategory}".</p>`;
+            container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding: 40px 0; font-weight:500;">Aucun plat dans cette catégorie.</p>`;
             return;
         }
 
-        platsFiltres.forEach(plat => {
+        platsFiltres.forEach((plat, index) => {
+            const isDisponible = plat.disponible !== false; // true par défaut
+            const promoBadge = (plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="badge-promo">Promo</span>` : '';
+            const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
+            
             const card = document.createElement('div');
-            card.className = 'menu-card';
+            card.className = `menu-card ${isDisponible ? '' : 'disabled-item'}`;
+            card.style.animationDelay = `${index * 0.05}s`; // Animation en cascade
+
             card.innerHTML = `
-                ${plat.image ? `<img src="${plat.image}" onclick="openZoom('${plat.image}')" title="Cliquez pour agrandir l'image" alt="${plat.nom}" />` : ''}
+                <div class="image-container">
+                    ${promoBadge}
+                    ${!isDisponible ? `<div class="disabled-badge">Pas encore prêt</div>` : ''}
+                    ${plat.image ? `<img src="${plat.image}" ${isDisponible ? `onclick="openZoom('${plat.image}')"` : ''} alt="${plat.nom}" />` : ''}
+                </div>
                 <div class="body">
                     <h3>${plat.nom}</h3>
-                    <p class="description-plat">${plat.description || 'Aucune description fournie pour ce plat.'}</p>
+                    ${descriptionHtml}
                     <div class="price">
                         <span class="current">${plat.prix} FCFA</span>
-                        ${plat.prixOriginal && plat.prixOriginal > plat.prix ? `<span class="original">${plat.prixOriginal} FCFA</span>` : ''}
+                        ${(plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="original">${plat.prixOriginal} FCFA</span>` : ''}
                     </div>
-                    <button class="btn-commander" onclick="openOrderModal('${plat.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})">
-                        <i class="fas fa-shopping-cart"></i> Sélectionner le plat
+                    <button class="btn-commander" ${isDisponible ? `onclick="openOrderModal('${plat.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})"` : 'disabled'}>
+                        <i class="fas fa-shopping-cart"></i> ${isDisponible ? 'Sélectionner le plat' : 'Indisponible'}
                     </button>
                 </div>
             `;
@@ -479,11 +543,11 @@
         });
     }
 
-    // Gestion du clic sur les onglets de catégories
+    // Filtrage des catégories
     function filterCategory(catName) {
         selectedCategory = catName;
         document.querySelectorAll('.category-btn').forEach(btn => {
-            if(btn.innerText.includes(catName) || (catName === 'Tous' && btn.innerText.includes('Tout'))) {
+            if(btn.innerText === catName || (catName === 'Tous' && btn.innerText === 'Tout le menu')) {
                 btn.classList.add('active');
             } else {
                 btn.classList.remove('active');
@@ -500,17 +564,41 @@
         openModal('modalZoom');
     }
 
-    /* ====== CONFIGURATION ET CALCULE DU PANIER ====== */
+    // Modale pour la liste des avis
+    function openModalListeAvis() {
+        const container = document.getElementById('avisListContainer');
+        container.innerHTML = '';
+
+        if(allReviews.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px 0;">Aucun avis pour le moment. Soyez le premier !</p>';
+        } else {
+            allReviews.forEach(avis => {
+                let starsHtml = '';
+                for(let i=1; i<=5; i++) {
+                    starsHtml += i <= avis.note ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+                }
+                const dateTexte = avis.date ? new Date(avis.date.seconds * 1000).toLocaleDateString('fr-FR') : 'Récemment';
+                
+                container.innerHTML += `
+                    <div class="avis-item">
+                        <div class="avis-item-header">
+                            <span class="avis-item-stars">${starsHtml}</span>
+                            <span>${dateTexte}</span>
+                        </div>
+                        ${avis.commentaire ? `<div class="avis-item-text">"${avis.commentaire}"</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+        openModal('modalListeAvis');
+    }
+
+    /* ====== CONFIGURATION ET CALCUL DU PANIER ====== */
     function openOrderModal(id, nom, prix) {
-        currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, tip: 0, isSplit: false, splitCount: 1 };
+        currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, isSplit: false, splitCount: 1 };
         document.getElementById('orderPlatNom').innerText = nom;
         document.getElementById('orderQty').innerText = 1;
         document.getElementById('splitCount').value = '';
-        document.getElementById('customTipInput').value = '';
-        
-        // Reset boutons de pourboires
-        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tip-btn')[0].classList.add('active');
         
         setSplit(false);
         calculateTotal();
@@ -523,22 +611,6 @@
             document.getElementById('orderQty').innerText = currentOrder.qty;
             calculateTotal();
         }
-    }
-
-    function setTip(amount, btnElement) {
-        currentOrder.tip = amount;
-        document.getElementById('customTipInput').value = ''; // Clear custom tip input
-        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-        if (btnElement) btnElement.classList.add('active');
-        calculateTotal();
-    }
-
-    function handleCustomTip(value) {
-        const amount = parseFloat(value) || 0;
-        currentOrder.tip = amount;
-        // Désactiver la sélection des boutons fixes si l'utilisateur saisit un montant libre
-        document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-        calculateTotal();
     }
 
     function setSplit(isSplit) {
@@ -558,7 +630,8 @@
     }
 
     function calculateTotal() {
-        let baseTotal = (currentOrder.prixBase * currentOrder.qty) + currentOrder.tip;
+        // Le pourboire a été retiré de cette étape comme demandé
+        let baseTotal = currentOrder.prixBase * currentOrder.qty;
         
         if (currentOrder.isSplit) {
             let inputCount = parseInt(document.getElementById('splitCount').value);
@@ -566,10 +639,9 @@
             
             if(currentOrder.splitCount > 1) {
                 let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
-                document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} personnes) :`;
+                document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} pers.) :`;
                 document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
                 
-                // Génération instantanée du QR Code de partage d'addition
                 generateShareQR(perPerson);
                 return;
             }
@@ -580,21 +652,21 @@
         document.getElementById('orderTotal').innerText = `${baseTotal} FCFA`;
     }
 
-    // Génération automatique d'un QR code via une API tierce légère et sécurisée
+    // Génération automatique d'un QR code pour partager la note
     function generateShareQR(amountPerPerson) {
         const containerQr = document.getElementById('qrShareContainer');
         const imgQr = document.getElementById('qrShareImg');
         
-        // Construction de l'URL cible de paiement partagé
-        const shareUrl = `${window.location.origin}/paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&pourboire=${currentOrder.tip}&split=true&splitCount=${currentOrder.splitCount}`;
+        // Construction de l'URL avec les paramètres (sans pourboire forcé ici)
+        const shareUrl = `${window.location.origin}/paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=true&splitCount=${currentOrder.splitCount}`;
         
-        // Utilisation de l'API universelle de génération de QR Code QRServer
-        imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}&color=0b1a2e`;
+        // Utilisation de l'API universelle (QRServer) avec une couleur assortie au thème (orange/dark)
+        imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}&color=0b1a2e&bgcolor=ffffff&margin=5`;
         containerQr.style.display = 'flex';
     }
 
     function validerCommande() {
-        const url = `paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&pourboire=${currentOrder.tip}&split=${currentOrder.isSplit}&splitCount=${currentOrder.splitCount}`;
+        const url = `paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=${currentOrder.isSplit}&splitCount=${currentOrder.splitCount}`;
         window.location.href = url;
     }
 
@@ -610,28 +682,38 @@
 
     async function soumettreAvis() {
         const commentaire = document.getElementById('avisCommentaire').value.trim();
-        if(currentRating === 0) { alert('Merci de sélectionner une note par les étoiles.'); return; }
+        if(currentRating === 0) { alert('Merci de sélectionner une note avec les étoiles.'); return; }
+        
+        // Désactiver le bouton pour éviter les doubles clics
+        const btn = document.querySelector('#modalAvis .btn-commander');
+        const oldText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
         
         try {
             await db.collection('avis').add({
                 restaurantId: restaurantId,
                 note: parseInt(currentRating),
                 commentaire: commentaire,
-                date: firebase.firestore.FieldValue.serverTimestamp()
+                date: firebase.firestore.FieldValue.serverTimestamp() // Firestore enregistre même si non connecté
             });
             
-            alert('Votre précieux retour a été enregistré avec succès ! Merci.');
+            alert('Votre avis a été enregistré avec succès ! Merci de votre retour.');
             closeModal('modalAvis');
             
-            // Réinitialisation du formulaire interne
+            // Réinitialisation du formulaire
             document.getElementById('avisCommentaire').value = '';
             stars.forEach(s => s.classList.remove('active'));
             currentRating = 0;
             
-            // Rechargement immédiat des scores en-tête
+            // Rechargement des scores pour mise à jour immédiate
             await loadRestaurantData();
         } catch (e) {
+            console.error(e);
             alert('Un problème est survenu lors de la transmission de l\'avis.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = oldText;
         }
     }
 </script>
