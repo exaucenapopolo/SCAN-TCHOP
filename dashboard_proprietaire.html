@@ -1181,6 +1181,25 @@
           doc.setFillColor(10, 10, 12);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
+          // ---------- NOUVEAU PLACEMENT DES PHOTOS (En arrière-plan, autour de l'en-tête) ----------
+          // Positionnement encadrant le logo et le nom (2 à gauche, 2 à droite)
+          const foodItems = [
+            // Côté Gauche
+            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -16, y: -10, w: 70, h: 70 }, // Haut gauche
+            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -20, y: 40, w: 65, h: 65 },  // Milieu gauche
+            // Côté Droit
+            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 94, y: -10, w: 70, h: 70 },  // Haut droit
+            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 103, y: 40, w: 65, h: 65 }     // Milieu droit
+          ];
+
+          for (const item of foodItems) {
+            // Utilisation de la nouvelle fonction sans blocs gris (export JPEG)
+            const base64 = await getMaskedImageBase64(item.url); 
+            if (base64) {
+              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
+            }
+          }
+
           // Calcul des positions verticales (y) de manière séquentielle pour tout harmoniser
           let startY = 12;
           let logoSize = 24;
@@ -1214,27 +1233,8 @@
           doc.setLineWidth(0.6);
           doc.line(pageWidth / 2 - 25, lineY, pageWidth / 2 + 25, lineY);
 
-          // ---------- NOUVEAU PLACEMENT DES PHOTOS (En haut, discrètes, regroupées) ----------
-          let foodY = lineY + 5; // Environ 60
-          let foodSize = 28; // Compactes
-          
-          const foodItems = [
-            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: 12, y: foodY, w: foodSize, h: foodSize },
-            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: 44, y: foodY, w: foodSize, h: foodSize },
-            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 76, y: foodY, w: foodSize, h: foodSize },
-            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 108, y: foodY, w: foodSize, h: foodSize }
-          ];
-
-          for (const item of foodItems) {
-            // Utilisation de la nouvelle fonction sans blocs gris (export JPEG)
-            const base64 = await getMaskedImageBase64(item.url); 
-            if (base64) {
-              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
-            }
-          }
-
           // ---------- TEXTE "SCANNEZ POUR COMMANDER" ----------
-          let scanY = foodY + foodSize + 10; // Environ 98 (bien décollé des images)
+          let scanY = lineY + 42; // Environ 98 (bien décollé de la zone d'en-tête, préserve l'alignement du reste)
           doc.setDrawColor(255, 190, 0);
           doc.setLineWidth(0.5);
           doc.line(35, scanY - 1, 50, scanY - 1);
@@ -1256,7 +1256,7 @@
           doc.setTextColor(255, 190, 0);
           doc.text('COMMANDER', (pageWidth / 2) - 0.4, cmdY - 0.4, { align: 'center' });
 
-          // ---------- CADRE DU QR CODE (Propre, sans plats autour) ----------
+          // ---------- CADRE DU QR CODE (Propre, centralisé) ----------
           let qrY = cmdY + 6; // Environ 115
           let qrSize = 56; 
           const qrX = (pageWidth - qrSize) / 2;
