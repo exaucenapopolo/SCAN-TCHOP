@@ -3,237 +3,323 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connexion - SCAN&TCHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Connexion & Inscription - SCAN&TCHOP</title>
+    
+    <!-- Google Fonts : Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ====== VARIABLES & RESET (Inspiré du Dashboard Premium) ====== */
+        :root {
+            --primary: #e67e22;
+            --primary-hover: #cf6f1b;
+            --primary-light: #fef3e8;
+            --bg-color: #fdf8f4;
+            --text-main: #0b1a2e;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: #e2e8f0;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-lg: 0 25px 50px -12px rgba(230, 126, 34, 0.15);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f4f7f6 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e2e8f0 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: var(--text-main);
         }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        /* ====== CONTENEUR D'AUTHENTIFICATION ====== */
         .auth-container {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 32px;
-            padding: 40px 36px;
-            max-width: 450px;
+            padding: 40px;
+            max-width: 480px;
             width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            animation: fadeUp 0.6s ease;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            animation: fadeUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
         .auth-container img {
-            height: 50px;
+            height: 55px;
             display: block;
             margin: 0 auto 24px;
-        }
-        .auth-container h2 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #1a202c;
-            text-align: center;
-        }
-        .auth-container > p {
-            color: #718096;
-            text-align: center;
-            font-size: 0.95rem;
-            margin-bottom: 28px;
-        }
-        .form-section {
-            transition: opacity 0.3s ease;
-        }
-        .hidden {
-            display: none;
-        }
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            font-size: 0.85rem;
-            color: #2d3748;
-            margin-bottom: 5px;
-        }
-        .form-group .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #e2e8f0;
             border-radius: 12px;
-            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .auth-container h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .auth-container > p {
+            color: var(--text-muted);
+            text-align: center;
             font-size: 0.95rem;
-            background: #fff;
-            transition: border 0.15s, box-shadow 0.15s;
+            margin-bottom: 30px;
         }
-        .form-group .form-control:focus {
-            outline: none;
-            border-color: #e67e22;
-            box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.12);
-        }
-        .form-group .form-control::placeholder {
-            color: #a0aec0;
-        }
+
+        .form-section { transition: opacity 0.3s ease; }
+        .hidden { display: none; }
+
+        /* ====== SÉLECTEUR DE RÔLE ====== */
         .role-selector {
             display: flex;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 16px;
         }
+        
         .role-selector button {
             flex: 1;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background: #fff;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #4a5568;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .role-selector button.active {
-            border-color: #e67e22;
-            background: #fef3e8;
-            color: #e67e22;
-        }
-        .role-selector button i {
-            margin-right: 8px;
-        }
-        .btn {
-            display: inline-block;
-            width: 100%;
-            padding: 14px;
-            background: #e67e22;
-            color: #fff;
+            padding: 12px;
             border: none;
             border-radius: 12px;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .role-selector button.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* ====== FORMULAIRES ====== */
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.12);
+        }
+
+        .field-code { display: none; }
+        .field-code.visible { display: block; animation: fadeUp 0.3s ease; }
+
+        /* ====== BOUTONS ====== */
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            position: relative;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(230,126,34,0.25);
+            gap: 8px;
         }
+        
         .btn:hover {
-            background: #cf6f1b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(230,126,34,0.35);
         }
-        .btn:active {
-            transform: scale(0.97);
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-google {
+            background: #fff;
+            color: var(--text-main);
+            border: 1.5px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
-        .btn i {
-            margin-right: 8px;
+        
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
         }
-        .btn .spinner {
-            display: none;
+
+        .btn .spinner { display: none; }
+        .btn.loading .spinner { display: inline-block; }
+        .btn.loading .btn-text { display: none; }
+
+        /* ====== SÉPARATEUR ====== */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
         }
-        .btn.loading .spinner {
-            display: inline-block;
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1.5px solid var(--border-color);
         }
-        .btn.loading .btn-text {
-            display: none;
-        }
+        .divider:not(:empty)::before { margin-right: 15px; }
+        .divider:not(:empty)::after { margin-left: 15px; }
+
+        /* ====== LIENS ALTERNATIFS ====== */
         .toggle-link {
             display: block;
             margin-top: 24px;
             text-align: center;
             font-size: 0.95rem;
-            color: #718096;
+            color: var(--text-muted);
             cursor: pointer;
         }
         .toggle-link span {
-            color: #e67e22;
+            color: var(--primary);
+            font-weight: 700;
+            transition: var(--transition);
+        }
+        .toggle-link:hover span { text-decoration: underline; }
+
+        /* ====== TOAST NOTIFICATIONS (Premium) ====== */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #fff;
+            border-left: 5px solid;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             font-weight: 600;
-            transition: text-decoration 0.2s;
+            color: var(--text-main);
+            pointer-events: auto;
+            animation: toastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        .toggle-link:hover span {
-            text-decoration: underline;
-        }
-        .error-message {
-            color: #e53e3e;
-            font-size: 0.85rem;
-            margin-bottom: 14px;
-            background: #fff5f5;
-            padding: 10px 14px;
-            border-radius: 10px;
-            display: none;
-        }
-        .field-code {
-            display: none;
-        }
-        .field-code.visible {
-            display: block;
-        }
-        @media (max-width: 480px) {
-            .auth-container {
-                padding: 28px 20px;
-            }
-        }
+        @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
     </style>
 </head>
 <body>
 
+    <div id="toastContainer"></div>
+
     <div class="auth-container">
         <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP" />
 
-        <!-- Login Section -->
+        <!-- ================= SECTION CONNEXION ================= -->
         <div id="login-section" class="form-section">
-            <h2>Bienvenue</h2>
-            <p>Connectez-vous à votre espace</p>
+            <h2>Bon retour !</h2>
+            <p>Connectez-vous à votre espace de travail</p>
 
-            <div id="login-error" class="error-message"></div>
-
+            <!-- Sélecteur de rôle (Uniquement visible pour la connexion) -->
             <div class="role-selector">
-                <button id="role-proprietaire" class="active"><i class="fas fa-user-tie"></i> Propriétaire</button>
-                <button id="role-employe"><i class="fas fa-user-cog"></i> Employé</button>
+                <button id="role-proprietaire" class="active"><i class="fas fa-store"></i> Propriétaire</button>
+                <button id="role-employe"><i class="fas fa-user-tie"></i> Employé</button>
+            </div>
+
+            <!-- Conteneur Google (Réservé au Propriétaire) -->
+            <div id="google-auth-container">
+                <button type="button" class="btn btn-google" onclick="handleGoogleAuth()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; margin: 0; box-shadow: none; border-radius: 0;" />
+                    <span class="btn-text">Continuer avec Google</span>
+                    <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+                </button>
+                <div class="divider" id="auth-divider">ou avec vos identifiants</div>
             </div>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="login-email">Email</label>
+                    <label for="login-email">Adresse Email</label>
                     <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required />
                 </div>
+                
+                <!-- Champ Code Restaurant (S'affiche uniquement pour les employés) -->
                 <div class="form-group field-code" id="code-group">
-                    <label for="login-code">Code restaurant</label>
+                    <label for="login-code">Code d'accès Restaurant</label>
                     <input type="text" id="login-code" class="form-control" placeholder="Ex: ABCD1234" />
                 </div>
+                
                 <div class="form-group">
                     <label for="login-password">Mot de passe</label>
                     <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
                 </div>
+                
                 <button type="submit" class="btn" id="login-btn">
                     <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Se connecter</span>
                     <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
                 </button>
             </form>
 
-            <p class="toggle-link" onclick="toggleForm()">Nouveau restaurant ? <span>Créer mon établissement</span></p>
+            <p class="toggle-link" onclick="toggleForm()">Nouveau partenaire ? <span>Créer mon restaurant</span></p>
         </div>
 
-        <!-- Register Section -->
+        <!-- ================= SECTION INSCRIPTION ================= -->
         <div id="register-section" class="form-section hidden">
             <h2>Créer votre restaurant</h2>
-            <p>Devenez partenaire SCAN&TCHOP</p>
-            <div id="register-error" class="error-message"></div>
+            <p>Rejoignez SCAN&TCHOP en quelques clics</p>
+            
+            <!-- Inscription Google (Propriétaire uniquement par défaut ici) -->
+            <button type="button" class="btn btn-google" onclick="handleGoogleAuth()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; margin: 0; box-shadow: none; border-radius: 0;" />
+                <span class="btn-text">S'inscrire avec Google</span>
+                <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
+            </button>
+            <div class="divider">ou utiliser un email</div>
+
             <form id="registerForm">
                 <div class="form-group">
                     <label for="reg-email">Email du propriétaire</label>
@@ -248,20 +334,18 @@
                     <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
                 </button>
             </form>
+            
             <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
         </div>
     </div>
 
     <!-- Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Config
+        // ================= CONFIGURATION FIREBASE =================
         const firebaseConfig = {
             apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
             authDomain: "scan-et-tchop.firebaseapp.com",
@@ -275,115 +359,178 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Éléments
+        // ================= SYSTÈME DE TOAST =================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = { success: '#22c55e', error: '#ef4444', info: '#3b82f6' };
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+            
+            toast.className = 'toast';
+            toast.style.borderColor = colors[type];
+            toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.4rem;"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ================= ÉLÉMENTS DU DOM =================
         const loginSection = document.getElementById('login-section');
         const registerSection = document.getElementById('register-section');
-        const loginError = document.getElementById('login-error');
-        const registerError = document.getElementById('register-error');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
         const roleProprietaire = document.getElementById('role-proprietaire');
         const roleEmploye = document.getElementById('role-employe');
         const codeGroup = document.getElementById('code-group');
+        const googleAuthContainer = document.getElementById('google-auth-container');
+        const authDivider = document.getElementById('auth-divider');
 
-        // Toggle formulaire
+        // ================= BASCULE INSCRIPTION / CONNEXION =================
         function toggleForm() {
             loginSection.classList.toggle('hidden');
             registerSection.classList.toggle('hidden');
-            loginError.style.display = 'none';
-            registerError.style.display = 'none';
         }
         window.toggleForm = toggleForm;
 
-        // Sélecteur de rôle
+        // ================= GESTION DES RÔLES (UI & Sécurité) =================
         roleProprietaire.addEventListener('click', () => {
             roleProprietaire.classList.add('active');
             roleEmploye.classList.remove('active');
+            
+            // On cache le code et on affiche Google
             codeGroup.classList.remove('visible');
             document.getElementById('login-code').required = false;
+            
+            googleAuthContainer.style.display = 'block';
+            authDivider.style.display = 'flex';
         });
+
         roleEmploye.addEventListener('click', () => {
             roleEmploye.classList.add('active');
             roleProprietaire.classList.remove('active');
+            
+            // On exige le code et on CACHE Google
             codeGroup.classList.add('visible');
             document.getElementById('login-code').required = true;
+            
+            googleAuthContainer.style.display = 'none';
+            authDivider.style.display = 'none';
         });
 
-        // Inscription (propriétaire)
-        registerForm.addEventListener('submit', async (e) => {
+        // ================= AUTHENTIFICATION GOOGLE =================
+        async function handleGoogleAuth() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // Vérifier si cet utilisateur existe déjà dans Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+
+                if (!userDoc.exists) {
+                    // C'est une nouvelle inscription : on le force en tant que propriétaire
+                    await db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        nom: user.displayName || '',
+                        photo: user.photoURL || '',
+                        role: 'proprietaire',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showToast("Création du compte réussie !", "success");
+                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                } else {
+                    // L'utilisateur existe, on vérifie son rôle
+                    const data = userDoc.data();
+                    if (data.role !== 'proprietaire') {
+                        // Si un employé tente de se connecter avec Google, on bloque
+                        await auth.signOut();
+                        showToast("Accès refusé. Les employés doivent se connecter avec Email, Mot de passe et Code Restaurant.", "error");
+                        return;
+                    }
+                    showToast("Connexion réussie !", "success");
+                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                }
+            } catch (error) {
+                showToast("Erreur Google : " + error.message, "error");
+            }
+        }
+        window.handleGoogleAuth = handleGoogleAuth;
+
+        // ================= INSCRIPTION PAR EMAIL (Propriétaire) =================
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
-            registerBtn.classList.add('loading');
-            registerError.style.display = 'none';
+            const btn = document.getElementById('register-btn');
+            
+            btn.classList.add('loading');
 
             try {
                 const cred = await auth.createUserWithEmailAndPassword(email, password);
                 const user = cred.user;
-                // Créer document utilisateur
+                
                 await db.collection('users').doc(user.uid).set({
                     email: email,
                     role: 'proprietaire',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                // Rediriger vers dashboard propriétaire
-                window.location.href = 'dashboard_proprietaire.html';
+                
+                showToast("Restaurant créé avec succès !", "success");
+                setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
             } catch (err) {
-                registerError.textContent = err.message;
-                registerError.style.display = 'block';
-                registerBtn.classList.remove('loading');
+                showToast(err.message, "error");
+            } finally {
+                btn.classList.remove('loading');
             }
         });
 
-        // Connexion
-        loginForm.addEventListener('submit', async (e) => {
+        // ================= CONNEXION PAR EMAIL (Propriétaire & Employé) =================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const code = document.getElementById('login-code').value.trim();
             const isEmploye = roleEmploye.classList.contains('active');
+            const btn = document.getElementById('login-btn');
 
-            loginBtn.classList.add('loading');
-            loginError.style.display = 'none';
+            btn.classList.add('loading');
 
             try {
                 const cred = await auth.signInWithEmailAndPassword(email, password);
                 const user = cred.user;
 
-                // Récupérer le rôle
+                // Récupérer les infos Firestore
                 const doc = await db.collection('users').doc(user.uid).get();
-                if (!doc.exists) throw new Error("Utilisateur introuvable.");
+                if (!doc.exists) throw new Error("Compte introuvable dans la base de données.");
 
                 const data = doc.data();
-                const role = data.role;
-
-                // Si employé, vérifier le code restaurant
+                
                 if (isEmploye) {
-                    if (!code) throw new Error("Le code restaurant est requis.");
-                    // Le code doit correspondre à celui stocké dans le document de l'employé
+                    if (data.role === 'proprietaire') {
+                        throw new Error("Vous êtes propriétaire. Veuillez sélectionner l'onglet 'Propriétaire'.");
+                    }
                     if (data.codeRestaurant !== code) {
-                        throw new Error("Code restaurant invalide.");
+                        throw new Error("Le code restaurant est invalide.");
                     }
-                    // Redirection vers dashboard employé
-                    window.location.href = 'dashboard_employe.html';
+                    showToast("Connexion employé réussie.", "success");
+                    setTimeout(() => window.location.href = 'dashboard_employe.html', 1000);
                 } else {
-                    // Propriétaire
-                    if (role !== 'proprietaire') {
-                        throw new Error("Ce compte n'est pas un compte propriétaire.");
+                    if (data.role !== 'proprietaire') {
+                        throw new Error("Vous êtes enregistré comme employé. Veuillez changer d'onglet.");
                     }
-                    window.location.href = 'dashboard_proprietaire.html';
+                    showToast("Bon retour Propriétaire !", "success");
+                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
                 }
             } catch (err) {
-                loginError.textContent = err.message || "Identifiants incorrects.";
-                loginError.style.display = 'block';
-                loginBtn.classList.remove('loading');
+                auth.signOut(); // Sécurité : on déconnecte si les rôles/codes ne matchent pas
+                showToast(err.message || "Identifiants incorrects.", "error");
+            } finally {
+                btn.classList.remove('loading');
             }
         });
-
-        // Pré-remplir le champ code si l'utilisateur a déjà saisi un code (pour la démo)
-        console.log('✅ Page de connexion améliorée chargée.');
     </script>
 </body>
 </html>
