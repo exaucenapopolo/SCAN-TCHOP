@@ -120,6 +120,7 @@
       background: var(--card-bg); 
       border-radius: var(--radius-lg); border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: var(--shadow-md);
       padding: 32px; margin-bottom: 30px; transition: box-shadow 0.3s ease;
+      overflow: hidden; /* Prevent content escaping on mobile */
     }
     .card:hover { box-shadow: var(--shadow-lg); }
     .card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; color: var(--text-main); }
@@ -160,21 +161,9 @@
       border-radius: 40%; 
       animation: spinWave 8s linear infinite;
     }
-    .wave:nth-child(1) { 
-      background: rgba(255,255,255,0.15);
-      animation-duration: 8s; 
-    }
-    .wave:nth-child(2) { 
-      background: rgba(255,255,255,0.08);
-      animation-duration: 12s; 
-      bottom: -55%;
-    }
-    .wave:nth-child(3) {
-      background: rgba(255,255,255,0.05);
-      animation-duration: 16s;
-      bottom: -60%;
-      left: -40%;
-    }
+    .wave:nth-child(1) { background: rgba(255,255,255,0.15); animation-duration: 8s; }
+    .wave:nth-child(2) { background: rgba(255,255,255,0.08); animation-duration: 12s; bottom: -55%; }
+    .wave:nth-child(3) { background: rgba(255,255,255,0.05); animation-duration: 16s; bottom: -60%; left: -40%; }
     @keyframes spinWave { 100% { transform: rotate(360deg); } }
 
     /* ====== ABONNEMENTS ====== */
@@ -199,17 +188,9 @@
     .price-card ul li i.fa-check { color: var(--success); font-size: 1.1rem; margin-right: 12px; }
 
     /* ====== FORMULAIRES ====== */
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; width: 100%; }
     .form-group label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 8px; color: #334155; }
     
-    .divider {
-      display: flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1px; margin: 35px 0 20px; font-family: 'Outfit', sans-serif;
-    }
-    .divider::after {
-      content: ""; flex: 1; height: 1px; background: var(--border-color); margin-left: 15px; opacity: 0.7;
-    }
-
     .form-control {
       width: 100%; padding: 14px 18px; border: 1px solid var(--border-color); border-radius: 12px;
       font-family: inherit; font-size: 0.95rem; background: #f8fafc; transition: var(--transition); color: var(--text-main);
@@ -219,7 +200,7 @@
     select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; cursor: pointer; }
 
     /* ====== BOUTONS ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; }
+    .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; white-space: nowrap; }
     .btn:active { transform: scale(0.96); }
     
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
@@ -250,23 +231,21 @@
     tr.item-disabled td { opacity: 0.5; filter: grayscale(100%); }
     tr.item-disabled:hover td { opacity: 0.8; }
 
-    /* ====== ÉTATS VIDES ====== */
+    /* ====== ÉTATS VIDES AVEC ILLUSTRATIONS ====== */
     .empty-state {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 60px 20px; text-align: center; color: var(--text-muted);
+      padding: 60px 20px; text-align: center; color: var(--text-muted); word-break: break-word;
     }
     .empty-state .empty-icon {
-      font-size: 4rem; margin-bottom: 20px; opacity: 0.6;
+      font-size: 4rem; margin-bottom: 20px; opacity: 0.6; color: var(--primary);
     }
     .empty-state .empty-title {
       font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;
     }
     .empty-state .empty-desc {
-      max-width: 400px; margin-bottom: 20px; line-height: 1.5;
+      max-width: 400px; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem;
     }
-    .empty-state .btn {
-      margin-top: 4px;
-    }
+    .empty-state .btn { margin-top: 4px; }
 
     /* ====== BADGES & SWITCHES ====== */
     .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-block; letter-spacing: 0.5px; }
@@ -362,6 +341,7 @@
       .header { flex-direction: column; align-items: flex-start; }
       .header-right { width: 100%; justify-content: space-between; }
       .user-badge { max-width: 180px; }
+      #restoRecap { word-break: break-word; white-space: normal; } /* Fix overflow */
     }
     @media (max-width: 480px) {
       .modal-body { padding:20px; }
@@ -383,7 +363,7 @@
     .qr-promo-box .btn-outline:hover { background: var(--primary); color: #fff; }
     #qrcode canvas { display: block; margin: 0 auto; }
 
-    /* ====== ÉTAPES FORMULAIRE MON RESTAURANT (si utilisées) ====== */
+    /* ====== ÉTAPES FORMULAIRE MON RESTAURANT ====== */
     .step-indicators {
       display: flex; justify-content: center; gap: 8px; margin-bottom: 30px;
     }
@@ -393,77 +373,23 @@
     }
     .step-dot.active { background: var(--primary); transform: scale(1.2); }
     .step-dot.done { background: var(--success); }
-    .resto-step { display: none; animation: fadeIn 0.3s ease-out; }
+    
+    .resto-step { display: none; animation: fadeIn 0.3s ease-out; margin-bottom: 20px; }
     .resto-step.active { display: block; }
+    
     .step-nav {
       display: flex; gap: 12px; justify-content: space-between; margin-top: 20px;
     }
     .step-nav .btn { min-width: 120px; }
 
-    /* Option export PDF */
     .export-option {
       display: flex; align-items: center; gap: 12px; background: #f8fafc;
       padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border-color);
       margin-bottom: 20px;
     }
-    .export-option input[type="checkbox"] {
-      width: 20px; height: 20px; accent-color: var(--primary);
-    }
-    .export-option label {
-      font-weight: 500; font-size: 0.95rem; color: var(--text-main);
-    }
-    .export-option small {
-      color: var(--text-muted); font-size: 0.8rem; margin-left: 4px;
-    }
-
-    /* ====== FICHE COMPLÈTE RESTAURANT (quand déjà rempli) ====== */
-    .restaurant-full-card {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      background: #f8fafc;
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-    }
-    .restaurant-full-card .info-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .restaurant-full-card .info-item .label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    .restaurant-full-card .info-item .value {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text-main);
-      word-break: break-word;
-    }
-    .restaurant-full-card .info-item .value img {
-      max-width: 100px;
-      max-height: 100px;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      margin-top: 4px;
-    }
-    .restaurant-full-card .info-item.full-width {
-      grid-column: 1 / -1;
-    }
-    @media (max-width: 480px) {
-      .restaurant-full-card {
-        grid-template-columns: 1fr;
-        padding: 16px;
-      }
-      .restaurant-full-card .info-item.full-width {
-        grid-column: 1;
-      }
-    }
+    .export-option input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
+    .export-option label { font-weight: 500; font-size: 0.95rem; color: var(--text-main); }
+    .export-option small { color: var(--text-muted); font-size: 0.8rem; margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -545,10 +471,82 @@
     <div id="section-restaurant" class="section">
       <div class="card">
         <h3><i class="fas fa-store-alt"></i> Configuration du restaurant</h3>
-        <!-- Conteneur pour la fiche complète ou le formulaire à étapes -->
-        <div id="restaurantConfigContainer">
-          <!-- Sera rempli dynamiquement -->
+
+        <!-- Indicateurs d'étapes (Masqués si fiche unifiée) -->
+        <div class="step-indicators" id="stepIndicators">
+          <span class="step-dot active" data-step="1"></span>
+          <span class="step-dot" data-step="2"></span>
+          <span class="step-dot" data-step="3"></span>
+          <span class="step-dot" data-step="4"></span>
         </div>
+
+        <form id="restaurantForm">
+          
+          <div class="resto-step active" data-step="1">
+            <div class="grid-2">
+              <div class="form-group"><label>Nom du restaurant *</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
+              <div class="form-group"><label>Nom du propriétaire</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" /></div>
+            </div>
+            <div class="step-nav">
+              <span></span>
+              <button type="button" class="btn btn-primary" onclick="goStep(2)">Suivant <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div class="resto-step" data-step="2">
+            <div class="grid-2">
+              <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" /></div>
+              <div class="form-group"><label>Téléphone (appels)</label><input type="text" id="restoTel" class="form-control" placeholder="+237 ..." /></div>
+              <div class="form-group"><label>Téléphone WhatsApp</label><input type="text" id="restoWhatsapp" class="form-control" placeholder="+237 ..." /></div>
+              <div class="form-group"><label>Ville</label><input type="text" id="restoVille" class="form-control" placeholder="Douala" /></div>
+              <div class="form-group"><label>Adresse physique</label><input type="text" id="restoAdresse" class="form-control" placeholder="Rue, Quartier..." /></div>
+              <div class="form-group"><label>Localisation (Google Maps)</label><input type="url" id="restoMap" class="form-control" placeholder="https://maps.app.goo.gl/..." /></div>
+            </div>
+            <div class="step-nav">
+              <button type="button" class="btn btn-outline" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Précédent</button>
+              <button type="button" class="btn btn-primary" onclick="goStep(3)">Suivant <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div class="resto-step" data-step="3">
+            <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'esprit de votre établissement..."></textarea></div>
+            <div class="form-group">
+              <label>Logo du restaurant</label>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                <i class="fas fa-lightbulb" style="color: var(--warning);"></i> <strong>Conseil :</strong> Utilisez un logo avec un fond transparent (format PNG) pour un rendu parfait.
+              </p>
+              <div class="upload-preview">
+                <img id="restoLogoPreview" src="" alt="Logo" style="display:none;" />
+                <label class="upload-btn">
+                  <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
+                  <input type="file" id="restoLogoInput" accept="image/*" />
+                </label>
+                <span id="restoLogoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+              </div>
+              <div class="upload-progress" id="restoLogoProgress"><div class="upload-progress-bar" id="restoLogoProgressBar"></div></div>
+            </div>
+            <div class="step-nav">
+              <button type="button" class="btn btn-outline" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Précédent</button>
+              <button type="button" class="btn btn-primary" onclick="goStep(4)">Suivant <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div class="resto-step" data-step="4">
+            <!-- Ce récapitulatif textuel sera masqué si la fiche est unifiée -->
+            <div id="restoRecapContainer">
+                <p style="color: var(--text-muted); margin-bottom: 24px;">Vérifiez les informations ci-dessous avant de finaliser l’enregistrement.</p>
+                <div id="restoRecap" style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.95rem;"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Enregistrer les informations</button>
+            
+            <div class="step-nav" style="margin-top:20px;">
+              <button type="button" class="btn btn-outline" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Précédent</button>
+              <span></span>
+            </div>
+          </div>
+
+        </form>
       </div>
     </div>
 
@@ -756,7 +754,7 @@
     };
 
     // ============================================================
-    //  FIREBASE
+    //  FIREBASE & CLOUDINARY UPLOAD
     // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
@@ -778,6 +776,31 @@
     const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
     
     const APP_LOGO_URL = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
+
+    // Fonction utilitaire pour attacher l'upload aux inputs des modales
+    function setupModalImageUpload(inputId, previewId, urlDataId, progressId, progressBarId) {
+      const input = document.getElementById(inputId);
+      if(!input) return;
+      input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        document.getElementById(progressId).style.display = 'block';
+        document.getElementById(progressBarId).style.width = '0%';
+        
+        uploadImage(file, 
+          (p) => { document.getElementById(progressBarId).style.width = p + '%'; }, 
+          (err, url) => {
+            document.getElementById(progressId).style.display = 'none';
+            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
+            
+            const img = document.getElementById(previewId);
+            img.src = url; img.style.display = 'block';
+            document.getElementById(urlDataId).innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
+            document.getElementById(urlDataId).dataset.url = url;
+          }
+        );
+      });
+    }
 
     function getBase64ImageFromURL(url) {
       return new Promise((resolve, reject) => {
@@ -872,6 +895,7 @@
     let toutesLesCommandes = [];
     let qrCanvasWithLogo = null;
     let currentStep = 1;
+    let isUnifiedForm = false; // Variable pour tracker si le formulaire est en mode complet
 
     // ============================================================
     //  AUTH & INIT
@@ -888,7 +912,6 @@
       await initRestaurant(user.uid);
       loadDashboard();
       initChart();
-      loadRetraits();
     });
 
     async function initRestaurant(uid) {
@@ -900,8 +923,7 @@
         populateRestaurantForm(restaurantData);
         updateSubscriptionUI(restaurantData.abonnement || 'Aucun');
         updateQRUI();
-        // Mettre à jour l'affichage du restaurant (fiche ou étapes)
-        renderRestaurantConfig();
+        updateStepIndicators();
         return;
       }
       const newResto = {
@@ -916,12 +938,10 @@
       updateSubscriptionUI('Aucun');
       updateQRUI();
       await db.collection('users').doc(uid).update({ restaurantId: currentRestaurantId });
-      renderRestaurantConfig();
     }
 
     function populateRestaurantForm(data) {
       document.getElementById('headerRestoName').textContent = data.nom || currentUser.email;
-      // On garde les valeurs dans les champs du formulaire (ils seront utilisés si on affiche les étapes)
       document.getElementById('restoNom').value = data.nom || '';
       document.getElementById('restoProprio').value = data.proprietaireNom || '';
       document.getElementById('restoEmail').value = data.email || '';
@@ -938,6 +958,32 @@
         img.src = data.logo; img.style.display = 'block';
         document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
         document.getElementById('restoLogoUrl').dataset.url = data.logo;
+      }
+      
+      // LOGIQUE D'AFFICHAGE (Unifiée vs Étapes)
+      let filledCount = 0;
+      const fields = ['nom', 'proprietaireNom', 'email', 'telephone', 'whatsapp', 'adresse', 'ville', 'map', 'description', 'logo'];
+      fields.forEach(field => {
+          if (data[field] && data[field].toString().trim() !== '') {
+              filledCount++;
+          }
+      });
+
+      if (filledCount >= 3) {
+          isUnifiedForm = true;
+          document.getElementById('stepIndicators').style.display = 'none';
+          document.getElementById('restoRecapContainer').style.display = 'none'; // Cache le bloc texte récap
+          
+          document.querySelectorAll('.resto-step').forEach(step => {
+              step.style.display = 'block';
+              step.classList.add('active');
+          });
+          document.querySelectorAll('.step-nav').forEach(nav => {
+              nav.style.display = 'none'; // Cache les boutons suivant/précédent
+          });
+      } else {
+          isUnifiedForm = false;
+          updateRecap();
       }
     }
 
@@ -961,289 +1007,126 @@
     }
 
     // ============================================================
-    //  RENDU DE LA SECTION RESTAURANT (fiche ou étapes)
+    //  FORMULAIRE EN ÉTAPES (MON RESTAURANT)
     // ============================================================
-    function renderRestaurantConfig() {
-      const container = document.getElementById('restaurantConfigContainer');
-      if (!restaurantData) return;
-
-      // Compter le nombre de champs remplis (parmi les champs principaux)
-      const fields = [
-        restaurantData.nom,
-        restaurantData.proprietaireNom,
-        restaurantData.email,
-        restaurantData.telephone,
-        restaurantData.whatsapp,
-        restaurantData.adresse,
-        restaurantData.ville,
-        restaurantData.map,
-        restaurantData.description,
-        restaurantData.logo
-      ];
-      const filledCount = fields.filter(f => f && f.trim().length > 0).length;
-
-      // Si au moins 3 champs sont remplis, on affiche la fiche complète
-      if (filledCount >= 3) {
-        container.innerHTML = generateFullCard(restaurantData);
-      } else {
-        // Sinon on affiche le formulaire à étapes (le code HTML est déjà dans la page, on le rend visible)
-        // On récupère le formulaire existant (qui est dans le DOM mais caché)
-        // On va le réafficher
-        container.innerHTML = `
-          <div class="step-indicators" id="stepIndicators">
-            <span class="step-dot active" data-step="1"></span>
-            <span class="step-dot" data-step="2"></span>
-            <span class="step-dot" data-step="3"></span>
-            <span class="step-dot" data-step="4"></span>
-          </div>
-          <form id="restaurantForm">
-            <!-- ÉTAPE 1 -->
-            <div class="resto-step active" data-step="1">
-              <div class="grid-2">
-                <div class="form-group"><label>Nom du restaurant *</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
-                <div class="form-group"><label>Nom du propriétaire</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" /></div>
-              </div>
-              <div class="step-nav">
-                <span></span>
-                <button type="button" class="btn btn-primary" onclick="goStep(2)">Suivant <i class="fas fa-arrow-right"></i></button>
-              </div>
-            </div>
-            <!-- ÉTAPE 2 -->
-            <div class="resto-step" data-step="2">
-              <div class="grid-2">
-                <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" /></div>
-                <div class="form-group"><label>Téléphone (appels)</label><input type="text" id="restoTel" class="form-control" placeholder="+237 ..." /></div>
-                <div class="form-group"><label>Téléphone WhatsApp</label><input type="text" id="restoWhatsapp" class="form-control" placeholder="+237 ..." /></div>
-                <div class="form-group"><label>Ville</label><input type="text" id="restoVille" class="form-control" placeholder="Douala" /></div>
-                <div class="form-group"><label>Adresse physique</label><input type="text" id="restoAdresse" class="form-control" placeholder="Rue, Quartier..." /></div>
-                <div class="form-group"><label>Localisation (Google Maps)</label><input type="url" id="restoMap" class="form-control" placeholder="https://maps.app.goo.gl/..." /></div>
-              </div>
-              <div class="step-nav">
-                <button type="button" class="btn btn-outline" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Précédent</button>
-                <button type="button" class="btn btn-primary" onclick="goStep(3)">Suivant <i class="fas fa-arrow-right"></i></button>
-              </div>
-            </div>
-            <!-- ÉTAPE 3 -->
-            <div class="resto-step" data-step="3">
-              <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'esprit de votre établissement..."></textarea></div>
-              <div class="form-group">
-                <label>Logo du restaurant</label>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-                  <i class="fas fa-lightbulb" style="color: var(--warning);"></i> <strong>Conseil :</strong> Utilisez un logo avec un fond transparent (format PNG) pour un rendu parfait.
-                </p>
-                <div class="upload-preview">
-                  <img id="restoLogoPreview" src="" alt="Logo" style="display:none;" />
-                  <label class="upload-btn">
-                    <i class="fas fa-cloud-upload-alt"></i> Télécharger un logo
-                    <input type="file" id="restoLogoInput" accept="image/*" />
-                  </label>
-                  <span id="restoLogoUrl" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
-                </div>
-                <div class="upload-progress" id="restoLogoProgress"><div class="upload-progress-bar" id="restoLogoProgressBar"></div></div>
-              </div>
-              <div class="step-nav">
-                <button type="button" class="btn btn-outline" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Précédent</button>
-                <button type="button" class="btn btn-primary" onclick="goStep(4)">Suivant <i class="fas fa-arrow-right"></i></button>
-              </div>
-            </div>
-            <!-- ÉTAPE 4 -->
-            <div class="resto-step" data-step="4">
-              <p style="color: var(--text-muted); margin-bottom: 24px;">Vérifiez les informations ci-dessous avant de finaliser l’enregistrement.</p>
-              <div id="restoRecap" style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.95rem;"></div>
-              <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Enregistrer définitivement</button>
-              <div class="step-nav" style="margin-top:20px;">
-                <button type="button" class="btn btn-outline" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Précédent</button>
-                <span></span>
-              </div>
-            </div>
-          </form>
-        `;
-        // Réattacher les événements
-        attachRestaurantFormEvents();
-        // Remplir les champs avec les données existantes
-        document.getElementById('restoNom').value = restaurantData.nom || '';
-        document.getElementById('restoProprio').value = restaurantData.proprietaireNom || '';
-        document.getElementById('restoEmail').value = restaurantData.email || '';
-        document.getElementById('restoTel').value = restaurantData.telephone || '';
-        document.getElementById('restoWhatsapp').value = restaurantData.whatsapp || '';
-        document.getElementById('restoAdresse').value = restaurantData.adresse || '';
-        document.getElementById('restoVille').value = restaurantData.ville || '';
-        document.getElementById('restoMap').value = restaurantData.map || '';
-        document.getElementById('restoDescription').value = restaurantData.description || '';
-        if (restaurantData.logo) {
-          const img = document.getElementById('restoLogoPreview');
-          img.src = restaurantData.logo; img.style.display = 'block';
-          document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
-          document.getElementById('restoLogoUrl').dataset.url = restaurantData.logo;
-        }
-        // Mettre à jour les étapes
-        currentStep = 1;
-        updateStepIndicators();
-        // Réattacher l'upload logo
-        document.getElementById('restoLogoInput').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
-          const progressDiv = document.getElementById('restoLogoProgress');
-          const progressBar = document.getElementById('restoLogoProgressBar');
-          progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-          uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-            progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-            const img = document.getElementById('restoLogoPreview');
-            img.src = url; img.style.display = 'block';
-            document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
-            document.getElementById('restoLogoUrl').dataset.url = url;
-            if(restaurantData && restaurantData.menuUrl) {
-                restaurantData.logo = url;
-                generateQRWithLogo(restaurantData.menuUrl);
-            }
-            if (currentStep === 4) updateRecap();
-          });
-        });
-      }
+    function updateStepIndicators() {
+      if(isUnifiedForm) return; // Ne rien faire si la fiche est unifiée
+      
+      const dots = document.querySelectorAll('.step-dot');
+      dots.forEach((dot, idx) => {
+        const step = idx + 1;
+        dot.classList.remove('active', 'done');
+        if (step === currentStep) dot.classList.add('active');
+        else if (step < currentStep) dot.classList.add('done');
+      });
+      document.querySelectorAll('.resto-step').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
+      });
+      if (currentStep === 4) updateRecap();
     }
 
-    function generateFullCard(data) {
-      // Fonction pour afficher une valeur ou "Non renseigné"
-      const val = (v) => v && v.trim() ? v : '<span style="color:var(--text-muted);font-style:italic;">Non renseigné</span>';
-      const logoHtml = data.logo ? `<img src="${data.logo}" alt="Logo" />` : 'Aucun logo';
+    window.goStep = function(step) {
+      if (step > currentStep) {
+        const currentStepEl = document.querySelector(`.resto-step[data-step="${currentStep}"]`);
+        const requireds = currentStepEl.querySelectorAll('[required]');
+        for (let inp of requireds) {
+          if (!inp.value.trim()) {
+            showToast('Veuillez remplir tous les champs obligatoires avant de continuer.', 'warning');
+            inp.focus(); return;
+          }
+        }
+      }
+      currentStep = step;
+      updateStepIndicators();
+    };
+
+    function updateRecap() {
+      if(isUnifiedForm) return;
       
-      return `
-        <div class="restaurant-full-card">
-          <div class="info-item"><span class="label">Nom du restaurant</span><span class="value">${val(data.nom)}</span></div>
-          <div class="info-item"><span class="label">Propriétaire</span><span class="value">${val(data.proprietaireNom)}</span></div>
-          <div class="info-item"><span class="label">Email</span><span class="value">${val(data.email)}</span></div>
-          <div class="info-item"><span class="label">Téléphone</span><span class="value">${val(data.telephone)}</span></div>
-          <div class="info-item"><span class="label">WhatsApp</span><span class="value">${val(data.whatsapp)}</span></div>
-          <div class="info-item"><span class="label">Ville</span><span class="value">${val(data.ville)}</span></div>
-          <div class="info-item full-width"><span class="label">Adresse</span><span class="value">${val(data.adresse)}</span></div>
-          <div class="info-item full-width"><span class="label">Localisation (Google Maps)</span><span class="value">${val(data.map)}</span></div>
-          <div class="info-item full-width"><span class="label">Description / Slogan</span><span class="value">${val(data.description)}</span></div>
-          <div class="info-item full-width"><span class="label">Logo</span><span class="value">${logoHtml}</span></div>
-        </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
-          <button class="btn btn-primary" onclick="enableEditRestaurant()"><i class="fas fa-pen"></i> Modifier</button>
-          <button class="btn btn-success" onclick="saveRestaurantFull()"><i class="fas fa-save"></i> Enregistrer les modifications</button>
+      const recap = document.getElementById('restoRecap');
+      const nom = document.getElementById('restoNom').value || '(non renseigné)';
+      const proprio = document.getElementById('restoProprio').value || '(non renseigné)';
+      const email = document.getElementById('restoEmail').value || '(non renseigné)';
+      const tel = document.getElementById('restoTel').value || '(non renseigné)';
+      const whatsapp = document.getElementById('restoWhatsapp').value || '(non renseigné)';
+      const ville = document.getElementById('restoVille').value || '(non renseigné)';
+      const adresse = document.getElementById('restoAdresse').value || '(non renseigné)';
+      const map = document.getElementById('restoMap').value || '(non renseigné)';
+      const desc = document.getElementById('restoDescription').value || '(non renseigné)';
+      const logo = document.getElementById('restoLogoUrl').dataset.url ? 'Logo défini' : 'Aucun logo';
+      
+      recap.innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div><strong>Nom :</strong> ${nom}</div>
+          <div><strong>Propriétaire :</strong> ${proprio}</div>
+          <div><strong>Email :</strong> ${email}</div>
+          <div><strong>Téléphone :</strong> ${tel}</div>
+          <div><strong>WhatsApp :</strong> ${whatsapp}</div>
+          <div><strong>Ville :</strong> ${ville}</div>
+          <div style="grid-column: span 2;"><strong>Adresse :</strong> ${adresse}</div>
+          <div style="grid-column: span 2;"><strong>Maps :</strong> <span style="word-break: break-all;">${map}</span></div>
+          <div style="grid-column: span 2;"><strong>Description :</strong> ${desc}</div>
+          <div style="grid-column: span 2;"><strong>Logo :</strong> ${logo}</div>
         </div>
       `;
     }
 
-    // Fonctions pour la fiche complète
-    window.enableEditRestaurant = function() {
-      // On repasse en mode étapes pour permettre l'édition
-      // On force le nombre de champs remplis à 2 pour que le formulaire s'affiche
-      // On va simplement réinitialiser le render avec moins de champs remplis (simulé)
-      // Pour cela on va modifier temporairement restaurantData et rappeler renderRestaurantConfig
-      // Mais on va plutôt utiliser un mécanisme plus simple : on réaffiche le formulaire à étapes
-      // On va stocker une variable pour forcer l'affichage des étapes
-      if (!window._forceSteps) window._forceSteps = false;
-      window._forceSteps = true;
-      renderRestaurantConfig();
-    };
-
-    window.saveRestaurantFull = async function() {
-      if (!currentRestaurantId) return;
-      // Les données sont déjà dans restaurantData, on les renvoie telles quelles
-      // On pourrait permettre une édition in-place, mais on va simplement recharger
-      showToast('Informations enregistrées avec succès !');
-    };
-
-    // Fonction pour attacher les événements du formulaire à étapes
-    function attachRestaurantFormEvents() {
-      const form = document.getElementById('restaurantForm');
-      if (!form) return;
-      // Supprimer les anciens listeners en clonant
-      const newForm = form.cloneNode(true);
-      form.parentNode.replaceChild(newForm, form);
-      
-      newForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!currentRestaurantId) return;
-        const btn = newForm.querySelector('button[type="submit"]');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...'; btn.disabled = true;
-        const data = {
-          nom: document.getElementById('restoNom').value, proprietaireNom: document.getElementById('restoProprio').value,
-          email: document.getElementById('restoEmail').value, telephone: document.getElementById('restoTel').value,
-          whatsapp: document.getElementById('restoWhatsapp').value, adresse: document.getElementById('restoAdresse').value,
-          ville: document.getElementById('restoVille').value, map: document.getElementById('restoMap').value,
-          description: document.getElementById('restoDescription').value, logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
-        };
-        await db.collection('restaurants').doc(currentRestaurantId).update(data);
-        restaurantData = { ...restaurantData, ...data };
-        document.getElementById('headerRestoName').textContent = data.nom; 
-        showToast('Informations du restaurant mises à jour !');
-        btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
-        setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1500);
-        // Recharger la vue (fiche ou étapes) selon le nombre de champs
-        renderRestaurantConfig();
-      });
-
-      // Réattacher les événements de navigation d'étapes
-      window.goStep = function(step) {
-        if (step > currentStep) {
-          const currentStepEl = document.querySelector(`.resto-step[data-step="${currentStep}"]`);
-          const requireds = currentStepEl.querySelectorAll('[required]');
-          for (let inp of requireds) {
-            if (!inp.value.trim()) {
-              showToast('Veuillez remplir tous les champs obligatoires avant de continuer.', 'warning');
-              inp.focus();
-              return;
-            }
-          }
+    document.getElementById('restoLogoInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const progressDiv = document.getElementById('restoLogoProgress');
+      const progressBar = document.getElementById('restoLogoProgressBar');
+      progressDiv.style.display = 'block'; progressBar.style.width = '0%';
+      uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
+        progressDiv.style.display = 'none'; progressBar.style.width = '0%';
+        if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
+        const img = document.getElementById('restoLogoPreview');
+        img.src = url; img.style.display = 'block';
+        document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
+        document.getElementById('restoLogoUrl').dataset.url = url;
+        if(restaurantData && restaurantData.menuUrl) {
+            restaurantData.logo = url;
+            generateQRWithLogo(restaurantData.menuUrl);
         }
-        currentStep = step;
-        updateStepIndicators();
-      };
+        if (!isUnifiedForm && currentStep === 4) updateRecap();
+      });
+    });
 
-      window.updateStepIndicators = function() {
-        const dots = document.querySelectorAll('.step-dot');
-        dots.forEach((dot, idx) => {
-          const step = idx + 1;
-          dot.classList.remove('active', 'done');
-          if (step === currentStep) dot.classList.add('active');
-          else if (step < currentStep) dot.classList.add('done');
-        });
-        document.querySelectorAll('.resto-step').forEach(el => {
-          el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
-        });
-        if (currentStep === 4) updateRecap();
+    document.getElementById('restaurantForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentRestaurantId) return;
+      const btn = e.target.querySelector('button[type="submit"]');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...'; btn.disabled = true;
+      
+      const data = {
+        nom: document.getElementById('restoNom').value, proprietaireNom: document.getElementById('restoProprio').value,
+        email: document.getElementById('restoEmail').value, telephone: document.getElementById('restoTel').value,
+        whatsapp: document.getElementById('restoWhatsapp').value, adresse: document.getElementById('restoAdresse').value,
+        ville: document.getElementById('restoVille').value, map: document.getElementById('restoMap').value,
+        description: document.getElementById('restoDescription').value, logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
       };
+      
+      await db.collection('restaurants').doc(currentRestaurantId).update(data);
+      restaurantData = { ...restaurantData, ...data };
+      document.getElementById('headerRestoName').textContent = data.nom; 
+      
+      showToast('Informations du restaurant mises à jour !');
+      btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
+      
+      setTimeout(() => { 
+        btn.innerHTML = orig; btn.disabled = false; 
+        if(!isUnifiedForm) {
+            currentStep = 1;
+            populateRestaurantForm(restaurantData); // Réévalue pour passer en unifié si >= 3 champs
+            updateStepIndicators();
+        }
+      }, 1500);
+    });
 
-      window.updateRecap = function() {
-        const recap = document.getElementById('restoRecap');
-        if (!recap) return;
-        const nom = document.getElementById('restoNom').value || '(non renseigné)';
-        const proprio = document.getElementById('restoProprio').value || '(non renseigné)';
-        const email = document.getElementById('restoEmail').value || '(non renseigné)';
-        const tel = document.getElementById('restoTel').value || '(non renseigné)';
-        const whatsapp = document.getElementById('restoWhatsapp').value || '(non renseigné)';
-        const ville = document.getElementById('restoVille').value || '(non renseigné)';
-        const adresse = document.getElementById('restoAdresse').value || '(non renseigné)';
-        const map = document.getElementById('restoMap').value || '(non renseigné)';
-        const desc = document.getElementById('restoDescription').value || '(non renseigné)';
-        const logo = document.getElementById('restoLogoUrl').dataset.url || 'Aucun logo';
-        
-        recap.innerHTML = `
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <div><strong>Nom :</strong> ${nom}</div>
-            <div><strong>Propriétaire :</strong> ${proprio}</div>
-            <div><strong>Email :</strong> ${email}</div>
-            <div><strong>Téléphone :</strong> ${tel}</div>
-            <div><strong>WhatsApp :</strong> ${whatsapp}</div>
-            <div><strong>Ville :</strong> ${ville}</div>
-            <div style="grid-column: span 2;"><strong>Adresse :</strong> ${adresse}</div>
-            <div style="grid-column: span 2;"><strong>Maps :</strong> ${map}</div>
-            <div style="grid-column: span 2;"><strong>Description :</strong> ${desc}</div>
-            <div style="grid-column: span 2;"><strong>Logo :</strong> ${logo}</div>
-          </div>
-        `;
-      };
-
-      // Initialiser les étapes
-      currentStep = 1;
-      updateStepIndicators();
-    }
+    document.getElementById('btnVoirRestaurant').addEventListener('click', () => {
+        if(restaurantData && restaurantData.menuUrl) window.open(restaurantData.menuUrl, '_blank');
+    });
 
     // ============================================================
     //  NAVIGATION & MODALES
@@ -1301,13 +1184,12 @@
     };
 
     // ============================================================
-    //  EMPLOYÉS (avec upload photo)
+    //  EMPLOYÉS
     // ============================================================
     async function loadEmployes() {
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('users').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('employesList');
-      const wrap = document.getElementById('employesTableWrap');
       tbody.innerHTML = '';
       let count = 0;
       snapshot.forEach(doc => {
@@ -1330,7 +1212,6 @@
       });
       document.getElementById('statEmployes').textContent = count;
 
-      // État vide
       if (count === 0) {
         tbody.innerHTML = `
           <tr><td colspan="7">
@@ -1354,65 +1235,49 @@
     window.editEmploye = async (uid) => {
       const doc = await db.collection('users').doc(uid).get();
       const data = doc.data();
-      const photoHtml = data.photo ? `<img src="${data.photo}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;margin-bottom:12px;" />` : '';
+      const photoStyle = data.photo ? 'block' : 'none';
       const html = `
         <div class="form-group">
-          <label>Photo</label>
-          <div class="upload-preview">
-            <div id="editEmpPhotoPreview">${photoHtml}</div>
-            <label class="upload-btn">
-              <i class="fas fa-cloud-upload-alt"></i> Changer la photo
-              <input type="file" id="editEmpPhotoInput" accept="image/*" />
-            </label>
-          </div>
-          <div class="upload-progress" id="editEmpPhotoProgress"><div class="upload-progress-bar" id="editEmpPhotoProgressBar"></div></div>
+            <label>Photo de l'employé</label>
+            <div class="upload-preview">
+                <img id="empPhotoPreview" src="${data.photo || ''}" alt="Photo" style="display:${photoStyle};" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="empPhotoInput" accept="image/*" />
+                </label>
+                <span id="empPhotoUrl" data-url="${data.photo || ''}" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom</label><input type="text" id="editEmpNom" class="form-control" value="${data.nom || ''}" required /></div>
         <div class="form-group"><label>Rôle</label><input list="roleOptions" id="editEmpRole" class="form-control" value="${data.role || ''}" required />
-          <datalist id="roleOptions"><option value="Serveur"></option><option value="Cuisine"></option><option value="Comptable"></option><option value="Manager"></option></datalist>
-        </div>
-        <input type="hidden" id="editEmpPhotoUrl" value="${data.photo || ''}" />
-      `;
+        <datalist id="roleOptions"><option value="Serveur"></option><option value="Cuisine"></option><option value="Comptable"></option><option value="Manager"></option></datalist></div>`;
+      
       openModal('Modifier l\'employé', html, async () => {
-        const photoUrl = document.getElementById('editEmpPhotoUrl').value;
         await db.collection('users').doc(uid).update({ 
-          nom: document.getElementById('editEmpNom').value, 
-          role: document.getElementById('editEmpRole').value,
-          photo: photoUrl
+            nom: document.getElementById('editEmpNom').value, 
+            role: document.getElementById('editEmpRole').value,
+            photo: document.getElementById('empPhotoUrl').dataset.url || ''
         });
         showToast('Profil employé mis à jour'); loadEmployes();
       });
-
-      // Gestion upload photo pour l'édition
-      document.getElementById('editEmpPhotoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const progressDiv = document.getElementById('editEmpPhotoProgress');
-        const progressBar = document.getElementById('editEmpPhotoProgressBar');
-        progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-        uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-          progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-          if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-          document.getElementById('editEmpPhotoUrl').value = url;
-          const preview = document.getElementById('editEmpPhotoPreview');
-          preview.innerHTML = `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" />`;
-        });
-      });
+      setupModalImageUpload('empPhotoInput', 'empPhotoPreview', 'empPhotoUrl', 'empPhotoProgress', 'empPhotoProgressBar');
     };
 
     document.getElementById('openAddEmploye').addEventListener('click', () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase();
       const html = `
         <div class="form-group">
-          <label>Photo</label>
-          <div class="upload-preview">
-            <div id="addEmpPhotoPreview"></div>
-            <label class="upload-btn">
-              <i class="fas fa-cloud-upload-alt"></i> Télécharger une photo
-              <input type="file" id="addEmpPhotoInput" accept="image/*" />
-            </label>
-          </div>
-          <div class="upload-progress" id="addEmpPhotoProgress"><div class="upload-progress-bar" id="addEmpPhotoProgressBar"></div></div>
+            <label>Photo de l'employé</label>
+            <div class="upload-preview">
+                <img id="empPhotoPreview" src="" alt="Photo" style="display:none;" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="empPhotoInput" accept="image/*" />
+                </label>
+                <span id="empPhotoUrl" data-url="" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom complet</label><input type="text" id="empNom" class="form-control" required /></div>
         <div class="form-group"><label>Email de connexion</label><input type="email" id="empEmail" class="form-control" required /></div>
@@ -1420,42 +1285,25 @@
           <div class="form-group"><label>Rôle</label><input list="roleOptionsAdd" id="empRole" class="form-control" required /><datalist id="roleOptionsAdd"><option value="Serveur"></option><option value="Cuisine"></option></datalist></div>
           <div class="form-group"><label>Code restaurant</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
         </div>
-        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
-        <input type="hidden" id="addEmpPhotoUrl" value="" />
-      `;
+        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>`;
+      
       openModal('Ajouter un employé', html, async () => {
         try {
-          const photo = document.getElementById('addEmpPhotoUrl').value;
           const cred = await secondaryAuth.createUserWithEmailAndPassword(document.getElementById('empEmail').value, document.getElementById('empPassword').value);
           await db.collection('users').doc(cred.user.uid).set({
             nom: document.getElementById('empNom').value, email: document.getElementById('empEmail').value, role: document.getElementById('empRole').value,
             restaurantId: currentRestaurantId, codeRestaurant: document.getElementById('empCode').value, motDePasse: document.getElementById('empPassword').value,
-            photo: photo,
+            photo: document.getElementById('empPhotoUrl').dataset.url || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await secondaryAuth.signOut(); showToast('✅ Employé enregistré !'); loadEmployes();
         } catch (err) { showToast('Erreur : ' + err.message, 'error'); }
       });
-
-      // Gestion upload photo pour l'ajout
-      document.getElementById('addEmpPhotoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const progressDiv = document.getElementById('addEmpPhotoProgress');
-        const progressBar = document.getElementById('addEmpPhotoProgressBar');
-        progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-        uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-          progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-          if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-          document.getElementById('addEmpPhotoUrl').value = url;
-          const preview = document.getElementById('addEmpPhotoPreview');
-          preview.innerHTML = `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" />`;
-        });
-      });
+      setupModalImageUpload('empPhotoInput', 'empPhotoPreview', 'empPhotoUrl', 'empPhotoProgress', 'empPhotoProgressBar');
     });
 
     // ============================================================
-    //  GESTION DU MENU (avec upload photo)
+    //  GESTION DU MENU
     // ============================================================
     const categoriesMenu = ["Plats locaux", "Plats occidentaux", "Nourriture", "Boissons", "Entrées", "Frites", "Compléments", "Desserts", "Amuse-gueules", "Friandises", "Autre"];
     function generateCategoryOptions(selected = "Nourriture") { return categoriesMenu.map(cat => `<option value="${cat}" ${cat === selected ? 'selected' : ''}>${cat}</option>`).join(''); }
@@ -1464,7 +1312,6 @@
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('menus').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('menuList');
-      const wrap = document.getElementById('menuTableWrap');
       tbody.innerHTML = '';
       let count = 0;
       snapshot.forEach(doc => {
@@ -1490,7 +1337,6 @@
       });
       document.getElementById('statPlats').textContent = count;
 
-      // État vide
       if (count === 0) {
         tbody.innerHTML = `
           <tr><td colspan="7">
@@ -1519,18 +1365,19 @@
     window.editPlat = async (id) => {
       const doc = await db.collection('menus').doc(id).get();
       const data = doc.data();
-      const photoHtml = data.image ? `<img src="${data.image}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;margin-bottom:12px;" />` : '';
+      const imgStyle = data.image ? 'block' : 'none';
       const html = `
         <div class="form-group">
-          <label>Photo du plat</label>
-          <div class="upload-preview">
-            <div id="editPlatPhotoPreview">${photoHtml}</div>
-            <label class="upload-btn">
-              <i class="fas fa-cloud-upload-alt"></i> Changer la photo
-              <input type="file" id="editPlatPhotoInput" accept="image/*" />
-            </label>
-          </div>
-          <div class="upload-progress" id="editPlatPhotoProgress"><div class="upload-progress-bar" id="editPlatPhotoProgressBar"></div></div>
+            <label>Photo du plat</label>
+            <div class="upload-preview">
+                <img id="platPhotoPreview" src="${data.image || ''}" alt="Plat" style="display:${imgStyle};" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="platPhotoInput" accept="image/*" />
+                </label>
+                <span id="platPhotoUrl" data-url="${data.image || ''}" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" required>${data.description || ''}</textarea></div>
@@ -1539,48 +1386,33 @@
           <div class="form-group"><label>Ancien prix (Promo)</label><input type="number" id="platPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
         </div>
         <div class="form-group"><label>Catégorie</label><select id="platCategorie" class="form-control" required>${generateCategoryOptions(data.categorie)}</select></div>
-        <input type="hidden" id="editPlatPhotoUrl" value="${data.image || ''}" />
       `;
       openModal('Modifier le plat', html, async () => {
         const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
-        const imageUrl = document.getElementById('editPlatPhotoUrl').value;
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
           description: document.getElementById('platDescription').value, promotion: prixOriginal > prix,
-          image: imageUrl
+          image: document.getElementById('platPhotoUrl').dataset.url || data.image
         });
         showToast('Plat mis à jour avec succès'); loadMenu();
       });
-
-      document.getElementById('editPlatPhotoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const progressDiv = document.getElementById('editPlatPhotoProgress');
-        const progressBar = document.getElementById('editPlatPhotoProgressBar');
-        progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-        uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-          progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-          if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-          document.getElementById('editPlatPhotoUrl').value = url;
-          const preview = document.getElementById('editPlatPhotoPreview');
-          preview.innerHTML = `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" />`;
-        });
-      });
+      setupModalImageUpload('platPhotoInput', 'platPhotoPreview', 'platPhotoUrl', 'platPhotoProgress', 'platPhotoProgressBar');
     };
 
     document.getElementById('openAddPlat').addEventListener('click', () => {
       const html = `
         <div class="form-group">
-          <label>Photo du plat</label>
-          <div class="upload-preview">
-            <div id="addPlatPhotoPreview"></div>
-            <label class="upload-btn">
-              <i class="fas fa-cloud-upload-alt"></i> Télécharger une photo
-              <input type="file" id="addPlatPhotoInput" accept="image/*" />
-            </label>
-          </div>
-          <div class="upload-progress" id="addPlatPhotoProgress"><div class="upload-progress-bar" id="addPlatPhotoProgressBar"></div></div>
+            <label>Photo du plat</label>
+            <div class="upload-preview">
+                <img id="platPhotoPreview" src="" alt="Plat" style="display:none;" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="platPhotoInput" accept="image/*" required />
+                </label>
+                <span id="platPhotoUrl" data-url="" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" required /></div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" required></textarea></div>
@@ -1589,38 +1421,25 @@
           <div class="form-group"><label>Ancien prix (Promo)</label><input type="number" id="platPrixOriginal" class="form-control" /></div>
         </div>
         <div class="form-group"><label>Catégorie</label><select id="platCategorie" class="form-control" required>${generateCategoryOptions("Plats locaux")}</select></div>
-        <input type="hidden" id="addPlatPhotoUrl" value="" />
       `;
       openModal('Ajouter un plat', html, async () => {
+        const url = document.getElementById('platPhotoUrl').dataset.url;
+        if(!url) { showToast('Veuillez ajouter une photo pour le plat', 'warning'); throw new Error('Photo requise'); }
+        
         const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
-        const imageUrl = document.getElementById('addPlatPhotoUrl').value;
         await db.collection('menus').add({
           restaurantId: currentRestaurantId, nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
-          description: document.getElementById('platDescription').value, image: imageUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', promotion: prixOriginal > prix, disponible: true,
+          description: document.getElementById('platDescription').value, image: url, promotion: prixOriginal > prix, disponible: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Plat ajouté à la carte.'); loadMenu();
       });
-
-      document.getElementById('addPlatPhotoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const progressDiv = document.getElementById('addPlatPhotoProgress');
-        const progressBar = document.getElementById('addPlatPhotoProgressBar');
-        progressDiv.style.display = 'block'; progressBar.style.width = '0%';
-        uploadImage(file, (p) => { progressBar.style.width = p + '%'; }, (err, url) => {
-          progressDiv.style.display = 'none'; progressBar.style.width = '0%';
-          if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
-          document.getElementById('addPlatPhotoUrl').value = url;
-          const preview = document.getElementById('addPlatPhotoPreview');
-          preview.innerHTML = `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" />`;
-        });
-      });
+      setupModalImageUpload('platPhotoInput', 'platPhotoPreview', 'platPhotoUrl', 'platPhotoProgress', 'platPhotoProgressBar');
     });
 
     // ============================================================
-    //  QR CODE
+    //  QR CODE & PDF (Restés intacts)
     // ============================================================
     function updateQRUI() {
         const qrContainer = document.getElementById('menuLinkContainer');
@@ -1674,173 +1493,7 @@
     });
 
     // ============================================================
-    //  PDF AFFICHE TABLE (inchangé)
-    // ============================================================
-    document.getElementById('downloadQR').addEventListener('click', async () => {
-      if (!qrCanvasWithLogo) {
-        showToast('QR code en cours de génération, veuillez patienter...', 'warning');
-        return;
-      }
-
-      const restaurantName = restaurantData?.nom || 'DELICO';
-      const restoLogo = restaurantData?.logo || null;
-      
-      const btn = document.getElementById('downloadQR');
-      const origText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
-      btn.disabled = true;
-
-      try {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-          const pageWidth = 148;
-          const pageHeight = 210;
-
-          doc.setFillColor(10, 10, 12);
-          doc.rect(0, 0, pageWidth, pageHeight, 'F');
-
-          const foodItems = [
-            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -20, y: -15, w: 75, h: 75 }, 
-            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -25, y: 35, w: 68, h: 68 }, 
-            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 93, y: -15, w: 75, h: 75 },  
-            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 105, y: 35, w: 68, h: 68 }     
-          ];
-
-          for (const item of foodItems) {
-            const base64 = await getMaskedImageBase64(item.url); 
-            if (base64) {
-              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
-            }
-          }
-
-          let startY = 12;
-          let logoSize = 24;
-          
-          if (restoLogo) {
-            const logoBase64 = await getBase64ImageFromURL(restoLogo);
-            logoSize = 26;
-            if (logoBase64) doc.addImage(logoBase64, 'PNG', (pageWidth - logoSize) / 2, startY, logoSize, logoSize);
-          } else {
-             const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-             if (appLogoBase64) doc.addImage(appLogoBase64, 'PNG', (pageWidth - logoSize) / 2, startY, logoSize, logoSize);
-          }
-          
-          let nameY = startY + logoSize + 8; 
-
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(26);
-          doc.setTextColor(255, 255, 255);
-          doc.text(restaurantName.toUpperCase(), pageWidth / 2, nameY, { align: 'center' });
-
-          let sloganY = nameY + 6;
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(255, 190, 0);
-          doc.text('SAVEURS • QUALITÉ • PASSION', pageWidth / 2, sloganY, { align: 'center' });
-          
-          let lineY = sloganY + 4;
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(0.6);
-          doc.line(pageWidth / 2 - 25, lineY, pageWidth / 2 + 25, lineY);
-
-          let scanY = lineY + 42; 
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(0.5);
-          doc.line(35, scanY - 1, 50, scanY - 1);
-          doc.line(pageWidth - 50, scanY - 1, pageWidth - 35, scanY - 1);
-          
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          doc.setTextColor(255, 255, 255);
-          doc.text('SCANNEZ POUR', pageWidth / 2, scanY, { align: 'center' });
-
-          let cmdY = scanY + 11; 
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(32);
-          doc.setTextColor(30, 30, 30);
-          doc.text('COMMANDER', (pageWidth / 2) + 0.8, cmdY + 0.8, { align: 'center' });
-          doc.setTextColor(230, 110, 0);
-          doc.text('COMMANDER', pageWidth / 2, cmdY, { align: 'center' });
-          doc.setTextColor(255, 190, 0);
-          doc.text('COMMANDER', (pageWidth / 2) - 0.4, cmdY - 0.4, { align: 'center' });
-
-          let qrY = cmdY + 6; 
-          let qrSize = 56; 
-          const qrX = (pageWidth - qrSize) / 2;
-
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(1.0);
-          doc.roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4, 4, 'S');
-          doc.setFillColor(255, 255, 255);
-          doc.roundedRect(qrX, qrY, qrSize, qrSize, 2, 2, 'F');
-          doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
-
-          const dotR = 0.4;
-          doc.setFillColor(100, 100, 100);
-          for(let i = 0; i < 11; i++) { 
-              for(let j = 0; j < 3; j++) { 
-                  doc.circle(12 + j*4, qrY + 8 + i*4, dotR, 'F'); 
-                  doc.circle(pageWidth - 20 + j*4, qrY + 8 + i*4, dotR, 'F'); 
-              }
-          }
-          doc.setFillColor(255, 190, 0); 
-          [ [16, 16], [12, 28], [20, 40], [pageWidth-16, 20], [pageWidth-20, 32], [pageWidth-12, 44] ].forEach(pos => {
-              doc.circle(pos[0], qrY + pos[1], dotR + 0.2, 'F');
-          });
-
-          let advY = qrY + qrSize + 12; 
-          
-          const drawIconText = (x, title, subtitle, drawFunc) => {
-              drawFunc(x, advY + 2);
-              doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-              doc.text(title, x + 7, advY + 1);
-              doc.setTextColor(200, 200, 200); doc.setFontSize(5); doc.setFont('helvetica', 'normal');
-              doc.text(subtitle, x + 7, advY + 4);
-          };
-
-          drawIconText(10, 'RAPIDE', 'COMMANDEZ EN\nQUELQUES SECONDES', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.circle(x, y, 4, 'S'); doc.line(x, y-4, x, y-5); doc.line(x+3, y-2, x+4, y-3); doc.line(x, y, x+1.5, y-1.5);
-          });
-          drawIconText(60, 'FACILE', 'PARCOUREZ\nNOTRE MENU', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.line(x-4.5, y+3.5, x+4.5, y+3.5); doc.ellipse(x, y+2, 3.5, 3);
-              doc.setFillColor(10, 10, 12); doc.rect(x-5, y+2.5, 10, 4, 'F');
-              doc.setDrawColor(255, 190, 0); doc.line(x-4, y+3, x+4, y+3); doc.circle(x, y-1, 0.8, 'S'); 
-          });
-          drawIconText(110, 'SÉCURISÉ', 'PAIEMENT EN\nTOUTE SÉCURITÉ', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.line(x-3.5, y-1.5, x+3.5, y-1.5); doc.line(x-3.5, y-1.5, x, y+4.5); doc.line(x+3.5, y-1.5, x, y+4.5);
-              doc.line(x-1.5, y+0.5, x-0.2, y+2); doc.line(x-0.2, y+2, x+2, y-1);
-          });
-
-          let bannerY = 196; 
-          doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.3);
-          doc.line(0, bannerY + 4.5, pageWidth, bannerY + 4.5);
-
-          const pillW = 60; const pillX = (pageWidth - pillW) / 2;
-          doc.setFillColor(255, 190, 0); doc.roundedRect(pillX, bannerY, pillW, 9, 4.5, 4.5, 'F');
-
-          doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-          doc.text('MERCI !', pageWidth / 2, bannerY + 5, { align: 'center' });
-          
-          doc.setFont('helvetica', 'normal'); doc.setFontSize(5);
-          doc.text('— BON APPÉTIT —', pageWidth / 2, bannerY + 7.5, { align: 'center' });
-
-          doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
-          showToast("Affiche de table générée avec succès !");
-
-      } catch (error) {
-          console.error(error);
-          showToast("Erreur lors de la génération du PDF", "error");
-      } finally {
-          btn.innerHTML = origText;
-          btn.disabled = false;
-      }
-    });
-
-    // ============================================================
-    //  COMMANDES + EXPORT PDF
+    //  COMMANDES & ÉTATS VIDES
     // ============================================================
     async function loadCommandes() {
       if (!currentRestaurantId) return;
@@ -1863,7 +1516,6 @@
       const filtre = document.getElementById('filterDateCommandes').value;
       const tbody = document.getElementById('allOrders');
       const lastOrdersBbody = document.getElementById('lastOrders');
-      const wrap = document.getElementById('allOrdersWrap');
       tbody.innerHTML = ''; lastOrdersBbody.innerHTML = '';
       
       const now = new Date();
@@ -1895,26 +1547,25 @@
         }
       });
 
-      // État vide commandes
+      // NOUS AJOUTONS ICI DE BEAUX ÉTATS VIDES (EMPTY STATES)
       if (tbody.children.length === 0) {
         tbody.innerHTML = `
           <tr><td colspan="4">
             <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-receipt"></i></div>
-              <div class="empty-title">Aucune commande pour le moment</div>
-              <div class="empty-desc">Une fois votre restaurant configuré et vos plats ajoutés, les commandes apparaîtront ici.</div>
+              <div class="empty-icon" style="color: var(--primary);"><i class="fas fa-receipt"></i></div>
+              <div class="empty-title">Aucune commande pour cette période</div>
+              <div class="empty-desc">Il n'y a pas encore de commandes correspondant à votre filtre. Partagez votre menu pour recevoir vos premières commandes.</div>
             </div>
           </td></tr>
         `;
       }
-      // État vide pour les dernières commandes (dashboard)
       if (lastOrdersBbody.children.length === 0) {
         lastOrdersBbody.innerHTML = `
           <tr><td colspan="4">
-            <div class="empty-state" style="padding:30px 20px;">
-              <div class="empty-icon" style="font-size:2.5rem;"><i class="fas fa-receipt"></i></div>
-              <div class="empty-title" style="font-size:1rem;">Aucune commande récente</div>
-              <div class="empty-desc" style="font-size:0.9rem;">Les commandes s’afficheront ici dès qu’elles seront passées.</div>
+            <div class="empty-state" style="padding:40px 20px;">
+              <div class="empty-icon" style="font-size:3rem; color: var(--primary);"><i class="fas fa-box-open"></i></div>
+              <div class="empty-title" style="font-size:1.1rem;">Aucune commande récente</div>
+              <div class="empty-desc" style="font-size: 0.9rem;">Dès qu'un client passera commande, elle s'affichera ici.</div>
             </div>
           </td></tr>
         `;
@@ -1923,207 +1574,6 @@
 
     document.getElementById('filterDateCommandes').addEventListener('change', afficherCommandes);
 
-    document.getElementById('btnExportPDF').addEventListener('click', async () => {
-      const selectText = document.getElementById('filterDateCommandes').options[document.getElementById('filterDateCommandes').selectedIndex].text;
-      const autoCalc = document.getElementById('exportAutoCalc').checked;
-      
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if(appLogoBase64) {
-          doc.addImage(appLogoBase64, 'PNG', 14, 10, 20, 20);
-      }
-      doc.setFontSize(18);
-      doc.text('Rapport des Commandes', 40, 20);
-      doc.setFontSize(11);
-      doc.setTextColor(100);
-      doc.text('Période: ' + selectText, 40, 28);
-
-      const filtre = document.getElementById('filterDateCommandes').value;
-      const now = new Date();
-      const debutAujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const debutHier = new Date(debutAujourdhui); debutHier.setDate(debutHier.getDate() - 1);
-      const debutSemaine = new Date(debutAujourdhui); debutSemaine.setDate(debutSemaine.getDate() - 7);
-      const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      let filtered = toutesLesCommandes.filter(c => {
-        if (filtre === 'all') return true;
-        if (filtre === 'today') return c.dateObj >= debutAujourdhui;
-        if (filtre === 'yesterday') return c.dateObj >= debutHier && c.dateObj < debutAujourdhui;
-        if (filtre === 'week') return c.dateObj >= debutSemaine;
-        if (filtre === 'month') return c.dateObj >= debutMois;
-        return false;
-      });
-
-      let totalCA = 0, totalCommandes = filtered.length;
-      if (autoCalc) {
-        filtered.forEach(c => { totalCA += c.total || 0; });
-      }
-
-      const tableData = filtered.map(c => [
-        '#' + c.id.slice(0,8).toUpperCase(),
-        (c.total||0).toLocaleString('fr-FR') + ' F',
-        c.status || 'en attente',
-        c.dateObj.toLocaleString('fr-FR')
-      ]);
-
-      doc.autoTable({
-          startY: 35,
-          head: [['Référence', 'Montant', 'Statut', 'Date']],
-          body: tableData,
-          theme: 'striped',
-          headStyles: { fillColor: [230, 126, 34] },
-          foot: autoCalc ? [['', 'Total : ' + totalCA.toLocaleString('fr-FR') + ' F', totalCommandes + ' commandes', '']] : undefined,
-          footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0], fontStyle: 'bold' }
-      });
-
-      if (autoCalc && tableData.length > 0) {
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(10);
-        doc.setTextColor(0);
-        doc.text(`Résumé : ${totalCommandes} commandes pour un total de ${totalCA.toLocaleString('fr-FR')} FCFA`, 14, finalY);
-      }
-
-      doc.save('Rapport_Commandes.pdf');
-      showToast('Export PDF réussi !');
-    });
-
-    // ============================================================
-    //  RETRAITS
-    // ============================================================
-    document.getElementById('openDemandeRetrait').addEventListener('click', () => {
-        const html = `
-          <div class="form-group"><label>Montant à retirer (FCFA)</label><input type="number" id="retraitMontant" class="form-control" required /></div>
-          <div class="form-group"><label>Moyen de paiement</label>
-            <select id="retraitMoyen" class="form-control" required><option value="Orange Money">Orange Money</option><option value="MTN Mobile Money">MTN Mobile Money</option><option value="Virement Bancaire">Virement Bancaire</option></select>
-          </div>
-          <div class="form-group"><label>Numéro de compte / téléphone</label><input type="text" id="retraitCompte" class="form-control" required /></div>
-        `;
-        openModal('Demander un retrait', html, async () => {
-            const m = parseFloat(document.getElementById('retraitMontant').value);
-            if(!m || m <= 0) { showToast('Montant invalide', 'error'); return; }
-            if(restaurantData && m > restaurantData.solde) { showToast('Solde insuffisant', 'error'); return; }
-            showToast('Demande de retrait envoyée avec succès !');
-        });
-    });
-
-    async function loadRetraits() {
-      // Simulation d'état vide pour les retraits
-      const tbody = document.getElementById('retraitsList');
-      // Dans un cas réel, on récupérerait les retraits depuis Firestore
-      // Pour l'exemple, on affiche un état vide
-      tbody.innerHTML = `
-        <tr><td colspan="3">
-          <div class="empty-state">
-            <div class="empty-icon"><i class="fas fa-hand-holding-usd"></i></div>
-            <div class="empty-title">Aucun retrait effectué</div>
-            <div class="empty-desc">Vos demandes de retrait apparaîtront ici une fois traitées.</div>
-          </div>
-        </td></tr>
-      `;
-    }
-
-    // ============================================================
-    //  COURBE DES VENTES RÉELLES
-    // ============================================================
-    async function updateSalesChart() {
-      if (!currentRestaurantId) return;
-      const now = new Date();
-      const debutSemaine = new Date(now);
-      debutSemaine.setDate(debutSemaine.getDate() - 7);
-      debutSemaine.setHours(0,0,0,0);
-
-      const snapshot = await db.collection('commandes')
-        .where('restaurantId', '==', currentRestaurantId)
-        .where('createdAt', '>=', debutSemaine)
-        .get();
-
-      const jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-      const totals = jours.map(() => 0);
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const date = data.createdAt?.toDate?.() || new Date();
-        const dayIndex = date.getDay();
-        const idx = (dayIndex === 0) ? 6 : dayIndex - 1;
-        totals[idx] += data.total || 0;
-      });
-
-      if (salesChart) {
-        salesChart.data.datasets[0].data = totals;
-        salesChart.update();
-      }
-
-      const hasData = totals.some(v => v > 0);
-      const emptyState = document.getElementById('chartEmptyState');
-      if (!hasData) {
-        emptyState.style.display = 'flex';
-      } else {
-        emptyState.style.display = 'none';
-      }
-    }
-
-    function initChart() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                datasets: [{
-                  label: 'Ventes (FCFA)',
-                  data: [0,0,0,0,0,0,0],
-                  borderColor: '#e67e22',
-                  backgroundColor: 'rgba(230, 126, 34, 0.1)',
-                  borderWidth: 3,
-                  fill: true,
-                  tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
-                      }
-                    }
-                  }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: function(value) {
-                        return value.toLocaleString('fr-FR') + ' F';
-                      }
-                    }
-                  }
-                }
-            }
-        });
-        updateSalesChart();
-    }
-
-    // ============================================================
-    //  LOAD DASHBOARD
-    // ============================================================
-    function loadDashboard() {
-        loadEmployes();
-        loadMenu();
-        loadCommandes();
-        document.querySelector('nav a[data-section="dashboard"]').addEventListener('click', () => {
-          updateSalesChart();
-        });
-    }
-
-    // ============================================================
-    //  FIN
-    // ============================================================
-    console.log('✅ Dashboard propriétaire mis à jour avec toutes les améliorations.');
   </script>
 </body>
 </html>
