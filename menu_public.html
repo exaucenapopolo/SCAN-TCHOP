@@ -43,18 +43,21 @@
             background: linear-gradient(90deg, var(--primary), #f1c40f);
         }
         .restaurant-header img.logo { 
-            width: 110px; height: 110px; object-fit: contain; /* object-fit: contain pour fond transparent */
+            width: 110px; height: 110px; object-fit: contain;
             border-radius: 24px; background: transparent; margin-bottom: 5px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 5px; border: 1px solid var(--border-color);
         }
         .restaurant-header h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
-        .restaurant-header .description { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 12px; line-height: 1.6; }
+        .restaurant-header .description { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 8px; line-height: 1.6; }
         
-        /* Note globale et avis */
-        .global-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 8px 16px; background: #f8fafc; border-radius: 50px; transition: var(--transition); border: 1px solid var(--border-color); }
-        .global-rating:hover { background: var(--primary-light); border-color: rgba(230,126,34,0.3); }
+        .restaurant-address { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; background: #f8fafc; padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .restaurant-address i { color: var(--primary); }
+
+        /* Note globale */
+        .global-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 8px 16px; background: #fff; border-radius: 50px; transition: var(--transition); border: 1px solid transparent; }
+        .global-rating:hover { transform: translateY(-2px); }
         .global-rating .stars-display { color: #f59e0b; font-size: 1.1rem; }
-        .global-rating .rating-text { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
+        .global-rating .rating-text { font-size: 0.95rem; color: var(--text-main); font-weight: 700; }
 
         /* Boutons de contact */
         .contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; width: 100%; }
@@ -62,10 +65,12 @@
             padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; text-decoration: none;
             display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; cursor: pointer;
         }
+        .btn-phone { background: #0ea5e9; color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2); }
+        .btn-phone:hover { background: #0284c7; transform: translateY(-2px); }
         .btn-whatsapp { background: #25D366; color: white; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2); }
         .btn-whatsapp:hover { background: #128C7E; transform: translateY(-2px); }
-        .btn-location { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
-        .btn-location:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-location { background: #f43f5e; color: white; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.2); }
+        .btn-location:hover { background: #e11d48; transform: translateY(-2px); }
         .btn-avis-header { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(230,126,34,0.2); }
         .btn-avis-header:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
@@ -101,7 +106,6 @@
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); z-index: 2; text-transform: uppercase;
         }
 
-        /* Plat désactivé / Flouté */
         .menu-card.disabled-item .image-container::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             backdrop-filter: blur(4px); background: rgba(255,255,255,0.4); z-index: 1;
@@ -133,7 +137,30 @@
         .btn-commander:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35); }
         .btn-commander:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; color: #64748b; }
 
-        /* ====== MODALS ====== */
+        /* ====== SECTION AVIS CLIENTS (NOUVEAU) ====== */
+        .reviews-section { margin-top: 48px; background: #fff; padding: 32px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: none; }
+        .reviews-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; }
+        .reviews-section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        
+        .reviews-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; 
+            max-height: 500px; overflow-y: auto; padding-right: 10px; margin-top: 20px;
+        }
+        .reviews-grid::-webkit-scrollbar { width: 8px; }
+        .reviews-grid::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+        .reviews-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
+        .reviews-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .review-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border-color); transition: var(--transition); }
+        .review-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); background: #fff; border-color: rgba(230,126,34,0.3); }
+        .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .review-author { font-weight: 700; color: var(--text-main); font-size: 1.05rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .review-author i { color: var(--primary); font-size: 0.9rem; }
+        .review-date { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .review-stars { color: #f59e0b; font-size: 0.9rem; }
+        .review-text { font-size: 0.95rem; color: #475569; line-height: 1.6; }
+
+        /* ====== MODALS & FORMULAIRES ====== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 26, 46, 0.6); backdrop-filter: blur(6px);
@@ -174,7 +201,6 @@
         .split-input { width: 100%; padding: 14px; border: 1.5px solid var(--border-color); border-radius: 12px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.3s; }
         .split-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
         
-        /* Box QR Code Partage */
         .qr-share-box { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 16px; background: #fff; padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .qr-share-box img { width: 150px; height: 150px; border-radius: 12px; background: #fff; padding: 8px; border: 2px solid var(--primary); margin-bottom: 12px; }
 
@@ -182,19 +208,14 @@
         .total-display span { display: block; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .total-display strong { font-size: 1.8rem; color: var(--text-main); font-weight: 800; }
 
-        /* Formulaire & Liste Avis */
+        /* Formulaire Avis */
         .stars { color: #e2e8f0; font-size: 2.2rem; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .stars i.active { color: #f59e0b; }
-        textarea { width: 100%; padding: 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 120px; margin-bottom: 20px; outline: none; transition: 0.3s; }
-        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
-        
-        .avis-list-container { margin-top: 20px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-        .avis-item { background: #f8fafc; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); }
-        .avis-item-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-        .avis-item-stars { color: #f59e0b; font-size: 0.9rem; }
-        .avis-item-text { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); }
+        .input-form { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; margin-bottom: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
+        .input-form:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); background: #fff; }
+        textarea.input-form { resize: vertical; min-height: 120px; }
 
-        /* ====== BAS DE PAGE (FOOTER PREMIUM) ====== */
+        /* ====== BAS DE PAGE ====== */
         .app-footer {
             margin-top: 60px; background: linear-gradient(180deg, #1e293b, #0f172a); padding: 50px 20px 40px;
             display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
@@ -221,31 +242,35 @@
         
         .footer-copyright { border-top: 1px solid #334155; width: 100%; max-width: 800px; padding-top: 20px; margin-top: 20px; font-size: 0.85rem; color: #64748b; }
 
-        /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-card { animation: fadeIn 0.5s ease backwards; }
+        .menu-card, .review-card { animation: fadeIn 0.5s ease backwards; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- En-tête Dynamique -->
     <div id="restaurantInfo" class="restaurant-header">
         <p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
     </div>
 
-    <!-- Filtres de Catégories (Générés dynamiquement) -->
     <div class="category-container" id="categoryTabs">
-        <!-- Rempli par JavaScript -->
-    </div>
+        </div>
 
-    <!-- Grille des Plats -->
     <div id="menuContainer" class="menu-grid">
-        <!-- Chargé par JavaScript -->
-    </div>
+        </div>
+
+    <section id="reviewsSection" class="reviews-section">
+        <div class="reviews-section-header">
+            <h2><i class="fas fa-comments" style="color: var(--primary); margin-right: 10px;"></i> Ce que nos clients en pensent</h2>
+            <button class="btn-contact btn-avis-header" onclick="openModal('modalAvis')">
+                <i class="fas fa-star"></i> Laisser mon avis
+            </button>
+        </div>
+        <div class="reviews-grid" id="reviewsGrid">
+            </div>
+    </section>
 </div>
 
-<!-- Bas de page SCAN&TCHOP Premium -->
 <footer class="app-footer">
     <div class="footer-branding">
         <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="SCAN&TCHOP Logo" />
@@ -264,19 +289,16 @@
     </div>
 </footer>
 
-<!-- MODAL : ZOOM IMAGE -->
 <div class="modal-overlay" id="modalZoom" onclick="closeModal('modalZoom')">
     <img id="zoomImage" src="" alt="Agrandissement" onclick="event.stopPropagation()" />
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- MODAL : COMMANDE & CONFIGURATION -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
         <h2 id="orderPlatNom" style="margin-bottom: 24px; font-size:1.5rem; font-weight:800; padding-right:24px; color:var(--text-main); font-family: 'Playfair Display', serif;">Nom du plat</h2>
         
-        <!-- Quantité -->
         <div class="order-section">
             <h4>Combien en souhaitez-vous ?</h4>
             <div class="qty-selector">
@@ -286,7 +308,6 @@
             </div>
         </div>
 
-        <!-- Mode de paiement & Partage d'addition instantané -->
         <div class="order-section">
             <h4>Règlement de l'addition</h4>
             <div class="split-options">
@@ -304,7 +325,6 @@
             </div>
         </div>
 
-        <!-- Affichage du Prix Global -->
         <div class="total-display">
             <span id="totalLabel">Total à payer :</span>
             <strong id="orderTotal">0 FCFA</strong>
@@ -316,7 +336,6 @@
     </div>
 </div>
 
-<!-- MODAL : SOUVEGARDER UN AVIS -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
@@ -331,7 +350,8 @@
             <i class="fas fa-star" data-value="5"></i>
         </div>
         
-        <textarea id="avisCommentaire" placeholder="Qu'avez-vous pensé de l'accueil, du cadre ou de la saveur des plats ?..."></textarea>
+        <input type="text" id="avisNom" class="input-form" placeholder="Votre Nom et Prénom *" required />
+        <textarea id="avisCommentaire" class="input-form" placeholder="Qu'avez-vous pensé de l'accueil, du cadre ou de la saveur des plats ?..."></textarea>
         
         <button class="btn-commander" onclick="soumettreAvis()">
             Transmettre mon avis <i class="fas fa-paper-plane"></i>
@@ -339,24 +359,11 @@
     </div>
 </div>
 
-<!-- MODAL : LISTE DES AVIS -->
-<div class="modal-overlay" id="modalListeAvis">
-    <div class="modal-content">
-        <button class="close-modal" onclick="closeModal('modalListeAvis')"><i class="fas fa-times"></i></button>
-        <h2 style="margin-bottom: 20px; font-weight:800; color:var(--text-main); font-family: 'Playfair Display', serif;">Avis des clients</h2>
-        <div class="avis-list-container" id="avisListContainer">
-            <!-- Rempli par JavaScript -->
-        </div>
-    </div>
-</div>
-
-<!-- Liens Firebase Compat v10.8.1 -->
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    // Configuration d'initialisation Firestore
     const firebaseConfig = {
         apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
         authDomain: "scan-et-tchop.firebaseapp.com",
@@ -371,7 +378,6 @@
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('restaurant');
 
-    // Variables d'état globales
     let allPlats = [];
     let allReviews = [];
     let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, isSplit: false, splitCount: 1 };
@@ -389,7 +395,7 @@
         await loadMenuData();
     }
 
-    // Chargement des données du restaurant et des avis
+    // Chargement dynamique avec les nouvelles infos (téléphone, map, adresse, ville)
     async function loadRestaurantData() {
         try {
             const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
@@ -399,7 +405,6 @@
             }
             const resto = restoDoc.data();
 
-            // Récupération des avis
             const avisSnapshot = await db.collection('avis').where('restaurantId', '==', restaurantId).get();
             allReviews = [];
             let sommeNotes = 0;
@@ -410,7 +415,6 @@
                 if(data.note) sommeNotes += data.note;
             });
 
-            // Tri des avis du plus récent au plus ancien (approximatif si pas de timestamp parfait)
             allReviews.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
 
             const totalAvis = allReviews.length;
@@ -427,44 +431,85 @@
                 etoilesHtml = '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
             }
 
-            // Génération des boutons de contact (WhatsApp et Localisation depuis le dashboard)
+            // Génération des boutons et infos à partir du dashboard
+            let addressHtml = (resto.adresse && resto.ville) ? `<div class="restaurant-address"><i class="fas fa-map-pin"></i> ${resto.adresse}, ${resto.ville}</div>` : '';
+            
+            let btnPhoneHtml = resto.telephone ? `<a href="tel:${resto.telephone.replace(/\s+/g, '')}" class="btn-contact btn-phone"><i class="fas fa-phone-alt"></i> Appeler</a>` : '';
+            
             let btnWhatsAppHtml = '';
             if (resto.whatsapp) {
+                const cleanWa = resto.whatsapp.replace(/\s+/g, '').replace(/\+/g, '');
                 const waMessage = encodeURIComponent(`Bonjour ${resto.nom}, j'ai trouvé votre menu sur SCAN&TCHOP. Je voudrais savoir...`);
-                btnWhatsAppHtml = `<a href="https://wa.me/${resto.whatsapp}?text=${waMessage}" target="_blank" class="btn-contact btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+                btnWhatsAppHtml = `<a href="https://wa.me/${cleanWa}?text=${waMessage}" target="_blank" class="btn-contact btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
             }
 
-            let btnLocalisationHtml = '';
-            if (resto.lienLocalisation) {
-                btnLocalisationHtml = `<a href="${resto.lienLocalisation}" target="_blank" class="btn-contact btn-location"><i class="fas fa-map-marked-alt"></i> S'y rendre</a>`;
-            }
+            let btnLocalisationHtml = resto.map ? `<a href="${resto.map}" target="_blank" class="btn-contact btn-location"><i class="fas fa-map-marked-alt"></i> S'y rendre</a>` : '';
 
-            // Affichage de l'en-tête
             document.getElementById('restaurantInfo').innerHTML = `
                 ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo de ${resto.nom}" />` : ''}
                 <h1>${resto.nom}</h1>
                 <p class="description">${resto.description || 'Bienvenue dans notre établissement.'}</p>
+                ${addressHtml}
                 
-                <div class="global-rating" onclick="openModalListeAvis()" title="Voir les avis">
+                <div class="global-rating" onclick="document.getElementById('reviewsSection').scrollIntoView({behavior: 'smooth'})" title="Voir les avis">
                     <span class="stars-display">${etoilesHtml}</span>
                     <span class="rating-text">${totalAvis > 0 ? `${noteMoyenne}/5 (${totalAvis} avis)` : 'Aucun avis'}</span>
-                    <i class="fas fa-chevron-right" style="color:var(--text-muted); font-size: 0.8rem; margin-left: 5px;"></i>
+                    <i class="fas fa-chevron-down" style="color:var(--text-muted); font-size: 0.8rem; margin-left: 5px;"></i>
                 </div>
 
                 <div class="contact-buttons">
+                    ${btnPhoneHtml}
                     ${btnWhatsAppHtml}
                     ${btnLocalisationHtml}
-                    <button class="btn-contact btn-avis-header" onclick="openModal('modalAvis')">
-                        <i class="fas fa-star"></i> Laisser un avis
-                    </button>
                 </div>
             `;
+            
+            // Appeler la nouvelle fonction pour afficher la section des avis
+            renderReviewsSection();
+
         } catch (error) {
             console.error("Erreur d'initialisation :", error);
         }
     }
 
-    // Récupération de tous les plats et extraction des catégories
+    // Affichage des avis dans la nouvelle section de la page
+    function renderReviewsSection() {
+        const section = document.getElementById('reviewsSection');
+        const grid = document.getElementById('reviewsGrid');
+        
+        section.style.display = 'block';
+        grid.innerHTML = '';
+
+        if(allReviews.length === 0) {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding: 40px 0; font-weight:500;">Aucun avis pour le moment. Soyez le premier à partager votre expérience !</p>';
+            return;
+        }
+
+        allReviews.forEach((avis, index) => {
+            let starsHtml = '';
+            for(let i=1; i<=5; i++) {
+                starsHtml += i <= avis.note ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+            }
+            const dateTexte = avis.date ? new Date(avis.date.seconds * 1000).toLocaleDateString('fr-FR') : 'Récemment';
+            const nomClient = avis.nomClient ? avis.nomClient : 'Client Anonyme';
+            
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.innerHTML = `
+                <div class="review-header">
+                    <div>
+                        <div class="review-author"><i class="fas fa-user-circle"></i> ${nomClient}</div>
+                        <div class="review-stars">${starsHtml}</div>
+                    </div>
+                    <div class="review-date">${dateTexte}</div>
+                </div>
+                ${avis.commentaire ? `<div class="review-text">"${avis.commentaire}"</div>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
     async function loadMenuData() {
         try {
             const snapshot = await db.collection('menus').where('restaurantId', '==', restaurantId).get();
@@ -480,7 +525,6 @@
                 }
             });
             
-            // Générer dynamiquement les onglets de catégories
             const catContainer = document.getElementById('categoryTabs');
             catContainer.innerHTML = '';
             categoriesSet.forEach(cat => {
@@ -497,7 +541,6 @@
         }
     }
 
-    // Affichage des plats avec gestion de la disponibilité et des promotions
     function renderMenu() {
         const container = document.getElementById('menuContainer');
         container.innerHTML = '';
@@ -513,13 +556,13 @@
         }
 
         platsFiltres.forEach((plat, index) => {
-            const isDisponible = plat.disponible !== false; // true par défaut
+            const isDisponible = plat.disponible !== false;
             const promoBadge = (plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="badge-promo">Promo</span>` : '';
             const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
             
             const card = document.createElement('div');
             card.className = `menu-card ${isDisponible ? '' : 'disabled-item'}`;
-            card.style.animationDelay = `${index * 0.05}s`; // Animation en cascade
+            card.style.animationDelay = `${index * 0.05}s`;
 
             card.innerHTML = `
                 <div class="image-container">
@@ -543,7 +586,6 @@
         });
     }
 
-    // Filtrage des catégories
     function filterCategory(catName) {
         selectedCategory = catName;
         document.querySelectorAll('.category-btn').forEach(btn => {
@@ -556,7 +598,6 @@
         renderMenu();
     }
 
-    /* ====== BOÎTES DE DIALOGUE (MODALS) ====== */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openZoom(url) {
@@ -564,36 +605,6 @@
         openModal('modalZoom');
     }
 
-    // Modale pour la liste des avis
-    function openModalListeAvis() {
-        const container = document.getElementById('avisListContainer');
-        container.innerHTML = '';
-
-        if(allReviews.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px 0;">Aucun avis pour le moment. Soyez le premier !</p>';
-        } else {
-            allReviews.forEach(avis => {
-                let starsHtml = '';
-                for(let i=1; i<=5; i++) {
-                    starsHtml += i <= avis.note ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
-                }
-                const dateTexte = avis.date ? new Date(avis.date.seconds * 1000).toLocaleDateString('fr-FR') : 'Récemment';
-                
-                container.innerHTML += `
-                    <div class="avis-item">
-                        <div class="avis-item-header">
-                            <span class="avis-item-stars">${starsHtml}</span>
-                            <span>${dateTexte}</span>
-                        </div>
-                        ${avis.commentaire ? `<div class="avis-item-text">"${avis.commentaire}"</div>` : ''}
-                    </div>
-                `;
-            });
-        }
-        openModal('modalListeAvis');
-    }
-
-    /* ====== CONFIGURATION ET CALCUL DU PANIER ====== */
     function openOrderModal(id, nom, prix) {
         currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, isSplit: false, splitCount: 1 };
         document.getElementById('orderPlatNom').innerText = nom;
@@ -630,7 +641,6 @@
     }
 
     function calculateTotal() {
-        // Le pourboire a été retiré de cette étape comme demandé
         let baseTotal = currentOrder.prixBase * currentOrder.qty;
         
         if (currentOrder.isSplit) {
@@ -641,7 +651,6 @@
                 let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
                 document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} pers.) :`;
                 document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
-                
                 generateShareQR(perPerson);
                 return;
             }
@@ -652,15 +661,11 @@
         document.getElementById('orderTotal').innerText = `${baseTotal} FCFA`;
     }
 
-    // Génération automatique d'un QR code pour partager la note
     function generateShareQR(amountPerPerson) {
         const containerQr = document.getElementById('qrShareContainer');
         const imgQr = document.getElementById('qrShareImg');
-        
-        // Construction de l'URL avec les paramètres (sans pourboire forcé ici)
         const shareUrl = `${window.location.origin}/paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=true&splitCount=${currentOrder.splitCount}`;
         
-        // Utilisation de l'API universelle (QRServer) avec une couleur assortie au thème (orange/dark)
         imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}&color=0b1a2e&bgcolor=ffffff&margin=5`;
         containerQr.style.display = 'flex';
     }
@@ -681,10 +686,12 @@
     });
 
     async function soumettreAvis() {
+        const nomClient = document.getElementById('avisNom').value.trim();
         const commentaire = document.getElementById('avisCommentaire').value.trim();
-        if(currentRating === 0) { alert('Merci de sélectionner une note avec les étoiles.'); return; }
         
-        // Désactiver le bouton pour éviter les doubles clics
+        if(currentRating === 0) { alert('Merci de sélectionner une note avec les étoiles.'); return; }
+        if(nomClient === '') { alert('Votre nom et prénom sont obligatoires pour laisser un avis.'); document.getElementById('avisNom').focus(); return; }
+        
         const btn = document.querySelector('#modalAvis .btn-commander');
         const oldText = btn.innerHTML;
         btn.disabled = true;
@@ -693,21 +700,27 @@
         try {
             await db.collection('avis').add({
                 restaurantId: restaurantId,
+                nomClient: nomClient,
                 note: parseInt(currentRating),
                 commentaire: commentaire,
-                date: firebase.firestore.FieldValue.serverTimestamp() // Firestore enregistre même si non connecté
+                date: firebase.firestore.FieldValue.serverTimestamp()
             });
             
             alert('Votre avis a été enregistré avec succès ! Merci de votre retour.');
             closeModal('modalAvis');
             
             // Réinitialisation du formulaire
+            document.getElementById('avisNom').value = '';
             document.getElementById('avisCommentaire').value = '';
             stars.forEach(s => s.classList.remove('active'));
             currentRating = 0;
             
-            // Rechargement des scores pour mise à jour immédiate
+            // Rechargement des données pour actualiser instantanément la page
             await loadRestaurantData();
+            
+            // Descendre doucement la vue vers les nouveaux avis
+            document.getElementById('reviewsSection').scrollIntoView({ behavior: 'smooth' });
+            
         } catch (e) {
             console.error(e);
             alert('Un problème est survenu lors de la transmission de l\'avis.');
