@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCAN&TCHOP – Paiement Sécurisé</title>
 
+  <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -20,7 +21,6 @@
       --card-bg: rgba(255, 255, 255, 0.96);
       --border-color: #e2e8f0;
       --success: #22c55e;
-      --error: #ef4444;
       --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
       --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
       --shadow-lg: 0 20px 50px rgba(230,126,34,0.1);
@@ -32,20 +32,37 @@
       font-family: 'Inter', sans-serif;
       background: var(--bg-color);
       color: var(--text-main);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
     }
 
     h1, h2 { font-family: 'Playfair Display', serif; }
 
-    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+    /* ====== HEADER ====== */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
     .brand img { height: 50px; border-radius: 12px; }
     .brand span { font-weight: 800; font-size: 1.5rem; }
 
+    /* ====== CONTAINER PRINCIPAL ====== */
     .payment-container {
-      background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.7); box-shadow: var(--shadow-lg);
-      width: 100%; max-width: 500px; overflow: hidden; animation: slideUp 0.5s ease;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      animation: slideUp 0.5s ease;
     }
 
     @keyframes slideUp {
@@ -53,14 +70,18 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ====== RÉSUMÉ DE COMMANDE ====== */
     .order-summary {
       background: linear-gradient(135deg, var(--primary-light), #fffdf9);
-      padding: 30px; border-bottom: 1px solid var(--border-color); text-align: center;
+      padding: 30px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
     }
     .order-summary h2 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
-    .price-display { font-size: 2.5rem; font-weight: 800; color: var(--text-main); }
+    .price-display { font-size: 2.5rem; font-weight: 800; color: var(--text-main); font-family: 'Inter', sans-serif;}
     .price-display span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
 
+    /* ====== FORMULAIRE ====== */
     .payment-form { padding: 30px; }
     
     .form-group { margin-bottom: 20px; }
@@ -71,13 +92,23 @@
     }
     .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
 
+    .payment-methods { display: flex; gap: 15px; margin-bottom: 20px; }
+    .method-btn {
+      flex: 1; padding: 15px; border: 2px solid var(--border-color); border-radius: 16px;
+      background: #fff; cursor: pointer; font-weight: 600; transition: var(--transition);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted);
+    }
+    .method-btn i { font-size: 1.5rem; }
+    .method-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* ====== BOUTONS ====== */
     .btn {
       padding: 14px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem;
       cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
     }
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.35); }
-    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.35); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
     .back-link {
       margin-top: 20px; color: var(--text-muted); text-decoration: none; font-weight: 500;
@@ -85,8 +116,6 @@
     }
     .back-link:hover { color: var(--primary); }
 
-    .alert { padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; display: none; }
-    .alert-error { background: #fee2e2; color: var(--error); border-left: 4px solid var(--error); }
   </style>
 </head>
 <body>
@@ -98,22 +127,32 @@
 
   <div class="payment-container">
     <div class="order-summary">
-      <h2 id="planNameDisplay">Chargement...</h2>
+      <h2 id="planNameDisplay">Pack ...</h2>
       <div class="price-display" id="planPriceDisplay">0 FCFA <span>/ mois</span></div>
-      <p style="color: var(--text-muted); margin-top: 10px; font-size: 0.9rem;">Paiement Sécurisé via Fapshi</p>
+      <p style="color: var(--text-muted); margin-top: 10px; font-size: 0.9rem;">Facturation mensuelle sans engagement</p>
     </div>
 
     <div class="payment-form">
-      <div id="errorMessage" class="alert alert-error"></div>
+      <div class="payment-methods">
+        <div class="method-btn active" id="btnMobileMoney">
+          <i class="fas fa-mobile-alt"></i>
+          Mobile Money
+        </div>
+        <div class="method-btn" id="btnCard">
+          <i class="far fa-credit-card"></i>
+          Carte Bancaire
+        </div>
+      </div>
 
       <form id="checkoutForm">
+        <!-- Champ dynamique selon le mode de paiement -->
         <div class="form-group" id="inputContainer">
           <label>Numéro de téléphone (Mobile Money)</label>
-          <input type="tel" id="paymentInput" class="form-control" placeholder="Ex: 6XXXXXXXX" required />
+          <input type="text" id="paymentInput" class="form-control" placeholder="Ex: 6XXXXXXXX" required />
         </div>
 
         <button type="submit" class="btn btn-primary" id="submitBtn">
-          <i class="fas fa-lock"></i> Procéder au paiement
+          <i class="fas fa-lock"></i> Payer et Activer mon Pack
         </button>
       </form>
     </div>
@@ -121,101 +160,77 @@
 
   <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Annuler et retourner au tableau de bord</a>
 
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-
   <script>
-    // 1. Initialisation de Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
-      authDomain: "scan-et-tchop.firebaseapp.com",
-      projectId: "scan-et-tchop",
-      storageBucket: "scan-et-tchop.firebasestorage.app",
-      messagingSenderId: "648843762360",
-      appId: "1:648843762360:web:092b3d359eeae61ef2324d"
-    };
+    // Configuration
+    // Mets ici l'URL complète de ton backend Vercel (Laisse vide si ce frontend est hébergé avec le backend)
+    const BACKEND_URL = ''; 
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // 2. Configuration importante
-    const BACKEND_URL = "TON_URL_DE_BACKEND"; // ⚠️ REMPLACE PAR L'URL DE TON VERCEL (ex: https://mon-api.vercel.app)
-    let currentUser = null;
-
-    // 3. Récupération des paramètres de l'URL
+    // Récupération des paramètres de l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const planName = urlParams.get('plan');
     const restoId = urlParams.get('restoId');
 
-    // Les prix exacts sans espaces pour l'API (en nombres entiers)
+    // Définition des prix
     const planPrices = {
-      'Starter': 11900,
-      'Pro': 14900,
-      'Premium': 29900
+      'Starter': '11 900',
+      'Pro': '14 900',
+      'Premium': '29 900'
     };
-    let amountToPay = 0;
 
-    // 4. Mise à jour de l'interface
-    if (planName && planPrices[planName] && restoId) {
-      amountToPay = planPrices[planName];
+    // Mise à jour de l'interface
+    if (planName && planPrices[planName]) {
       document.getElementById('planNameDisplay').textContent = `Pack ${planName}`;
-      // Formatage visuel avec des espaces (ex: 11 900)
-      document.getElementById('planPriceDisplay').innerHTML = `${amountToPay.toLocaleString('fr-FR')} FCFA <span>/ mois</span>`;
+      document.getElementById('planPriceDisplay').innerHTML = `${planPrices[planName]} FCFA <span>/ mois</span>`;
     } else {
-      alert("Erreur : Informations de plan ou de restaurant manquantes.");
+      alert("Erreur : Aucun plan sélectionné. Retour au tableau de bord.");
       window.location.href = 'index.html';
     }
 
-    // 5. Gestion de l'authentification (Pour sécuriser l'appel API)
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-      } else {
-        alert("Vous devez être connecté pour effectuer un paiement.");
-        window.location.href = 'login.html'; // Redirige vers ta page de connexion
-      }
+    // Gestion des onglets de paiement
+    const btnMobile = document.getElementById('btnMobileMoney');
+    const btnCard = document.getElementById('btnCard');
+    const paymentInput = document.getElementById('paymentInput');
+    const inputContainerLabel = document.querySelector('#inputContainer label');
+
+    btnMobile.addEventListener('click', () => {
+      btnMobile.classList.add('active');
+      btnCard.classList.remove('active');
+      inputContainerLabel.textContent = "Numéro de téléphone (Mobile Money)";
+      paymentInput.placeholder = "Ex: 6XXXXXXXX";
+      paymentInput.type = "tel";
     });
 
-    function showError(msg) {
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.textContent = msg;
-      errorDiv.style.display = 'block';
-    }
+    btnCard.addEventListener('click', () => {
+      btnCard.classList.add('active');
+      btnMobile.classList.remove('active');
+      inputContainerLabel.textContent = "Numéro de la carte";
+      paymentInput.placeholder = "0000 0000 0000 0000";
+      paymentInput.type = "text";
+    });
 
-    // 6. Soumission du formulaire (Envoi vers Fapshi via ton backend)
+    // 6. Soumission du formulaire (Appel au Backend)
     document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const submitBtn = document.getElementById('submitBtn');
-      const phone = document.getElementById('paymentInput').value;
-
-      if (!currentUser) return showError("Utilisateur non authentifié.");
-
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création du lien de paiement...';
-      document.getElementById('errorMessage').style.display = 'none';
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation du paiement...';
+
+      const phone = document.getElementById('paymentInput').value;
+      const amount = planPrices[planName].replace(/\s/g, ''); // Convertir "11 900" en "11900"
+      const redirectUrl = window.location.origin + '/index.html'; // Là où on retourne après Fapshi
 
       try {
-        // On récupère le token Firebase pour prouver l'identité au backend
-        const idToken = await currentUser.getIdToken();
-        const redirectUrl = window.location.origin + '/index.html'; // Ou une page de succès dédiée
-
-        // On appelle la nouvelle route du backend
-        const response = await fetch(`${BACKEND_URL}/api/create-subscription-checkout`, {
+        const response = await fetch(BACKEND_URL + '/api/create-subscription-checkout', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + idToken
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            amount: amountToPay,
-            phone: phone,
             planName: planName,
             restoId: restoId,
+            amount: parseInt(amount, 10),
+            phone: phone,
             redirectUrl: redirectUrl
           })
         });
@@ -223,18 +238,17 @@
         const data = await response.json();
 
         if (data.success && data.checkoutUrl) {
-          // Si tout est ok, on redirige l'utilisateur vers Fapshi !
-          submitBtn.innerHTML = '<i class="fas fa-check"></i> Redirection en cours...';
+          // Redirection vers la page de paiement Fapshi
           window.location.href = data.checkoutUrl;
         } else {
-          throw new Error(data.error || "Erreur lors de la création du paiement.");
+          throw new Error(data.error || 'Erreur lors de la création du paiement Fapshi.');
         }
 
       } catch (error) {
-        console.error("Erreur API:", error);
-        showError(error.message || "Une erreur est survenue lors de la communication avec le serveur.");
+        console.error("Erreur:", error);
+        alert("Une erreur est survenue lors de l'initialisation du paiement. Veuillez réessayer.");
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Procéder au paiement';
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Payer et Activer mon Pack';
       }
     });
   </script>
