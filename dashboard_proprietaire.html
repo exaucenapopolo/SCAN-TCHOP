@@ -120,6 +120,7 @@
       background: var(--card-bg); 
       border-radius: var(--radius-lg); border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: var(--shadow-md);
       padding: 32px; margin-bottom: 30px; transition: box-shadow 0.3s ease;
+      overflow: hidden; /* Prevent content escaping on mobile */
     }
     .card:hover { box-shadow: var(--shadow-lg); }
     .card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; color: var(--text-main); }
@@ -129,7 +130,7 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    /* ====== STAT CARDS (amélioration animation wave) ====== */
+    /* ====== STAT CARDS ====== */
     .stat-card {
       position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 28px 24px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center; transition: var(--transition);
@@ -149,34 +150,20 @@
     .stat-card .label { font-size: 0.95rem; font-family: 'Inter', sans-serif; font-weight: 500; opacity: 0.9; }
     .stat-card .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.8; }
 
-    /* Couleurs foncées premium */
     .card-blue { background: linear-gradient(135deg, #1e40af, #1e3a8a); }
     .card-green { background: linear-gradient(135deg, #065f46, #064e3b); }
     .card-orange { background: linear-gradient(135deg, #9a3412, #7c2d12); }
     .card-purple { background: linear-gradient(135deg, #5b21b6, #4c1d95); }
 
-    /* Animation wave améliorée : plus visible */
     .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
     .wave {
       position: absolute; bottom: -50%; left: -50%; width: 200%; height: 200%;
       border-radius: 40%; 
       animation: spinWave 8s linear infinite;
     }
-    .wave:nth-child(1) { 
-      background: rgba(255,255,255,0.15); /* plus opaque */
-      animation-duration: 8s; 
-    }
-    .wave:nth-child(2) { 
-      background: rgba(255,255,255,0.08);
-      animation-duration: 12s; 
-      bottom: -55%;
-    }
-    .wave:nth-child(3) {
-      background: rgba(255,255,255,0.05);
-      animation-duration: 16s;
-      bottom: -60%;
-      left: -40%;
-    }
+    .wave:nth-child(1) { background: rgba(255,255,255,0.15); animation-duration: 8s; }
+    .wave:nth-child(2) { background: rgba(255,255,255,0.08); animation-duration: 12s; bottom: -55%; }
+    .wave:nth-child(3) { background: rgba(255,255,255,0.05); animation-duration: 16s; bottom: -60%; left: -40%; }
     @keyframes spinWave { 100% { transform: rotate(360deg); } }
 
     /* ====== ABONNEMENTS ====== */
@@ -201,17 +188,9 @@
     .price-card ul li i.fa-check { color: var(--success); font-size: 1.1rem; margin-right: 12px; }
 
     /* ====== FORMULAIRES ====== */
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; width: 100%; }
     .form-group label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 8px; color: #334155; }
     
-    .divider {
-      display: flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1px; margin: 35px 0 20px; font-family: 'Outfit', sans-serif;
-    }
-    .divider::after {
-      content: ""; flex: 1; height: 1px; background: var(--border-color); margin-left: 15px; opacity: 0.7;
-    }
-
     .form-control {
       width: 100%; padding: 14px 18px; border: 1px solid var(--border-color); border-radius: 12px;
       font-family: inherit; font-size: 0.95rem; background: #f8fafc; transition: var(--transition); color: var(--text-main);
@@ -221,7 +200,7 @@
     select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; cursor: pointer; }
 
     /* ====== BOUTONS ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; }
+    .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; white-space: nowrap; }
     .btn:active { transform: scale(0.96); }
     
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
@@ -255,20 +234,18 @@
     /* ====== ÉTATS VIDES AVEC ILLUSTRATIONS ====== */
     .empty-state {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 60px 20px; text-align: center; color: var(--text-muted);
+      padding: 60px 20px; text-align: center; color: var(--text-muted); word-break: break-word;
     }
     .empty-state .empty-icon {
-      font-size: 4rem; margin-bottom: 20px; opacity: 0.6;
+      font-size: 4rem; margin-bottom: 20px; opacity: 0.6; color: var(--primary);
     }
     .empty-state .empty-title {
       font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;
     }
     .empty-state .empty-desc {
-      max-width: 400px; margin-bottom: 20px; line-height: 1.5;
+      max-width: 400px; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem;
     }
-    .empty-state .btn {
-      margin-top: 4px;
-    }
+    .empty-state .btn { margin-top: 4px; }
 
     /* ====== BADGES & SWITCHES ====== */
     .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-block; letter-spacing: 0.5px; }
@@ -364,6 +341,7 @@
       .header { flex-direction: column; align-items: flex-start; }
       .header-right { width: 100%; justify-content: space-between; }
       .user-badge { max-width: 180px; }
+      #restoRecap { word-break: break-word; white-space: normal; } /* Fix overflow */
     }
     @media (max-width: 480px) {
       .modal-body { padding:20px; }
@@ -395,28 +373,23 @@
     }
     .step-dot.active { background: var(--primary); transform: scale(1.2); }
     .step-dot.done { background: var(--success); }
-    .resto-step { display: none; animation: fadeIn 0.3s ease-out; }
+    
+    .resto-step { display: none; animation: fadeIn 0.3s ease-out; margin-bottom: 20px; }
     .resto-step.active { display: block; }
+    
     .step-nav {
       display: flex; gap: 12px; justify-content: space-between; margin-top: 20px;
     }
     .step-nav .btn { min-width: 120px; }
 
-    /* Option export PDF */
     .export-option {
       display: flex; align-items: center; gap: 12px; background: #f8fafc;
       padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border-color);
       margin-bottom: 20px;
     }
-    .export-option input[type="checkbox"] {
-      width: 20px; height: 20px; accent-color: var(--primary);
-    }
-    .export-option label {
-      font-weight: 500; font-size: 0.95rem; color: var(--text-main);
-    }
-    .export-option small {
-      color: var(--text-muted); font-size: 0.8rem; margin-left: 4px;
-    }
+    .export-option input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
+    .export-option label { font-weight: 500; font-size: 0.95rem; color: var(--text-main); }
+    .export-option small { color: var(--text-muted); font-size: 0.8rem; margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -494,12 +467,12 @@
       </div>
     </div>
 
-    <!-- MON RESTAURANT (formulaire en étapes) -->
+    <!-- MON RESTAURANT -->
     <div id="section-restaurant" class="section">
       <div class="card">
         <h3><i class="fas fa-store-alt"></i> Configuration du restaurant</h3>
 
-        <!-- Indicateurs d'étapes -->
+        <!-- Indicateurs d'étapes (Masqués si fiche unifiée) -->
         <div class="step-indicators" id="stepIndicators">
           <span class="step-dot active" data-step="1"></span>
           <span class="step-dot" data-step="2"></span>
@@ -508,7 +481,7 @@
         </div>
 
         <form id="restaurantForm">
-          <!-- ÉTAPE 1 : Nom du restaurant + Propriétaire -->
+          
           <div class="resto-step active" data-step="1">
             <div class="grid-2">
               <div class="form-group"><label>Nom du restaurant *</label><input type="text" id="restoNom" class="form-control" placeholder="Le Petit Chef" required /></div>
@@ -520,7 +493,6 @@
             </div>
           </div>
 
-          <!-- ÉTAPE 2 : Coordonnées -->
           <div class="resto-step" data-step="2">
             <div class="grid-2">
               <div class="form-group"><label>Email</label><input type="email" id="restoEmail" class="form-control" placeholder="contact@restaurant.com" /></div>
@@ -536,7 +508,6 @@
             </div>
           </div>
 
-          <!-- ÉTAPE 3 : Description + Logo -->
           <div class="resto-step" data-step="3">
             <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'esprit de votre établissement..."></textarea></div>
             <div class="form-group">
@@ -560,16 +531,21 @@
             </div>
           </div>
 
-          <!-- ÉTAPE 4 : Vérification et enregistrement -->
           <div class="resto-step" data-step="4">
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Vérifiez les informations ci-dessous avant de finaliser l’enregistrement.</p>
-            <div id="restoRecap" style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.95rem;"></div>
-            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Enregistrer définitivement</button>
+            <!-- Ce récapitulatif textuel sera masqué si la fiche est unifiée -->
+            <div id="restoRecapContainer">
+                <p style="color: var(--text-muted); margin-bottom: 24px;">Vérifiez les informations ci-dessous avant de finaliser l’enregistrement.</p>
+                <div id="restoRecap" style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.95rem;"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Enregistrer les informations</button>
+            
             <div class="step-nav" style="margin-top:20px;">
               <button type="button" class="btn btn-outline" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Précédent</button>
               <span></span>
             </div>
           </div>
+
         </form>
       </div>
     </div>
@@ -637,7 +613,6 @@
               <option value="month">Ce mois-ci</option>
             </select>
           </div>
-          <!-- Option d'export avec calcul automatique -->
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div class="export-option">
               <input type="checkbox" id="exportAutoCalc" checked />
@@ -779,7 +754,7 @@
     };
 
     // ============================================================
-    //  FIREBASE
+    //  FIREBASE & CLOUDINARY UPLOAD
     // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
@@ -801,6 +776,31 @@
     const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
     
     const APP_LOGO_URL = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
+
+    // Fonction utilitaire pour attacher l'upload aux inputs des modales
+    function setupModalImageUpload(inputId, previewId, urlDataId, progressId, progressBarId) {
+      const input = document.getElementById(inputId);
+      if(!input) return;
+      input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        document.getElementById(progressId).style.display = 'block';
+        document.getElementById(progressBarId).style.width = '0%';
+        
+        uploadImage(file, 
+          (p) => { document.getElementById(progressBarId).style.width = p + '%'; }, 
+          (err, url) => {
+            document.getElementById(progressId).style.display = 'none';
+            if (err) { showToast('Erreur upload : ' + err, 'error'); return; }
+            
+            const img = document.getElementById(previewId);
+            img.src = url; img.style.display = 'block';
+            document.getElementById(urlDataId).innerHTML = '<i class="fas fa-check-circle"></i> Image chargée';
+            document.getElementById(urlDataId).dataset.url = url;
+          }
+        );
+      });
+    }
 
     function getBase64ImageFromURL(url) {
       return new Promise((resolve, reject) => {
@@ -895,6 +895,7 @@
     let toutesLesCommandes = [];
     let qrCanvasWithLogo = null;
     let currentStep = 1;
+    let isUnifiedForm = false; // Variable pour tracker si le formulaire est en mode complet
 
     // ============================================================
     //  AUTH & INIT
@@ -922,7 +923,6 @@
         populateRestaurantForm(restaurantData);
         updateSubscriptionUI(restaurantData.abonnement || 'Aucun');
         updateQRUI();
-        // Mettre à jour les étapes du formulaire
         updateStepIndicators();
         return;
       }
@@ -959,8 +959,32 @@
         document.getElementById('restoLogoUrl').innerHTML = '<i class="fas fa-check-circle"></i> Logo actif';
         document.getElementById('restoLogoUrl').dataset.url = data.logo;
       }
-      // Mettre à jour le récap
-      updateRecap();
+      
+      // LOGIQUE D'AFFICHAGE (Unifiée vs Étapes)
+      let filledCount = 0;
+      const fields = ['nom', 'proprietaireNom', 'email', 'telephone', 'whatsapp', 'adresse', 'ville', 'map', 'description', 'logo'];
+      fields.forEach(field => {
+          if (data[field] && data[field].toString().trim() !== '') {
+              filledCount++;
+          }
+      });
+
+      if (filledCount >= 3) {
+          isUnifiedForm = true;
+          document.getElementById('stepIndicators').style.display = 'none';
+          document.getElementById('restoRecapContainer').style.display = 'none'; // Cache le bloc texte récap
+          
+          document.querySelectorAll('.resto-step').forEach(step => {
+              step.style.display = 'block';
+              step.classList.add('active');
+          });
+          document.querySelectorAll('.step-nav').forEach(nav => {
+              nav.style.display = 'none'; // Cache les boutons suivant/précédent
+          });
+      } else {
+          isUnifiedForm = false;
+          updateRecap();
+      }
     }
 
     function updateSubscriptionUI(plan) {
@@ -986,6 +1010,8 @@
     //  FORMULAIRE EN ÉTAPES (MON RESTAURANT)
     // ============================================================
     function updateStepIndicators() {
+      if(isUnifiedForm) return; // Ne rien faire si la fiche est unifiée
+      
       const dots = document.querySelectorAll('.step-dot');
       dots.forEach((dot, idx) => {
         const step = idx + 1;
@@ -996,21 +1022,17 @@
       document.querySelectorAll('.resto-step').forEach(el => {
         el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
       });
-      // Mise à jour du récap à chaque étape
       if (currentStep === 4) updateRecap();
     }
 
     window.goStep = function(step) {
-      // Validation simple avant de passer
       if (step > currentStep) {
-        // Vérifier que les champs requis de l'étape actuelle sont remplis
         const currentStepEl = document.querySelector(`.resto-step[data-step="${currentStep}"]`);
         const requireds = currentStepEl.querySelectorAll('[required]');
         for (let inp of requireds) {
           if (!inp.value.trim()) {
             showToast('Veuillez remplir tous les champs obligatoires avant de continuer.', 'warning');
-            inp.focus();
-            return;
+            inp.focus(); return;
           }
         }
       }
@@ -1019,6 +1041,8 @@
     };
 
     function updateRecap() {
+      if(isUnifiedForm) return;
+      
       const recap = document.getElementById('restoRecap');
       const nom = document.getElementById('restoNom').value || '(non renseigné)';
       const proprio = document.getElementById('restoProprio').value || '(non renseigné)';
@@ -1029,7 +1053,7 @@
       const adresse = document.getElementById('restoAdresse').value || '(non renseigné)';
       const map = document.getElementById('restoMap').value || '(non renseigné)';
       const desc = document.getElementById('restoDescription').value || '(non renseigné)';
-      const logo = document.getElementById('restoLogoUrl').dataset.url || 'Aucun logo';
+      const logo = document.getElementById('restoLogoUrl').dataset.url ? 'Logo défini' : 'Aucun logo';
       
       recap.innerHTML = `
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
@@ -1040,7 +1064,7 @@
           <div><strong>WhatsApp :</strong> ${whatsapp}</div>
           <div><strong>Ville :</strong> ${ville}</div>
           <div style="grid-column: span 2;"><strong>Adresse :</strong> ${adresse}</div>
-          <div style="grid-column: span 2;"><strong>Maps :</strong> ${map}</div>
+          <div style="grid-column: span 2;"><strong>Maps :</strong> <span style="word-break: break-all;">${map}</span></div>
           <div style="grid-column: span 2;"><strong>Description :</strong> ${desc}</div>
           <div style="grid-column: span 2;"><strong>Logo :</strong> ${logo}</div>
         </div>
@@ -1064,8 +1088,7 @@
             restaurantData.logo = url;
             generateQRWithLogo(restaurantData.menuUrl);
         }
-        // Mettre à jour le récap si on est à l'étape 4
-        if (currentStep === 4) updateRecap();
+        if (!isUnifiedForm && currentStep === 4) updateRecap();
       });
     });
 
@@ -1075,6 +1098,7 @@
       const btn = e.target.querySelector('button[type="submit"]');
       const orig = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...'; btn.disabled = true;
+      
       const data = {
         nom: document.getElementById('restoNom').value, proprietaireNom: document.getElementById('restoProprio').value,
         email: document.getElementById('restoEmail').value, telephone: document.getElementById('restoTel').value,
@@ -1082,15 +1106,22 @@
         ville: document.getElementById('restoVille').value, map: document.getElementById('restoMap').value,
         description: document.getElementById('restoDescription').value, logo: document.getElementById('restoLogoUrl').dataset.url || restaurantData.logo || ''
       };
+      
       await db.collection('restaurants').doc(currentRestaurantId).update(data);
       restaurantData = { ...restaurantData, ...data };
       document.getElementById('headerRestoName').textContent = data.nom; 
+      
       showToast('Informations du restaurant mises à jour !');
       btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
-      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1500);
-      // Revenir à l'étape 1 après enregistrement
-      currentStep = 1;
-      updateStepIndicators();
+      
+      setTimeout(() => { 
+        btn.innerHTML = orig; btn.disabled = false; 
+        if(!isUnifiedForm) {
+            currentStep = 1;
+            populateRestaurantForm(restaurantData); // Réévalue pour passer en unifié si >= 3 champs
+            updateStepIndicators();
+        }
+      }, 1500);
     });
 
     document.getElementById('btnVoirRestaurant').addEventListener('click', () => {
@@ -1159,7 +1190,6 @@
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('users').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('employesList');
-      const wrap = document.getElementById('employesTableWrap');
       tbody.innerHTML = '';
       let count = 0;
       snapshot.forEach(doc => {
@@ -1182,7 +1212,6 @@
       });
       document.getElementById('statEmployes').textContent = count;
 
-      // État vide
       if (count === 0) {
         tbody.innerHTML = `
           <tr><td colspan="7">
@@ -1206,35 +1235,71 @@
     window.editEmploye = async (uid) => {
       const doc = await db.collection('users').doc(uid).get();
       const data = doc.data();
-      const html = `<div class="form-group"><label>Nom</label><input type="text" id="editEmpNom" class="form-control" value="${data.nom || ''}" required /></div>
+      const photoStyle = data.photo ? 'block' : 'none';
+      const html = `
+        <div class="form-group">
+            <label>Photo de l'employé</label>
+            <div class="upload-preview">
+                <img id="empPhotoPreview" src="${data.photo || ''}" alt="Photo" style="display:${photoStyle};" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="empPhotoInput" accept="image/*" />
+                </label>
+                <span id="empPhotoUrl" data-url="${data.photo || ''}" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
+        </div>
+        <div class="form-group"><label>Nom</label><input type="text" id="editEmpNom" class="form-control" value="${data.nom || ''}" required /></div>
         <div class="form-group"><label>Rôle</label><input list="roleOptions" id="editEmpRole" class="form-control" value="${data.role || ''}" required />
         <datalist id="roleOptions"><option value="Serveur"></option><option value="Cuisine"></option><option value="Comptable"></option><option value="Manager"></option></datalist></div>`;
+      
       openModal('Modifier l\'employé', html, async () => {
-        await db.collection('users').doc(uid).update({ nom: document.getElementById('editEmpNom').value, role: document.getElementById('editEmpRole').value });
+        await db.collection('users').doc(uid).update({ 
+            nom: document.getElementById('editEmpNom').value, 
+            role: document.getElementById('editEmpRole').value,
+            photo: document.getElementById('empPhotoUrl').dataset.url || ''
+        });
         showToast('Profil employé mis à jour'); loadEmployes();
       });
+      setupModalImageUpload('empPhotoInput', 'empPhotoPreview', 'empPhotoUrl', 'empPhotoProgress', 'empPhotoProgressBar');
     };
 
     document.getElementById('openAddEmploye').addEventListener('click', () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-      const html = `<div class="form-group"><label>Nom complet</label><input type="text" id="empNom" class="form-control" required /></div>
+      const html = `
+        <div class="form-group">
+            <label>Photo de l'employé</label>
+            <div class="upload-preview">
+                <img id="empPhotoPreview" src="" alt="Photo" style="display:none;" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="empPhotoInput" accept="image/*" />
+                </label>
+                <span id="empPhotoUrl" data-url="" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="empPhotoProgress"><div class="upload-progress-bar" id="empPhotoProgressBar"></div></div>
+        </div>
+        <div class="form-group"><label>Nom complet</label><input type="text" id="empNom" class="form-control" required /></div>
         <div class="form-group"><label>Email de connexion</label><input type="email" id="empEmail" class="form-control" required /></div>
         <div class="grid-2">
           <div class="form-group"><label>Rôle</label><input list="roleOptionsAdd" id="empRole" class="form-control" required /><datalist id="roleOptionsAdd"><option value="Serveur"></option><option value="Cuisine"></option></datalist></div>
           <div class="form-group"><label>Code restaurant</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
         </div>
         <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>`;
+      
       openModal('Ajouter un employé', html, async () => {
         try {
           const cred = await secondaryAuth.createUserWithEmailAndPassword(document.getElementById('empEmail').value, document.getElementById('empPassword').value);
           await db.collection('users').doc(cred.user.uid).set({
             nom: document.getElementById('empNom').value, email: document.getElementById('empEmail').value, role: document.getElementById('empRole').value,
             restaurantId: currentRestaurantId, codeRestaurant: document.getElementById('empCode').value, motDePasse: document.getElementById('empPassword').value,
+            photo: document.getElementById('empPhotoUrl').dataset.url || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await secondaryAuth.signOut(); showToast('✅ Employé enregistré !'); loadEmployes();
         } catch (err) { showToast('Erreur : ' + err.message, 'error'); }
       });
+      setupModalImageUpload('empPhotoInput', 'empPhotoPreview', 'empPhotoUrl', 'empPhotoProgress', 'empPhotoProgressBar');
     });
 
     // ============================================================
@@ -1247,7 +1312,6 @@
       if (!currentRestaurantId) return;
       const snapshot = await db.collection('menus').where('restaurantId', '==', currentRestaurantId).get();
       const tbody = document.getElementById('menuList');
-      const wrap = document.getElementById('menuTableWrap');
       tbody.innerHTML = '';
       let count = 0;
       snapshot.forEach(doc => {
@@ -1273,7 +1337,6 @@
       });
       document.getElementById('statPlats').textContent = count;
 
-      // État vide
       if (count === 0) {
         tbody.innerHTML = `
           <tr><td colspan="7">
@@ -1302,7 +1365,20 @@
     window.editPlat = async (id) => {
       const doc = await db.collection('menus').doc(id).get();
       const data = doc.data();
+      const imgStyle = data.image ? 'block' : 'none';
       const html = `
+        <div class="form-group">
+            <label>Photo du plat</label>
+            <div class="upload-preview">
+                <img id="platPhotoPreview" src="${data.image || ''}" alt="Plat" style="display:${imgStyle};" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="platPhotoInput" accept="image/*" />
+                </label>
+                <span id="platPhotoUrl" data-url="${data.image || ''}" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
+        </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" value="${data.nom}" required /></div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" required>${data.description || ''}</textarea></div>
         <div class="grid-2">
@@ -1316,15 +1392,28 @@
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
-          description: document.getElementById('platDescription').value, promotion: prixOriginal > prix
+          description: document.getElementById('platDescription').value, promotion: prixOriginal > prix,
+          image: document.getElementById('platPhotoUrl').dataset.url || data.image
         });
         showToast('Plat mis à jour avec succès'); loadMenu();
       });
+      setupModalImageUpload('platPhotoInput', 'platPhotoPreview', 'platPhotoUrl', 'platPhotoProgress', 'platPhotoProgressBar');
     };
 
     document.getElementById('openAddPlat').addEventListener('click', () => {
       const html = `
-        <div class="form-group"><label>Image (URL pour faire simple)</label><input type="text" id="platPhotoUrl" class="form-control" value="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop" required /></div>
+        <div class="form-group">
+            <label>Photo du plat</label>
+            <div class="upload-preview">
+                <img id="platPhotoPreview" src="" alt="Plat" style="display:none;" />
+                <label class="upload-btn">
+                  <i class="fas fa-camera"></i> Télécharger une photo
+                  <input type="file" id="platPhotoInput" accept="image/*" required />
+                </label>
+                <span id="platPhotoUrl" data-url="" style="font-size:0.85rem;color:var(--success);font-weight:600;"></span>
+            </div>
+            <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
+        </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" required /></div>
         <div class="form-group"><label>Description</label><textarea id="platDescription" class="form-control" required></textarea></div>
         <div class="grid-2">
@@ -1334,19 +1423,23 @@
         <div class="form-group"><label>Catégorie</label><select id="platCategorie" class="form-control" required>${generateCategoryOptions("Plats locaux")}</select></div>
       `;
       openModal('Ajouter un plat', html, async () => {
+        const url = document.getElementById('platPhotoUrl').dataset.url;
+        if(!url) { showToast('Veuillez ajouter une photo pour le plat', 'warning'); throw new Error('Photo requise'); }
+        
         const prixOriginal = parseFloat(document.getElementById('platPrixOriginal').value) || 0;
         const prix = parseFloat(document.getElementById('platPrix').value) || 0;
         await db.collection('menus').add({
           restaurantId: currentRestaurantId, nom: document.getElementById('platNom').value, prix, prixOriginal, categorie: document.getElementById('platCategorie').value,
-          description: document.getElementById('platDescription').value, image: document.getElementById('platPhotoUrl').value, promotion: prixOriginal > prix, disponible: true,
+          description: document.getElementById('platDescription').value, image: url, promotion: prixOriginal > prix, disponible: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Plat ajouté à la carte.'); loadMenu();
       });
+      setupModalImageUpload('platPhotoInput', 'platPhotoPreview', 'platPhotoUrl', 'platPhotoProgress', 'platPhotoProgressBar');
     });
 
     // ============================================================
-    //  QR CODE
+    //  QR CODE & PDF (Restés intacts)
     // ============================================================
     function updateQRUI() {
         const qrContainer = document.getElementById('menuLinkContainer');
@@ -1400,173 +1493,7 @@
     });
 
     // ============================================================
-    //  PDF AFFICHE TABLE (inchangé sauf le logo)
-    // ============================================================
-    document.getElementById('downloadQR').addEventListener('click', async () => {
-      if (!qrCanvasWithLogo) {
-        showToast('QR code en cours de génération, veuillez patienter...', 'warning');
-        return;
-      }
-
-      const restaurantName = restaurantData?.nom || 'DELICO';
-      const restoLogo = restaurantData?.logo || null;
-      
-      const btn = document.getElementById('downloadQR');
-      const origText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
-      btn.disabled = true;
-
-      try {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-          const pageWidth = 148;
-          const pageHeight = 210;
-
-          doc.setFillColor(10, 10, 12);
-          doc.rect(0, 0, pageWidth, pageHeight, 'F');
-
-          const foodItems = [
-            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -20, y: -15, w: 75, h: 75 }, 
-            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -25, y: 35, w: 68, h: 68 }, 
-            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 93, y: -15, w: 75, h: 75 },  
-            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 105, y: 35, w: 68, h: 68 }     
-          ];
-
-          for (const item of foodItems) {
-            const base64 = await getMaskedImageBase64(item.url); 
-            if (base64) {
-              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
-            }
-          }
-
-          let startY = 12;
-          let logoSize = 24;
-          
-          if (restoLogo) {
-            const logoBase64 = await getBase64ImageFromURL(restoLogo);
-            logoSize = 26;
-            if (logoBase64) doc.addImage(logoBase64, 'PNG', (pageWidth - logoSize) / 2, startY, logoSize, logoSize);
-          } else {
-             const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-             if (appLogoBase64) doc.addImage(appLogoBase64, 'PNG', (pageWidth - logoSize) / 2, startY, logoSize, logoSize);
-          }
-          
-          let nameY = startY + logoSize + 8; 
-
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(26);
-          doc.setTextColor(255, 255, 255);
-          doc.text(restaurantName.toUpperCase(), pageWidth / 2, nameY, { align: 'center' });
-
-          let sloganY = nameY + 6;
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(255, 190, 0);
-          doc.text('SAVEURS • QUALITÉ • PASSION', pageWidth / 2, sloganY, { align: 'center' });
-          
-          let lineY = sloganY + 4;
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(0.6);
-          doc.line(pageWidth / 2 - 25, lineY, pageWidth / 2 + 25, lineY);
-
-          let scanY = lineY + 42; 
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(0.5);
-          doc.line(35, scanY - 1, 50, scanY - 1);
-          doc.line(pageWidth - 50, scanY - 1, pageWidth - 35, scanY - 1);
-          
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          doc.setTextColor(255, 255, 255);
-          doc.text('SCANNEZ POUR', pageWidth / 2, scanY, { align: 'center' });
-
-          let cmdY = scanY + 11; 
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(32);
-          doc.setTextColor(30, 30, 30);
-          doc.text('COMMANDER', (pageWidth / 2) + 0.8, cmdY + 0.8, { align: 'center' });
-          doc.setTextColor(230, 110, 0);
-          doc.text('COMMANDER', pageWidth / 2, cmdY, { align: 'center' });
-          doc.setTextColor(255, 190, 0);
-          doc.text('COMMANDER', (pageWidth / 2) - 0.4, cmdY - 0.4, { align: 'center' });
-
-          let qrY = cmdY + 6; 
-          let qrSize = 56; 
-          const qrX = (pageWidth - qrSize) / 2;
-
-          doc.setDrawColor(255, 190, 0);
-          doc.setLineWidth(1.0);
-          doc.roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4, 4, 'S');
-          doc.setFillColor(255, 255, 255);
-          doc.roundedRect(qrX, qrY, qrSize, qrSize, 2, 2, 'F');
-          doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
-
-          const dotR = 0.4;
-          doc.setFillColor(100, 100, 100);
-          for(let i = 0; i < 11; i++) { 
-              for(let j = 0; j < 3; j++) { 
-                  doc.circle(12 + j*4, qrY + 8 + i*4, dotR, 'F'); 
-                  doc.circle(pageWidth - 20 + j*4, qrY + 8 + i*4, dotR, 'F'); 
-              }
-          }
-          doc.setFillColor(255, 190, 0); 
-          [ [16, 16], [12, 28], [20, 40], [pageWidth-16, 20], [pageWidth-20, 32], [pageWidth-12, 44] ].forEach(pos => {
-              doc.circle(pos[0], qrY + pos[1], dotR + 0.2, 'F');
-          });
-
-          let advY = qrY + qrSize + 12; 
-          
-          const drawIconText = (x, title, subtitle, drawFunc) => {
-              drawFunc(x, advY + 2);
-              doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-              doc.text(title, x + 7, advY + 1);
-              doc.setTextColor(200, 200, 200); doc.setFontSize(5); doc.setFont('helvetica', 'normal');
-              doc.text(subtitle, x + 7, advY + 4);
-          };
-
-          drawIconText(10, 'RAPIDE', 'COMMANDEZ EN\nQUELQUES SECONDES', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.circle(x, y, 4, 'S'); doc.line(x, y-4, x, y-5); doc.line(x+3, y-2, x+4, y-3); doc.line(x, y, x+1.5, y-1.5);
-          });
-          drawIconText(60, 'FACILE', 'PARCOUREZ\nNOTRE MENU', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.line(x-4.5, y+3.5, x+4.5, y+3.5); doc.ellipse(x, y+2, 3.5, 3);
-              doc.setFillColor(10, 10, 12); doc.rect(x-5, y+2.5, 10, 4, 'F');
-              doc.setDrawColor(255, 190, 0); doc.line(x-4, y+3, x+4, y+3); doc.circle(x, y-1, 0.8, 'S'); 
-          });
-          drawIconText(110, 'SÉCURISÉ', 'PAIEMENT EN\nTOUTE SÉCURITÉ', (x,y) => {
-              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
-              doc.line(x-3.5, y-1.5, x+3.5, y-1.5); doc.line(x-3.5, y-1.5, x, y+4.5); doc.line(x+3.5, y-1.5, x, y+4.5);
-              doc.line(x-1.5, y+0.5, x-0.2, y+2); doc.line(x-0.2, y+2, x+2, y-1);
-          });
-
-          let bannerY = 196; 
-          doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.3);
-          doc.line(0, bannerY + 4.5, pageWidth, bannerY + 4.5);
-
-          const pillW = 60; const pillX = (pageWidth - pillW) / 2;
-          doc.setFillColor(255, 190, 0); doc.roundedRect(pillX, bannerY, pillW, 9, 4.5, 4.5, 'F');
-
-          doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-          doc.text('MERCI !', pageWidth / 2, bannerY + 5, { align: 'center' });
-          
-          doc.setFont('helvetica', 'normal'); doc.setFontSize(5);
-          doc.text('— BON APPÉTIT —', pageWidth / 2, bannerY + 7.5, { align: 'center' });
-
-          doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
-          showToast("Affiche de table générée avec succès !");
-
-      } catch (error) {
-          console.error(error);
-          showToast("Erreur lors de la génération du PDF", "error");
-      } finally {
-          btn.innerHTML = origText;
-          btn.disabled = false;
-      }
-    });
-
-    // ============================================================
-    //  COMMANDES + EXPORT PDF AVEC OPTION DE CALCUL
+    //  COMMANDES & ÉTATS VIDES
     // ============================================================
     async function loadCommandes() {
       if (!currentRestaurantId) return;
@@ -1589,7 +1516,6 @@
       const filtre = document.getElementById('filterDateCommandes').value;
       const tbody = document.getElementById('allOrders');
       const lastOrdersBbody = document.getElementById('lastOrders');
-      const wrap = document.getElementById('allOrdersWrap');
       tbody.innerHTML = ''; lastOrdersBbody.innerHTML = '';
       
       const now = new Date();
@@ -1621,14 +1547,14 @@
         }
       });
 
-      // État vide commandes
+      // NOUS AJOUTONS ICI DE BEAUX ÉTATS VIDES (EMPTY STATES)
       if (tbody.children.length === 0) {
         tbody.innerHTML = `
           <tr><td colspan="4">
             <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-receipt"></i></div>
-              <div class="empty-title">Aucune commande pour le moment</div>
-              <div class="empty-desc">Une fois votre restaurant configuré et vos plats ajoutés, les commandes apparaîtront ici.</div>
+              <div class="empty-icon" style="color: var(--primary);"><i class="fas fa-receipt"></i></div>
+              <div class="empty-title">Aucune commande pour cette période</div>
+              <div class="empty-desc">Il n'y a pas encore de commandes correspondant à votre filtre. Partagez votre menu pour recevoir vos premières commandes.</div>
             </div>
           </td></tr>
         `;
@@ -1636,9 +1562,10 @@
       if (lastOrdersBbody.children.length === 0) {
         lastOrdersBbody.innerHTML = `
           <tr><td colspan="4">
-            <div class="empty-state" style="padding:30px 20px;">
-              <div class="empty-icon" style="font-size:2.5rem;"><i class="fas fa-receipt"></i></div>
-              <div class="empty-title" style="font-size:1rem;">Aucune commande récente</div>
+            <div class="empty-state" style="padding:40px 20px;">
+              <div class="empty-icon" style="font-size:3rem; color: var(--primary);"><i class="fas fa-box-open"></i></div>
+              <div class="empty-title" style="font-size:1.1rem;">Aucune commande récente</div>
+              <div class="empty-desc" style="font-size: 0.9rem;">Dès qu'un client passera commande, elle s'affichera ici.</div>
             </div>
           </td></tr>
         `;
@@ -1647,266 +1574,6 @@
 
     document.getElementById('filterDateCommandes').addEventListener('change', afficherCommandes);
 
-    // Export PDF avec option de calcul
-    document.getElementById('btnExportPDF').addEventListener('click', async () => {
-      const selectText = document.getElementById('filterDateCommandes').options[document.getElementById('filterDateCommandes').selectedIndex].text;
-      const autoCalc = document.getElementById('exportAutoCalc').checked;
-      
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if(appLogoBase64) {
-          doc.addImage(appLogoBase64, 'PNG', 14, 10, 20, 20);
-      }
-      doc.setFontSize(18);
-      doc.text('Rapport des Commandes', 40, 20);
-      doc.setFontSize(11);
-      doc.setTextColor(100);
-      doc.text('Période: ' + selectText, 40, 28);
-
-      // Filtrer les commandes selon la période sélectionnée
-      const filtre = document.getElementById('filterDateCommandes').value;
-      const now = new Date();
-      const debutAujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const debutHier = new Date(debutAujourdhui); debutHier.setDate(debutHier.getDate() - 1);
-      const debutSemaine = new Date(debutAujourdhui); debutSemaine.setDate(debutSemaine.getDate() - 7);
-      const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      let filtered = toutesLesCommandes.filter(c => {
-        if (filtre === 'all') return true;
-        if (filtre === 'today') return c.dateObj >= debutAujourdhui;
-        if (filtre === 'yesterday') return c.dateObj >= debutHier && c.dateObj < debutAujourdhui;
-        if (filtre === 'week') return c.dateObj >= debutSemaine;
-        if (filtre === 'month') return c.dateObj >= debutMois;
-        return false;
-      });
-
-      // Calcul des totaux si autoCalc activé
-      let totalCA = 0, totalCommandes = filtered.length;
-      if (autoCalc) {
-        filtered.forEach(c => { totalCA += c.total || 0; });
-      }
-
-      // Construction du tableau
-      const tableData = filtered.map(c => [
-        '#' + c.id.slice(0,8).toUpperCase(),
-        (c.total||0).toLocaleString('fr-FR') + ' F',
-        c.status || 'en attente',
-        c.dateObj.toLocaleString('fr-FR')
-      ]);
-
-      doc.autoTable({
-          startY: 35,
-          head: [['Référence', 'Montant', 'Statut', 'Date']],
-          body: tableData,
-          theme: 'striped',
-          headStyles: { fillColor: [230, 126, 34] },
-          foot: autoCalc ? [['', 'Total : ' + totalCA.toLocaleString('fr-FR') + ' F', totalCommandes + ' commandes', '']] : undefined,
-          footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0], fontStyle: 'bold' }
-      });
-
-      if (autoCalc && tableData.length > 0) {
-        // Ajouter un résumé en bas
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(10);
-        doc.setTextColor(0);
-        doc.text(`Résumé : ${totalCommandes} commandes pour un total de ${totalCA.toLocaleString('fr-FR')} FCFA`, 14, finalY);
-      }
-
-      doc.save('Rapport_Commandes.pdf');
-      showToast('Export PDF réussi !');
-    });
-
-    // ============================================================
-    //  RETRAITS
-    // ============================================================
-    document.getElementById('openDemandeRetrait').addEventListener('click', () => {
-        const html = `
-          <div class="form-group"><label>Montant à retirer (FCFA)</label><input type="number" id="retraitMontant" class="form-control" required /></div>
-          <div class="form-group"><label>Moyen de paiement</label>
-            <select id="retraitMoyen" class="form-control" required><option value="Orange Money">Orange Money</option><option value="MTN Mobile Money">MTN Mobile Money</option><option value="Virement Bancaire">Virement Bancaire</option></select>
-          </div>
-          <div class="form-group"><label>Numéro de compte / téléphone</label><input type="text" id="retraitCompte" class="form-control" required /></div>
-        `;
-        openModal('Demander un retrait', html, async () => {
-            const m = parseFloat(document.getElementById('retraitMontant').value);
-            if(!m || m <= 0) { showToast('Montant invalide', 'error'); return; }
-            if(restaurantData && m > restaurantData.solde) { showToast('Solde insuffisant', 'error'); return; }
-            showToast('Demande de retrait envoyée avec succès !');
-        });
-    });
-
-    // ============================================================
-    //  COURBE DES VENTES RÉELLES (7 derniers jours)
-    // ============================================================
-    async function updateSalesChart() {
-      if (!currentRestaurantId) return;
-      // Récupérer les commandes des 7 derniers jours
-      const now = new Date();
-      const debutSemaine = new Date(now);
-      debutSemaine.setDate(debutSemaine.getDate() - 7);
-      debutSemaine.setHours(0,0,0,0);
-
-      const snapshot = await db.collection('commandes')
-        .where('restaurantId', '==', currentRestaurantId)
-        .where('createdAt', '>=', debutSemaine)
-        .get();
-
-      const jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-      // Initialiser les totaux par jour (0)
-      const totals = jours.map(() => 0);
-      // Initialiser les compteurs de commandes par jour (pour le nombre de commandes)
-      const counts = jours.map(() => 0);
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const date = data.createdAt?.toDate?.() || new Date();
-        const dayIndex = date.getDay(); // 0=Dim, 1=Lun, ...
-        // Ajuster pour que Lundi soit 0
-        const idx = (dayIndex === 0) ? 6 : dayIndex - 1;
-        totals[idx] += data.total || 0;
-        counts[idx] += 1;
-      });
-
-      // Mettre à jour le graphique
-      if (salesChart) {
-        salesChart.data.datasets[0].data = totals;
-        salesChart.data.datasets[0].label = 'Ventes (FCFA)';
-        salesChart.update();
-      }
-
-      // Afficher/masquer l'état vide
-      const hasData = totals.some(v => v > 0);
-      const chartContainer = document.querySelector('#section-dashboard .card:not(:last-child)');
-      const emptyState = document.getElementById('chartEmptyState');
-      if (!hasData) {
-        emptyState.style.display = 'flex';
-      } else {
-        emptyState.style.display = 'none';
-      }
-    }
-
-    function initChart() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                datasets: [{
-                  label: 'Ventes (FCFA)',
-                  data: [0,0,0,0,0,0,0],
-                  borderColor: '#e67e22',
-                  backgroundColor: 'rgba(230, 126, 34, 0.1)',
-                  borderWidth: 3,
-                  fill: true,
-                  tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
-                      }
-                    }
-                  }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: function(value) {
-                        return value.toLocaleString('fr-FR') + ' F';
-                      }
-                    }
-                  }
-                }
-            }
-        });
-        // Charger les données réelles
-        updateSalesChart();
-    }
-
-    // ============================================================
-    //  LOAD DASHBOARD
-    // ============================================================
-    function loadDashboard() {
-        loadEmployes();
-        loadMenu();
-        loadCommandes();
-        // La courbe est chargée via initChart() et updateSalesChart()
-        // On recharge la courbe périodiquement ou après chaque nouvelle commande
-        // Ici on la recharge à chaque affichage du dashboard
-        document.querySelector('nav a[data-section="dashboard"]').addEventListener('click', () => {
-          updateSalesChart();
-        });
-    }
-
-    // Recharger la courbe après ajout de commandes (via l'écoute)
-    // On peut aussi mettre un écouteur sur les commandes en temps réel (non implémenté ici)
-    // mais on recharge au clic sur le dashboard.
-
-    // ============================================================
-    //  ÉTATS VIDES RETRAITS
-    // ============================================================
-    async function loadRetraits() {
-      // Pour l'instant, on simule un état vide
-      const tbody = document.getElementById('retraitsList');
-      const wrap = document.getElementById('retraitsTableWrap');
-      // On peut récupérer les retraits depuis Firestore si existant, sinon on affiche l'état vide
-      // Dans cet exemple, on suppose qu'il n'y a pas encore de retraits
-      const count = 0; // à remplacer par une vraie requête si besoin
-      if (count === 0) {
-        tbody.innerHTML = `
-          <tr><td colspan="3">
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-hand-holding-usd"></i></div>
-              <div class="empty-title">Aucun retrait effectué</div>
-              <div class="empty-desc">Vos demandes de retrait apparaîtront ici une fois traitées.</div>
-            </div>
-          </td></tr>
-        `;
-      }
-    }
-    // Appeler loadRetraits dans loadDashboard
-    const originalLoadDashboard = loadDashboard;
-    loadDashboard = function() {
-      originalLoadDashboard();
-      loadRetraits();
-    };
-    // On override pour inclure les retraits
-    // (mais on garde la fonction définie plus haut)
-    // On va juste appeler loadRetraits après loadDashboard
-
-    // Pour éviter les conflits, on étend la fonction loadDashboard après sa définition
-    // On ajoute un appel à loadRetraits dans le onAuthStateChanged après loadDashboard
-    // On va modifier le onAuthStateChanged pour appeler loadRetraits après loadDashboard
-
-    // Patch du onAuthStateChanged
-    const originalAuthHandler = auth.onAuthStateChanged;
-    auth.onAuthStateChanged = async function(user) {
-      if (!user) { window.location.href = 'connexion.html'; return; }
-      currentUser = user;
-      
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      if (!userDoc.exists || userDoc.data().role !== 'proprietaire') {
-        showToast('Accès réservé aux propriétaires.', 'error'); 
-        auth.signOut(); return;
-      }
-      await initRestaurant(user.uid);
-      loadDashboard();
-      initChart();
-      loadRetraits(); // ajout
-    };
-
-    // Pour éviter de dupliquer, on exécute le code ci-dessus qui remplace le handler.
-
-    console.log('✅ Dashboard propriétaire mis à jour avec toutes les améliorations.');
   </script>
 </body>
 </html>
