@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SCAN&TCHOP – Propriétaire</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1304,7 +1304,7 @@
     });
 
     // ============================================================
-    //  EXPORT PDF HAUT DE GAMME - MODÈLE DELICO (CORRECTION)
+    //  EXPORT PDF HAUT DE GAMME - MODÈLE DELICO (VERSION FINALE)
     // ============================================================
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) {
@@ -1312,12 +1312,12 @@
         return;
       }
 
-      const restaurantName = restaurantData?.nom || 'Notre Restaurant';
+      const restaurantName = restaurantData?.nom || 'Mon Restaurant';
       const restoLogo = restaurantData?.logo || null;
 
       const { jsPDF } = window.jspdf;
       
-      // Format A5 portrait (148 x 210 mm) pour chevalet de table
+      // Format A5 portrait (148 x 210 mm)
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
       const pageWidth = 148;
       const pageHeight = 210;
@@ -1331,20 +1331,23 @@
       doc.setLineWidth(0.6);
       doc.roundedRect(3, 3, pageWidth - 6, pageHeight - 6, 4, 4, 'S');
 
-      // ---------- IMAGES DE PLATS (coins) ----------
-      // On utilise des URLs d'images libres (Unsplash) pour les plats réalistes
-      const foodImages = [
-        { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop', x: 10, y: 12, w: 35, h: 35 }, // viande grillée
-        { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop', x: pageWidth - 45, y: 12, w: 35, h: 35 }, // salade
-        { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop', x: 10, y: pageHeight - 47, w: 35, h: 35 }, // riz
-        { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=200&h=200&fit=crop', x: pageWidth - 45, y: pageHeight - 47, w: 35, h: 35 } // ragoût
+      // ---------- IMAGES DE PLATS (coins, avec transparence) ----------
+      // On utilise des images libres de haute qualité (Unsplash)
+      const foodItems = [
+        { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: 8, y: 10, w: 40, h: 40 }, // viande
+        { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: pageWidth - 48, y: 10, w: 40, h: 40 }, // salade
+        { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 8, y: pageHeight - 50, w: 40, h: 40 }, // riz
+        { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: pageWidth - 48, y: pageHeight - 50, w: 40, h: 40 } // ragoût
       ];
 
-      for (const imgData of foodImages) {
-        const base64 = await getBase64ImageFromURL(imgData.url);
+      for (const item of foodItems) {
+        const base64 = await getBase64ImageFromURL(item.url);
         if (base64) {
-          // Ajout avec un léger cercle blanc derrière pour lisibilité (optionnel)
-          doc.addImage(base64, 'PNG', imgData.x, imgData.y, imgData.w, imgData.h);
+          // Appliquer une opacité de 0.4
+          doc.setGState(new doc.GState({ opacity: 0.4 }));
+          doc.addImage(base64, 'PNG', item.x, item.y, item.w, item.h);
+          // Réinitialiser l'opacité
+          doc.setGState(new doc.GState({ opacity: 1 }));
         }
       }
 
@@ -1356,7 +1359,7 @@
           const logoSize = 28;
           const xLogo = (pageWidth - logoSize) / 2;
           doc.addImage(logoBase64, 'PNG', xLogo, 10, logoSize, logoSize);
-          yOffset = 46; // décalage pour le nom
+          yOffset = 46;
         }
       }
 
@@ -1366,35 +1369,40 @@
       doc.setTextColor(255, 255, 255);
       doc.text(restaurantName.toUpperCase(), pageWidth / 2, yOffset, { align: 'center' });
 
-      // ---------- LIGNE DORÉE SOUS LE NOM ----------
-      const lineY = yOffset + 5;
+      // ---------- SLOGAN "SAVEURS·QUALITÉ PASSION" ----------
+      doc.setFontSize(9);
+      doc.setTextColor(212, 175, 55);
+      doc.text('SAVEURS·QUALITÉ PASSION', pageWidth / 2, yOffset + 6, { align: 'center' });
+
+      // ---------- LIGNE DORÉE SOUS LE SLOGAN ----------
+      const lineY = yOffset + 10;
       doc.setDrawColor(212, 175, 55);
-      doc.setLineWidth(1.5);
-      doc.line(pageWidth / 2 - 35, lineY, pageWidth / 2 + 35, lineY);
+      doc.setLineWidth(1.2);
+      doc.line(pageWidth / 2 - 30, lineY, pageWidth / 2 + 30, lineY);
 
       // ---------- "SCANNEZ POUR" ----------
-      const startY = lineY + 12;
+      const startY = lineY + 10;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
       doc.setTextColor(255, 255, 255);
       doc.text('SCANNEZ POUR', pageWidth / 2, startY, { align: 'center' });
 
       // ---------- "COMMANDER" (dégradé orange/jaune) ----------
-      doc.setFontSize(30);
+      doc.setFontSize(34);
       // Ombre
       doc.setTextColor(50, 50, 50);
-      doc.text('COMMANDER', pageWidth / 2 + 0.5, startY + 10 + 0.5, { align: 'center' });
+      doc.text('COMMANDER', pageWidth / 2 + 0.5, startY + 12 + 0.5, { align: 'center' });
       // Orange
       doc.setTextColor(230, 126, 34);
-      doc.text('COMMANDER', pageWidth / 2, startY + 10, { align: 'center' });
-      // Jaune (décalé très légèrement pour effet dégradé)
+      doc.text('COMMANDER', pageWidth / 2, startY + 12, { align: 'center' });
+      // Jaune
       doc.setTextColor(255, 200, 0);
-      doc.text('COMMANDER', pageWidth / 2 - 0.4, startY + 10 - 0.4, { align: 'center' });
+      doc.text('COMMANDER', pageWidth / 2 - 0.4, startY + 12 - 0.4, { align: 'center' });
 
       // ---------- QR CODE CENTRAL (grand, cadre blanc + bordure dorée) ----------
-      const qrSize = 62;
+      const qrSize = 60;
       const qrX = (pageWidth - qrSize) / 2;
-      const qrY = startY + 16;
+      const qrY = startY + 18;
 
       // Ombre du cadre
       doc.setFillColor(50, 50, 50);
@@ -1433,9 +1441,23 @@
         doc.setTextColor(212, 175, 55);
       }
 
-      // ---------- BANDEAU FINAL "MERCI ET BON APPÉTIT" ----------
-      const btnY = advY + 12;
-      const btnWidth = 85;
+      // ---------- TROIS LIGNES DE TEXTE (COMMANDEZ EN..., PARCOUREZ..., PAIEMENT...) ----------
+      const textY = advY + 12;
+      doc.setFontSize(7);
+      doc.setTextColor(212, 175, 55);
+      const lines = [
+        'COMMANDEZ EN QUELQUES SECONDES',
+        'PARCOUREZ NOTRE MENU',
+        'PAIEMENT EN TOUTE SÉCURITÉ'
+      ];
+      const lineGap = 4;
+      for (let i = 0; i < lines.length; i++) {
+        doc.text(lines[i], pageWidth / 2, textY + i * lineGap, { align: 'center' });
+      }
+
+      // ---------- BANDEAU FINAL "MERCI! BON APPÉTIT" ----------
+      const btnY = textY + 12;
+      const btnWidth = 90;
       const btnX = (pageWidth - btnWidth) / 2;
 
       doc.setFillColor(230, 126, 34);
@@ -1446,7 +1468,7 @@
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(255, 255, 255);
-      doc.text('MERCI ET BON APPÉTIT !', pageWidth / 2, btnY + 6.5, { align: 'center' });
+      doc.text('MERCI! BON APPÉTIT', pageWidth / 2, btnY + 6.5, { align: 'center' });
 
       // ---------- PETIT LOGO SCAN&TCHOP EN PIED (optionnel) ----------
       const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
