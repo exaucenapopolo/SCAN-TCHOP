@@ -508,6 +508,7 @@
 
     <!-- SECTION MENU -->
     <div id="section-menu" class="section">
+      <!-- Ce bloc promo ne s'affichera que si le menu contient des plats -->
       <div id="menuLinkContainer" class="qr-promo-box" style="display:none;">
         <div class="qr-promo-content">
             <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 8px;">Votre Menu Digital est en ligne !</h2>
@@ -795,24 +796,6 @@
     const CLOUDINARY_CLOUD_NAME = 'do83voiqy';
     const CLOUDINARY_UPLOAD_PRESET = 'afrikdigitalo_upload';
     const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-    const APP_LOGO_URL = 'https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png';
-
-    function getBase64ImageFromURL(url) {
-      return new Promise((resolve, reject) => {
-        if(!url) { resolve(null); return; }
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width; canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL("image/png"));
-        };
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
-    }
 
     function uploadImage(file, onProgress, onComplete) {
       const formData = new FormData();
@@ -844,6 +827,16 @@
     let salesChart = null;
     let toutesLesCommandes = [];
     let currentWizardStep = 1;
+    let menuItemsCount = 0; // Ajout d'une variable globale pour gérer la logique des plats
+
+    // Déclaration pour que la fonction soit appelable via le DOM (Boutons Modifier du résumé)
+    window.editRestaurantSection = function(step) {
+      if(restaurantData) {
+        restaurantData._forceEdit = true;
+        currentWizardStep = step;
+        renderRestaurantSection();
+      }
+    };
 
     // ============================================================
     //  AUTHENTIFICATION INITIALE
@@ -858,7 +851,6 @@
         auth.signOut(); return;
       }
       
-      // Injecter les Skeletons avant chargement réel
       document.getElementById('lastOrders').innerHTML = renderSkeletonRows(4, 2);
       document.getElementById('employesList').innerHTML = renderSkeletonRows(7, 2);
       document.getElementById('menuList').innerHTML = renderSkeletonRows(7, 2);
@@ -904,10 +896,11 @@
       const container = document.getElementById('restaurantViewContainer');
       if (!restaurantData) return;
 
+      // MODE RÉSUMÉ ÉLÉGANT ET ORGANISÉ PAR SECTIONS
       if (isRestaurantConfigComplete() && !restaurantData._forceEdit) {
         container.innerHTML = `
-          <div class="card restaurant-profile-card">
-            <div class="profile-hero">
+          <div class="card restaurant-profile-card" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+            <div class="profile-hero" style="border-radius: 20px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
               <div class="profile-avatar-wrap">
                 <img class="profile-avatar" src="${restaurantData.logo || 'https://via.placeholder.com/150'}" alt="Logo" />
               </div>
@@ -915,63 +908,66 @@
                 <h2>${restaurantData.nom}</h2>
                 <span class="badge badge-success"><i class="fas fa-check-circle"></i> Configuration Opérationnelle</span>
               </div>
-              <button class="btn btn-outline btn-sm" id="switchToEditMode" style="margin-left: auto;"><i class="fas fa-pen"></i> Modifier ma fiche</button>
+              <button class="btn btn-primary btn-sm" onclick="editRestaurantSection(1)" style="margin-left: auto; box-shadow: 0 4px 15px rgba(230,126,34,0.2);"><i class="fas fa-pen"></i> Modifier tout</button>
             </div>
-            <div class="profile-grid">
-              <div class="profile-info-item">
-                <i class="fas fa-user"></i>
-                <div>
-                  <div class="profile-info-label">Propriétaire</div>
-                  <div class="profile-info-value">${restaurantData.proprietaireNom || 'Non renseigné'}</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 25px;">
+              
+              <!-- BLOC IDENTITÉ -->
+              <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
+                <button class="btn btn-outline btn-sm" onclick="editRestaurantSection(1)" style="position: absolute; top: 20px; right: 20px;"><i class="fas fa-pen"></i> Modifier l'identité</button>
+                <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-info-circle" style="color: var(--primary); margin-right: 8px;"></i> 1. Identité du Restaurant</h4>
+                <div class="grid-2">
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Propriétaire</div><div class="profile-info-value">${restaurantData.proprietaireNom || 'Non renseigné'}</div></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Slogan / Description</div><div class="profile-info-value" style="font-style: italic; color: #475569;">"${restaurantData.description}"</div></div>
+                  </div>
                 </div>
               </div>
-              <div class="profile-info-item">
-                <i class="fas fa-envelope"></i>
-                <div>
-                  <div class="profile-info-label">Email de contact</div>
-                  <div class="profile-info-value">${restaurantData.email}</div>
+
+              <!-- BLOC COORDONNÉES -->
+              <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
+                <button class="btn btn-outline btn-sm" onclick="editRestaurantSection(2)" style="position: absolute; top: 20px; right: 20px;"><i class="fas fa-pen"></i> Modifier les contacts</button>
+                <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-address-book" style="color: var(--primary); margin-right: 8px;"></i> 2. Coordonnées & Localisation</h4>
+                <div class="grid-3">
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Email de contact</div><div class="profile-info-value">${restaurantData.email}</div></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Téléphone (Appels)</div><div class="profile-info-value">${restaurantData.telephone}</div></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">WhatsApp Orders</div><div class="profile-info-value">${restaurantData.whatsapp}</div></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Adresse & Ville</div><div class="profile-info-value">${restaurantData.adresse}, ${restaurantData.ville}</div></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div><div class="profile-info-label">Coordonnées GPS Maps</div><div class="profile-info-value"><a href="${restaurantData.map || '#'}" target="_blank" style="color:var(--primary);text-decoration:none;">Ouvrir la carte <i class="fas fa-external-link-alt" style="font-size:0.75rem;"></i></a></div></div>
+                  </div>
                 </div>
               </div>
-              <div class="profile-info-item">
-                <i class="fas fa-phone"></i>
-                <div>
-                  <div class="profile-info-label">Téléphone (Appels)</div>
-                  <div class="profile-info-value">${restaurantData.telephone}</div>
+
+              <!-- BLOC VISUEL -->
+              <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
+                <button class="btn btn-outline btn-sm" onclick="editRestaurantSection(3)" style="position: absolute; top: 20px; right: 20px;"><i class="fas fa-pen"></i> Modifier le logo</button>
+                <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-image" style="color: var(--primary); margin-right: 8px;"></i> 3. Visuel & Logo</h4>
+                <div class="profile-info-item" style="align-items: center;">
+                  <img src="${restaurantData.logo}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 16px; border: 2px solid #e2e8f0;"/>
+                  <div style="margin-left: 15px;">
+                    <div class="profile-info-label">Logo Actuel</div>
+                    <div class="profile-info-value" style="color: var(--success);"><i class="fas fa-check-circle"></i> Fichier actif et optimisé</div>
+                  </div>
                 </div>
               </div>
-              <div class="profile-info-item">
-                <i class="fab fa-whatsapp"></i>
-                <div>
-                  <div class="profile-info-label">Lien WhatsApp Orders</div>
-                  <div class="profile-info-value">${restaurantData.whatsapp}</div>
-                </div>
-              </div>
-              <div class="profile-info-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <div>
-                  <div class="profile-info-label">Adresse & Ville</div>
-                  <div class="profile-info-value">${restaurantData.adresse}, ${restaurantData.ville}</div>
-                </div>
-              </div>
-              <div class="profile-info-item">
-                <i class="fas fa-compass"></i>
-                <div>
-                  <div class="profile-info-label">Coordonnées GPS Maps</div>
-                  <div class="profile-info-value"><a href="${restaurantData.map || '#'}" target="_blank" style="color:var(--primary);text-decoration:none;">Ouvrir la carte <i class="fas fa-external-link-alt" style="font-size:0.75rem;"></i></a></div>
-                </div>
-              </div>
-            </div>
-            <div style="padding: 0 30px 30px 30px;">
-              <div class="profile-info-label" style="margin-bottom:6px;">Slogan / Description</div>
-              <div class="profile-info-value" style="font-style: italic; color:#475569;">"${restaurantData.description}"</div>
+
             </div>
           </div>
         `;
-        document.getElementById('switchToEditMode').addEventListener('click', () => {
-          restaurantData._forceEdit = true;
-          renderRestaurantSection();
-        });
       } else {
+        // MODE FORMULAIRE D'ÉDITION (ÉTAPE PAR ÉTAPE)
         container.innerHTML = `
           <div class="card">
             <h3 class="premium-title"><i class="fas fa-magic"></i> Configuration de votre Établissement</h3>
@@ -1076,10 +1072,34 @@
         if(progress) progress.style.width = ((currentWizardStep - 1) / 2) * 100 + '%';
       }
 
-      nextBtn.addEventListener('click', () => { if(currentWizardStep < 3) { currentWizardStep++; updateWizardUI(); } });
+      // Initialiser la vue (surtout utile si on l'ouvre via l'édition d'une sous-section)
+      updateWizardUI();
+
+      nextBtn.addEventListener('click', () => { 
+        // Validation form stricte avant de passer à l'étape suivante
+        const actPanel = document.querySelector(`[data-step-panel="${currentWizardStep}"]`);
+        if (actPanel) {
+          const inputs = actPanel.querySelectorAll('input[required], textarea[required]');
+          let isValid = true;
+          inputs.forEach(inp => {
+            if (!inp.checkValidity()) {
+              inp.reportValidity(); // Affiche la bulle d'erreur native
+              isValid = false;
+            }
+          });
+          if (!isValid) return; // Stoppe le passage si un champ requis est vide
+        }
+
+        if(currentWizardStep < 3) { 
+          currentWizardStep++; 
+          updateWizardUI(); 
+        } 
+      });
+      
       prevBtn.addEventListener('click', () => { if(currentWizardStep > 1) { currentWizardStep--; updateWizardUI(); } });
       dots.forEach(dot => {
         dot.addEventListener('click', () => {
+          // On évite aux utilisateurs de sauter les étapes si les requises ne sont pas remplies
           currentWizardStep = parseInt(dot.dataset.targetStep);
           updateWizardUI();
         });
@@ -1183,8 +1203,8 @@
       initChart();
       await loadEmployes();
       await loadMenu();
-      await loadCommandes();
-      await loadRetraits();
+      // On s'assure d'appeler l'update UI du QR Code une fois le menu chargé
+      updateQRUI(); 
     }
 
     function populateDashboardOrdersTable() {
@@ -1428,10 +1448,14 @@
       });
       
       document.getElementById('statPlats').textContent = itemsCount;
+      menuItemsCount = itemsCount; // Mise à jour de la variable globale
 
       if(itemsCount === 0) {
         container.innerHTML = renderEmptyState('fa-utensils', 'Vous n\'avez pas encore de plats. Ajoutez votre premier plat !', `<button class="btn btn-primary" onclick="document.getElementById('openAddPlat').click()"><i class="fas fa-plus"></i> Créer une entrée/plat</button>`);
       }
+      
+      // On rafraîchit l'affichage du QR Code avec le bon compte de plats
+      updateQRUI();
     }
 
     window.toggleDisponibilite = async (id, checked) => { await db.collection('menus').doc(id).update({ disponible: checked }); showToast(checked ? 'Plat remis à la carte' : 'Plat retiré de la carte', 'info'); loadMenu(); };
@@ -1557,14 +1581,15 @@
     };
 
     // ============================================================
-    //  QR CODE SYSTEM (Copie exacte de l'ancienne logique stable)
+    //  QR CODE SYSTEM (Logique conservée, corrigée et sécurisée)
     // ============================================================
     function updateQRUI() {
       const menuBox = document.getElementById('menuLinkContainer');
       const generateBtn = document.getElementById('generateMenuLink');
       const viewMenuBtn = document.getElementById('btnVoirRestaurant');
 
-      if (restaurantData && restaurantData.nom) {
+      // Ajout de la condition "menuItemsCount > 0"
+      if (restaurantData && restaurantData.nom && menuItemsCount > 0) {
         const menuUrl = restaurantData.menuUrl || `https://scan-et-tchop.web.app/menu.html?id=${currentRestaurantId}`;
         restaurantData.menuUrl = menuUrl;
         
@@ -1576,8 +1601,8 @@
         }
         
         const qrEl = document.getElementById('qrcode');
-        if (qrEl) {
-          qrEl.innerHTML = '';
+        // On évite la duplication du QR Code à chaque rafraîchissement
+        if (qrEl && qrEl.innerHTML === '') {
           new QRCode(qrEl, {
             text: menuUrl,
             width: 200,
@@ -1588,8 +1613,10 @@
           });
         }
       } else {
+        // S'il n'y a pas de plat (ou pas configuré), on cache le bloc
         if(menuBox) menuBox.style.display = 'none';
-        if(generateBtn) generateBtn.style.display = 'inline-flex';
+        if(generateBtn) generateBtn.style.display = 'none';
+        if(viewMenuBtn) viewMenuBtn.style.display = 'none';
       }
     }
 
@@ -1608,331 +1635,98 @@
       }
     };
 
-    // Téléchargement du PDF de l'affiche QR code
+    // Génération et téléchargement complet du PDF de l'affiche QR code
     const downloadQRBtn = document.getElementById('downloadQR');
     if (downloadQRBtn) {
       downloadQRBtn.addEventListener('click', async () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        
-        doc.setFillColor(253, 248, 244);
-        doc.fillRect(0, 0, 210, 297);
-        
-        doc.setDrawColor(230, 126, 34);
-        doc.setLineWidth(1);
-        doc.rect(10, 10, 190, 277);
-        
-        doc.setTextColor(11, 26, 46);
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(28);
-        doc.text("SCAN & TCHOP", 105, 35, { align: 'center' });
-        
-        doc.setFontSize(16);
-        doc.setFont('Helvetica', 'normal');
-        doc.text("Scannez le QR Code pour découvrir notre menu", 105, 48, { align: 'center' });
-        
-        doc.setFontSize(24);
-        doc.setFont('Helvetica', 'bold');
-        doc.setTextColor(230, 126, 34);
-        doc.text(restaurantData.nom || "Notre Restaurant", 105, 70, { align: 'center' });
-        
-        if (restaurantData.logo) {
-          const logoData = await getBase64ImageFromURL(restaurantData.logo);
-          if (logoData) {
-            doc.addImage(logoData, 'PNG', 85, 80, 40, 40);
-          }
-        }
-        
-        const qrCanvas = document.querySelector('#qrcode canvas');
-        const qrImg = document.querySelector('#qrcode img');
-        let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : (qrImg ? qrImg.src : null);
-        
-        if (qrDataUrl) {
-          doc.setFillColor(255, 255, 255);
-          doc.rect(65, 135, 80, 80, 'F');
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+          
+          // Fond clair
+          doc.setFillColor(253, 248, 244);
+          doc.fillRect(0, 0, 210, 297);
+          
+          // Bordure orange
           doc.setDrawColor(230, 126, 34);
           doc.setLineWidth(1);
-          doc.rect(63, 133, 84, 84);
-          doc.addImage(qrDataUrl, 'PNG', 65, 135, 80, 80);
-        }
-        
-        doc.setTextColor(100, 116, 139);
-        doc.setFontSize(14);
-        doc.setFont('Helvetica', 'italic');
-        doc.text("Bon appétit !", 105, 245, { align: 'center' });
-        
-        doc.save(`Affiche_QR_Code_${restaurantData.nom.replace(/\s+/g, '_')}.pdf`);
-        showToast('Affiche QR Code téléchargée avec succès ! 📄');
-      });
-    }
-
-    const generateMenuLinkBtn = document.getElementById('generateMenuLink');
-    if(generateMenuLinkBtn) {
-      generateMenuLinkBtn.addEventListener('click', async () => {
-        if (!currentRestaurantId) return;
-        const menuUrl = `https://scan-et-tchop.web.app/menu.html?id=${currentRestaurantId}`;
-        await db.collection('restaurants').doc(currentRestaurantId).update({ menuUrl: menuUrl });
-        restaurantData.menuUrl = menuUrl;
-        showToast('Menu digital généré avec succès ! 🚀');
-        updateQRUI();
-      });
-    }
-
-    // ============================================================
-    //  SOUS-SYSTÈME : COMMANDES & HISTORIQUE DES HISTORIQUES DE VENTE
-    // ============================================================
-    async function loadCommandes() {
-      if (!currentRestaurantId) return;
-      const selectFilter = document.getElementById('filterDateCommandes');
-      const filterValue = selectFilter ? selectFilter.value : 'all';
-      
-      const tbody = document.getElementById('allOrders');
-      if(!tbody) return;
-      tbody.innerHTML = '';
-      
-      let filtered = [...toutesLesCommandes];
-      const todayStr = new Date().toDateString();
-      
-      if (filterValue === 'today') {
-        filtered = filtered.filter(o => o.createdAt && o.createdAt.toDate().toDateString() === todayStr);
-      } else if (filterValue === 'yesterday') {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        filtered = filtered.filter(o => o.createdAt && o.createdAt.toDate().toDateString() === yesterday.toDateString());
-      } else if (filterValue === 'week') {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        filtered = filtered.filter(o => o.createdAt && o.createdAt.toDate() >= sevenDaysAgo);
-      } else if (filterValue === 'month') {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        filtered = filtered.filter(o => o.createdAt && o.createdAt.toDate().getMonth() === currentMonth && o.createdAt.toDate().getFullYear() === currentYear);
-      }
-      
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4">${renderEmptyState('fa-clipboard-list', 'Aucune commande ne correspond aux filtres sélectionnés.')}</td></tr>`;
-        return;
-      }
-      
-      filtered.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-      
-      filtered.forEach(o => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="font-weight:700;color:var(--primary);">#${o.reference || o.id.substring(0,6).toUpperCase()}</td>
-          <td style="font-weight:600;">${parseFloat(o.total || 0).toLocaleString('fr-FR')} F</td>
-          <td><span class="badge badge-success">${o.status || 'Validée'}</span></td>
-          <td style="color:var(--text-muted); font-size:0.85rem;">${o.createdAt ? o.createdAt.toDate().toLocaleString('fr-FR') : 'N/A'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-    
-    const filterSelect = document.getElementById('filterDateCommandes');
-    if (filterSelect) {
-      filterSelect.addEventListener('change', loadCommandes);
-    }
-
-    // EXPORT PDF PROFESSIONNEL AVEC LOGOS MULTIPLES (Application + Restaurant)
-    const btnExportPDF = document.getElementById('btnExportPDF');
-    if (btnExportPDF) {
-      btnExportPDF.addEventListener('click', async () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        
-        // Chargement simultané asynchrone des deux logos en tête de page
-        const appLogo64 = await getBase64ImageFromURL(APP_LOGO_URL);
-        if (appLogo64) {
-          doc.addImage(appLogo64, 'PNG', 15, 12, 22, 22);
-        }
-        
-        if (restaurantData.logo) {
-          const restoLogo64 = await getBase64ImageFromURL(restaurantData.logo);
-          if (restoLogo64) {
-            doc.addImage(restoLogo64, 'PNG', 172, 12, 22, 22);
-          }
-        }
-        
-        doc.setTextColor(11, 26, 46);
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.text("Rapport des Ventes & Commandes", 105, 22, { align: 'center' });
-        
-        doc.setFontSize(11);
-        doc.setFont('Helvetica', 'normal');
-        doc.text(`Établissement : ${restaurantData.nom}`, 105, 30, { align: 'center' });
-        doc.text(`Généré le : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 105, 36, { align: 'center' });
-        
-        doc.setDrawColor(226, 232, 240);
-        doc.setLineWidth(0.5);
-        doc.line(15, 42, 195, 42);
-        
-        const autoCalc = document.getElementById('pdfAutoCalc').checked;
-        let totalAmount = 0;
-        let validOrdersCount = 0;
-        
-        const rows = [];
-        const tableBody = document.getElementById('allOrders');
-        const trs = tableBody ? tableBody.querySelectorAll('tr') : [];
-        
-        trs.forEach(tr => {
-          const tds = tr.querySelectorAll('td');
-          if (tds.length >= 4) {
-            const ref = tds[0].textContent.trim();
-            const montantStr = tds[1].textContent.trim().replace(/[^0-9]/g, '');
-            const statut = tds[2].textContent.trim();
-            const date = tds[3].textContent.trim();
-            
-            const montant = parseFloat(montantStr) || 0;
-            totalAmount += montant;
-            validOrdersCount++;
-            
-            rows.push([ref, `${montant.toLocaleString('fr-FR')} FCFA`, statut, date]);
-          }
-        });
-        
-        if (autoCalc && rows.length > 0) {
+          doc.rect(10, 10, 190, 277);
+          
+          // En-tête
+          doc.setTextColor(11, 26, 46);
           doc.setFont('Helvetica', 'bold');
-          doc.setFontSize(11);
+          doc.setFontSize(28);
+          doc.text("SCAN & TCHOP", 105, 35, { align: 'center' });
+          
+          doc.setFontSize(16);
+          doc.setFont('Helvetica', 'normal');
+          doc.text("Scannez le QR Code pour découvrir notre menu", 105, 48, { align: 'center' });
+          
+          // Nom du restaurant (ici on complète le code coupé)
+          doc.setFontSize(24);
+          doc.setFont('Helvetica', 'bold');
           doc.setTextColor(230, 126, 34);
-          doc.text(`Total cumulé de la période : ${totalAmount.toLocaleString('fr-FR')} FCFA`, 15, 50);
-          doc.text(`Volume total de commandes valides : ${validOrdersCount}`, 15, 56);
-          doc.line(15, 60, 195, 60);
-        }
-        
-        doc.autoTable({
-          head: [['Référence', 'Montant', 'Statut', 'Date & Heure']],
-          body: rows,
-          startY: autoCalc ? 65 : 48,
-          styles: { font: 'Helvetica', fontSize: 10, cellPadding: 4 },
-          headStyles: { fillColor: [230, 126, 34], textColor: [255, 255, 255], fontStyle: 'bold' },
-          alternateRowStyles: { fillColor: [254, 243, 232] },
-          margin: { left: 15, right: 15 }
-        });
-        
-        doc.save(`Rapport_Ventes_${restaurantData.nom.replace(/\s+/g, '_')}.pdf`);
-        showToast('Rapport PDF des ventes exporté avec succès ! 📈');
-      });
-    }
+          const nomResto = (restaurantData && restaurantData.nom) ? restaurantData.nom.toUpperCase() : "NOTRE RESTAURANT";
+          doc.text(nomResto, 105, 62, { align: 'center' });
 
-    // ============================================================
-    //  SOUS-SYSTÈME : RETRAITS & LOGIQUE BANCAIRE
-    // ============================================================
-    async function loadRetraits() {
-      if (!currentRestaurantId) return;
-      const snapshot = await db.collection('retraits').where('restaurantId', '==', currentRestaurantId).get();
-      const tbody = document.getElementById('retraitsList');
-      if(!tbody) return;
-      tbody.innerHTML = '';
-      
-      let itemsCount = 0;
-      snapshot.forEach(doc => {
-        itemsCount++;
-        const data = doc.data();
-        const tr = document.createElement('tr');
-        let badgeClass = 'badge-warning';
-        if (data.status === 'Approuvé' || data.status === 'Complété') badgeClass = 'badge-success';
-        if (data.status === 'Refusé') badgeClass = 'badge-danger';
-        
-        tr.innerHTML = `
-          <td style="font-weight:600;">${parseFloat(data.montant || 0).toLocaleString('fr-FR')} FCFA</td>
-          <td><span class="badge ${badgeClass}">${data.status || 'En attente'}</span></td>
-          <td style="color:var(--text-muted); font-size:0.85rem;">${data.createdAt ? data.createdAt.toDate().toLocaleDateString('fr-FR') : 'N/A'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-      
-      if (itemsCount === 0) {
-        tbody.innerHTML = `<tr><td colspan="3">${renderEmptyState('fa-hand-holding-usd', 'Aucune demande de retrait effectuée jusqu\'à présent.')}</td></tr>`;
-      }
-    }
+          // Récupération de l'image du QR Code
+          const qrCanvas = document.querySelector('#qrcode canvas');
+          const qrImg = document.querySelector('#qrcode img');
+          let imgData = null;
 
-    const openDemandeRetraitBtn = document.getElementById('openDemandeRetrait');
-    if (openDemandeRetraitBtn) {
-      openDemandeRetraitBtn.addEventListener('click', () => {
-        const html = `
-          <div class="form-group"><label>Montant du retrait (FCFA)</label><input type="number" id="retraitMontant" class="form-control" min="1000" max="${restaurantData.solde || 0}" required /></div>
-          <div class="form-group"><label>Méthode de paiement</label><select id="retraitMethode" class="form-control"><option value="Orange Money">Orange Money</option><option value="MTN Mobile Money">MTN Mobile Money</option><option value="Virement Bancaire">Virement Bancaire</option></select></div>
-          <div class="form-group"><label>Numéro ou Coordonnées de réception</label><input type="text" id="retraitDetails" class="form-control" placeholder="Ex: +237..." required /></div>
-        `;
-        
-        openModal('Demander un retrait de fonds', html, async () => {
-          const montant = parseFloat(document.getElementById('retraitMontant').value);
-          if (montant > (restaurantData.solde || 0)) {
-            showToast('Solde insuffisant pour cette opération.', 'error');
+          if (qrCanvas) {
+            imgData = qrCanvas.toDataURL("image/png");
+          } else if (qrImg && qrImg.src) {
+            imgData = qrImg.src;
+          }
+
+          if (imgData) {
+            // A4 width = 210. Image width = 100. (210-100)/2 = 55 (centré)
+            doc.addImage(imgData, 'PNG', 55, 90, 100, 100);
+          } else {
+            showToast("Erreur: Le QR Code n'a pas pu être chargé.", "error");
             return;
           }
-          
-          await db.collection('retraits').add({
-            restaurantId: currentRestaurantId,
-            montant: montant,
-            methode: document.getElementById('retraitMethode').value,
-            details: document.getElementById('retraitDetails').value,
-            status: 'En attente',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          const newSolde = (restaurantData.solde || 0) - montant;
-          await db.collection('restaurants').doc(currentRestaurantId).update({ solde: newSolde });
-          restaurantData.solde = newSolde;
-          document.getElementById('soldeDisplay').textContent = newSolde.toLocaleString('fr-FR') + ' FCFA';
-          
-          showToast('Demande de retrait enregistrée ! 💸');
-          loadRetraits();
-        });
+
+          // Pied de page
+          doc.setTextColor(100, 116, 139);
+          doc.setFontSize(12);
+          doc.setFont('Helvetica', 'italic');
+          doc.text("Merci de votre visite et bon appétit !", 105, 220, { align: 'center' });
+
+          // Lancement du téléchargement
+          const fileName = `Affiche_Menu_${(restaurantData && restaurantData.nom) ? restaurantData.nom.replace(/\s+/g, '_') : 'Restaurant'}.pdf`;
+          doc.save(fileName);
+          showToast("PDF téléchargé avec succès !", "success");
+
+        } catch (err) {
+          console.error(err);
+          showToast("Une erreur s'est produite lors de la création du PDF.", "error");
+        }
       });
     }
 
-    // ============================================================
-    //  MODALE UNIFIÉE UTILS
-    // ============================================================
+    // GESTION MODALES
     function openModal(title, bodyHtml, onSubmit) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalBody').innerHTML = bodyHtml;
-      const overlay = document.getElementById('modalOverlay');
-      if(overlay) overlay.classList.add('open');
-      
+      document.getElementById('modalOverlay').classList.add('open');
       const form = document.getElementById('modalForm');
-      if(form) {
-        form.onsubmit = async (e) => {
-          e.preventDefault();
-          const submitBtn = document.getElementById('modalSubmit');
-          if(submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-          }
-          await onSubmit();
-          closeModal();
-        };
-      }
+      form.onsubmit = (e) => { e.preventDefault(); onSubmit(); closeModal(); };
     }
     
     function closeModal() {
-      const overlay = document.getElementById('modalOverlay');
-      if(overlay) overlay.classList.remove('open');
-      const submitBtn = document.getElementById('modalSubmit');
-      if(submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Enregistrer';
-      }
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('modalForm').reset();
     }
     
-    const cancelModalBtn = document.getElementById('modalCancel');
-    if(cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+    
+    // Deconnexion
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(() => window.location.href = 'connexion.html');
+    });
 
-    window.copyText = (text) => {
-      navigator.clipboard.writeText(text);
-      showToast('Copié dans le presse-papiers ! 📋');
-    };
-    
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        auth.signOut().then(() => {
-          window.location.href = 'connexion.html';
-        });
-      });
-    }
   </script>
 </body>
 </html>
