@@ -682,7 +682,7 @@
       });
     }
 
-    // ====== NOUVELLE FONCTION CORRIGÉE POUR L'EFFET FONDU SANS BUG DE BLOCS GRIS ======
+    // ====== NOUVELLE FONCTION AVANCÉE POUR UN MASQUE DOUX ET ARRONDI (EFFET PREMIUM) ======
     function getMaskedImageBase64(url) {
       return new Promise((resolve) => {
         if(!url) { resolve(null); return; }
@@ -694,28 +694,40 @@
           canvas.height = img.height;
           const ctx = canvas.getContext("2d");
 
-          // 1. Peindre d'abord le fond avec la couleur exacte du PDF pour éviter tout problème de rendu alpha (les fameux blocs gris)
+          // 1. Remplir le fond principal avec la couleur exacte du PDF
           ctx.fillStyle = "rgb(10, 10, 12)";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-          // 2. Dessiner la vraie photo de nourriture par-dessus
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // 2. Créer un second canvas (maskCanvas) pour générer l'effet de fondu doux
+          const maskCanvas = document.createElement("canvas");
+          maskCanvas.width = canvas.width;
+          maskCanvas.height = canvas.height;
+          const maskCtx = maskCanvas.getContext("2d");
 
-          // 3. Créer un dégradé radial (effet vignette) de transparent (centre) vers noir absolu (bords)
-          const cx = canvas.width / 2;
-          const cy = canvas.height / 2;
-          const rMin = Math.min(cx, cy);
-          const rMax = Math.max(cx, cy) * 1.2; // Assure que les coins soient couverts
+          // 3. Dessiner un dégradé radial (du blanc pur au transparent)
+          const cx = maskCanvas.width / 2;
+          const cy = maskCanvas.height / 2;
           
-          const gradient = ctx.createRadialGradient(cx, cy, rMin * 0.4, cx, cy, rMax);
-          gradient.addColorStop(0, 'rgba(10, 10, 12, 0)'); // Centre 100% visible
-          gradient.addColorStop(1, 'rgba(10, 10, 12, 1)'); // Bords 100% noirs (se fond dans le fond du PDF)
+          // rMin = Centre complètement net | rMax = Fin du fondu avant les bords de l'image
+          const rMin = Math.min(cx, cy) * 0.45; 
+          const rMax = Math.min(cx, cy) * 0.95; 
 
-          // Appliquer le dégradé par-dessus
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          const gradient = maskCtx.createRadialGradient(cx, cy, rMin, cx, cy, rMax);
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 1)'); // Centre net (opaque)
+          gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.2)'); // Transition douce
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Bords transparents
 
-          // Exporter en JPEG (ce qui annule la transparence PDF et donne une pure image propre pour jsPDF)
+          maskCtx.fillStyle = gradient;
+          maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+          // 4. Appliquer la photo de nourriture *à l'intérieur* de ce dégradé (Clipping)
+          maskCtx.globalCompositeOperation = 'source-in';
+          maskCtx.drawImage(img, 0, 0, maskCanvas.width, maskCanvas.height);
+
+          // 5. Dessiner cette image parfaitement fondue sur le fond noir de notre canvas principal
+          ctx.drawImage(maskCanvas, 0, 0);
+
+          // Exporter en JPEG (ce qui annule la transparence pour jsPDF et donne une pure image propre)
           resolve(canvas.toDataURL("image/jpeg", 0.95));
         };
         img.onerror = () => resolve(null);
@@ -1155,7 +1167,7 @@
 
 
     // ============================================================
-    //  GÉNÉRATION DU PDF HAUT DE GAMME (CORRECTIONS APPLIQUÉES)
+    //  GÉNÉRATION DU PDF HAUT DE GAMME (PLATS ARRONDIS & FONDUS)
     // ============================================================
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) {
@@ -1181,26 +1193,26 @@
           doc.setFillColor(10, 10, 12);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-          // ---------- NOUVEAU PLACEMENT DES PHOTOS (En arrière-plan, autour de l'en-tête) ----------
-          // Positionnement encadrant le logo et le nom (2 à gauche, 2 à droite)
+          // ---------- NOUVEAU PLACEMENT DES PHOTOS DANS LA ZONE HAUTE ----------
+          // Tailles et positions ajustées pour rester visuellement liées au logo sans descendre vers le QR
           const foodItems = [
             // Côté Gauche
-            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -16, y: -10, w: 70, h: 70 }, // Haut gauche
-            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -20, y: 40, w: 65, h: 65 },  // Milieu gauche
+            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -20, y: -15, w: 75, h: 75 }, 
+            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: -25, y: 35, w: 68, h: 68 }, 
+            
             // Côté Droit
-            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 94, y: -10, w: 70, h: 70 },  // Haut droit
-            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 103, y: 40, w: 65, h: 65 }     // Milieu droit
+            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 93, y: -15, w: 75, h: 75 },  
+            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: 105, y: 35, w: 68, h: 68 }     
           ];
 
           for (const item of foodItems) {
-            // Utilisation de la nouvelle fonction sans blocs gris (export JPEG)
+            // Utilisation de la nouvelle fonction de masquage "Alpha Clipping" pour des plats doux et fondus
             const base64 = await getMaskedImageBase64(item.url); 
             if (base64) {
               doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
             }
           }
 
-          // Calcul des positions verticales (y) de manière séquentielle pour tout harmoniser
           let startY = 12;
           let logoSize = 24;
           
@@ -1234,7 +1246,7 @@
           doc.line(pageWidth / 2 - 25, lineY, pageWidth / 2 + 25, lineY);
 
           // ---------- TEXTE "SCANNEZ POUR COMMANDER" ----------
-          let scanY = lineY + 42; // Environ 98 (bien décollé de la zone d'en-tête, préserve l'alignement du reste)
+          let scanY = lineY + 42; 
           doc.setDrawColor(255, 190, 0);
           doc.setLineWidth(0.5);
           doc.line(35, scanY - 1, 50, scanY - 1);
@@ -1245,8 +1257,7 @@
           doc.setTextColor(255, 255, 255);
           doc.text('SCANNEZ POUR', pageWidth / 2, scanY, { align: 'center' });
 
-          // "COMMANDER" Or flamboyant
-          let cmdY = scanY + 11; // Environ 109
+          let cmdY = scanY + 11; 
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(32);
           doc.setTextColor(30, 30, 30);
@@ -1256,8 +1267,8 @@
           doc.setTextColor(255, 190, 0);
           doc.text('COMMANDER', (pageWidth / 2) - 0.4, cmdY - 0.4, { align: 'center' });
 
-          // ---------- CADRE DU QR CODE (Propre, centralisé) ----------
-          let qrY = cmdY + 6; // Environ 115
+          // ---------- CADRE DU QR CODE ----------
+          let qrY = cmdY + 6; 
           let qrSize = 56; 
           const qrX = (pageWidth - qrSize) / 2;
 
@@ -1283,7 +1294,7 @@
           });
 
           // ---------- 3 AVANTAGES ALIGNÉS ----------
-          let advY = qrY + qrSize + 12; // Environ 183
+          let advY = qrY + qrSize + 12; 
           
           const drawIconText = (x, title, subtitle, drawFunc) => {
               drawFunc(x, advY + 2);
@@ -1310,7 +1321,7 @@
           });
 
           // ---------- BANDEAU FINAL ----------
-          let bannerY = 196; // (210 - 14)
+          let bannerY = 196; 
           doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.3);
           doc.line(0, bannerY + 4.5, pageWidth, bannerY + 4.5);
 
