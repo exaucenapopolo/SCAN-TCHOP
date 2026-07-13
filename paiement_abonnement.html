@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCAN&TCHOP – Paiement Sécurisé</title>
+
+  <!-- Google Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ====== VARIABLES (Reprises de ton design original) ====== */
+    :root {
+      --primary: #e67e22;
+      --primary-hover: #cf6f1b;
+      --primary-light: #fef3e8;
+      --bg-color: #fdf8f4;
+      --text-main: #0b1a2e;
+      --text-muted: #64748b;
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --border-color: #e2e8f0;
+      --success: #22c55e;
+      --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+      --shadow-lg: 0 20px 50px rgba(230,126,34,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1, h2 { font-family: 'Playfair Display', serif; }
+
+    /* ====== HEADER ====== */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .brand img { height: 50px; border-radius: 12px; }
+    .brand span { font-weight: 800; font-size: 1.5rem; }
+
+    /* ====== CONTAINER PRINCIPAL ====== */
+    .payment-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ====== RÉSUMÉ DE COMMANDE ====== */
+    .order-summary {
+      background: linear-gradient(135deg, var(--primary-light), #fffdf9);
+      padding: 30px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+    }
+    .order-summary h2 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
+    .price-display { font-size: 2.5rem; font-weight: 800; color: var(--text-main); font-family: 'Inter', sans-serif;}
+    .price-display span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+
+    /* ====== FORMULAIRE ====== */
+    .payment-form { padding: 30px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #1e293b; }
+    .form-control {
+      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 16px;
+      font-family: inherit; font-size: 0.95rem; background: #fff; transition: var(--transition);
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
+
+    .payment-methods { display: flex; gap: 15px; margin-bottom: 20px; }
+    .method-btn {
+      flex: 1; padding: 15px; border: 2px solid var(--border-color); border-radius: 16px;
+      background: #fff; cursor: pointer; font-weight: 600; transition: var(--transition);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted);
+    }
+    .method-btn i { font-size: 1.5rem; }
+    .method-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* ====== BOUTONS ====== */
+    .btn {
+      padding: 14px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem;
+      cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.35); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .back-link {
+      margin-top: 20px; color: var(--text-muted); text-decoration: none; font-weight: 500;
+      display: flex; align-items: center; gap: 8px; transition: var(--transition);
+    }
+    .back-link:hover { color: var(--primary); }
+
+  </style>
+</head>
+<body>
+
+  <div class="brand">
+    <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
+    <span>SCAN&TCHOP</span>
+  </div>
+
+  <div class="payment-container">
+    <div class="order-summary">
+      <h2 id="planNameDisplay">Pack ...</h2>
+      <div class="price-display" id="planPriceDisplay">0 FCFA <span>/ mois</span></div>
+      <p style="color: var(--text-muted); margin-top: 10px; font-size: 0.9rem;">Facturation mensuelle sans engagement</p>
+    </div>
+
+    <div class="payment-form">
+      <div class="payment-methods">
+        <div class="method-btn active" id="btnMobileMoney">
+          <i class="fas fa-mobile-alt"></i>
+          Mobile Money
+        </div>
+        <div class="method-btn" id="btnCard">
+          <i class="far fa-credit-card"></i>
+          Carte Bancaire
+        </div>
+      </div>
+
+      <form id="checkoutForm">
+        <!-- Champ dynamique selon le mode de paiement -->
+        <div class="form-group" id="inputContainer">
+          <label>Numéro de téléphone (Mobile Money)</label>
+          <input type="text" id="paymentInput" class="form-control" placeholder="Ex: 6XXXXXXXX" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="fas fa-lock"></i> Payer et Activer mon Pack
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Annuler et retourner au tableau de bord</a>
+
+  <!-- Scripts Firebase (Compatibles avec ton dashboard) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // 1. Initialisation de Firebase (MÊME CONFIGURATION QUE LE DASHBOARD)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+      authDomain: "scan-et-tchop.firebaseapp.com",
+      projectId: "scan-et-tchop",
+      storageBucket: "scan-et-tchop.firebasestorage.app",
+      messagingSenderId: "648843762360",
+      appId: "1:648843762360:web:092b3d359eeae61ef2324d"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // 2. Récupération des paramètres de l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const planName = urlParams.get('plan');
+    const restoId = urlParams.get('restoId');
+
+    // 3. Définition des prix
+    const planPrices = {
+      'Starter': '11 900',
+      'Pro': '14 900',
+      'Premium': '29 900'
+    };
+
+    // 4. Mise à jour de l'interface
+    if (planName && planPrices[planName]) {
+      document.getElementById('planNameDisplay').textContent = `Pack ${planName}`;
+      document.getElementById('planPriceDisplay').innerHTML = `${planPrices[planName]} FCFA <span>/ mois</span>`;
+    } else {
+      alert("Erreur : Aucun plan sélectionné. Retour au tableau de bord.");
+      window.location.href = 'index.html';
+    }
+
+    // 5. Gestion des onglets de paiement (Visuel uniquement)
+    const btnMobile = document.getElementById('btnMobileMoney');
+    const btnCard = document.getElementById('btnCard');
+    const paymentInput = document.getElementById('paymentInput');
+    const inputContainerLabel = document.querySelector('#inputContainer label');
+
+    btnMobile.addEventListener('click', () => {
+      btnMobile.classList.add('active');
+      btnCard.classList.remove('active');
+      inputContainerLabel.textContent = "Numéro de téléphone (Mobile Money)";
+      paymentInput.placeholder = "Ex: 6XXXXXXXX";
+      paymentInput.type = "tel";
+    });
+
+    btnCard.addEventListener('click', () => {
+      btnCard.classList.add('active');
+      btnMobile.classList.remove('active');
+      inputContainerLabel.textContent = "Numéro de la carte";
+      paymentInput.placeholder = "0000 0000 0000 0000";
+      paymentInput.type = "text";
+    });
+
+    // 6. Soumission du formulaire et mise à jour de Firestore
+    document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement sécurisé en cours...';
+
+      try {
+        // SIMULATION : On attend 2 secondes pour simuler le traitement bancaire
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // MISE À JOUR FIREBASE : On modifie l'abonnement du restaurant
+        if (restoId) {
+          await db.collection('restaurants').doc(restoId).update({
+            abonnement: planName
+          });
+        }
+
+        // Succès et redirection (Assure-toi que ton fichier dashboard s'appelle bien index.html)
+        alert(`Félicitations ! Votre Pack ${planName} est désormais actif.`);
+        window.location.href = 'index.html'; // Remplace par le bon nom si différent
+
+      } catch (error) {
+        console.error("Erreur lors du paiement:", error);
+        alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Payer et Activer mon Pack';
+      }
+    });
+  </script>
+</body>
+</html>
