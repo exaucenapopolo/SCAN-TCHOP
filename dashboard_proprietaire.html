@@ -120,7 +120,7 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    /* ====== STAT CARDS (conservées intactes) ====== */
+    /* ====== STAT CARDS ====== */
     .stat-card {
       position: relative; overflow: hidden; border-radius: 24px; padding: 28px 24px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; transition: var(--transition);
@@ -1304,7 +1304,7 @@
     });
 
     // ============================================================
-    //  EXPORT PDF HAUT DE GAMME - MODÈLE DELICO (CORRECTION FINALE)
+    //  EXPORT PDF HAUT DE GAMME - MODÈLE DELICO (VERSION FINALE)
     // ============================================================
     document.getElementById('downloadQR').addEventListener('click', async () => {
       if (!qrCanvasWithLogo) {
@@ -1312,170 +1312,218 @@
         return;
       }
 
-      const restaurantName = restaurantData?.nom || 'Mon Restaurant';
+      const restaurantName = restaurantData?.nom || 'DELICO';
       const restoLogo = restaurantData?.logo || null;
-
-      const { jsPDF } = window.jspdf;
       
-      // Format A5 portrait (148 x 210 mm)
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-      const pageWidth = 148;
-      const pageHeight = 210;
+      const btn = document.getElementById('downloadQR');
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
+      btn.disabled = true;
 
-      // ---------- FOND NOIR ----------
-      doc.setFillColor(10, 10, 10);
-      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+          const pageWidth = 148;
+          const pageHeight = 210;
 
-      // ---------- BORDURE DORÉE FINE ----------
-      doc.setDrawColor(212, 175, 55);
-      doc.setLineWidth(0.6);
-      doc.roundedRect(3, 3, pageWidth - 6, pageHeight - 6, 4, 4, 'S');
+          // ---------- FOND NOIR ----------
+          doc.setFillColor(10, 10, 12);
+          doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-      // ---------- IMAGES DE PLATS (coins, opacité) ----------
-      const foodItems = [
-        { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: 6, y: 8, w: 40, h: 40 },
-        { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: pageWidth - 46, y: 8, w: 40, h: 40 },
-        { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: 6, y: pageHeight - 48, w: 40, h: 40 },
-        { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: pageWidth - 46, y: pageHeight - 48, w: 40, h: 40 }
-      ];
+          // ---------- BORDURE DORÉE FINE ----------
+          doc.setDrawColor(212, 175, 55);
+          doc.setLineWidth(0.4);
+          doc.roundedRect(3, 3, pageWidth - 6, pageHeight - 6, 2, 2, 'S');
 
-      for (const item of foodItems) {
-        const base64 = await getBase64ImageFromURL(item.url);
-        if (base64) {
-          doc.setGState(new doc.GState({ opacity: 0.35 }));
-          doc.addImage(base64, 'PNG', item.x, item.y, item.w, item.h);
+          // ---------- IMAGES DE PLATS RÉALISTES ET PREMIUM ----------
+          const foodItems = [
+            { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', x: -5, y: -5, w: 60, h: 60, opacity: 0.6 }, // Grill/Viande
+            { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop', x: pageWidth - 55, y: -5, w: 60, h: 60, opacity: 0.6 }, // Salade
+            { url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop', x: -15, y: 45, w: 55, h: 55, opacity: 0.5 }, // Riz
+            { url: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop', x: pageWidth - 40, y: 45, w: 55, h: 55, opacity: 0.5 } // Ragoût/Sauce
+          ];
+
+          for (const item of foodItems) {
+            const base64 = await getBase64ImageFromURL(item.url);
+            if (base64) {
+              doc.setGState(new doc.GState({ opacity: item.opacity }));
+              doc.addImage(base64, 'JPEG', item.x, item.y, item.w, item.h);
+              doc.setGState(new doc.GState({ opacity: 1 }));
+            }
+          }
+
+          // Assombrissement progressif au centre pour assurer la lisibilité parfaite du texte
+          doc.setGState(new doc.GState({ opacity: 0.4 }));
+          doc.setFillColor(0, 0, 0);
+          doc.rect(10, 10, pageWidth - 20, 100, 'F');
           doc.setGState(new doc.GState({ opacity: 1 }));
-        }
+
+          // ---------- LOGO ET EN-TÊTE ----------
+          let yOffset = 18;
+          if (restoLogo) {
+            const logoBase64 = await getBase64ImageFromURL(restoLogo);
+            if (logoBase64) {
+              const logoSize = 26;
+              const xLogo = (pageWidth - logoSize) / 2;
+              doc.addImage(logoBase64, 'PNG', xLogo, yOffset, logoSize, logoSize);
+              yOffset += logoSize + 8;
+            }
+          } else {
+             // Logo par défaut si non fourni
+             const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
+             if (appLogoBase64) {
+                doc.addImage(appLogoBase64, 'PNG', (pageWidth - 24)/2, yOffset, 24, 24);
+                yOffset += 32;
+             }
+          }
+
+          // Nom
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(26);
+          doc.setTextColor(255, 255, 255);
+          doc.text(restaurantName.toUpperCase(), pageWidth / 2, yOffset, { align: 'center' });
+
+          // Slogan & Ligne dorée
+          yOffset += 6;
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(255, 204, 0);
+          doc.text('SAVEURS • QUALITÉ • PASSION', pageWidth / 2, yOffset, { align: 'center' });
+          
+          yOffset += 4;
+          doc.setDrawColor(255, 204, 0);
+          doc.setLineWidth(0.6);
+          doc.line(pageWidth / 2 - 25, yOffset, pageWidth / 2 + 25, yOffset);
+
+          // ---------- TEXTE "SCANNEZ POUR COMMANDER" ----------
+          yOffset += 14;
+          doc.setDrawColor(255, 204, 0);
+          doc.setLineWidth(0.5);
+          doc.line(35, yOffset - 1, 50, yOffset - 1);
+          doc.line(pageWidth - 50, yOffset - 1, pageWidth - 35, yOffset - 1);
+          
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(255, 255, 255);
+          doc.text('SCANNEZ POUR', pageWidth / 2, yOffset, { align: 'center' });
+
+          yOffset += 11;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(32);
+          
+          // Simulation du dégradé et de l'ombre
+          doc.setTextColor(30, 30, 30);
+          doc.text('COMMANDER', (pageWidth / 2) + 0.8, yOffset + 0.8, { align: 'center' });
+          doc.setTextColor(230, 110, 0);
+          doc.text('COMMANDER', pageWidth / 2, yOffset, { align: 'center' });
+          doc.setTextColor(255, 190, 0);
+          doc.text('COMMANDER', (pageWidth / 2) - 0.4, yOffset - 0.4, { align: 'center' });
+
+          // ---------- MOTIFS POINTS SUR LES CÔTÉS ----------
+          const dotR = 0.4;
+          doc.setFillColor(100, 100, 100);
+          for(let i=0; i<9; i++) {
+              for(let j=0; j<4; j++) {
+                  doc.circle(10 + j*3, yOffset + 15 + i*4, dotR, 'F');
+                  doc.circle(pageWidth - 19 + j*3, yOffset + 15 + i*4, dotR, 'F');
+              }
+          }
+          // Points dorés subtils
+          doc.setFillColor(255, 190, 0);
+          [ [13,23], [16,31], [10,43], [pageWidth-16,19], [pageWidth-13,35], [pageWidth-19,47] ].forEach(pos => {
+              doc.circle(pos[0], yOffset + pos[1], dotR + 0.1, 'F');
+          });
+
+          // ---------- CADRE DU QR CODE ----------
+          const qrSize = 65;
+          const qrX = (pageWidth - qrSize) / 2;
+          const qrY = yOffset + 6;
+
+          // Double bordure externe
+          doc.setDrawColor(255, 190, 0);
+          doc.setLineWidth(1.2);
+          doc.roundedRect(qrX - 2.5, qrY - 2.5, qrSize + 5, qrSize + 5, 4, 4, 'S');
+
+          // Fond blanc
+          doc.setFillColor(255, 255, 255);
+          doc.roundedRect(qrX, qrY, qrSize, qrSize, 3, 3, 'F');
+          
+          // Insertion QR Image
+          doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
+
+          // ---------- 3 AVANTAGES ALIGNÉS ----------
+          yOffset = qrY + qrSize + 15;
+          
+          // Helper Function pour le texte
+          const drawIconText = (x, title, subtitle, drawFunc) => {
+              drawFunc(x, yOffset + 2); // Trace l'icône vectorielle
+              doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+              doc.text(title, x + 7, yOffset + 1);
+              doc.setTextColor(200, 200, 200); doc.setFontSize(5); doc.setFont('helvetica', 'normal');
+              doc.text(subtitle, x + 7, yOffset + 4);
+          };
+
+          // 1. RAPIDE (Chronomètre dessiné en JS)
+          drawIconText(12, 'RAPIDE', 'COMMANDEZ EN\nQUELQUES SECONDES', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.circle(x, y, 4, 'S'); doc.line(x, y-4, x, y-5); doc.line(x+3, y-2, x+4, y-3); doc.line(x, y, x+1.5, y-1.5);
+          });
+
+          // 2. FACILE (Cloche de restaurant dessinée en JS)
+          drawIconText(60, 'FACILE', 'PARCOUREZ\nNOTRE MENU', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.line(x-4.5, y+3.5, x+4.5, y+3.5);
+              doc.ellipse(x, y+2, 3.5, 3);
+              doc.setFillColor(10, 10, 12); doc.rect(x-5, y+2.5, 10, 4, 'F'); // Coupe la cloche
+              doc.setDrawColor(255, 190, 0); doc.line(x-4, y+3, x+4, y+3);
+              doc.circle(x, y-1, 0.8, 'S'); // Poignée
+          });
+
+          // 3. SÉCURISÉ (Bouclier dessiné en JS)
+          drawIconText(106, 'SÉCURISÉ', 'PAIEMENT EN\nTOUTE SÉCURITÉ', (x,y) => {
+              doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.6);
+              doc.line(x-3.5, y-1.5, x+3.5, y-1.5);
+              doc.line(x-3.5, y-1.5, x, y+4.5);
+              doc.line(x+3.5, y-1.5, x, y+4.5);
+              // Checkmark
+              doc.line(x-1.5, y+0.5, x-0.2, y+2);
+              doc.line(x-0.2, y+2, x+2, y-1);
+          });
+
+          // ---------- BANDEAU FINAL (MERCI ! BON APPÉTIT) ----------
+          yOffset = pageHeight - 16;
+          
+          // Ligne continue
+          doc.setDrawColor(255, 190, 0); doc.setLineWidth(0.3);
+          doc.line(0, yOffset + 4.5, pageWidth, yOffset + 4.5);
+
+          // Bouton pillule
+          const pillW = 60;
+          const pillX = (pageWidth - pillW) / 2;
+          doc.setFillColor(255, 190, 0);
+          doc.roundedRect(pillX, yOffset, pillW, 9, 4.5, 4.5, 'F');
+
+          // Textes
+          doc.setTextColor(0, 0, 0);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text('MERCI !', pageWidth / 2, yOffset + 5, { align: 'center' });
+          
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(5);
+          doc.text('— BON APPÉTIT —', pageWidth / 2, yOffset + 7.5, { align: 'center' });
+
+          // Téléchargement final
+          doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
+          showToast("Affiche de table haut de gamme générée avec succès !");
+
+      } catch (error) {
+          console.error(error);
+          showToast("Erreur lors de la génération du PDF", "error");
+      } finally {
+          btn.innerHTML = origText;
+          btn.disabled = false;
       }
-
-      // ---------- LOGO DU RESTAURANT (en haut, centré) ----------
-      let yOffset = 24;
-      if (restoLogo) {
-        const logoBase64 = await getBase64ImageFromURL(restoLogo);
-        if (logoBase64) {
-          const logoSize = 28;
-          const xLogo = (pageWidth - logoSize) / 2;
-          doc.addImage(logoBase64, 'PNG', xLogo, 10, logoSize, logoSize);
-          yOffset = 48;
-        }
-      }
-
-      // ---------- NOM DU RESTAURANT ----------
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(20);
-      doc.setTextColor(255, 255, 255);
-      doc.text(restaurantName.toUpperCase(), pageWidth / 2, yOffset, { align: 'center' });
-
-      // ---------- SLOGAN "SAVEURS·QUALITÉ PASSION" ----------
-      doc.setFontSize(8);
-      doc.setTextColor(212, 175, 55);
-      doc.text('SAVEURS·QUALITÉ PASSION', pageWidth / 2, yOffset + 5, { align: 'center' });
-
-      // ---------- LIGNE DORÉE SOUS LE SLOGAN ----------
-      const lineY = yOffset + 9;
-      doc.setDrawColor(212, 175, 55);
-      doc.setLineWidth(1.2);
-      doc.line(pageWidth / 2 - 28, lineY, pageWidth / 2 + 28, lineY);
-
-      // ---------- "SCANNEZ POUR" ----------
-      const startY = lineY + 10;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text('SCANNEZ POUR', pageWidth / 2, startY, { align: 'center' });
-
-      // ---------- "COMMANDER" (dégradé orange/jaune) ----------
-      doc.setFontSize(32);
-      // Ombre
-      doc.setTextColor(50, 50, 50);
-      doc.text('COMMANDER', pageWidth / 2 + 0.5, startY + 11 + 0.5, { align: 'center' });
-      // Orange
-      doc.setTextColor(230, 126, 34);
-      doc.text('COMMANDER', pageWidth / 2, startY + 11, { align: 'center' });
-      // Jaune
-      doc.setTextColor(255, 200, 0);
-      doc.text('COMMANDER', pageWidth / 2 - 0.4, startY + 11 - 0.4, { align: 'center' });
-
-      // ---------- QR CODE CENTRAL ----------
-      const qrSize = 60;
-      const qrX = (pageWidth - qrSize) / 2;
-      const qrY = startY + 16;
-
-      // Ombre du cadre
-      doc.setFillColor(50, 50, 50);
-      doc.roundedRect(qrX + 2, qrY + 2, qrSize, qrSize, 5, 5, 'F');
-
-      // Cadre blanc
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(212, 175, 55);
-      doc.setLineWidth(1.2);
-      doc.roundedRect(qrX, qrY, qrSize, qrSize, 5, 5, 'FD');
-
-      // QR code
-      doc.addImage(qrCanvasWithLogo, 'PNG', qrX + 2, qrY + 2, qrSize - 4, qrSize - 4);
-
-      // ---------- TROIS AVANTAGES ----------
-      const advY = qrY + qrSize + 10;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(212, 175, 55);
-
-      const items = [
-        { icon: '⚡', label: 'RAPIDE' },
-        { icon: '✅', label: 'FACILE' },
-        { icon: '🛡️', label: 'SÉCURISÉ' }
-      ];
-      const gap = 36;
-      const startX = (pageWidth - (items.length - 1) * gap) / 2;
-
-      for (let i = 0; i < items.length; i++) {
-        const x = startX + i * gap;
-        doc.setFontSize(14);
-        doc.text(items[i].icon, x, advY, { align: 'center' });
-        doc.setFontSize(8);
-        doc.setTextColor(255, 255, 255);
-        doc.text(items[i].label, x, advY + 5, { align: 'center' });
-        doc.setTextColor(212, 175, 55);
-      }
-
-      // ---------- TROIS LIGNES DE TEXTE ----------
-      const textY = advY + 12;
-      doc.setFontSize(7);
-      doc.setTextColor(212, 175, 55);
-      const lines = [
-        'COMMANDEZ EN QUELQUES SECONDES',
-        'PARCOUREZ NOTRE MENU',
-        'PAIEMENT EN TOUTE SÉCURITÉ'
-      ];
-      const lineGap = 3.5;
-      for (let i = 0; i < lines.length; i++) {
-        doc.text(lines[i], pageWidth / 2, textY + i * lineGap, { align: 'center' });
-      }
-
-      // ---------- BANDEAU FINAL "MERCI! BON APPÉTIT" ----------
-      const btnY = textY + 12;
-      const btnWidth = 90;
-      const btnX = (pageWidth - btnWidth) / 2;
-
-      doc.setFillColor(230, 126, 34);
-      doc.setDrawColor(212, 175, 55);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(btnX, btnY, btnWidth, 9, 4.5, 4.5, 'FD');
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(255, 255, 255);
-      doc.text('MERCI! BON APPÉTIT', pageWidth / 2, btnY + 6.5, { align: 'center' });
-
-      // ---------- PETIT LOGO SCAN&TCHOP EN PIED ----------
-      const appLogoBase64 = await getBase64ImageFromURL(APP_LOGO_URL);
-      if (appLogoBase64) {
-        doc.addImage(appLogoBase64, 'PNG', pageWidth - 24, pageHeight - 8, 18, 5.5);
-      }
-
-      // ---------- TÉLÉCHARGEMENT ----------
-      doc.save(`Affiche_Table_${restaurantName.replace(/\s+/g, '_')}.pdf`);
-      showToast("Affiche de table haut de gamme générée avec succès !");
     });
 
     // ============================================================
