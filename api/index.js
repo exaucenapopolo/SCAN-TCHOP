@@ -3,15 +3,12 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 
 // ==========================================
-// 1. INITIALISATION SÉCURISÉE DE FIREBASE (MÉTHODE JSON)
+// 1. INITIALISATION SÉCURISÉE DE FIREBASE
 // ==========================================
 if (!admin.apps.length) {
-    // On vérifie si notre nouvelle variable contenant tout le JSON est présente
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
         try {
-            // JSON.parse va s'occuper de formater parfaitement les sauts de ligne
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-            
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
@@ -20,7 +17,6 @@ if (!admin.apps.length) {
             console.error("Erreur lors de la lecture du fichier JSON Firebase :", error);
         }
     } else {
-        // Option de secours si tu testes en local
         admin.initializeApp({
             credential: admin.credential.applicationDefault()
         });
@@ -38,10 +34,11 @@ app.use(express.json());
 // 2. ROUTE : INITIALISATION DU PAIEMENT
 // ==========================================
 app.post('/api/create-subscription-checkout', async (req, res) => {
-  const { planName, restoId, amount, phone, redirectUrl } = req.body;
+  // Nous récupérons maintenant la "duration" (durée) envoyée par le HTML
+  const { planName, restoId, amount, phone, redirectUrl, duration } = req.body;
 
-  if (!planName || !restoId || !amount || !redirectUrl) {
-    return res.status(400).json({ success: false, error: 'Données manquantes.' });
+  if (!planName || !restoId || !amount || !redirectUrl || !duration) {
+    return res.status(400).json({ success: false, error: 'Données manquantes. Veuillez vérifier votre sélection.' });
   }
 
   const API_USER = process.env.FAPSHI_API_USER;
@@ -57,7 +54,7 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
   const payload = {
     amount: Number(amount),
     currency: 'XAF',
-    description: `Abonnement Pack ${planName} pour le restaurant`,
+    description: `Abonnement Pack ${planName} (${duration}) pour le restaurant`,
     redirect_url: redirectUrl,
     webhook_url: webhookUrl,
     phone: phone || ''
@@ -82,13 +79,15 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
     const checkoutUrl = respJson.url || respJson.link;
     const fapshiTransId = respJson.transId;
 
-    if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL manquante.' });
+    if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL de paiement manquante.' });
 
+    // On enregistre la transaction dans Firebase en attendant la confirmation
     const transDocId = fapshiTransId || db.collection('subscriptionTransactions').doc().id;
     await db.collection('subscriptionTransactions').doc(transDocId).set({
       fapshiTransId: fapshiTransId,
       restoId: restoId,
       planName: planName,
+      duration: duration, // On sauvegarde la durée pour le webhook
       amount: Number(amount),
       status: 'PENDING',
       dateInitiated: admin.firestore.FieldValue.serverTimestamp(),
@@ -117,18 +116,44 @@ app.post('/api/fapshi-subscription-webhook', async (req, res) => {
     const transDoc = await transRef.get();
     if (!transDoc.exists) return res.status(200).json({ message: 'Transaction inconnue.' });
 
+    const transData = transDoc.data();
+
+    // Si la transaction a déjà été traitée, on s'arrête
+    if (transData.status === 'CONFIRMED') {
+      return res.status(200).json({ message: 'Transaction déjà confirmée.' });
+    }
+
+    // 1. Marquer la transaction comme confirmée
     await transRef.update({
       status: 'CONFIRMED',
       dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    const transData = transDoc.data();
+    // 2. Calculer la date d'expiration en fonction de la durée choisie
+    let dateExpiration = null; // Par défaut null (pour les accès à vie)
+    let statutExpirationText = "Illimité"; 
+
+    if (transData.duration !== 'A_vie' && transData.duration !== 'Cle_en_main') {
+      // C'est un abonnement mensuel (1, 3, 6, ou 12 mois)
+      const monthsToAdd = parseInt(transData.duration) || 1;
+      const now = new Date();
+      now.setMonth(now.getMonth() + monthsToAdd);
+      dateExpiration = admin.firestore.Timestamp.fromDate(now);
+      statutExpirationText = `${monthsToAdd} mois`;
+    }
+
+    // 3. Mettre à jour le document de l'utilisateur (restaurant) avec toutes les informations
     if (transData.restoId && transData.planName) {
       await db.collection('restaurants').doc(transData.restoId).update({
-        abonnement: transData.planName
+        abonnement: transData.planName,
+        dureeAbonnement: statutExpirationText, // Ex: "3 mois", "Illimité"
+        dateDernierPaiement: admin.firestore.FieldValue.serverTimestamp(),
+        dateExpirationAbonnement: dateExpiration, // Timestamp précis ou null si à vie
+        montantDernierPaiement: transData.amount
       });
     }
-    return res.status(200).json({ message: 'Abonnement activé.' });
+
+    return res.status(200).json({ message: 'Abonnement activé avec succès.' });
   } catch (err) {
     console.error('Erreur Webhook:', err);
     return res.status(500).json({ error: 'Erreur webhook.' });
