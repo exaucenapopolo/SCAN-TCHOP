@@ -1,0 +1,11 @@
+{
+  "name": "backend-paiement",
+  "version": "1.0.0",
+  "description": "API de paiement Mobile Money",
+  "main": "api/index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "firebase-admin": "^11.11.0"
+  }
+}
