@@ -1,20 +1,20 @@
 const express = require('express');
 const cors = require('cors');
+const admin = require('firebase-admin');
 
-// Initialisation de l'application Express
+// Initialisation Firebase (Vérifie que ton serviceAccount est configuré ou utilise Application Default)
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault()
+    });
+}
+const db = admin.firestore();
 const app = express();
 
-// Autoriser les requêtes provenant de ton frontend (très important sur Vercel)
 app.use(cors());
-// Permettre au serveur de lire les données JSON envoyées par le frontend
 app.use(express.json());
 
-// ═══════════════════════════════════════════════════════════════
-// Fapshi – Paiement d'Abonnement (SCAN&TCHOP)
-// ═══════════════════════════════════════════════════════════════
-
-// ── POST /api/create-subscription-checkout ────────────────────────────
-// Cette route génère le lien de paiement et enregistre l'intention
+// Route pour initier le paiement
 app.post('/api/create-subscription-checkout', async (req, res) => {
   const { planName, restoId, amount, phone, redirectUrl } = req.body;
 
@@ -22,9 +22,8 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Données manquantes.' });
   }
 
-  // Utilisation des variables d'environnement configurées sur Vercel
   const API_USER = process.env.FAPSHI_API_USER;
-  const API_KEY  = process.env.FAPSHI_API_KEY; 
+  const API_KEY = process.env.FAPSHI_API_KEY;
 
   if (!API_USER || !API_KEY) {
     return res.status(500).json({ success: false, error: 'Configuration Fapshi incomplète.' });
@@ -54,7 +53,6 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
     });
 
     const respJson = await fapshiRes.json();
-
     if (!fapshiRes.ok) {
       return res.status(fapshiRes.status).json({ success: false, error: respJson.message || respJson.error });
     }
@@ -64,7 +62,6 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
 
     if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL manquante.' });
 
-    // Stockage de la transaction "EN ATTENTE"
     const transDocId = fapshiTransId || db.collection('subscriptionTransactions').doc().id;
     await db.collection('subscriptionTransactions').doc(transDocId).set({
       fapshiTransId: fapshiTransId,
@@ -78,15 +75,14 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
 
     return res.json({ success: true, checkoutUrl });
   } catch (err) {
-    console.error('Erreur initialisation abonnement Fapshi:', err);
+    console.error('Erreur initialisation:', err);
     return res.status(500).json({ success: false, error: 'Erreur serveur interne.' });
   }
 });
 
-// ── POST /api/fapshi-subscription-webhook ─────────────────────────────
-// C'est Fapshi qui appelle cette route en secret pour valider le paiement
+// Route Webhook pour Fapshi
 app.post('/api/fapshi-subscription-webhook', async (req, res) => {
-  const { status, amount, transId } = req.body;
+  const { status, transId } = req.body;
 
   if (status !== 'SUCCESSFUL') return res.status(200).json({ message: 'Statut ignoré.' });
   if (!transId) return res.status(400).json({ error: 'Données invalides.' });
@@ -97,30 +93,22 @@ app.post('/api/fapshi-subscription-webhook', async (req, res) => {
     const transDoc = await transRef.get();
     if (!transDoc.exists) return res.status(200).json({ message: 'Transaction inconnue.' });
 
-    const transData = transDoc.data();
-    if (transData.status === 'CONFIRMED') return res.status(200).json({ message: 'Déjà confirmée.' });
-
-    const restoId = transData.restoId;
-    const planName = transData.planName;
-
     await transRef.update({
       status: 'CONFIRMED',
       dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    if (restoId && planName) {
-      await db.collection('restaurants').doc(restoId).update({
-        abonnement: planName
+    const transData = transDoc.data();
+    if (transData.restoId && transData.planName) {
+      await db.collection('restaurants').doc(transData.restoId).update({
+        abonnement: transData.planName
       });
     }
-
-    return res.status(200).json({ message: 'Abonnement activé avec succès.' });
+    return res.status(200).json({ message: 'Abonnement activé.' });
   } catch (err) {
-    console.error('Erreur Webhook Abonnement:', err);
+    console.error('Erreur Webhook:', err);
     return res.status(500).json({ error: 'Erreur webhook.' });
   }
 });
 
-// EXPORT OBLIGATOIRE POUR VERCEL
-// C'est cette ligne qui résout le problème de l'erreur 404
 module.exports = app;
