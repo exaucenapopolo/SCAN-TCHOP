@@ -3,24 +3,28 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 
 // ==========================================
-// 1. INITIALISATION SÉCURISÉE DE FIREBASE
+// 1. INITIALISATION SÉCURISÉE DE FIREBASE (MÉTHODE JSON)
 // ==========================================
 if (!admin.apps.length) {
-    // Si la variable d'environnement principale est définie sur Vercel
-    if (process.env.FIREBASE_PROJECT_ID) {
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Cette astuce nettoie les sauts de ligne pour que la clé soit valide
-                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            })
-        });
+    // On vérifie si notre nouvelle variable contenant tout le JSON est présente
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        try {
+            // JSON.parse va s'occuper de formater parfaitement les sauts de ligne
+            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+            
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+            console.log("Firebase initialisé avec succès sur Vercel !");
+        } catch (error) {
+            console.error("Erreur lors de la lecture du fichier JSON Firebase :", error);
+        }
     } else {
-        // Option de secours pour les tests locaux
+        // Option de secours si tu testes en local
         admin.initializeApp({
             credential: admin.credential.applicationDefault()
         });
+        console.log("Firebase initialisé en local.");
     }
 }
 
