@@ -265,15 +265,15 @@
             <h2>Bon retour !</h2>
             <p>Connectez-vous à votre espace de travail</p>
 
-            <!-- Sélecteur de rôle (Uniquement visible pour la connexion) -->
+            <!-- Sélecteur de rôle -->
             <div class="role-selector">
                 <button id="role-proprietaire" class="active"><i class="fas fa-store"></i> Propriétaire</button>
                 <button id="role-employe"><i class="fas fa-user-tie"></i> Employé</button>
             </div>
 
-            <!-- Conteneur Google (Réservé au Propriétaire) -->
+            <!-- Conteneur Google -->
             <div id="google-auth-container">
-                <button type="button" class="btn btn-google" onclick="handleGoogleAuth()">
+                <button type="button" class="btn btn-google" onclick="window.handleGoogleAuth()">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; margin: 0; box-shadow: none; border-radius: 0;" />
                     <span class="btn-text">Continuer avec Google</span>
                     <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
@@ -287,7 +287,7 @@
                     <input type="email" id="login-email" class="form-control" placeholder="exemple@restaurant.com" required />
                 </div>
                 
-                <!-- Champ Code Restaurant (S'affiche uniquement pour les employés) -->
+                <!-- Champ Code Restaurant -->
                 <div class="form-group field-code" id="code-group">
                     <label for="login-code">Code d'accès Restaurant</label>
                     <input type="text" id="login-code" class="form-control" placeholder="Ex: ABCD1234" />
@@ -304,7 +304,7 @@
                 </button>
             </form>
 
-            <p class="toggle-link" onclick="toggleForm()">Nouveau partenaire ? <span>Créer mon restaurant</span></p>
+            <p class="toggle-link" onclick="window.toggleForm()">Nouveau partenaire ? <span>Créer mon restaurant</span></p>
         </div>
 
         <!-- ================= SECTION INSCRIPTION ================= -->
@@ -312,8 +312,8 @@
             <h2>Créer votre restaurant</h2>
             <p>Rejoignez SCAN&TCHOP en quelques clics</p>
             
-            <!-- Inscription Google (Propriétaire uniquement par défaut ici) -->
-            <button type="button" class="btn btn-google" onclick="handleGoogleAuth()">
+            <!-- Inscription Google -->
+            <button type="button" class="btn btn-google" onclick="window.handleGoogleAuth()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; margin: 0; box-shadow: none; border-radius: 0;" />
                 <span class="btn-text">S'inscrire avec Google</span>
                 <span class="spinner"><i class="fas fa-spinner fa-pulse"></i></span>
@@ -335,29 +335,34 @@
                 </button>
             </form>
             
-            <p class="toggle-link" onclick="toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
+            <p class="toggle-link" onclick="window.toggleForm()">Déjà partenaire ? <span>Me connecter</span></p>
         </div>
     </div>
 
-    <!-- Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <!-- NOUVEAU SCRIPT FIREBASE MODULAIRE -->
+    <script type="module">
+        // Importation des bibliothèques Firebase (Version 12)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-    <script>
-        // ================= CONFIGURATION FIREBASE =================
+        // Ta nouvelle configuration Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
-            authDomain: "scan-et-tchop.firebaseapp.com",
-            projectId: "scan-et-tchop",
-            storageBucket: "scan-et-tchop.firebasestorage.app",
-            messagingSenderId: "648843762360",
-            appId: "1:648843762360:web:092b3d359eeae61ef2324d",
-            measurementId: "G-8DKXS67DKY"
+            apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+            authDomain: "cinexau-903a6.firebaseapp.com",
+            projectId: "cinexau-903a6",
+            storageBucket: "cinexau-903a6.firebasestorage.app",
+            messagingSenderId: "247230931008",
+            appId: "1:247230931008:web:44961cc4857a567a31ffa5",
+            measurementId: "G-SV1HQY5MW6"
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+
+        // Initialisation de Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // ================= SYSTÈME DE TOAST =================
         function showToast(message, type = 'success') {
@@ -389,18 +394,16 @@
         const authDivider = document.getElementById('auth-divider');
 
         // ================= BASCULE INSCRIPTION / CONNEXION =================
-        function toggleForm() {
+        window.toggleForm = function() {
             loginSection.classList.toggle('hidden');
             registerSection.classList.toggle('hidden');
-        }
-        window.toggleForm = toggleForm;
+        };
 
         // ================= GESTION DES RÔLES (UI & Sécurité) =================
         roleProprietaire.addEventListener('click', () => {
             roleProprietaire.classList.add('active');
             roleEmploye.classList.remove('active');
             
-            // On cache le code et on affiche Google
             codeGroup.classList.remove('visible');
             document.getElementById('login-code').required = false;
             
@@ -412,7 +415,6 @@
             roleEmploye.classList.add('active');
             roleProprietaire.classList.remove('active');
             
-            // On exige le code et on CACHE Google
             codeGroup.classList.add('visible');
             document.getElementById('login-code').required = true;
             
@@ -421,33 +423,31 @@
         });
 
         // ================= AUTHENTIFICATION GOOGLE =================
-        async function handleGoogleAuth() {
-            const provider = new firebase.auth.GoogleAuthProvider();
+        window.handleGoogleAuth = async function() {
+            const provider = new GoogleAuthProvider();
             try {
-                const result = await auth.signInWithPopup(provider);
+                const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                // Vérifier si cet utilisateur existe déjà dans Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
+                // Vérifier si cet utilisateur existe dans Firestore (Syntaxe modulaire)
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
 
-                if (!userDoc.exists) {
-                    // C'est une nouvelle inscription : on le force en tant que propriétaire
-                    await db.collection('users').doc(user.uid).set({
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
                         email: user.email,
                         nom: user.displayName || '',
                         photo: user.photoURL || '',
                         role: 'proprietaire',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: serverTimestamp()
                     });
                     showToast("Création du compte réussie !", "success");
                     setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
                 } else {
-                    // L'utilisateur existe, on vérifie son rôle
-                    const data = userDoc.data();
+                    const data = userSnap.data();
                     if (data.role !== 'proprietaire') {
-                        // Si un employé tente de se connecter avec Google, on bloque
-                        await auth.signOut();
-                        showToast("Accès refusé. Les employés doivent se connecter avec Email, Mot de passe et Code Restaurant.", "error");
+                        await signOut(auth);
+                        showToast("Accès refusé. Les employés doivent se connecter avec Email, Mot de passe et Code.", "error");
                         return;
                     }
                     showToast("Connexion réussie !", "success");
@@ -456,8 +456,7 @@
             } catch (error) {
                 showToast("Erreur Google : " + error.message, "error");
             }
-        }
-        window.handleGoogleAuth = handleGoogleAuth;
+        };
 
         // ================= INSCRIPTION PAR EMAIL (Propriétaire) =================
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -469,13 +468,13 @@
             btn.classList.add('loading');
 
             try {
-                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
                 const user = cred.user;
                 
-                await db.collection('users').doc(user.uid).set({
+                await setDoc(doc(db, 'users', user.uid), {
                     email: email,
                     role: 'proprietaire',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp()
                 });
                 
                 showToast("Restaurant créé avec succès !", "success");
@@ -499,18 +498,19 @@
             btn.classList.add('loading');
 
             try {
-                const cred = await auth.signInWithEmailAndPassword(email, password);
+                const cred = await signInWithEmailAndPassword(auth, email, password);
                 const user = cred.user;
 
-                // Récupérer les infos Firestore
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (!doc.exists) throw new Error("Compte introuvable dans la base de données.");
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (!userSnap.exists()) throw new Error("Compte introuvable dans la base de données.");
 
-                const data = doc.data();
+                const data = userSnap.data();
                 
                 if (isEmploye) {
                     if (data.role === 'proprietaire') {
-                        throw new Error("Vous êtes propriétaire. Veuillez sélectionner l'onglet 'Propriétaire'.");
+                        throw new Error("Vous êtes propriétaire. Sélectionnez l'onglet 'Propriétaire'.");
                     }
                     if (data.codeRestaurant !== code) {
                         throw new Error("Le code restaurant est invalide.");
@@ -525,7 +525,7 @@
                     setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
                 }
             } catch (err) {
-                auth.signOut(); // Sécurité : on déconnecte si les rôles/codes ne matchent pas
+                await signOut(auth); 
                 showToast(err.message || "Identifiants incorrects.", "error");
             } finally {
                 btn.classList.remove('loading');
