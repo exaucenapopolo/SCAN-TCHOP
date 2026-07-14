@@ -115,7 +115,6 @@
       display: flex; align-items: center; gap: 8px; transition: var(--transition);
     }
     .back-link:hover { color: var(--primary); }
-
   </style>
 </head>
 <body>
@@ -133,7 +132,6 @@
     </div>
 
     <div class="payment-form">
-      <!-- Uniquement le bouton Mobile Money affiché -->
       <div class="payment-methods">
         <div class="method-btn active" id="btnMobileMoney">
           <i class="fas fa-mobile-alt"></i>
@@ -157,8 +155,8 @@
   <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Annuler et retourner au tableau de bord</a>
 
   <script>
-    // Ajout explicite de ton URL Vercel pour éviter les ambiguïtés
-    const BACKEND_URL = 'https://scan-et-tchop.vercel.app'; 
+    // URL relative pour le backend Vercel
+    const BACKEND_URL = ''; 
 
     const urlParams = new URLSearchParams(window.location.search);
     const planName = urlParams.get('plan');
@@ -174,28 +172,25 @@
       document.getElementById('planNameDisplay').textContent = `Pack ${planName}`;
       document.getElementById('planPriceDisplay').innerHTML = `${planPrices[planName]} FCFA <span>/ mois</span>`;
     } else {
-      alert("Erreur : Aucun plan sélectionné. Retour au tableau de bord.");
+      alert("Erreur : Aucun plan sélectionné.");
       window.location.href = 'index.html';
     }
 
-    // Soumission du formulaire
     document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation du paiement...';
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation...';
 
       const phone = document.getElementById('paymentInput').value;
       const amount = planPrices[planName].replace(/\s/g, ''); 
       const redirectUrl = window.location.origin + '/index.html'; 
 
       try {
-        const response = await fetch(BACKEND_URL + '/api/create-subscription-checkout', {
+        const response = await fetch('/api/create-subscription-checkout', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             planName: planName,
             restoId: restoId,
@@ -205,22 +200,17 @@
           })
         });
 
-        // Sécurité : On vérifie que la réponse est valide avant de parser le JSON
-        if (!response.ok) {
-           throw new Error(`Le serveur a répondu avec une erreur ${response.status}. L'API est introuvable sur Vercel.`);
-        }
-
         const data = await response.json();
 
         if (data.success && data.checkoutUrl) {
           window.location.href = data.checkoutUrl;
         } else {
-          throw new Error(data.error || 'Erreur lors de la création du paiement Fapshi.');
+          throw new Error(data.error || 'Erreur lors de l\'initialisation.');
         }
 
       } catch (error) {
-        console.error("Erreur détaillée:", error);
-        alert("Erreur de connexion au serveur : " + error.message);
+        console.error("Erreur:", error);
+        alert("Erreur de paiement : " + error.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-lock"></i> Payer et Activer mon Pack';
       }
