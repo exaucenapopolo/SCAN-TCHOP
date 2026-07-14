@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connexion & Inscription - SCAN&TCHOP</title>
-    
+
     <!-- Google Fonts : Inter & Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    
+
     <style>
         /* ====== VARIABLES & RESET (Inspiré du Dashboard Premium) ====== */
         :root {
@@ -384,6 +384,24 @@
             }, 4000);
         }
 
+        // ================= REDIRECTION DYNAMIQUE SELON LE RÔLE =================
+        function getDashboardUrl(role) {
+            // Normaliser le rôle (minuscules, sans accents)
+            const roleLower = role ? role.toLowerCase().trim() : '';
+            switch (roleLower) {
+                case 'proprietaire':
+                    return 'dashboard_proprietaire.html';
+                case 'cuisine':
+                    return 'dashboard_cuisine.html';
+                case 'serveur':
+                    return 'dashboard_serveur.html';
+                // Ajoutez d'autres rôles ici (ex: 'comptable' -> 'dashboard_comptable.html')
+                default:
+                    // Fallback : dashboard_employe.html pour tout autre rôle
+                    return 'dashboard_employe.html';
+            }
+        }
+
         // ================= ÉLÉMENTS DU DOM =================
         const loginSection = document.getElementById('login-section');
         const registerSection = document.getElementById('register-section');
@@ -429,11 +447,12 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                // Vérifier si cet utilisateur existe dans Firestore (Syntaxe modulaire)
+                // Vérifier si cet utilisateur existe dans Firestore
                 const userRef = doc(db, 'users', user.uid);
                 const userSnap = await getDoc(userRef);
 
                 if (!userSnap.exists()) {
+                    // Nouvel utilisateur Google -> on le crée en tant que propriétaire
                     await setDoc(userRef, {
                         email: user.email,
                         nom: user.displayName || '',
@@ -442,16 +461,18 @@
                         createdAt: serverTimestamp()
                     });
                     showToast("Création du compte réussie !", "success");
-                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                    // Redirection vers le dashboard propriétaire
+                    window.location.href = getDashboardUrl('proprietaire');
                 } else {
                     const data = userSnap.data();
+                    // Google Auth réservé aux propriétaires
                     if (data.role !== 'proprietaire') {
                         await signOut(auth);
                         showToast("Accès refusé. Les employés doivent se connecter avec Email, Mot de passe et Code.", "error");
                         return;
                     }
                     showToast("Connexion réussie !", "success");
-                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                    window.location.href = getDashboardUrl(data.role);
                 }
             } catch (error) {
                 showToast("Erreur Google : " + error.message, "error");
@@ -478,7 +499,8 @@
                 });
                 
                 showToast("Restaurant créé avec succès !", "success");
-                setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                // Redirection vers dashboard propriétaire
+                window.location.href = getDashboardUrl('proprietaire');
             } catch (err) {
                 showToast(err.message, "error");
             } finally {
@@ -509,20 +531,25 @@
                 const data = userSnap.data();
                 
                 if (isEmploye) {
+                    // Connexion en tant qu'employé
                     if (data.role === 'proprietaire') {
                         throw new Error("Vous êtes propriétaire. Sélectionnez l'onglet 'Propriétaire'.");
                     }
+                    // Vérification du code restaurant pour tous les employés
                     if (data.codeRestaurant !== code) {
                         throw new Error("Le code restaurant est invalide.");
                     }
-                    showToast("Connexion employé réussie.", "success");
-                    setTimeout(() => window.location.href = 'dashboard_employe.html', 1000);
+                    // Redirection dynamique selon le rôle de l'employé
+                    const dashboardUrl = getDashboardUrl(data.role);
+                    showToast(`Connexion en tant que ${data.role} réussie.`, "success");
+                    window.location.href = dashboardUrl;
                 } else {
+                    // Connexion en tant que propriétaire
                     if (data.role !== 'proprietaire') {
                         throw new Error("Vous êtes enregistré comme employé. Veuillez changer d'onglet.");
                     }
                     showToast("Bon retour Propriétaire !", "success");
-                    setTimeout(() => window.location.href = 'dashboard_proprietaire.html', 1000);
+                    window.location.href = getDashboardUrl('proprietaire');
                 }
             } catch (err) {
                 await signOut(auth); 
