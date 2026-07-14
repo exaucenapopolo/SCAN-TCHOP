@@ -364,13 +364,14 @@
 <script>
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+    // === Configuration Firebase unifiée avec le dashboard propriétaire ===
     const firebaseConfig = {
-        apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
-        authDomain: "scan-et-tchop.firebaseapp.com",
-        projectId: "scan-et-tchop",
-        storageBucket: "scan-et-tchop.firebasestorage.app",
-        messagingSenderId: "648843762360",
-        appId: "1:648843762360:web:092b3d359eeae61ef2324d"
+      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+      authDomain: "cinexau-903a6.firebaseapp.com",
+      projectId: "cinexau-903a6",
+      storageBucket: "cinexau-903a6.firebasestorage.app",
+      messagingSenderId: "247230931008",
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
