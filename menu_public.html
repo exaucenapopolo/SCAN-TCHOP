@@ -208,7 +208,7 @@
         .total-display span { display: block; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .total-display strong { font-size: 1.8rem; color: var(--text-main); font-weight: 800; }
 
-        /* Formulaire Avis */
+        /* Formulaire Avis & Champs Commande */
         .stars { color: #e2e8f0; font-size: 2.2rem; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .stars i.active { color: #f59e0b; }
         .input-form { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; margin-bottom: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
@@ -253,11 +253,9 @@
         <p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
     </div>
 
-    <div class="category-container" id="categoryTabs">
-        </div>
+    <div class="category-container" id="categoryTabs"></div>
 
-    <div id="menuContainer" class="menu-grid">
-        </div>
+    <div id="menuContainer" class="menu-grid"></div>
 
     <section id="reviewsSection" class="reviews-section">
         <div class="reviews-section-header">
@@ -266,8 +264,7 @@
                 <i class="fas fa-star"></i> Laisser mon avis
             </button>
         </div>
-        <div class="reviews-grid" id="reviewsGrid">
-            </div>
+        <div class="reviews-grid" id="reviewsGrid"></div>
     </section>
 </div>
 
@@ -294,6 +291,7 @@
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
+<!-- === MODIFICATION : AJOUT DU CHAMP TÉLÉPHONE DANS LE MODAL DE COMMANDE === -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
@@ -325,13 +323,19 @@
             </div>
         </div>
 
+        <!-- Section de numéro de téléphone (Nouveau) -->
+        <div class="order-section" style="border-bottom: none; padding-bottom: 5px;">
+            <h4>Numéro de téléphone (Mobile Money)</h4>
+            <input type="tel" id="orderPhone" class="input-form" placeholder="Ex: 6XXXXXXXX" required style="margin-bottom: 0;" />
+        </div>
+
         <div class="total-display">
             <span id="totalLabel">Total à payer :</span>
             <strong id="orderTotal">0 FCFA</strong>
         </div>
 
         <button class="btn-commander" style="margin-top:20px;" onclick="validerCommande()">
-            Passer au paiement <i class="fas fa-arrow-right"></i>
+            Passer au paiement <i class="fas fa-lock"></i>
         </button>
     </div>
 </div>
@@ -396,7 +400,6 @@
         await loadMenuData();
     }
 
-    // Chargement dynamique avec les nouvelles infos (téléphone, map, adresse, ville)
     async function loadRestaurantData() {
         try {
             const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
@@ -432,7 +435,6 @@
                 etoilesHtml = '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
             }
 
-            // Génération des boutons et infos à partir du dashboard
             let addressHtml = (resto.adresse && resto.ville) ? `<div class="restaurant-address"><i class="fas fa-map-pin"></i> ${resto.adresse}, ${resto.ville}</div>` : '';
             
             let btnPhoneHtml = resto.telephone ? `<a href="tel:${resto.telephone.replace(/\s+/g, '')}" class="btn-contact btn-phone"><i class="fas fa-phone-alt"></i> Appeler</a>` : '';
@@ -465,7 +467,6 @@
                 </div>
             `;
             
-            // Appeler la nouvelle fonction pour afficher la section des avis
             renderReviewsSection();
 
         } catch (error) {
@@ -473,7 +474,6 @@
         }
     }
 
-    // Affichage des avis dans la nouvelle section de la page
     function renderReviewsSection() {
         const section = document.getElementById('reviewsSection');
         const grid = document.getElementById('reviewsGrid');
@@ -611,6 +611,7 @@
         document.getElementById('orderPlatNom').innerText = nom;
         document.getElementById('orderQty').innerText = 1;
         document.getElementById('splitCount').value = '';
+        document.getElementById('orderPhone').value = ''; // Réinitialiser le téléphone
         
         setSplit(false);
         calculateTotal();
@@ -652,7 +653,7 @@
                 let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
                 document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} pers.) :`;
                 document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
-                generateShareQR(perPerson);
+                generateShareQR(); // On met à jour le QR Code
                 return;
             }
         }
@@ -662,18 +663,78 @@
         document.getElementById('orderTotal').innerText = `${baseTotal} FCFA`;
     }
 
-    function generateShareQR(amountPerPerson) {
+    function generateShareQR() {
         const containerQr = document.getElementById('qrShareContainer');
         const imgQr = document.getElementById('qrShareImg');
-        const shareUrl = `${window.location.origin}/paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=true&splitCount=${currentOrder.splitCount}`;
+        
+        // Le lien pointe désormais sur la même page, qui ouvrira automatiquement le modal de paiement
+        const shareUrl = `${window.location.origin}${window.location.pathname}?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=true&splitCount=${currentOrder.splitCount}`;
         
         imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}&color=0b1a2e&bgcolor=ffffff&margin=5`;
         containerQr.style.display = 'flex';
     }
 
-    function validerCommande() {
-        const url = `paiement.html?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=${currentOrder.isSplit}&splitCount=${currentOrder.splitCount}`;
-        window.location.href = url;
+    // === MODIFICATION : LA NOUVELLE FONCTION QUI APPELLE L'API DE PAIEMENT ===
+    async function validerCommande() {
+        const phoneInput = document.getElementById('orderPhone').value;
+        const btn = document.querySelector('#modalOrder .btn-commander');
+        
+        if (!phoneInput) {
+            alert('Veuillez entrer votre numéro de téléphone pour le paiement.');
+            document.getElementById('orderPhone').focus();
+            return;
+        }
+
+        // 1. Calcul du montant exact en tenant compte du partage d'addition
+        let baseTotal = currentOrder.prixBase * currentOrder.qty;
+        let finalAmount = baseTotal;
+        if (currentOrder.isSplit && currentOrder.splitCount > 1) {
+            finalAmount = Math.ceil(baseTotal / currentOrder.splitCount);
+        }
+
+        if(finalAmount <= 0) return alert('Le montant calculé est invalide.');
+
+        // 2. Interface de chargement
+        const oldText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation...';
+
+        // Lien de retour une fois le paiement terminé
+        const redirectUrl = window.location.href; 
+
+        try {
+            // Remplacer "/api/create-order-checkout" par l'URL complète si ton front-end 
+            // n'est pas hébergé sur le même serveur (ex: "https://ton-site.vercel.app/api/create-order-checkout")
+            const response = await fetch('/api/create-order-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restoId: restaurantId,
+                    platId: currentOrder.id,
+                    nomPlat: currentOrder.nom,
+                    qty: currentOrder.qty,
+                    isSplit: currentOrder.isSplit,
+                    splitCount: currentOrder.splitCount,
+                    amount: finalAmount,
+                    phone: phoneInput,
+                    redirectUrl: redirectUrl
+                })
+            });
+
+            const data = await response.json();
+
+            // 3. Redirection vers la page de paiement Fapshi
+            if (data.success && data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+            } else {
+                throw new Error(data.error || 'Erreur lors de l\'initialisation.');
+            }
+        } catch (error) {
+            console.error("Erreur de paiement :", error);
+            alert("Une erreur est survenue : " + error.message);
+            btn.disabled = false;
+            btn.innerHTML = oldText;
+        }
     }
 
     /* ====== INTERACTION DES AVIS CLIENTS ====== */
@@ -710,16 +771,12 @@
             alert('Votre avis a été enregistré avec succès ! Merci de votre retour.');
             closeModal('modalAvis');
             
-            // Réinitialisation du formulaire
             document.getElementById('avisNom').value = '';
             document.getElementById('avisCommentaire').value = '';
             stars.forEach(s => s.classList.remove('active'));
             currentRating = 0;
             
-            // Rechargement des données pour actualiser instantanément la page
             await loadRestaurantData();
-            
-            // Descendre doucement la vue vers les nouveaux avis
             document.getElementById('reviewsSection').scrollIntoView({ behavior: 'smooth' });
             
         } catch (e) {
@@ -730,6 +787,29 @@
             btn.innerHTML = oldText;
         }
     }
+
+    // Gestion automatique des liens partagés par QR code (Si l'URL contient des infos de plat partagé)
+    window.onload = function() {
+        const platId = params.get('plat');
+        const split = params.get('split');
+        
+        if(platId && split === 'true') {
+            const nomPlat = params.get('nom');
+            const prixBase = parseInt(params.get('prixBase'));
+            const qty = parseInt(params.get('qte'));
+            const splitCount = parseInt(params.get('splitCount'));
+            
+            currentOrder = { id: platId, nom: nomPlat, prixBase: prixBase, qty: qty, isSplit: true, splitCount: splitCount };
+            
+            document.getElementById('orderPlatNom').innerText = nomPlat;
+            document.getElementById('orderQty').innerText = qty;
+            document.getElementById('splitCount').value = splitCount;
+            
+            setSplit(true);
+            calculateTotal();
+            openModal('modalOrder');
+        }
+    };
 </script>
 </body>
 </html>
