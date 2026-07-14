@@ -133,22 +133,18 @@
     </div>
 
     <div class="payment-form">
+      <!-- Uniquement le bouton Mobile Money affiché -->
       <div class="payment-methods">
         <div class="method-btn active" id="btnMobileMoney">
           <i class="fas fa-mobile-alt"></i>
           Mobile Money
         </div>
-        <div class="method-btn" id="btnCard">
-          <i class="far fa-credit-card"></i>
-          Carte Bancaire
-        </div>
       </div>
 
       <form id="checkoutForm">
-        <!-- Champ dynamique selon le mode de paiement -->
         <div class="form-group" id="inputContainer">
           <label>Numéro de téléphone (Mobile Money)</label>
-          <input type="text" id="paymentInput" class="form-control" placeholder="Ex: 6XXXXXXXX" required />
+          <input type="tel" id="paymentInput" class="form-control" placeholder="Ex: 6XXXXXXXX" required />
         </div>
 
         <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -161,23 +157,19 @@
   <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Annuler et retourner au tableau de bord</a>
 
   <script>
-    // Configuration
-    // Mets ici l'URL complète de ton backend Vercel (Laisse vide si ce frontend est hébergé avec le backend)
-    const BACKEND_URL = ''; 
+    // Ajout explicite de ton URL Vercel pour éviter les ambiguïtés
+    const BACKEND_URL = 'https://scan-et-tchop.vercel.app'; 
 
-    // Récupération des paramètres de l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const planName = urlParams.get('plan');
     const restoId = urlParams.get('restoId');
 
-    // Définition des prix
     const planPrices = {
       'Starter': '11 900',
       'Pro': '14 900',
       'Premium': '29 900'
     };
 
-    // Mise à jour de l'interface
     if (planName && planPrices[planName]) {
       document.getElementById('planNameDisplay').textContent = `Pack ${planName}`;
       document.getElementById('planPriceDisplay').innerHTML = `${planPrices[planName]} FCFA <span>/ mois</span>`;
@@ -186,29 +178,7 @@
       window.location.href = 'index.html';
     }
 
-    // Gestion des onglets de paiement
-    const btnMobile = document.getElementById('btnMobileMoney');
-    const btnCard = document.getElementById('btnCard');
-    const paymentInput = document.getElementById('paymentInput');
-    const inputContainerLabel = document.querySelector('#inputContainer label');
-
-    btnMobile.addEventListener('click', () => {
-      btnMobile.classList.add('active');
-      btnCard.classList.remove('active');
-      inputContainerLabel.textContent = "Numéro de téléphone (Mobile Money)";
-      paymentInput.placeholder = "Ex: 6XXXXXXXX";
-      paymentInput.type = "tel";
-    });
-
-    btnCard.addEventListener('click', () => {
-      btnCard.classList.add('active');
-      btnMobile.classList.remove('active');
-      inputContainerLabel.textContent = "Numéro de la carte";
-      paymentInput.placeholder = "0000 0000 0000 0000";
-      paymentInput.type = "text";
-    });
-
-    // 6. Soumission du formulaire (Appel au Backend)
+    // Soumission du formulaire
     document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -217,8 +187,8 @@
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation du paiement...';
 
       const phone = document.getElementById('paymentInput').value;
-      const amount = planPrices[planName].replace(/\s/g, ''); // Convertir "11 900" en "11900"
-      const redirectUrl = window.location.origin + '/index.html'; // Là où on retourne après Fapshi
+      const amount = planPrices[planName].replace(/\s/g, ''); 
+      const redirectUrl = window.location.origin + '/index.html'; 
 
       try {
         const response = await fetch(BACKEND_URL + '/api/create-subscription-checkout', {
@@ -235,18 +205,22 @@
           })
         });
 
+        // Sécurité : On vérifie que la réponse est valide avant de parser le JSON
+        if (!response.ok) {
+           throw new Error(`Le serveur a répondu avec une erreur ${response.status}. L'API est introuvable sur Vercel.`);
+        }
+
         const data = await response.json();
 
         if (data.success && data.checkoutUrl) {
-          // Redirection vers la page de paiement Fapshi
           window.location.href = data.checkoutUrl;
         } else {
           throw new Error(data.error || 'Erreur lors de la création du paiement Fapshi.');
         }
 
       } catch (error) {
-        console.error("Erreur:", error);
-        alert("Une erreur est survenue lors de l'initialisation du paiement. Veuillez réessayer.");
+        console.error("Erreur détaillée:", error);
+        alert("Erreur de connexion au serveur : " + error.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-lock"></i> Payer et Activer mon Pack';
       }
