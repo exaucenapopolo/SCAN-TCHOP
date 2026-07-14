@@ -2,19 +2,37 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-// Initialisation Firebase (Vérifie que ton serviceAccount est configuré ou utilise Application Default)
+// ==========================================
+// 1. INITIALISATION SÉCURISÉE DE FIREBASE
+// ==========================================
 if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.applicationDefault()
-    });
+    // Si la variable d'environnement principale est définie sur Vercel
+    if (process.env.FIREBASE_PROJECT_ID) {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                // Cette astuce nettoie les sauts de ligne pour que la clé soit valide
+                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            })
+        });
+    } else {
+        // Option de secours pour les tests locaux
+        admin.initializeApp({
+            credential: admin.credential.applicationDefault()
+        });
+    }
 }
+
 const db = admin.firestore();
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Route pour initier le paiement
+// ==========================================
+// 2. ROUTE : INITIALISATION DU PAIEMENT
+// ==========================================
 app.post('/api/create-subscription-checkout', async (req, res) => {
   const { planName, restoId, amount, phone, redirectUrl } = req.body;
 
@@ -80,7 +98,9 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
   }
 });
 
-// Route Webhook pour Fapshi
+// ==========================================
+// 3. ROUTE : WEBHOOK DE CONFIRMATION FAPSHI
+// ==========================================
 app.post('/api/fapshi-subscription-webhook', async (req, res) => {
   const { status, transId } = req.body;
 
