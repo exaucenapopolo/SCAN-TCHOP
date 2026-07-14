@@ -1,9 +1,20 @@
+const express = require('express');
+const cors = require('cors');
+
+// Initialisation de l'application Express
+const app = express();
+
+// Autoriser les requêtes provenant de ton frontend (très important sur Vercel)
+app.use(cors());
+// Permettre au serveur de lire les données JSON envoyées par le frontend
+app.use(express.json());
+
 // ═══════════════════════════════════════════════════════════════
 // Fapshi – Paiement d'Abonnement (SCAN&TCHOP)
 // ═══════════════════════════════════════════════════════════════
 
 // ── POST /api/create-subscription-checkout ────────────────────────────
-// Cette route génère le lien de paiement et enregistre l'intention dans Firebase
+// Cette route génère le lien de paiement et enregistre l'intention
 app.post('/api/create-subscription-checkout', async (req, res) => {
   const { planName, restoId, amount, phone, redirectUrl } = req.body;
 
@@ -19,7 +30,6 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
     return res.status(500).json({ success: false, error: 'Configuration Fapshi incomplète.' });
   }
 
-  // L'URL secrète que Fapshi appellera une fois que l'utilisateur a payé
   const webhookBase = process.env.BACKEND_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
   const webhookUrl = `${webhookBase}/api/fapshi-subscription-webhook`;
 
@@ -54,7 +64,7 @@ app.post('/api/create-subscription-checkout', async (req, res) => {
 
     if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL manquante.' });
 
-    // On stocke la transaction "EN ATTENTE" dans Firestore pour savoir quel resto a payé quoi
+    // Stockage de la transaction "EN ATTENTE"
     const transDocId = fapshiTransId || db.collection('subscriptionTransactions').doc().id;
     await db.collection('subscriptionTransactions').doc(transDocId).set({
       fapshiTransId: fapshiTransId,
@@ -93,13 +103,11 @@ app.post('/api/fapshi-subscription-webhook', async (req, res) => {
     const restoId = transData.restoId;
     const planName = transData.planName;
 
-    // 1. On confirme la transaction
     await transRef.update({
       status: 'CONFIRMED',
       dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // 2. LA MAGIE OPÈRE ICI : On met à jour l'abonnement du restaurant
     if (restoId && planName) {
       await db.collection('restaurants').doc(restoId).update({
         abonnement: planName
@@ -112,3 +120,7 @@ app.post('/api/fapshi-subscription-webhook', async (req, res) => {
     return res.status(500).json({ error: 'Erreur webhook.' });
   }
 });
+
+// EXPORT OBLIGATOIRE POUR VERCEL
+// C'est cette ligne qui résout le problème de l'erreur 404
+module.exports = app;
