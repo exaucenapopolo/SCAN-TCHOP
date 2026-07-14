@@ -205,6 +205,7 @@
 
     /* ====== ABONNEMENTS ====== */
     .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
+    .pricing-grid.unique-offers { grid-template-columns: repeat(2, 1fr); margin-top: 30px; }
     .price-card {
       background: #fff; border-radius: 24px; padding: 35px 25px; text-align: center;
       border: 2px solid var(--border-color); transition: var(--transition); position: relative; overflow: hidden;
@@ -230,6 +231,17 @@
       font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: var(--transition);
     }
     .tooltip-icon:hover { background: var(--primary); color: #fff; transform: scale(1.1); }
+
+    .section-divider {
+      display: flex; align-items: center; gap: 15px; margin: 40px 0 20px;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border-color);
+    }
+    .section-divider span {
+      font-size: 1.1rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;
+      background: var(--bg-color); padding: 0 15px;
+    }
 
     /* ====== FORMULAIRES ====== */
     .form-group { margin-bottom: 20px; }
@@ -374,6 +386,7 @@
       .sidebar.open { transform: translateX(0); box-shadow: 20px 0 50px rgba(0,0,0,0.15); }
       .main { margin-left:0; padding:20px; width: 100vw; }
       .grid-2, .grid-3, .grid-4, .pricing-grid { grid-template-columns:1fr; }
+      .pricing-grid.unique-offers { grid-template-columns:1fr; }
       .hamburger { display:block; }
       .stat-card { padding:20px; }
       .card { padding:24px 20px; }
@@ -428,6 +441,39 @@
       position: absolute; top: 16px; right: 16px; z-index: 5;
     }
     .edit-icon-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    /* Nouveaux styles pour les offres uniques */
+    .price-card.unique {
+      border-color: #1A202C;
+      background: #FAFAFA;
+    }
+    .price-card.unique:hover {
+      border-color: var(--primary);
+    }
+    .price-card.unique .price {
+      color: #1A202C;
+    }
+    .price-card.unique .btn-block {
+      background: #1A202C;
+      color: #fff;
+      border: none;
+    }
+    .price-card.unique .btn-block:hover {
+      background: #2D3748;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .price-card .highlight-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -681,6 +727,59 @@
             <button class="btn btn-primary btn-block" onclick="selectPlan('Premium')">Choisir ce plan</button>
           </div>
         </div>
+
+        <!-- NOUVELLES OFFRES À PAIEMENT UNIQUE -->
+        <div class="section-divider"><span>Offres spéciales à paiement unique</span></div>
+
+        <div class="pricing-grid unique-offers">
+          <!-- Licence à vie -->
+          <div class="price-card unique">
+            <div class="highlight-badge">⭐ Investissement définitif</div>
+            <h4>Licence à Vie</h4>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">Toutes les fonctionnalités du Pack Premium, sans jamais payer à nouveau.</p>
+            <div class="price">499 000 F <span>unique</span></div>
+            <ul>
+              <li><i class="fas fa-check"></i> Toutes les fonctionnalités du Pack Premium
+                <button class="info-btn" data-title="Pack Premium inclus" data-desc="Vous bénéficiez de l'intégralité des fonctionnalités du Pack Premium (commande centralisée, Mobile Money, split-bill, alertes cuisine, statistiques avancées, etc.) sans limite de temps.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Mises à jour gratuites à vie
+                <button class="info-btn" data-title="Mises à jour perpétuelles" data-desc="Toutes les nouvelles fonctionnalités que nous ajouterons à l'avenir vous seront offertes automatiquement. Votre outil évolue avec vous.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Support prioritaire illimité
+                <button class="info-btn" data-title="Support VIP" data-desc="Vous êtes client à vie, vous bénéficiez d'un canal direct avec notre équipe technique pour une assistance en moins de 2 heures.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Pas de frais cachés
+                <button class="info-btn" data-title="Zéro surprise" data-desc="Aucun abonnement mensuel, aucun coût supplémentaire. Vous payez une fois et vous êtes propriétaire de la solution.">?</button>
+              </li>
+            </ul>
+            <button class="btn btn-block" onclick="selectPlan('LicenceVie')">Acheter la licence à vie</button>
+          </div>
+
+          <!-- Clé en main -->
+          <div class="price-card unique" style="border-color: var(--primary); background: #FFF5EC;">
+            <div class="highlight-badge">🎯 Installation totale</div>
+            <h4>Clé en main</h4>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">Nous installons, configurons et formons votre équipe sur place.</p>
+            <div class="price">34 900 F <span>unique</span></div>
+            <ul>
+              <li><i class="fas fa-check"></i> Shooting photo professionnel
+                <button class="info-btn" data-title="Photos de qualité" data-desc="Un photographe se déplace dans votre restaurant pour prendre des clichés de vos plats et de votre établissement, pour un rendu premium.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Saisie complète du menu
+                <button class="info-btn" data-title="Configuration totale" data-desc="Nous entrons toutes vos catégories, plats, prix, descriptions et options. Vous n'avez rien à taper.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Impression des QR codes sur plexiglas
+                <button class="info-btn" data-title="Supports physiques" data-desc="Nous vous livrons des chevalets QR en plexiglas de haute qualité, résistants et élégants, à placer sur vos tables.">?</button>
+              </li>
+              <li><i class="fas fa-check"></i> Formation du personnel sur place
+                <button class="info-btn" data-title="Formation pratique" data-desc="Un expert forme vos serveurs et cuisiniers à l'utilisation du système, en conditions réelles, pour une adoption immédiate.">?</button>
+              </li>
+            </ul>
+            <button class="btn btn-primary btn-block" onclick="selectPlan('CleEnMain')">Je veux la clé en main</button>
+          </div>
+        </div>
+        <!-- FIN NOUVELLES OFFRES -->
+
       </div>
     </div>
   </div>
@@ -1353,7 +1452,7 @@ const secondaryAuth = secondaryApp.auth();
           <td><code>${data.motDePasse || '******'}</code></td><td><span class="badge badge-info">${data.role}</span></td>
           <td><code style="color:var(--primary); font-weight:bold;">${data.codeRestaurant || 'N/A'}</code></td>
           <td>
-            <button class="btn btn-outline btn-sm" onclick="copyText('Email: ${data.email}\\nCode: ${data.codeRestaurant}')"><i class="fas fa-copy"></i></button>
+            <button class="btn btn-outline btn-sm" onclick="copyEmployeInfo('${doc.id}')"><i class="fas fa-copy"></i></button>
             <button class="btn btn-primary btn-sm" onclick="editEmploye('${doc.id}')"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="supprimerEmploye('${doc.id}')"><i class="fas fa-trash-alt"></i></button>
           </td>
@@ -1395,6 +1494,28 @@ const secondaryAuth = secondaryApp.auth();
       restaurantData.categories = newCategories;
       return true;
     }
+
+    // NOUVELLE FONCTION : Copier toutes les infos d'un employé
+    window.copyEmployeInfo = async function(uid) {
+      try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (!doc.exists) { showToast('Employé introuvable.', 'error'); return; }
+        const data = doc.data();
+        const text = `
+        === Informations de connexion ===
+        Nom : ${data.nom || 'Non défini'}
+        Email : ${data.email || 'Non défini'}
+        Mot de passe : ${data.motDePasse || 'Non défini'}
+        Rôle : ${data.role || 'Non défini'}
+        Code restaurant : ${data.codeRestaurant || 'Non défini'}
+        Restaurant : ${restaurantData.nom || 'Non défini'}
+        `;
+        await navigator.clipboard.writeText(text.trim());
+        showToast('✅ Informations de l\'employé copiées !');
+      } catch (err) {
+        showToast('Erreur lors de la copie : ' + err.message, 'error');
+      }
+    };
 
     document.getElementById('openAddEmploye').addEventListener('click', () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -1439,27 +1560,41 @@ const secondaryAuth = secondaryApp.auth();
           // Vérifier si un nouveau rôle a été ajouté via l'input caché
           const newRoleInput = document.getElementById('newRoleInput');
           if (newRoleInput && newRoleInput.style.display !== 'none' && newRoleInput.value.trim() !== '') {
-            // On ajoute le rôle avant de créer l'employé
             const added = await addNewRole(newRoleInput.value.trim());
             if (!added) {
               showToast('Impossible d\'ajouter ce rôle.', 'error');
               return;
             }
-            // Recharger les options du select
             const roles = restaurantData.roles || [];
             roleSelect.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('');
             roleSelect.value = newRoleInput.value.trim();
           }
           
           const role = roleSelect.value;
-          const cred = await secondaryAuth.createUserWithEmailAndPassword(document.getElementById('empEmail').value, document.getElementById('empPassword').value);
+          const email = document.getElementById('empEmail').value;
+          const password = document.getElementById('empPassword').value;
+          const nom = document.getElementById('empNom').value;
+          const codeRestaurant = document.getElementById('empCode').value;
+
+          // Création du compte Firebase Auth pour l'employé
+          const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+          // Enregistrement dans Firestore
           await db.collection('users').doc(cred.user.uid).set({
-            nom: document.getElementById('empNom').value, email: document.getElementById('empEmail').value, role: role,
-            restaurantId: currentRestaurantId, codeRestaurant: document.getElementById('empCode').value, motDePasse: document.getElementById('empPassword').value,
-            photo: uploadedPhotoUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            nom: nom,
+            email: email,
+            role: role,
+            restaurantId: currentRestaurantId,
+            codeRestaurant: codeRestaurant,
+            motDePasse: password,
+            photo: uploadedPhotoUrl,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
-          await secondaryAuth.signOut(); showToast('✅ Employé enregistré avec succès !'); loadEmployes();
-        } catch (err) { showToast('Erreur : ' + err.message, 'error'); }
+          await secondaryAuth.signOut();
+          showToast('✅ Employé enregistré avec succès !');
+          loadEmployes();
+        } catch (err) {
+          showToast('Erreur : ' + err.message, 'error');
+        }
       });
 
       // Gestion de l'ajout de nouveau rôle
@@ -1481,7 +1616,6 @@ const secondaryAuth = secondaryApp.auth();
             if (val) {
               const added = await addNewRole(val);
               if (added) {
-                // Mettre à jour le select
                 const roles = restaurantData.roles || [];
                 const roleSelect = document.getElementById('empRole');
                 roleSelect.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('');
@@ -1532,10 +1666,17 @@ const secondaryAuth = secondaryApp.auth();
           <select id="editEmpRole" class="form-control">
             ${(restaurantData.roles || []).map(r => `<option value="${r}" ${r === data.role ? 'selected' : ''}>${r}</option>`).join('')}
           </select>
-        </div>`;
+        </div>
+        <div class="form-group"><label>Code restaurant (non modifiable)</label><input type="text" class="form-control" value="${data.codeRestaurant || ''}" disabled /></div>
+        <div class="form-group"><label>Mot de passe (ne peut pas être modifié ici)</label><input type="text" class="form-control" value="${data.motDePasse || '******'}" disabled /></div>
+      `;
       
       openModal('Modifier l\'employé', html, async () => {
-        await db.collection('users').doc(uid).update({ nom: document.getElementById('editEmpNom').value, role: document.getElementById('editEmpRole').value, photo: updatedPhotoUrl });
+        await db.collection('users').doc(uid).update({ 
+          nom: document.getElementById('editEmpNom').value, 
+          role: document.getElementById('editEmpRole').value, 
+          photo: updatedPhotoUrl 
+        });
         showToast('Profil employé mis à jour'); loadEmployes();
       });
 
@@ -1555,7 +1696,7 @@ const secondaryAuth = secondaryApp.auth();
     };
 
     // ============================================================
-    //  SOUS-SYSTÈME : CARTE DES PLATS (catégories dynamiques)
+    //  SOUS-SYSTÈME : CARTE DES PLATS (catégories dynamiques + description)
     // ============================================================
     async function loadMenu() {
       if (!currentRestaurantId) return;
@@ -1617,6 +1758,7 @@ const secondaryAuth = secondaryApp.auth();
           <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" required /></div>
+        <div class="form-group"><label>Description (optionnelle)</label><textarea id="platDescription" class="form-control" placeholder="Décrivez le plat (ingrédients, particularités...)"></textarea></div>
         <div class="grid-2">
           <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" required /></div>
           <div class="form-group"><label>Catégorie</label>
@@ -1646,7 +1788,6 @@ const secondaryAuth = secondaryApp.auth();
         if (newCategoryInput && newCategoryInput.style.display !== 'none' && newCategoryInput.value.trim() !== '') {
           const added = await addNewCategory(newCategoryInput.value.trim());
           if (added) {
-            // Recharger les options
             const cats = restaurantData.categories || [];
             catSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
             selectedCategory = newCategoryInput.value.trim();
@@ -1657,6 +1798,7 @@ const secondaryAuth = secondaryApp.auth();
         await db.collection('menus').add({
           restaurantId: currentRestaurantId,
           nom: document.getElementById('platNom').value,
+          description: document.getElementById('platDescription').value || '',
           prix: parseFloat(document.getElementById('platPrix').value),
           categorie: selectedCategory,
           promotion: promo,
@@ -1735,6 +1877,7 @@ const secondaryAuth = secondaryApp.auth();
           <div class="upload-progress" id="platEditProgress"><div class="upload-progress-bar" id="platEditProgressBar"></div></div>
         </div>
         <div class="form-group"><label>Nom du plat</label><input type="text" id="editPlatNom" class="form-control" value="${data.nom || ''}" required /></div>
+        <div class="form-group"><label>Description (optionnelle)</label><textarea id="editPlatDescription" class="form-control" placeholder="Décrivez le plat...">${data.description || ''}</textarea></div>
         <div class="grid-2">
           <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="editPlatPrix" class="form-control" value="${data.prix || ''}" required /></div>
           <div class="form-group"><label>Catégorie</label>
@@ -1754,6 +1897,7 @@ const secondaryAuth = secondaryApp.auth();
         const promo = document.getElementById('editPlatPromo').checked;
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('editPlatNom').value,
+          description: document.getElementById('editPlatDescription').value || '',
           prix: parseFloat(document.getElementById('editPlatPrix').value),
           categorie: document.getElementById('editPlatCategorie').value,
           promotion: promo,
