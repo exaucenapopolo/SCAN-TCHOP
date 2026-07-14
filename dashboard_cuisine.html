@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SCAN&TCHOP – Espace Cuisine</title>
+  <title>SCAN&TCHOP – Cuisine</title>
 
-  <!-- Polices et Icônes -->
+  <!-- Google Fonts : Inter & Playfair Display -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ====== VARIABLES & RESET (Même design que le propriétaire pour la cohérence) ====== */
+    /* ====== VARIABLES & RESET ====== */
     :root {
       --primary: #e67e22;
       --primary-hover: #cf6f1b;
       --primary-light: #fef3e8;
+      --primary-dark: #b85e1a;
+      --gold: #d4af37;
+      --gold-light: #f0d080;
       --bg-color: #fdf8f4;
       --text-main: #0b1a2e;
       --text-muted: #64748b;
@@ -23,9 +26,11 @@
       --success: #22c55e;
       --danger: #ef4444;
       --info: #3b82f6;
+      --warning: #f59e0b;
       --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
       --shadow-sm: 0 4px 20px rgba(0,0,0,0.03);
       --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+      --shadow-lg: 0 20px 50px rgba(230,126,34,0.06);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,264 +42,1294 @@
       display: flex;
       min-height: 100vh;
       overflow-x: hidden;
+      width: 100vw;
     }
 
-    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+    h1, h2, h3, .premium-title {
+      font-family: 'Playfair Display', serif;
+    }
 
-    /* ====== SIDEBAR ====== */
+    /* ====== SIDEBAR & OVERLAY ====== */
+    .sidebar-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(11, 26, 46, 0.4); backdrop-filter: blur(4px);
+      z-index: 90; display: none; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.open { display: block; opacity: 1; }
+
     .sidebar {
       width: 280px; background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
-      border-right: 1px solid rgba(230,126,34,0.08); padding: 30px 20px; 
-      display: flex; flex-direction: column; position: fixed;
-      top: 0; left: 0; bottom: 0; z-index: 100;
+      -webkit-backdrop-filter: blur(20px); border-right: 1px solid rgba(230,126,34,0.08);
+      padding: 30px 20px; display: flex; flex-direction: column; position: fixed;
+      top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 4px 0 30px rgba(0,0,0,0.02);
     }
     .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 45px; justify-content: center; }
-    .sidebar .logo img { height: 48px; border-radius: 12px; }
-    .sidebar .logo span { font-weight: 800; font-size: 1.3rem; color: var(--text-main); }
+    .sidebar .logo img { height: 48px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+    .sidebar .logo span { font-weight: 800; font-size: 1.3rem; color: var(--text-main); letter-spacing: -0.5px; font-family: 'Inter', sans-serif; }
 
     .sidebar nav a {
       display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 16px;
       color: #334155; text-decoration: none; transition: var(--transition); margin-bottom: 8px;
-      font-weight: 500; cursor: pointer;
+      font-weight: 500; font-size: 0.95rem; cursor: pointer; position: relative; overflow: hidden;
     }
-    .sidebar nav a:hover, .sidebar nav a.active { 
-      background: var(--primary-light); color: var(--primary); font-weight: 600; 
-    }
+    .sidebar nav a i { width: 24px; text-align: center; font-size: 1.1rem; transition: var(--transition); }
+    .sidebar nav a:hover { background: #fbeee2; color: var(--primary); transform: translateX(4px); }
+    .sidebar nav a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; box-shadow: 0 4px 15px rgba(230,126,34,0.08); }
+    .sidebar nav a.active i { transform: scale(1.1); }
 
     .sidebar .logout { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px; }
-    .sidebar .logout a { color: #334155; display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; font-weight: 500; }
-    .sidebar .logout a:hover { background: #fee2e2; color: var(--danger); border-radius: 16px;}
+    .sidebar .logout a {
+      color: #334155; display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+      border-radius: 16px; transition: var(--transition); cursor: pointer; text-decoration: none; font-weight: 500;
+    }
+    .sidebar .logout a:hover { background: #fee2e2; color: var(--danger); }
 
-    /* ====== MAIN CONTAINER ====== */
-    .main { margin-left: 280px; flex: 1; padding: 40px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-    .header h1 { font-size: 2.2rem; font-weight: 800; }
-    
+    /* BADGE NOTIFICATION */
+    .badge-notif {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 30px;
+      min-width: 20px;
+      text-align: center;
+      display: none;
+    }
+    .badge-notif.show { display: inline-block; }
+
+    /* ====== MAIN CONTAINER & HEADER ====== */
+    .main { margin-left: 280px; flex: 1; padding: 40px; min-height: 100vh; transition: var(--transition); width: calc(100vw - 280px); max-width: 100%; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
+    .header-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+
     .user-badge {
       background: #fff; padding: 10px 24px; border-radius: 50px; box-shadow: var(--shadow-sm);
-      font-weight: 700; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color);
+      font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color);
+      color: var(--text-main); max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .user-badge i { color: var(--primary); font-size: 1.3rem; }
+    .hamburger { display: none; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 15px; font-size: 1.5rem; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); }
+    .hamburger:hover { background: var(--primary-light); border-color: var(--primary); }
 
-    /* ====== CARTES & GRILLES ====== */
-    .section { display: none; animation: fadeIn 0.4s ease; }
+    .section { display: none; animation: fadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
     .section.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ====== CARTES & GRILLES ====== */
     .card {
-      background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(255,255,255,0.7); 
-      box-shadow: var(--shadow-md); padding: 32px; margin-bottom: 30px;
+      background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.7); box-shadow: var(--shadow-md);
+      padding: 32px; margin-bottom: 30px; transition: var(--transition); position: relative;
     }
+    .card:hover { box-shadow: var(--shadow-lg); }
     .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-    .card h3 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 12px; }
+    .card h3 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 12px; font-size: 1.1rem; font-family: "Font Awesome 6 Free"; }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px;}
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
 
-    /* ====== STAT CARDS ====== */
+    /* ====== STAT CARDS PREMIUM ====== */
     .stat-card {
-      border-radius: 24px; padding: 28px 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); 
-      text-align: center; color: #fff;
+      position: relative; overflow: hidden; border-radius: 24px; padding: 28px 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12); text-align: center; transition: var(--transition);
+      color: #fff; z-index: 1; cursor: pointer;
     }
+    .stat-card::after {
+      content: 'Voir plus \f105'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+      position: absolute; bottom: 10px; left: 0; right: 0; font-size: 0.8rem; opacity: 0;
+      transition: var(--transition); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .stat-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.18); padding-bottom: 35px; }
+    .stat-card:hover::after { opacity: 1; transform: translateY(-2px); }
+
+    .stat-card .content { position: relative; z-index: 2; transition: var(--transition); }
+    .stat-card:hover .content { transform: translateY(-4px); }
+    .stat-card .number { font-size: 2.4rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif; }
+    .stat-card .label { font-size: 0.95rem; font-weight: 600; opacity: 0.95; letter-spacing: 0.3px; }
+    .stat-card .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.95; }
+
     .card-blue { background: linear-gradient(135deg, #0f1e36, #1d3557); border-bottom: 4px solid var(--info); }
+    .card-green { background: linear-gradient(135deg, #09261a, #114b34); border-bottom: 4px solid var(--success); }
+    .card-orange { background: linear-gradient(135deg, #2c1605, #5c2c06); border-bottom: 4px solid var(--primary); }
     .card-purple { background: linear-gradient(135deg, #1b0a2a, #3c165a); border-bottom: 4px solid #8b5cf6; }
-    .stat-card .number { font-size: 2.4rem; font-weight: 800; margin-bottom: 4px; }
-    .stat-card .label { font-size: 0.95rem; font-weight: 600; }
-    .stat-card .icon { font-size: 2rem; margin-bottom: 12px; }
 
-    /* ====== BOUTONS & TABLEAUX ====== */
-    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), #cf6f1b); color: #fff; }
+    .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; }
+    .wave {
+      position: absolute; bottom: -45%; left: -50%; width: 200%; height: 200%;
+      background: rgba(255,255,255,0.18); border-radius: 38%;
+      animation: spinWave 7s linear infinite;
+    }
+    .wave:nth-child(2) { background: rgba(255,255,255,0.12); animation: spinWave 10s linear infinite; bottom: -50%; border-radius: 42%; }
+    @keyframes spinWave { 100% { transform: rotate(360deg); } }
+
+    /* ====== ÉTATS VIDES ILLUSTRÉS ====== */
+    .empty-state-container {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 50px 24px; text-align: center; background: #fff; border-radius: 20px;
+      border: 2px dashed #cbd5e1; margin: 15px 0;
+    }
+    .empty-state-icon {
+      font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; opacity: 0.85;
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+    .empty-state-text { font-size: 1.1rem; font-weight: 600; color: #475569; margin-bottom: 20px; max-width: 400px; }
+    @keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+    .skeleton-line {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%; animation: skeletonPulse 1.5s infinite;
+      border-radius: 8px; color: transparent !important; pointer-events: none;
+    }
+    @keyframes skeletonPulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ====== TABLEAUX ====== */
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; white-space: nowrap; }
+    th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
+    td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; transition: background-color 0.25s; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr { transition: transform 0.2s ease; }
+
+    /* ====== BADGES & SWITCHES ====== */
+    .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Inter', sans-serif; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+
+    .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; border-radius: 26px; transition: 0.4s; }
+    .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.4s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+    input:checked + .slider { background: var(--primary); }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    /* ====== MODALES ====== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(11,26,46,0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open { display: flex; animation: fadeInOverlay 0.3s forwards; }
+    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: #fff; border-radius: 28px; width: 100%; max-width: 650px;
+      max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+      animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    #modalForm { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.4rem; font-weight: 800; margin: 0; color: var(--text-main); }
+
+    .modal-body { padding: 24px 24px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+
+    .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; flex-shrink: 0; }
+
+    /* ====== UPLOADS UI ====== */
+    .upload-preview { display: flex; align-items: center; gap: 16px; margin: 10px 0; flex-wrap: wrap; }
+    .upload-preview img { width: 70px; height: 70px; object-fit: cover; border-radius: 16px; border: 2px solid var(--border-color); box-shadow: var(--shadow-sm); }
+    .upload-btn {
+      background: #f1f5f9; padding: 10px 20px; border-radius: 14px; cursor: pointer;
+      font-weight: 600; font-size: 0.9rem; border: 2px dashed #cbd5e1; transition: var(--transition);
+      display: inline-flex; align-items: center; gap: 10px; color: var(--text-muted);
+    }
+    .upload-btn:hover { background: #eef2f6; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .upload-btn input[type="file"] { display: none; }
+
+    .upload-progress { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 12px; display: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+    .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #f1c40f); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+
+    /* ====== TOAST NOTIFICATIONS ====== */
+    #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+    .toast {
+      background: #fff; border-left: 5px solid; box-shadow: 0 10px 35px rgba(0,0,0,0.08); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: 600; color: #1e293b; pointer-events: auto;
+      animation: toastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+    /* ====== BOUTONS ====== */
+    .btn { padding: 12px 24px; border: none; border-radius: 14px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; overflow: hidden; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.35); }
+    .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 15px rgba(34,197,94,0.25); }
+    .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 15px rgba(239,68,68,0.25); }
+    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+    .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 4px 15px rgba(59,130,246,0.25); }
+    .btn-info:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.35); }
     .btn-outline { background: #fff; border: 2px solid var(--border-color); color: #1e293b; }
-    
-    .table-wrap { width: 100%; overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-color); background: #fff; }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 16px; border-bottom: 1px solid #f1f5f9; }
-    th { background: #f8fafc; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
-    tbody tr:hover { background: var(--primary-light); }
+    .btn-outline:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
 
-    /* ====== TOAST ====== */
-    #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-    .toast { background: #fff; border-left: 5px solid; padding: 16px 24px; border-radius: 12px; box-shadow: var(--shadow-md); display: flex; gap: 15px; font-weight: 600; }
+    /* ====== FILTRES ====== */
+    .filter-group { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
 
+    /* ====== FORMULAIRES ====== */
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #1e293b; }
+    .form-control {
+      width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 16px;
+      font-family: inherit; font-size: 0.95rem; background: #fff; transition: var(--transition);
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); }
+    textarea.form-control { resize: vertical; min-height: 100px; }
+    select.form-control { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2364748b" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; }
+
+    .add-option-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 30px;
+      background: var(--primary-light); color: var(--primary); border: 1px dashed var(--primary);
+      font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+      margin-top: 6px;
+    }
+    .add-option-btn:hover { background: var(--primary); color: #fff; }
+
+    .new-option-input { display: none; margin-top: 8px; }
+
+    .hint-text { font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; display: block; }
+    .hint-text i { color: var(--primary); margin-right: 4px; }
+
+    /* ====== COMMANDE CARD ====== */
+    .order-card {
+      background: #fff; border-radius: 20px; padding: 20px; border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm); transition: var(--transition);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .order-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .order-card .order-header { display: flex; justify-content: space-between; align-items: center; }
+    .order-card .order-header .ref { font-weight: 700; color: var(--primary); }
+    .order-card .order-header .status { font-size: 0.8rem; }
+    .order-card .order-items { font-size: 0.9rem; color: #475569; }
+    .order-card .order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+    .order-card .order-footer .total { font-weight: 700; font-size: 1.1rem; }
+
+    .order-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .order-card .actions .btn { padding: 6px 12px; font-size: 0.8rem; }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 1024px) {
+      .grid-4 { grid-template-columns: repeat(2,1fr); }
+      .main { padding:30px; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); box-shadow: 20px 0 50px rgba(0,0,0,0.15); }
+      .main { margin-left:0; padding:20px; width: 100vw; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr; }
+      .hamburger { display:block; }
+      .stat-card { padding:20px; }
+      .card { padding:24px 20px; }
+      .filter-group { flex-direction: column; align-items: stretch; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .user-badge { max-width: 180px; }
+    }
+    @media (max-width: 480px) {
+      .modal-body { padding:20px; }
+      .modal-footer { padding:15px 20px; flex-direction:column-reverse; }
+      .modal-footer .btn { width:100%; }
+      .header h1 { font-size:1.6rem; }
+      .upload-preview { flex-direction:column; align-items:flex-start; }
+      .btn { font-size: 0.85rem; padding: 10px 18px; }
+    }
+
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
+
+    .section .card:first-of-type { border-top: 4px solid var(--primary); }
+
+    /* Animation flash pour nouvelle commande */
+    @keyframes flashOrder {
+      0% { background-color: #fef3e8; }
+      100% { background-color: transparent; }
+    }
+    .order-new {
+      animation: flashOrder 1s ease 2;
+    }
   </style>
 </head>
 <body>
 
   <div id="toastContainer"></div>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- NAVIGATION LATERALE (SIDEBAR) -->
-  <aside class="sidebar">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
       <span>SCAN&TCHOP</span>
     </div>
     <nav id="sidebarNav">
-      <a class="active" data-section="dashboard"><i class="fas fa-fire-burner"></i> En Cuisine</a>
-      <a data-section="commandes"><i class="fas fa-clipboard-list"></i> Commandes</a>
-      <a data-section="menu"><i class="fas fa-utensils"></i> Gestion des Plats</a>
+      <a class="active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Tableau de bord</a>
+      <a data-section="commandes" id="navCommandes"><i class="fas fa-clipboard-list"></i> Commandes <span class="badge-notif" id="newOrderBadge">0</span></a>
+      <a data-section="menu"><i class="fas fa-utensils"></i> Menu</a>
     </nav>
     <div class="logout">
       <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
     </div>
   </aside>
 
-  <!-- CONTENU PRINCIPAL -->
+  <!-- MAIN WRAPPER -->
   <div class="main">
     <div class="header">
-      <h1>Espace Cuisine</h1>
-      <div class="user-badge"><i class="fas fa-user-chef"></i> <span id="headerUserName">Chargement...</span></div>
+      <div class="header-left">
+        <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+        <h1 id="pageTitle">Tableau de bord</h1>
+      </div>
+      <div class="header-right">
+        <div class="user-badge" title="Cuisine"><i class="fas fa-utensil-spoon"></i> <span id="headerRestoName">Chargement...</span></div>
+      </div>
     </div>
 
-    <!-- SECTION 1 : VUE D'ENSEMBLE (DASHBOARD) -->
+    <!-- DASHBOARD -->
     <div id="section-dashboard" class="section active">
-      <div class="grid-2">
-        <div class="stat-card card-blue">
-          <div class="icon"><i class="fas fa-concierge-bell"></i></div>
-          <div class="number" id="statCommandesAttente">0</div>
-          <div class="label">Commandes à préparer</div>
+      <div class="grid-4" id="statsCards">
+        <div class="stat-card card-blue" onclick="navigateToSection('commandes')">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="statCommandes">0</div><div class="label">Commandes du jour</div></div>
         </div>
-        <div class="stat-card card-purple">
-          <div class="icon"><i class="fas fa-utensils"></i></div>
-          <div class="number" id="statPlatsActifs">0</div>
-          <div class="label">Plats au menu</div>
+        <div class="stat-card card-green" onclick="navigateToSection('commandes')">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><div class="number" id="statCA">0 F</div><div class="label">Revenus (jour)</div></div>
+        </div>
+        <div class="stat-card card-orange" onclick="navigateToSection('menu')">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-utensils"></i></div><div class="number" id="statPlats">0</div><div class="label">Plats actifs</div></div>
+        </div>
+        <div class="stat-card card-purple" onclick="navigateToSection('commandes')">
+          <div class="wave-container"><div class="wave"></div><div class="wave"></div></div>
+          <div class="content"><div class="icon"><i class="fas fa-clock"></i></div><div class="number" id="statEnCours">0</div><div class="label">En préparation</div></div>
         </div>
       </div>
 
       <div class="card">
-        <h3><i class="fas fa-clock"></i> Dernières commandes arrivées</h3>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Référence</th><th>Détails (Plats)</th><th>Statut</th><th>Action</th></tr></thead>
-            <tbody id="dernieresCommandesList">
-              <!-- Rempli par JavaScript -->
-              <tr><td colspan="4" style="text-align: center;">Chargement des commandes...</td></tr>
-            </tbody>
-          </table>
+        <h3><i class="fas fa-chart-line"></i> Évolution des ventes (7 derniers jours)</h3>
+        <div id="chartContainer" style="position:relative; height:250px; width:100%;">
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fas fa-clock"></i> Dernières commandes</h3>
+        <div id="dashboardOrdersContainer">
+          <div class="table-wrap">
+            <table><thead><tr><th>Référence</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead><tbody id="lastOrders"></tbody></table>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 2 : COMMANDES -->
+    <!-- SECTION COMMANDES (LIVE FEED) -->
     <div id="section-commandes" class="section">
       <div class="card">
-        <h3><i class="fas fa-clipboard-list"></i> Toutes les commandes du jour</h3>
-        <p style="margin-bottom: 20px; color: var(--text-muted);">Gérez l'état des commandes (En attente ➔ En préparation ➔ Prêt).</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Heure</th><th>Référence</th><th>Plats à préparer</th><th>Statut</th><th>Action</th></tr></thead>
-            <tbody id="toutesCommandesList">
-               <!-- Rempli par JavaScript -->
-            </tbody>
-          </table>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px; flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="navigateToSection('dashboard')"><i class="fas fa-arrow-left"></i> Retour</button>
+          <h3 style="margin:0;"><i class="fas fa-clipboard-list"></i> Commandes en temps réel</h3>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <span class="badge badge-success" id="liveStatus">🟢 En direct</span>
+            <button class="btn btn-sm btn-outline" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester le son</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div style="flex:1;">
+            <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:5px;">Filtrer :</label>
+            <select id="filterCommandes" class="form-control" style="max-width:250px;">
+              <option value="all">Toutes</option>
+              <option value="en attente">En attente</option>
+              <option value="en préparation">En préparation</option>
+              <option value="prêt">Prêt</option>
+              <option value="terminé">Terminé</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="commandesLiveContainer">
+          <div id="commandesList" style="display:flex; flex-direction:column; gap:16px;"></div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 3 : MENU (Ajout de plats sans QR Code) -->
+    <!-- SECTION MENU -->
     <div id="section-menu" class="section">
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-          <h3><i class="fas fa-utensils"></i> Catalogue des Plats</h3>
-          <!-- Bouton pour ajouter un plat -->
-          <button class="btn btn-primary" onclick="alert('Ici s\'ouvrira la modale d\'ajout de plat comme dans le tableau de bord propriétaire.')"><i class="fas fa-plus"></i> Nouveau Plat</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <button class="btn btn-outline btn-sm" onclick="navigateToSection('dashboard')"><i class="fas fa-arrow-left"></i> Retour</button>
+            <h3 style="margin:0;"><i class="fas fa-utensils"></i> Gestion du menu</h3>
+          </div>
+          <button class="btn btn-primary" id="openAddPlat"><i class="fas fa-plus"></i> Nouveau Plat</button>
         </div>
-        <p style="margin-bottom: 20px; color: var(--text-muted);">Ajoutez des plats avec leurs descriptions. Ces plats apparaîtront directement sur le menu digital du propriétaire.</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Photo</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Disponibilité</th><th>Actions</th></tr></thead>
-            <tbody id="menuList">
-              <!-- Rempli par JavaScript -->
-              <tr><td colspan="6" style="text-align: center;">Chargement du menu...</td></tr>
-            </tbody>
-          </table>
+        <div id="menuTableContainer">
+          <div class="table-wrap">
+            <table><thead><tr><th>Photo</th><th>Nom</th><th>Prix</th><th>Promo</th><th>Catégorie</th><th>Dispo.</th><th>Actions</th></tr></thead><tbody id="menuList"></tbody></table>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- SCRIPTS FIREBASE (Même configuration que tes sources) -->
+  <!-- CONTAINER DE MODALE UNIFIÉ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Titre</h3>
+      </div>
+      <form id="modalForm">
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="modalCancel">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="modalSubmit">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <script>
-    // 1. Initialisation Firebase
+    // ============================================================
+    //  NOTIFICATIONS TOASTS
+    // ============================================================
+    window.showToast = function(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+
+      const colors = { success: '#22c55e', error: '#ef4444', info: '#3b82f6', warning: '#f59e0b' };
+      const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
+
+      toast.className = 'toast';
+      toast.style.borderColor = colors[type];
+      toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.4rem;"></i> <span>${message}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    };
+
+    // ============================================================
+    //  SONNERIE POUR NOUVELLES COMMANDES
+    // ============================================================
+    let audioCtx = null;
+    function playNotificationSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.5);
+        // Deuxième bip plus aigu
+        setTimeout(() => {
+          const osc2 = audioCtx.createOscillator();
+          const gain2 = audioCtx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(audioCtx.destination);
+          osc2.frequency.value = 1200;
+          osc2.type = 'sine';
+          gain2.gain.setValueAtTime(0.25, audioCtx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+          osc2.start(audioCtx.currentTime);
+          osc2.stop(audioCtx.currentTime + 0.3);
+        }, 200);
+      } catch(e) { console.warn('Son non disponible', e); }
+    }
+
+    function playTestSound() {
+      playNotificationSound();
+      showToast('🔊 Son de notification testé', 'info');
+    }
+
+    // ============================================================
+    //  ÉTATS VIDES
+    // ============================================================
+    function renderEmptyState(icon, message, actionBtnHtml = '') {
+      return `
+        <div class="empty-state-container">
+          <div class="empty-state-icon"><i class="fas ${icon}"></i></div>
+          <div class="empty-state-text">${message}</div>
+          ${actionBtnHtml}
+        </div>
+      `;
+    }
+
+    function renderSkeletonRows(columnsCount = 4, rowsCount = 3) {
+      let rows = '';
+      for (let i = 0; i < rowsCount; i++) {
+        rows += '<tr>';
+        for (let j = 0; j < columnsCount; j++) {
+          rows += `<td><div class="skeleton-line" style="width: ${60 + Math.random() * 35}%; height: 16px;">Chargement...</div></td>`;
+        }
+        rows += '</tr>';
+      }
+      return rows;
+    }
+
+    // ============================================================
+    //  NAVIGATION
+    // ============================================================
+    window.navigateToSection = function(sectionId) {
+      document.querySelectorAll('#sidebarNav a[data-section]').forEach(a => {
+        a.classList.remove('active');
+        if (a.dataset.section === sectionId) a.classList.add('active');
+      });
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+      const targetSec = document.getElementById('section-' + sectionId);
+      if(targetSec) targetSec.classList.add('active');
+
+      const titleMap = { 'dashboard': 'Tableau de bord', 'commandes': 'Commandes', 'menu': 'Menu' };
+      document.getElementById('pageTitle').textContent = titleMap[sectionId] || 'Tableau de bord';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.querySelectorAll('#sidebarNav a[data-section]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.navigateToSection(this.dataset.section);
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+      });
+    });
+
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      });
+    }
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+
+    // ============================================================
+    //  CONFIGURATION FIREBASE & CLOUDINARY
+    // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
       authDomain: "cinexau-903a6.firebaseapp.com",
       projectId: "cinexau-903a6",
       storageBucket: "cinexau-903a6.firebasestorage.app",
       messagingSenderId: "247230931008",
-      appId: "1:247230931008:web:89824e9a4a257bd831ffa5" // Pris depuis le source 2
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // 2. Fonction de Notification (Toast)[cite: 1, 2]
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      const color = type === 'success' ? '#22c55e' : '#ef4444';
-      toast.className = 'toast';
-      toast.style.borderLeftColor = color;
-      toast.innerHTML = `<span style="color:${color}">●</span> <span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+    const CLOUDINARY_CLOUD_NAME = 'do83voiqy';
+    const CLOUDINARY_UPLOAD_PRESET = 'afrikdigitalo_upload';
+    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+    function uploadImage(file, onProgress, onComplete) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', CLOUDINARY_UPLOAD_URL, true);
+      if (onProgress) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) onProgress((e.loaded / e.total) * 100);
+        };
+      }
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          onComplete(null, data.secure_url);
+        } else onComplete('Erreur HTTP ' + xhr.status);
+      };
+      xhr.onerror = () => onComplete('Erreur réseau');
+      xhr.send(formData);
     }
 
-    // 3. Navigation entre les sections de la cuisine
-    document.querySelectorAll('#sidebarNav a').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Retirer la classe active de tous les liens et sections
-        document.querySelectorAll('#sidebarNav a').forEach(a => a.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        
-        // Ajouter la classe active au lien cliqué et à la section correspondante
-        this.classList.add('active');
-        document.getElementById('section-' + this.dataset.section).classList.add('active');
-      });
-    });
+    // ============================================================
+    //  ÉTAT GLOBAL
+    // ============================================================
+    let currentUser = null;
+    let currentRestaurantId = null;
+    let restaurantData = null;
+    let salesChart = null;
+    let toutesLesCommandes = [];
+    let commandesNonLues = 0;
+    let unlistenOrders = null;
+    let ordersSnapshot = null;
 
-    // 4. Authentification et vérification du rôle Employé/Cuisine
+    // ============================================================
+    //  AUTHENTIFICATION
+    // ============================================================
     auth.onAuthStateChanged(async user => {
-      if (!user) { 
-        window.location.href = 'connexion.html'; 
-        return; 
-      }
-      
-      try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          
-          // Sécurité : On bloque l'accès si c'est le propriétaire. Il doit aller sur dashboard_proprietaire.html
-          if (userData.role === 'proprietaire') {
-             showToast("Vous êtes propriétaire. Redirection...", "error");
-             setTimeout(() => { window.location.href = 'dashboard_proprietaire.html'; }, 1500);
-             return;
-          }
+      if (!user) { window.location.href = 'connexion.html'; return; }
+      currentUser = user;
 
-          document.getElementById('headerUserName').textContent = userData.email || "Employé Cuisine";
-          
-          // Ici tu pourras appeler tes fonctions pour charger les commandes et les plats depuis Firebase
-          // loadMenuCuisine();
-          // loadCommandesCuisine();
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) {
+        showToast('Utilisateur non trouvé.', 'error');
+        auth.signOut();
+        return;
+      }
+      const userData = userDoc.data();
+      if (userData.role !== 'Cuisine' && userData.role !== 'employé') {
+        showToast('Accès réservé à la cuisine.', 'error');
+        auth.signOut();
+        return;
+      }
+
+      // Récupérer l'ID du restaurant
+      if (!userData.restaurantId) {
+        showToast('Aucun restaurant associé.', 'error');
+        auth.signOut();
+        return;
+      }
+      currentRestaurantId = userData.restaurantId;
+
+      // Charger les infos du restaurant
+      const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
+      if (restoDoc.exists) {
+        restaurantData = restoDoc.data();
+        document.getElementById('headerRestoName').textContent = restaurantData.nom || 'Mon restaurant';
+      } else {
+        showToast('Restaurant introuvable.', 'error');
+        auth.signOut();
+        return;
+      }
+
+      // Initialiser les chargements
+      document.getElementById('lastOrders').innerHTML = renderSkeletonRows(4, 2);
+      document.getElementById('menuList').innerHTML = renderSkeletonRows(7, 2);
+
+      await loadDashboardData();
+      loadMenu();
+      listenOrders();
+    });
+
+    // ============================================================
+    //  DASHBOARD DATA
+    // ============================================================
+    async function loadDashboardData() {
+      if (!currentRestaurantId) return;
+
+      const snapshot = await db.collection('orders').where('restaurantId', '==', currentRestaurantId).get();
+      toutesLesCommandes = [];
+      let dailyOrdersCount = 0;
+      let dailyCA = 0;
+      let enCoursCount = 0;
+      const rightNow = new Date().toDateString();
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
+        const order = { id: doc.id, ...data, dateObj };
+        toutesLesCommandes.push(order);
+        if (dateObj.toDateString() === rightNow) {
+          dailyOrdersCount++;
+          dailyCA += parseFloat(data.total || 0);
         }
-      } catch (error) {
-        console.error("Erreur d'authentification", error);
-      }
-    });
-
-    // 5. Déconnexion
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      auth.signOut().then(() => {
-        window.location.href = 'connexion.html';
+        if (data.status === 'en préparation' || data.status === 'en attente') {
+          enCoursCount++;
+        }
       });
+
+      document.getElementById('statCommandes').textContent = dailyOrdersCount;
+      document.getElementById('statCA').textContent = dailyCA.toLocaleString('fr-FR') + ' F';
+      document.getElementById('statEnCours').textContent = enCoursCount;
+
+      populateDashboardOrdersTable();
+      initChart();
+    }
+
+    function populateDashboardOrdersTable() {
+      const tbody = document.getElementById('lastOrders');
+      const sorted = [...toutesLesCommandes].sort((a,b) => (b.dateObj?.getTime() || 0) - (a.dateObj?.getTime() || 0)).slice(0, 5);
+
+      if(sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">${renderEmptyState('fa-shopping-basket', 'Aucune commande enregistrée.')}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      sorted.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.style.animation = 'fadeIn 0.3s ease';
+        const statusBadge = getStatusBadge(o.status);
+        tr.innerHTML = `
+          <td style="font-weight:700;color:var(--primary);">#${o.reference || o.id.substring(0,6).toUpperCase()}</td>
+          <td style="font-weight:600;">${parseFloat(o.total || 0).toLocaleString('fr-FR')} F</td>
+          <td><span class="badge ${statusBadge.class}">${statusBadge.label}</span></td>
+          <td style="color:var(--text-muted); font-size:0.85rem;">${o.dateObj ? o.dateObj.toLocaleDateString('fr-FR') + ' ' + o.dateObj.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : 'N/A'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function getStatusBadge(status) {
+      const map = {
+        'en attente': { class: 'badge-warning', label: 'En attente' },
+        'en préparation': { class: 'badge-info', label: 'En préparation' },
+        'prêt': { class: 'badge-success', label: 'Prêt' },
+        'terminé': { class: 'badge-danger', label: 'Terminé' }
+      };
+      return map[status] || { class: 'badge-warning', label: status || 'En attente' };
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('salesChart');
+      if(!ctx) return;
+
+      const daysLabels = [];
+      const revenueData = [];
+
+      for(let i=6; i>=0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        daysLabels.push(d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }));
+
+        let sum = 0;
+        toutesLesCommandes.forEach(o => {
+          if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) {
+            sum += parseFloat(o.total || 0);
+          }
+        });
+        revenueData.push(sum);
+      }
+
+      if(salesChart) salesChart.destroy();
+
+      const totalCA7Days = revenueData.reduce((a, b) => a + b, 0);
+      if (totalCA7Days === 0) {
+        document.getElementById('chartContainer').innerHTML = renderEmptyState('fa-chart-bar', 'Insuffisamment de ventes pour projeter la courbe analytique.');
+        return;
+      }
+
+      salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: daysLabels,
+          datasets: [{
+            label: 'Chiffre d\'affaires (FCFA)',
+            data: revenueData,
+            borderColor: '#e67e22',
+            backgroundColor: 'rgba(230,126,34,0.15)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#e67e22',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+        }
+      });
+    }
+
+    // ============================================================
+    //  LIVE FEED COMMANDES (ÉCOUTE EN TEMPS RÉEL)
+    // ============================================================
+    function listenOrders() {
+      if (unlistenOrders) unlistenOrders();
+
+      const q = db.collection('orders')
+        .where('restaurantId', '==', currentRestaurantId)
+        .orderBy('createdAt', 'desc');
+
+      unlistenOrders = q.onSnapshot(snapshot => {
+        ordersSnapshot = snapshot;
+        const orders = [];
+        let newOrdersCount = 0;
+        let dailyOrdersCount = 0;
+        let dailyCA = 0;
+        let enCoursCount = 0;
+        const rightNow = new Date().toDateString();
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
+          const order = { id: doc.id, ...data, dateObj };
+          orders.push(order);
+          if (dateObj.toDateString() === rightNow) {
+            dailyOrdersCount++;
+            dailyCA += parseFloat(data.total || 0);
+          }
+          if (data.status === 'en préparation' || data.status === 'en attente') {
+            enCoursCount++;
+          }
+          // Détection nouvelle commande (status 'en attente' et date récente)
+          if (data.status === 'en attente' && data.createdAt) {
+            // On considère nouvelle si elle a moins de 30 secondes
+            const now = new Date();
+            const diff = (now - dateObj) / 1000;
+            if (diff < 30) {
+              newOrdersCount++;
+            }
+          }
+        });
+
+        toutesLesCommandes = orders;
+
+        // Mettre à jour les stats
+        document.getElementById('statCommandes').textContent = dailyOrdersCount;
+        document.getElementById('statCA').textContent = dailyCA.toLocaleString('fr-FR') + ' F';
+        document.getElementById('statEnCours').textContent = enCoursCount;
+
+        // Mettre à jour le tableau de bord
+        populateDashboardOrdersTable();
+
+        // Badge de nouvelles commandes
+        const badge = document.getElementById('newOrderBadge');
+        if (newOrdersCount > 0) {
+          commandesNonLues += newOrdersCount;
+          badge.textContent = commandesNonLues;
+          badge.classList.add('show');
+          // Jouer le son pour chaque nouvelle commande (limité à 3 pour ne pas surcharger)
+          const playCount = Math.min(newOrdersCount, 3);
+          for (let i = 0; i < playCount; i++) {
+            setTimeout(() => playNotificationSound(), i * 400);
+          }
+          showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
+        }
+
+        // Rafraîchir la liste des commandes (section commandes)
+        renderCommandesLive();
+      }, error => {
+        console.error('Erreur écoute commandes:', error);
+      });
+    }
+
+    // ============================================================
+    //  RENDU DES COMMANDES EN DIRECT
+    // ============================================================
+    function renderCommandesLive() {
+      const container = document.getElementById('commandesList');
+      const filter = document.getElementById('filterCommandes').value;
+      let filtered = toutesLesCommandes;
+
+      if (filter !== 'all') {
+        filtered = filtered.filter(o => o.status === filter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = renderEmptyState('fa-inbox', 'Aucune commande correspondante.');
+        return;
+      }
+
+      container.innerHTML = '';
+      filtered.forEach((order, index) => {
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        // Si c'est une nouvelle commande (moins de 30s et en attente), on ajoute une animation
+        if (order.status === 'en attente' && order.dateObj) {
+          const diff = (new Date() - order.dateObj) / 1000;
+          if (diff < 30) {
+            card.classList.add('order-new');
+          }
+        }
+        const statusBadge = getStatusBadge(order.status);
+        const itemsList = order.items ? order.items.map(item => `${item.nom || 'Plat'} x${item.quantite || 1}`).join(', ') : 'Aucun détail';
+
+        card.innerHTML = `
+          <div class="order-header">
+            <span class="ref">#${order.reference || order.id.substring(0,8).toUpperCase()}</span>
+            <span class="status badge ${statusBadge.class}">${statusBadge.label}</span>
+          </div>
+          <div class="order-items"><i class="fas fa-utensils" style="color:var(--primary);margin-right:6px;"></i> ${itemsList}</div>
+          <div class="order-footer">
+            <span class="total">${(order.total || 0).toLocaleString('fr-FR')} FCFA</span>
+            <div class="actions">
+              ${order.status !== 'terminé' ? `
+                <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id}', 'prêt')"><i class="fas fa-check"></i> Prêt</button>
+                <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.id}', 'en préparation')"><i class="fas fa-utensils"></i> Préparer</button>
+              ` : ''}
+              <button class="btn btn-sm btn-outline" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ============================================================
+    //  ACTIONS SUR LES COMMANDES
+    // ============================================================
+    window.updateOrderStatus = async function(orderId, newStatus) {
+      try {
+        await db.collection('orders').doc(orderId).update({ status: newStatus });
+        showToast(`Commande passée à "${newStatus}"`, 'success');
+        // Le listener mettra à jour automatiquement
+      } catch(e) {
+        showToast('Erreur lors de la mise à jour', 'error');
+      }
+    };
+
+    window.viewOrderDetails = function(orderId) {
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) { showToast('Commande introuvable', 'error'); return; }
+
+      const itemsHtml = order.items ? order.items.map(item => `
+        <tr><td>${item.nom || 'Plat'}</td><td>${item.quantite || 1}</td><td>${(item.prix || 0).toLocaleString('fr-FR')} F</td></tr>
+      `).join('') : '<tr><td colspan="3">Aucun détail</td></tr>';
+
+      const html = `
+        <div style="margin-bottom:16px;">
+          <p><strong>Référence :</strong> #${order.reference || order.id.substring(0,8).toUpperCase()}</p>
+          <p><strong>Statut :</strong> <span class="badge ${getStatusBadge(order.status).class}">${getStatusBadge(order.status).label}</span></p>
+          <p><strong>Date :</strong> ${order.dateObj ? order.dateObj.toLocaleString('fr-FR') : 'N/A'}</p>
+        </div>
+        <h4 style="margin-bottom:10px;">Articles commandés</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nom</th><th>Qté</th><th>Prix unit.</th></tr></thead>
+            <tbody>${itemsHtml}</tbody>
+            <tfoot><tr><td colspan="2" style="text-align:right;font-weight:700;">Total</td><td style="font-weight:700;">${(order.total || 0).toLocaleString('fr-FR')} F</td></tr></tfoot>
+          </table>
+        </div>
+        <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+          ${order.status !== 'terminé' ? `
+            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'prêt'); closeModal();">Marquer Prêt</button>
+            <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${order.id}', 'en préparation'); closeModal();">En préparation</button>
+          ` : ''}
+          <button class="btn btn-outline btn-sm" onclick="closeModal();">Fermer</button>
+        </div>
+      `;
+
+      openModal('Détails de la commande', html, () => { closeModal(); });
+      // Désactiver le submit par défaut
+      document.getElementById('modalSubmit').style.display = 'none';
+      // On réaffiche après fermeture ?
+      const observer = new MutationObserver(() => {
+        if (!document.getElementById('modalOverlay').classList.contains('open')) {
+          document.getElementById('modalSubmit').style.display = 'inline-flex';
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('modalOverlay'), { attributes: true, attributeFilter: ['class'] });
+    };
+
+    // ============================================================
+    //  GESTION DU MENU (comme le propriétaire, sans QR)
+    // ============================================================
+    async function loadMenu() {
+      if (!currentRestaurantId) return;
+      const snapshot = await db.collection('menus').where('restaurantId', '==', currentRestaurantId).get();
+      const container = document.getElementById('menuTableContainer');
+      const tbody = document.getElementById('menuList');
+      tbody.innerHTML = '';
+
+      let itemsCount = 0;
+      snapshot.forEach(doc => {
+        itemsCount++;
+        const data = doc.data();
+        const isDispo = data.disponible !== false;
+        const photo = data.image ? `<img src="${data.image}" style="width:55px;height:55px;object-fit:cover;border-radius:14px; border:1px solid var(--border-color);" />` : '<div style="width:55px;height:55px;background:#f1f5f9;border-radius:14px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils"></i></div>';
+        const prixBarre = data.prixOriginal ? `<span style="text-decoration:line-through;color:#94a3b8;font-size:0.85rem;margin-right:5px;">${data.prixOriginal} F</span>` : '';
+        const prixActuel = data.prix ? `<strong>${data.prix} F</strong>` : '';
+        const promo = data.promotion ? '<span class="badge badge-success">Promo</span>' : '<span class="badge badge-info">Standard</span>';
+
+        const tr = document.createElement('tr');
+        if(!isDispo) tr.className = "item-disabled";
+        tr.innerHTML = `
+          <td>${photo}</td><td style="font-weight:600;">${data.nom}</td><td>${prixBarre} ${prixActuel}</td><td>${promo}</td><td>${data.categorie || 'Non classé'}</td>
+          <td><label class="switch"><input type="checkbox" ${isDispo ? 'checked' : ''} onchange="toggleDisponibilite('${doc.id}', this.checked)" /><span class="slider"></span></label></td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="editPlat('${doc.id}')"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="supprimerPlat('${doc.id}')"><i class="fas fa-trash-alt"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('statPlats').textContent = itemsCount;
+
+      if(itemsCount === 0) {
+        container.innerHTML = renderEmptyState('fa-utensils', 'Aucun plat au menu. Ajoutez votre premier plat !', `<button class="btn btn-primary" onclick="document.getElementById('openAddPlat').click()"><i class="fas fa-plus"></i> Créer un plat</button>`);
+      }
+    }
+
+    window.toggleDisponibilite = async (id, checked) => {
+      await db.collection('menus').doc(id).update({ disponible: checked });
+      showToast(checked ? 'Plat disponible' : 'Plat masqué', 'info');
+      loadMenu();
+    };
+
+    window.supprimerPlat = async (id) => {
+      if (confirm('Supprimer ce plat définitivement ?')) {
+        await db.collection('menus').doc(id).delete();
+        showToast('Plat supprimé', 'error');
+        loadMenu();
+      }
+    };
+
+    document.getElementById('openAddPlat').addEventListener('click', () => {
+      let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
+
+      // Récupérer les catégories du restaurant
+      const categories = restaurantData?.categories || ['Plats locaux', 'Plats occidentaux', 'Nourriture', 'Boissons', 'Entrées', 'Frites', 'Compléments', 'Desserts', 'Amuse-gueules', 'Friandises', 'Autre'];
+      let categoriesOptions = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      const html = `
+        <div class="form-group">
+          <label>Image du Plat</label>
+          <div class="upload-preview">
+            <img id="platPhotoPreview" src="${uploadedPlatUrl}" style="display:block; width:70px; height:70px; object-fit:cover; border-radius:16px;" />
+            <label class="upload-btn">
+              <i class="fas fa-camera"></i> Charger la photo
+              <input type="file" id="platPhotoInput" accept="image/*" />
+            </label>
+          </div>
+          <div class="upload-progress" id="platPhotoProgress"><div class="upload-progress-bar" id="platPhotoProgressBar"></div></div>
+        </div>
+        <div class="form-group"><label>Nom du plat</label><input type="text" id="platNom" class="form-control" required /></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="platPrix" class="form-control" required /></div>
+          <div class="form-group"><label>Catégorie</label>
+            <select id="platCategorie" class="form-control" required>
+              ${categoriesOptions}
+            </select>
+            <button type="button" class="add-option-btn" id="addCategoryBtn"><i class="fas fa-plus"></i> Ajouter une catégorie</button>
+            <div class="new-option-input" id="newCategoryInputContainer">
+              <input type="text" id="newCategoryInput" class="form-control" placeholder="Nouvelle catégorie" />
+              <button type="button" class="btn btn-success btn-sm" id="confirmAddCategory" style="margin-top:6px;">Ajouter</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+          <label class="switch"><input type="checkbox" id="platPromo" /><span class="slider"></span></label>
+          <span>En promotion (Affiche un badge)</span>
+        </div>
+        <div class="form-group" id="platPrixOriginalGroup" style="display:none;"><label>Prix avant promotion (FCFA)</label><input type="number" id="platPrixOriginal" class="form-control" /></div>
+      `;
+
+      openModal('Ajouter un plat', html, async () => {
+        const promo = document.getElementById('platPromo').checked;
+        // Vérifier nouvelle catégorie
+        const newCatInput = document.getElementById('newCategoryInput');
+        const catSelect = document.getElementById('platCategorie');
+        let selectedCategory = catSelect.value;
+        if (newCatInput && newCatInput.style.display !== 'none' && newCatInput.value.trim() !== '') {
+          // Ajouter la catégorie dans Firestore
+          const currentCats = restaurantData.categories || [];
+          if (!currentCats.includes(newCatInput.value.trim())) {
+            await db.collection('restaurants').doc(currentRestaurantId).update({
+              categories: [...currentCats, newCatInput.value.trim()]
+            });
+            restaurantData.categories = [...currentCats, newCatInput.value.trim()];
+            selectedCategory = newCatInput.value.trim();
+          } else {
+            selectedCategory = newCatInput.value.trim();
+          }
+        }
+
+        await db.collection('menus').add({
+          restaurantId: currentRestaurantId,
+          nom: document.getElementById('platNom').value,
+          prix: parseFloat(document.getElementById('platPrix').value),
+          categorie: selectedCategory,
+          promotion: promo,
+          prixOriginal: promo ? parseFloat(document.getElementById('platPrixOriginal').value) || null : null,
+          image: uploadedPlatUrl,
+          disponible: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Plat ajouté avec succès ! ✨');
+        loadMenu();
+      });
+
+      document.getElementById('platPromo').addEventListener('change', function() {
+        document.getElementById('platPrixOriginalGroup').style.display = this.checked ? 'block' : 'none';
+      });
+
+      document.getElementById('platPhotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const progressDiv = document.getElementById('platPhotoProgress');
+        const progressBar = document.getElementById('platPhotoProgressBar');
+        progressDiv.style.display = 'block';
+        uploadImage(file, p => progressBar.style.width = p+'%', (err, url) => {
+          progressDiv.style.display = 'none';
+          if(err) { showToast(err, 'error'); return; }
+          document.getElementById('platPhotoPreview').src = url;
+          uploadedPlatUrl = url;
+        });
+      });
+
+      // Gestion nouvelle catégorie
+      setTimeout(() => {
+        const addBtn = document.getElementById('addCategoryBtn');
+        const container = document.getElementById('newCategoryInputContainer');
+        const confirmBtn = document.getElementById('confirmAddCategory');
+        const input = document.getElementById('newCategoryInput');
+        if (addBtn) {
+          addBtn.addEventListener('click', () => {
+            container.style.display = 'block';
+            input.focus();
+          });
+        }
+        if (confirmBtn) {
+          confirmBtn.addEventListener('click', async () => {
+            const val = input.value.trim();
+            if (val) {
+              const currentCats = restaurantData.categories || [];
+              if (currentCats.includes(val)) {
+                showToast('Cette catégorie existe déjà.', 'warning');
+                return;
+              }
+              await db.collection('restaurants').doc(currentRestaurantId).update({
+                categories: [...currentCats, val]
+              });
+              restaurantData.categories = [...currentCats, val];
+              const catSelect = document.getElementById('platCategorie');
+              catSelect.innerHTML = restaurantData.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+              catSelect.value = val;
+              container.style.display = 'none';
+              input.value = '';
+              showToast('Catégorie ajoutée !');
+            } else {
+              showToast('Veuillez saisir un nom.', 'warning');
+            }
+          });
+        }
+      }, 100);
     });
 
+    window.editPlat = async (id) => {
+      const doc = await db.collection('menus').doc(id).get();
+      const data = doc.data();
+      let currentImgUrl = data.image || '';
+
+      const categories = restaurantData?.categories || [];
+      let categoriesOptions = categories.map(c => `<option value="${c}" ${c === data.categorie ? 'selected' : ''}>${c}</option>`).join('');
+
+      const html = `
+        <div class="form-group">
+          <label>Image du Plat</label>
+          <div class="upload-preview">
+            <img id="platEditPreview" src="${currentImgUrl || 'https://via.placeholder.com/150'}" style="display:block; width:70px; height:70px; object-fit:cover; border-radius:16px;" />
+            <label class="upload-btn"><i class="fas fa-sync"></i> Remplacer<input type="file" id="platEditInput" accept="image/*" /></label>
+          </div>
+          <div class="upload-progress" id="platEditProgress"><div class="upload-progress-bar" id="platEditProgressBar"></div></div>
+        </div>
+        <div class="form-group"><label>Nom du plat</label><input type="text" id="editPlatNom" class="form-control" value="${data.nom || ''}" required /></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Prix (FCFA)</label><input type="number" id="editPlatPrix" class="form-control" value="${data.prix || ''}" required /></div>
+          <div class="form-group"><label>Catégorie</label>
+            <select id="editPlatCategorie" class="form-control">
+              ${categoriesOptions}
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+          <label class="switch"><input type="checkbox" id="editPlatPromo" ${data.promotion ? 'checked' : ''} /><span class="slider"></span></label>
+          <span>En promotion</span>
+        </div>
+        <div class="form-group" id="editPlatPrixOriginalGroup" style="${data.promotion ? 'display:block;' : 'display:none;'}"><label>Prix avant promotion (FCFA)</label><input type="number" id="editPlatPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
+      `;
+
+      openModal('Modifier le plat', html, async () => {
+        const promo = document.getElementById('editPlatPromo').checked;
+        await db.collection('menus').doc(id).update({
+          nom: document.getElementById('editPlatNom').value,
+          prix: parseFloat(document.getElementById('editPlatPrix').value),
+          categorie: document.getElementById('editPlatCategorie').value,
+          promotion: promo,
+          prixOriginal: promo ? parseFloat(document.getElementById('editPlatPrixOriginal').value) || null : null,
+          image: currentImgUrl
+        });
+        showToast('Plat modifié !');
+        loadMenu();
+      });
+
+      document.getElementById('editPlatPromo').addEventListener('change', function() {
+        document.getElementById('editPlatPrixOriginalGroup').style.display = this.checked ? 'block' : 'none';
+      });
+
+      document.getElementById('platEditInput').addEventListener('change', function(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const progressDiv = document.getElementById('platEditProgress');
+        const progressBar = document.getElementById('platEditProgressBar');
+        progressDiv.style.display = 'block';
+        uploadImage(file, p => progressBar.style.width = p+'%', (err, url) => {
+          progressDiv.style.display = 'none';
+          if(err) { showToast(err, 'error'); return; }
+          document.getElementById('platEditPreview').src = url;
+          currentImgUrl = url;
+        });
+      });
+    };
+
+    // ============================================================
+    //  GESTION MODALES
+    // ============================================================
+    function openModal(title, bodyHtml, onSubmit) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('modalOverlay').classList.add('open');
+      const form = document.getElementById('modalForm');
+      // Réafficher le bouton submit s'il a été caché
+      document.getElementById('modalSubmit').style.display = 'inline-flex';
+      form.onsubmit = (e) => { e.preventDefault(); onSubmit(); closeModal(); };
+    }
+
+    window.closeModal = function() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('modalForm').reset();
+    };
+
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+
+    // ============================================================
+    //  FILTRE DES COMMANDES EN DIRECT
+    // ============================================================
+    document.getElementById('filterCommandes').addEventListener('change', renderCommandesLive);
+
+    // ============================================================
+    //  DECONNEXION
+    // ============================================================
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(() => window.location.href = 'connexion.html');
+    });
+
+    // ============================================================
+    //  INITIALISATION : premier rendu des commandes
+    // ============================================================
+    // Le listener orders les déclenchera
   </script>
 </body>
 </html>
