@@ -1872,28 +1872,39 @@ const secondaryAuth = secondaryApp.auth();
     }
 
     function updateQRUI() {
-      const menuBox = document.getElementById('menuLinkContainer');
-      const generateBtn = document.getElementById('generateMenuLink');
-      const viewMenuBtn = document.getElementById('btnVoirRestaurant');
+  const menuBox = document.getElementById('menuLinkContainer');
+  const generateBtn = document.getElementById('generateMenuLink');
+  const viewMenuBtn = document.getElementById('btnVoirRestaurant');
+  const qrEl = document.getElementById('qrcode');
 
-      if (restaurantData && restaurantData.nom && menuItemsCount > 0 && restaurantData.menuUrl) {
-        if(menuBox) menuBox.style.display = 'block';
-        if(generateBtn) generateBtn.style.display = 'none';
-        if (viewMenuBtn) {
-          viewMenuBtn.style.display = 'inline-flex';
-          viewMenuBtn.onclick = () => window.open(restaurantData.menuUrl, '_blank');
-        }
-        // Générer le QR si le div est vide
-        const qrEl = document.getElementById('qrcode');
-        if (qrEl && qrEl.innerHTML === '') {
-          generateQRWithLogo(restaurantData.menuUrl);
-        }
-      } else {
-        if(menuBox) menuBox.style.display = 'none';
-        if(generateBtn) generateBtn.style.display = 'none';
-        if(viewMenuBtn) viewMenuBtn.style.display = 'none';
-      }
+  if (restaurantData && restaurantData.nom && menuItemsCount > 0) {
+    // Cas 1 : le menu digital n'existe pas encore -> afficher le bouton de génération
+    if (!restaurantData.menuUrl) {
+      if (menuBox) menuBox.style.display = 'none';
+      if (generateBtn) generateBtn.style.display = 'inline-flex';
+      if (viewMenuBtn) viewMenuBtn.style.display = 'none';
+      if (qrEl) qrEl.innerHTML = '';
+      return;
     }
+
+    // Cas 2 : le lien existe -> afficher le QR, le lien et le bouton du haut
+    if (menuBox) menuBox.style.display = 'block';
+    if (generateBtn) generateBtn.style.display = 'none';
+    if (viewMenuBtn) {
+      viewMenuBtn.style.display = 'inline-flex';
+      viewMenuBtn.onclick = () => window.open(restaurantData.menuUrl, '_blank');
+    }
+
+    if (qrEl && qrEl.innerHTML === '') {
+      generateQRWithLogo(restaurantData.menuUrl);
+    }
+  } else {
+    if (menuBox) menuBox.style.display = 'none';
+    if (generateBtn) generateBtn.style.display = 'none';
+    if (viewMenuBtn) viewMenuBtn.style.display = 'none';
+    if (qrEl) qrEl.innerHTML = '';
+  }
+}
 
     document.getElementById('toggleQrBtn').addEventListener('click', function() {
       const content = document.getElementById('qrCollapsible');
