@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SCAN&TCHOP – Propriétaire</title>
 
+  <!-- Google Fonts : Inter & Playfair Display -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -434,6 +435,7 @@
   <div id="toastContainer"></div>
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
@@ -453,6 +455,7 @@
     </div>
   </aside>
 
+  <!-- MAIN WRAPPER -->
   <div class="main">
     <div class="header">
       <div class="header-left">
@@ -465,6 +468,7 @@
       </div>
     </div>
 
+    <!-- DASHBOARD COMPONENT -->
     <div id="section-dashboard" class="section active">
       <div class="grid-4" id="statsCards">
         <div class="stat-card card-blue" onclick="navigateToSection('commandes')">
@@ -500,14 +504,17 @@
       </div>
     </div>
 
+    <!-- SECTION RESTAURANT -->
     <div id="section-restaurant" class="section">
       <div style="margin-bottom:20px;">
         <button class="btn btn-outline btn-sm" onclick="navigateToSection('dashboard')"><i class="fas fa-arrow-left"></i> Retour au tableau de bord</button>
       </div>
       <div id="restaurantViewContainer">
-        </div>
+        <!-- Rendu dynamique géré par JS -->
+      </div>
     </div>
 
+    <!-- SECTION EMPLOYES -->
     <div id="section-employes" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
@@ -525,7 +532,9 @@
       </div>
     </div>
 
+    <!-- SECTION MENU -->
     <div id="section-menu" class="section">
+      <!-- Ce bloc promo ne s'affiche que si le menu contient des plats -->
       <div id="menuLinkContainer" class="qr-promo-box" style="display:none;">
         <div class="qr-promo-content">
             <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 8px;">Votre Menu Digital est en ligne !</h2>
@@ -564,6 +573,7 @@
       </div>
     </div>
 
+    <!-- SECTION COMMANDES & RAPPORT PDF -->
     <div id="section-commandes" class="section">
       <div class="card">
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
@@ -600,6 +610,7 @@
       </div>
     </div>
 
+    <!-- SECTION RETRAITS -->
     <div id="section-retraits" class="section">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
@@ -621,6 +632,7 @@
       </div>
     </div>
 
+    <!-- SECTION ABONNEMENTS -->
     <div id="section-abonnements" class="section">
       <div class="card">
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
@@ -673,6 +685,7 @@
     </div>
   </div>
 
+  <!-- CONTAINER DE MODALE UNIFIÉ -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-header">
@@ -792,13 +805,12 @@
     //  CONFIGURATION FIREBASE & CLOUDINARY
     // ============================================================
     const firebaseConfig = {
-      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
-      authDomain: "cinexau-903a6.firebaseapp.com",
-      projectId: "cinexau-903a6",
-      storageBucket: "cinexau-903a6.firebasestorage.app",
-      messagingSenderId: "247230931008",
-      appId: "1:247230931008:web:89824e9a4a257bd831ffa5",
-      measurementId: "G-ZR6NMYVYS3"
+      apiKey: "AIzaSyCqXjfE2wKJQCFVLs2SPngHz_IL7-csO34",
+      authDomain: "scan-et-tchop.firebaseapp.com",
+      projectId: "scan-et-tchop",
+      storageBucket: "scan-et-tchop.firebasestorage.app",
+      messagingSenderId: "648843762360",
+      appId: "1:648843762360:web:092b3d359eeae61ef2324d"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -941,6 +953,7 @@
             
             <div style="display: flex; flex-direction: column; gap: 25px;">
               
+              <!-- BLOC IDENTITÉ -->
               <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
                 <button class="edit-icon-btn" onclick="editRestaurantSection(1)" title="Modifier l'identité"><i class="fas fa-pencil-alt"></i></button>
                 <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-info-circle" style="color: var(--primary); margin-right: 8px;"></i> 1. Identité du Restaurant</h4>
@@ -956,6 +969,7 @@
                 </div>
               </div>
 
+              <!-- BLOC COORDONNÉES -->
               <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
                 <button class="edit-icon-btn" onclick="editRestaurantSection(2)" title="Modifier les contacts"><i class="fas fa-pencil-alt"></i></button>
                 <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-address-book" style="color: var(--primary); margin-right: 8px;"></i> 2. Coordonnées & Localisation</h4>
@@ -983,6 +997,7 @@
                 </div>
               </div>
 
+              <!-- BLOC VISUEL -->
               <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
                 <button class="edit-icon-btn" onclick="editRestaurantSection(3)" title="Modifier le logo"><i class="fas fa-pencil-alt"></i></button>
                 <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-image" style="color: var(--primary); margin-right: 8px;"></i> 3. Visuel & Logo</h4>
@@ -1019,12 +1034,14 @@
             </div>
 
             <form id="restaurantForm">
+              <!-- PANNEAU 1 : IDENTITÉ -->
               <div class="form-step-panel active" data-step-panel="1">
                 <div class="form-group"><label>Nom du restaurant</label><input type="text" id="restoNom" class="form-control" placeholder="Ex: Le Petit Chef" value="${restaurantData.nom || ''}" required /></div>
                 <div class="form-group"><label>Nom du propriétaire</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" value="${restaurantData.proprietaireNom || ''}" /></div>
                 <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'univers culinaire de votre établissement..." required>${restaurantData.description || ''}</textarea></div>
               </div>
 
+              <!-- PANNEAU 2 : COORDONNÉES -->
               <div class="form-step-panel" data-step-panel="2">
                 <div class="grid-2">
                   <div class="form-group"><label>Email public</label><input type="email" id="restoEmail" class="form-control" value="${restaurantData.email || ''}" required /></div>
@@ -1036,6 +1053,7 @@
                 </div>
               </div>
 
+              <!-- PANNEAU 3 : CHARGEMENT LOGO -->
               <div class="form-step-panel" data-step-panel="3">
                 <div class="form-group">
                   <label>Logo officiel de la marque</label>
