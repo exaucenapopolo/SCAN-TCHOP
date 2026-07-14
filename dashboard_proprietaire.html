@@ -805,18 +805,20 @@
     //  CONFIGURATION FIREBASE & CLOUDINARY
     // ============================================================
       const firebaseConfig = {
-    apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
-    authDomain: "cinexau-903a6.firebaseapp.com",
-    projectId: "cinexau-903a6",
-    storageBucket: "cinexau-903a6.firebasestorage.app",
-    messagingSenderId: "247230931008",
-    appId: "1:247230931008:web:89824e9a4a257bd831ffa5",
-    measurementId: "G-ZR6NMYVYS3"
-  };
+  apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+  authDomain: "cinexau-903a6.firebaseapp.com",
+  projectId: "cinexau-903a6",
+  storageBucket: "cinexau-903a6.firebasestorage.app",
+  messagingSenderId: "247230931008",
+  appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
+const secondaryAuth = secondaryApp.auth();
+
 
   const analytics = firebase.analytics();
     const CLOUDINARY_CLOUD_NAME = 'do83voiqy';
