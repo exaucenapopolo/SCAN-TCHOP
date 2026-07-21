@@ -10,9 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ============================================
-       VARIABLES & RESET
-    ============================================ */
+    /* ========== VARIABLES & RESET ========== */
     :root {
       --primary: #e67e22;
       --primary-dark: #d35400;
@@ -46,17 +44,12 @@
       width: 100vw;
     }
 
-    /* ============================================
-       SCROLLBAR
-    ============================================ */
     ::-webkit-scrollbar { width:6px; height:6px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#bdc3c7; border-radius:10px; }
     ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
 
-    /* ============================================
-       SIDEBAR
-    ============================================ */
+    /* ========== SIDEBAR ========== */
     .sidebar-overlay {
       position:fixed; top:0; left:0; width:100vw; height:100vh;
       background:rgba(0,0,0,0.4); backdrop-filter:blur(6px);
@@ -158,9 +151,7 @@
     }
     .badge-notif.show { display:inline-block; }
 
-    /* ============================================
-       MAIN CONTENT
-    ============================================ */
+    /* ========== MAIN CONTENT ========== */
     .main {
       margin-left:280px;
       flex:1;
@@ -234,9 +225,7 @@
       to { opacity:1; transform:translateY(0); }
     }
 
-    /* ============================================
-       CARDS & GRID
-    ============================================ */
+    /* ========== CARDS ========== */
     .card {
       background:var(--card-bg);
       backdrop-filter:blur(8px);
@@ -277,9 +266,7 @@
     .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
     .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
 
-    /* ============================================
-       STATISTIQUES MODERNES
-    ============================================ */
+    /* ========== STATISTIQUES MODERNES ========== */
     .stats-grid {
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
@@ -347,9 +334,7 @@
     }
     .stat-item .stat-trend.down { background:#fdedec; color:#b03a2e; }
 
-    /* ============================================
-       KANBAN CUISINE
-    ============================================ */
+    /* ========== KANBAN ========== */
     .kanban {
       display:grid;
       grid-template-columns:1fr 1fr 1fr 1fr;
@@ -389,9 +374,7 @@
       font-size:0.9rem;
     }
 
-    /* ============================================
-       ORDER TICKET
-    ============================================ */
+    /* ========== ORDER TICKET ========== */
     .order-ticket {
       background:#fff;
       border-radius:14px;
@@ -491,9 +474,7 @@
       100% { background:#fff; }
     }
 
-    /* ============================================
-       BOUTONS
-    ============================================ */
+    /* ========== BOUTONS ========== */
     .btn {
       padding:10px 20px;
       border:none;
@@ -563,9 +544,7 @@
     .badge-info { background:#d6eaf8; color:#1a5276; }
     .badge-purple { background:#e8daef; color:#6c3483; }
 
-    /* ============================================
-       FILTRES
-    ============================================ */
+    /* ========== FILTRES ========== */
     .filter-group {
       display:flex;
       gap:15px;
@@ -607,9 +586,7 @@
       padding-right:40px;
     }
 
-    /* ============================================
-       ÉTATS VIDES
-    ============================================ */
+    /* ========== ÉTATS VIDES ========== */
     .empty-state-container {
       display:flex;
       flex-direction:column;
@@ -641,9 +618,7 @@
       50%{ transform:translateY(-6px); }
     }
 
-    /* ============================================
-       MODALE
-    ============================================ */
+    /* ========== MODALE ========== */
     .modal-overlay {
       position:fixed; top:0; left:0; right:0; bottom:0;
       background:rgba(0,0,0,0.5);
@@ -706,9 +681,7 @@
     }
     .modal-footer .btn { min-width:100px; }
 
-    /* ============================================
-       TIMER OVERLAY (ALERTE)
-    ============================================ */
+    /* ========== TIMER OVERLAY (ALERTE) ========== */
     .timer-overlay {
       position:fixed;
       top:0; left:0; right:0; bottom:0;
@@ -763,9 +736,7 @@
       min-width:140px;
     }
 
-    /* ============================================
-       TOAST
-    ============================================ */
+    /* ========== TOAST ========== */
     #toastContainer {
       position:fixed;
       top:20px;
@@ -800,9 +771,7 @@
       to { transform:translateX(120%); opacity:0; }
     }
 
-    /* ============================================
-       MENU TABLE
-    ============================================ */
+    /* ========== MENU TABLE ========== */
     .table-wrap {
       width:100%;
       overflow-x:auto;
@@ -867,9 +836,7 @@
     input:checked + .slider { background:var(--primary); }
     input:checked + .slider:before { transform:translateX(20px); }
 
-    /* ============================================
-       MODE CHEF
-    ============================================ */
+    /* ========== MODE CHEF ========== */
     .chef-grid {
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(170px,1fr));
@@ -901,9 +868,7 @@
       margin:6px 0;
     }
 
-    /* ============================================
-       PRÉPARATIONS
-    ============================================ */
+    /* ========== PRÉPARATIONS ========== */
     .prep-item {
       display:flex;
       align-items:center;
@@ -940,9 +905,7 @@
       transition:width 1s linear;
     }
 
-    /* ============================================
-       CHARGE INDICATOR
-    ============================================ */
+    /* ========== CHARGE INDICATOR ========== */
     .charge-indicator {
       background:#fff;
       border-radius:40px;
@@ -970,54 +933,22 @@
     }
     .charge-indicator .label { color:var(--text-muted); font-weight:500; }
 
-    /* ============================================
-       RESPONSIVE
-    ============================================ */
-    @media (max-width:1200px) {
-      .kanban { grid-template-columns:1fr 1fr; }
-    }
-    @media (max-width:1024px) {
-      .grid-4 { grid-template-columns:repeat(2,1fr); }
-      .main { padding:30px; }
-    }
-    @media (max-width:768px) {
-      .sidebar { transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); box-shadow:20px 0 50px rgba(0,0,0,0.2); }
-      .main { margin-left:0; padding:20px; width:100vw; }
-      .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
-      .hamburger { display:block; }
-      .card { padding:24px 20px; }
-      .filter-group { flex-direction:column; align-items:stretch; }
-      .header { flex-direction:column; align-items:flex-start; }
-      .header-right { width:100%; justify-content:space-between; }
-      .stats-grid { grid-template-columns:1fr 1fr; }
-      .kanban { grid-template-columns:1fr; }
-    }
-    @media (max-width:480px) {
-      .stats-grid { grid-template-columns:1fr; }
-      .modal .modal-body { padding:20px; }
-      .modal-footer { flex-direction:column-reverse; }
-      .modal-footer .btn { width:100%; }
-      .header h1 { font-size:1.6rem; }
-      .timer-overlay .big-timer { font-size:3.5rem; padding:20px 30px; }
-    }
-
-    /* ============================================
-       MODE COUP DE FEU (overlay)
-    ============================================ */
+    /* ========== MODE COUP DE FEU ========== */
     .fire-mode-banner {
       background:linear-gradient(135deg, #e74c3c, #c0392b);
       color:#fff;
-      padding:12px 20px;
+      padding:14px 24px;
       border-radius:14px;
       display:flex;
       align-items:center;
+      justify-content:space-between;
       gap:16px;
       font-weight:700;
       font-size:1rem;
       margin-bottom:20px;
       box-shadow:0 4px 20px rgba(231,76,60,0.25);
       animation:pulseFire 1.5s ease-in-out infinite;
+      flex-wrap:wrap;
     }
     @keyframes pulseFire {
       0%,100%{ transform:scale(1); }
@@ -1025,8 +956,14 @@
     }
     .fire-mode-banner i { font-size:1.6rem; }
     .fire-mode-banner .badge { background:rgba(255,255,255,0.2); color:#fff; }
+    .fire-mode-banner .btn {
+      background:rgba(255,255,255,0.15);
+      color:#fff;
+      border:1px solid rgba(255,255,255,0.3);
+    }
+    .fire-mode-banner .btn:hover { background:rgba(255,255,255,0.25); }
 
-    /* upload previews */
+    /* ========== UPLOAD ========== */
     .upload-preview {
       display:flex;
       align-items:center;
@@ -1080,6 +1017,36 @@
       flex-wrap:wrap;
     }
     .complement-input-group input { flex:1; min-width:100px; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width:1200px) {
+      .kanban { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:1024px) {
+      .grid-4 { grid-template-columns:repeat(2,1fr); }
+      .main { padding:30px; }
+    }
+    @media (max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); box-shadow:20px 0 50px rgba(0,0,0,0.2); }
+      .main { margin-left:0; padding:20px; width:100vw; }
+      .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+      .hamburger { display:block; }
+      .card { padding:24px 20px; }
+      .filter-group { flex-direction:column; align-items:stretch; }
+      .header { flex-direction:column; align-items:flex-start; }
+      .header-right { width:100%; justify-content:space-between; }
+      .stats-grid { grid-template-columns:1fr 1fr; }
+      .kanban { grid-template-columns:1fr; }
+    }
+    @media (max-width:480px) {
+      .stats-grid { grid-template-columns:1fr; }
+      .modal .modal-body { padding:20px; }
+      .modal-footer { flex-direction:column-reverse; }
+      .modal-footer .btn { width:100%; }
+      .header h1 { font-size:1.6rem; }
+      .timer-overlay .big-timer { font-size:3.5rem; padding:20px 30px; }
+    }
   </style>
 </head>
 <body>
@@ -1130,25 +1097,25 @@
           <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
           <div class="stat-number" id="statCommandes">0</div>
           <div class="stat-label">Commandes du jour</div>
-          <div class="stat-trend" id="trendCommandes"><i class="fas fa-arrow-up"></i> +12%</div>
+          <div class="stat-trend" id="trendCommandes"><i class="fas fa-arrow-up"></i> +0%</div>
         </div>
         <div class="stat-item" onclick="navigateToSection('commandes')">
           <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
           <div class="stat-number" id="statCA">0 F</div>
           <div class="stat-label">Revenus (jour)</div>
-          <div class="stat-trend" id="trendCA"><i class="fas fa-arrow-up"></i> +8%</div>
+          <div class="stat-trend" id="trendCA"><i class="fas fa-arrow-up"></i> +0%</div>
         </div>
         <div class="stat-item" onclick="navigateToSection('menu')">
           <div class="stat-icon"><i class="fas fa-utensils"></i></div>
           <div class="stat-number" id="statPlats">0</div>
           <div class="stat-label">Plats actifs</div>
-          <div class="stat-trend"><i class="fas fa-arrow-up"></i> +2</div>
+          <div class="stat-trend"><i class="fas fa-arrow-up"></i> +0</div>
         </div>
         <div class="stat-item" onclick="navigateToSection('commandes')">
           <div class="stat-icon"><i class="fas fa-clock"></i></div>
           <div class="stat-number" id="statEnCours">0</div>
           <div class="stat-label">En préparation</div>
-          <div class="stat-trend down" id="trendEnCours"><i class="fas fa-arrow-down"></i> -3%</div>
+          <div class="stat-trend down" id="trendEnCours"><i class="fas fa-arrow-down"></i> -0%</div>
         </div>
         <div class="stat-item" onclick="navigateToSection('commandes')" style="border-color:var(--danger);">
           <div class="stat-icon" style="background:linear-gradient(135deg, #e74c3c, #c0392b);"><i class="fas fa-exclamation-triangle"></i></div>
@@ -1167,11 +1134,16 @@
         </div>
       </div>
 
-      <!-- Bannière mode coup de feu (cachée par défaut) -->
+      <!-- Bannière mode coup de feu -->
       <div id="fireModeBanner" class="fire-mode-banner" style="display:none;">
-        <i class="fas fa-fire-extinguisher"></i>
-        <span><strong>🔥 MODE COUP DE FEU</strong> — La cuisine est saturée. Les délais sont ajustés.</span>
-        <span class="badge">Charge > 80%</span>
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <i class="fas fa-fire-extinguisher"></i>
+          <span><strong>🔥 MODE COUP DE FEU</strong> — La cuisine est saturée. Les délais sont ajustés.</span>
+          <span class="badge">Charge > 80%</span>
+        </div>
+        <div>
+          <button class="btn btn-sm" id="toggleFireModeBtn"><i class="fas fa-toggle-on"></i> Désactiver</button>
+        </div>
       </div>
     </div>
 
@@ -1341,7 +1313,7 @@
     };
 
     // ============================================================
-    //  SONNERIES
+    //  SONNERIES (Web Audio)
     // ============================================================
     let audioCtx = null;
 
@@ -1485,6 +1457,7 @@
     let menuItems = [];
     let timerInterval = null;
     let alertInterval = null; // pour la sonnerie répétitive
+    let alertDismissed = {}; // stocke les timestamps d'ignorance pour chaque commande/plat
 
     // ============================================================
     //  AUTHENTIFICATION
@@ -1676,14 +1649,12 @@
 
           // Proposer de définir le temps pour chaque nouvelle commande en attente
           orders.filter(o => o.status === 'en attente').forEach(order => {
-            // On ouvre la modale de temps si la commande n'a pas encore de temps estimé
             if (!order.tempsEstime && !order.startTime) {
               setTimeout(() => proposeTempsCommande(order.id), 500);
             }
           });
         }
 
-        // Mettre à jour le badge de notification (le réduire si plus de commandes en attente)
         const pending = orders.filter(o => o.status === 'en attente').length;
         if (pending === 0) {
           document.getElementById('newOrderBadge').classList.remove('show');
@@ -1737,7 +1708,6 @@
         filtered.sort((a,b) => (a.dateObj ? a.dateObj.getTime() : 0) - (b.dateObj ? b.dateObj.getTime() : 0));
       } else if (sort === 'urgence') {
         filtered.sort((a,b) => {
-          // Priorité : commandes en préparation avec temps restant le plus faible
           const getRemaining = (o) => {
             if (o.status === 'en préparation' && o.startTime && o.tempsEstime) {
               const start = o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime);
@@ -1888,10 +1858,25 @@
       const banner = document.getElementById('fireModeBanner');
       if (percent >= 80) {
         banner.style.display = 'flex';
+        document.getElementById('toggleFireModeBtn').innerHTML = '<i class="fas fa-toggle-on"></i> Désactiver';
       } else {
         banner.style.display = 'none';
       }
     }
+
+    // Toggle manuel du mode coup de feu
+    document.getElementById('toggleFireModeBtn').addEventListener('click', function() {
+      const banner = document.getElementById('fireModeBanner');
+      if (banner.style.display === 'none') {
+        banner.style.display = 'flex';
+        this.innerHTML = '<i class="fas fa-toggle-on"></i> Désactiver';
+        showToast('🔥 Mode coup de feu activé manuellement', 'warning');
+      } else {
+        banner.style.display = 'none';
+        this.innerHTML = '<i class="fas fa-toggle-off"></i> Activer';
+        showToast('Mode coup de feu désactivé', 'info');
+      }
+    });
 
     // ============================================================
     //  ACTIONS SUR COMMANDES
@@ -2160,14 +2145,18 @@
         `;
         container.appendChild(div);
 
-        // Déclencher l'alerte si temps écoulé
+        // Déclencher l'alerte si temps écoulé et non ignorée
         if (item.remaining <= 0) {
-          if (item.type === 'commande' && !document.getElementById('timerOverlay').classList.contains('open')) {
-            playRappelSound();
-            showTimerOverlay(item.id, item.label, 'Commande');
-          } else if (item.type === 'plat' && !document.getElementById('timerOverlay').classList.contains('open')) {
-            playRappelSound();
-            showTimerOverlay(item.id, item.label, 'Plat');
+          const key = item.type === 'commande' ? 'cmd_' + item.id : 'plat_' + item.id;
+          const now = Date.now();
+          // Si l'utilisateur a fermé l'alerte il y a moins de 2 minutes, on ne la réaffiche pas
+          if (alertDismissed[key] && (now - alertDismissed[key] < 120000)) {
+            // Ignorer
+          } else {
+            if (!document.getElementById('timerOverlay').classList.contains('open')) {
+              playRappelSound();
+              showTimerOverlay(item.id, item.label, item.type === 'commande' ? 'Commande' : 'Plat');
+            }
           }
         }
       });
@@ -2203,6 +2192,11 @@
         alertInterval = null;
       }
       document.getElementById('timerOverlay').classList.remove('open');
+      // Enregistrer l'ignorance pour éviter le retour immédiat
+      if (currentTimerEntityId) {
+        const key = currentTimerEntityType === 'Commande' ? 'cmd_' + currentTimerEntityId : 'plat_' + currentTimerEntityId;
+        alertDismissed[key] = Date.now();
+      }
       currentTimerEntityId = null;
       currentTimerEntityType = 'commande';
     }
@@ -2212,7 +2206,7 @@
       const type = currentTimerEntityType;
       if (!id) return;
       closeTimerOverlay();
-      if (type === 'commande') {
+      if (type === 'Commande') {
         readyOrder(id);
       } else {
         db.collection('menus').doc(id).update({
@@ -2244,7 +2238,7 @@
       `;
       openModal('Prolonger la préparation', html, async () => {
         const extra = parseInt(document.getElementById('prolongerMinutes').value) || 5;
-        if (type === 'commande') {
+        if (type === 'Commande') {
           const order = toutesLesCommandes.find(o => o.id === id);
           if (order) {
             const newEstime = (order.tempsEstime || 0) + extra;
@@ -2273,7 +2267,6 @@
 
     document.getElementById('overlayClose').addEventListener('click', function() {
       closeTimerOverlay();
-      // On peut aussi arrêter la sonnerie, déjà fait dans closeTimerOverlay
     });
 
     // ============================================================
@@ -2317,7 +2310,7 @@
     };
 
     // ============================================================
-    //  MENU (inchangé, mais réutilisé)
+    //  MENU
     // ============================================================
     async function loadMenu() {
       if (!currentRestaurantId) return;
@@ -2469,7 +2462,7 @@
     };
 
     // ============================================================
-    //  AJOUT / MODIFICATION PLAT (simplifié, conservé)
+    //  AJOUT / MODIFICATION PLAT (simplifié)
     // ============================================================
     document.getElementById('openAddPlat').addEventListener('click', () => {
       let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
