@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        /* ====== RESET & CONSTANTES ====== */
+        /* ====== CONSTANTES ====== */
         :root {
             --primary: #e67e22;
             --primary-hover: #cf6f1b;
@@ -31,7 +31,7 @@
         }
         .container { max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
         
-        /* ====== EN-TÊTE DU RESTAURANT ====== */
+        /* ====== EN-TÊTE RESTAURANT ====== */
         .restaurant-header {
             background: #fff; border-radius: 28px; padding: 32px 24px;
             box-shadow: 0 10px 30px rgba(230,126,34,0.05); margin-bottom: 28px;
@@ -53,13 +53,11 @@
         .restaurant-address { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; background: #f8fafc; padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border-color); }
         .restaurant-address i { color: var(--primary); }
 
-        /* Note globale */
         .global-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 8px 16px; background: #fff; border-radius: 50px; transition: var(--transition); border: 1px solid transparent; }
         .global-rating:hover { transform: translateY(-2px); }
         .global-rating .stars-display { color: #f59e0b; font-size: 1.1rem; }
         .global-rating .rating-text { font-size: 0.95rem; color: var(--text-main); font-weight: 700; }
 
-        /* Boutons de contact */
         .contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; width: 100%; }
         .btn-contact {
             padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; text-decoration: none;
@@ -74,16 +72,19 @@
         .btn-avis-header { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(230,126,34,0.2); }
         .btn-avis-header:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
-        /* Indicateur utilisateur */
+        /* User badge (cliquable) */
         .user-badge {
             display: inline-flex; align-items: center; gap: 8px;
             background: #f1f5f9; padding: 6px 16px; border-radius: 50px;
             font-size: 0.9rem; font-weight: 600; color: var(--text-main);
             border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
         }
+        .user-badge:hover { background: #e2e8f0; transform: translateY(-2px); }
         .user-badge i { color: var(--primary); }
 
-        /* ====== BARRE DE FILTRES DES CATÉGORIES ====== */
+        /* ====== CATÉGORIES ====== */
         .category-container {
             display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 24px;
             scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
@@ -97,7 +98,7 @@
         .category-btn:hover { border-color: var(--primary); color: var(--primary); }
         .category-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(230,126,34,0.25); }
 
-        /* ====== GRILLE ET CARTES DE PLAT ====== */
+        /* ====== GRILLE PLATS ====== */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         .menu-card {
             background: #fff; border-radius: 24px; overflow: hidden;
@@ -141,7 +142,6 @@
         .menu-card .body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); line-height: 1.3; }
         .menu-card .body .description-plat { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; flex-grow: 1; }
         
-        /* Compléments */
         .complements-list {
             display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
         }
@@ -167,7 +167,6 @@
         .btn-commander:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35); }
         .btn-commander:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; color: #64748b; }
 
-        /* Badge de statut sur la carte */
         .statut-badge {
             display: inline-block; padding: 4px 14px; border-radius: 50px;
             font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
@@ -183,7 +182,6 @@
             background: #d1fae5; color: #065f46;
         }
 
-        /* Compte à rebours sur la carte */
         .timer-countdown {
             background: rgba(0,0,0,0.7); color: #fff; padding: 6px 14px; border-radius: 50px;
             font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
@@ -191,7 +189,7 @@
         }
         .timer-countdown i { color: #fcd34d; }
 
-        /* ====== SECTION AVIS CLIENTS ====== */
+        /* ====== SECTION AVIS ====== */
         .reviews-section { margin-top: 48px; background: #fff; padding: 32px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: none; }
         .reviews-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; }
         .reviews-section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
@@ -214,7 +212,74 @@
         .review-stars { color: #f59e0b; font-size: 0.9rem; }
         .review-text { font-size: 0.95rem; color: #475569; line-height: 1.6; }
 
-        /* ====== MODALS & FORMULAIRES ====== */
+        /* ====== SUIVI DE COMMANDE ====== */
+        .order-tracking {
+            background: #fff; border-radius: 24px; padding: 24px;
+            margin-bottom: 30px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: none;
+            transition: background 0.5s ease;
+        }
+        .order-tracking.ready {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+        .order-tracking .track-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .order-tracking .track-header h3 { font-weight: 800; font-size: 1.2rem; }
+        .order-tracking .track-status { display: flex; gap: 20px; flex-wrap: wrap; }
+        .order-tracking .track-status .label { color: var(--text-muted); font-weight: 500; }
+        .order-tracking .track-status .value { font-weight: 700; }
+
+        /* Badges de statut */
+        .badge {
+            display: inline-block; padding: 6px 14px; border-radius: 50px;
+            font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+        }
+        .badge-warning { background: #fef3c7; color: #b45309; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+
+        /* Timer et barre de progression */
+        .track-timer {
+            display: flex; align-items: center; gap: 16px;
+            margin: 16px 0;
+            background: #f8fafc; padding: 12px 20px; border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+        .track-timer .countdown {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            min-width: 70px;
+        }
+        .track-timer .progress-wrapper {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .track-timer .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #f1c40f);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        .order-tracking.ready .track-timer .progress-bar {
+            background: #10b981;
+        }
+
+        .track-actions {
+            margin-top: 16px;
+            display: flex; gap: 12px; flex-wrap: wrap;
+        }
+
+        /* ====== MODALS ====== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 26, 46, 0.6); backdrop-filter: blur(6px);
@@ -237,7 +302,6 @@
 
         #zoomImage { max-width: 100%; max-height: 80vh; border-radius: 16px; object-fit: contain; }
 
-        /* Configuration sections dans le Modal Commande */
         .order-section { margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         .order-section:last-of-type { border-bottom: none; }
         .order-section h4 { font-size: 1.05rem; color: var(--text-main); margin-bottom: 14px; font-weight: 700; }
@@ -265,11 +329,9 @@
         .total-display span { display: block; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .total-display strong { font-size: 1.8rem; color: var(--text-main); font-weight: 800; }
 
-        /* Formulaire Avis & Champs Commande */
         .stars { color: #e2e8f0; font-size: 2.2rem; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .stars i.active { color: #f59e0b; }
 
-        /* Bouton d'aide */
         .btn-help {
             background: #f43f5e; color: white; border: none; border-radius: 50px;
             padding: 12px 24px; font-weight: 700; cursor: pointer; transition: var(--transition);
@@ -277,22 +339,7 @@
         }
         .btn-help:hover { transform: translateY(-2px); background: #e11d48; }
 
-        /* ====== SUIVI DE COMMANDE ====== */
-        .order-tracking {
-            background: #fff; border-radius: 24px; padding: 24px; margin-bottom: 30px;
-            border: 2px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            display: none;
-        }
-        .order-tracking .track-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-        }
-        .order-tracking .track-header h3 { font-weight: 800; font-size: 1.2rem; }
-        .order-tracking .track-status { display: flex; gap: 20px; flex-wrap: wrap; }
-        .order-tracking .track-status .label { color: var(--text-muted); font-weight: 500; }
-        .order-tracking .track-status .value { font-weight: 700; }
-        .order-tracking .track-actions { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
-
-        /* ====== BAS DE PAGE ====== */
+        /* ====== FOOTER ====== */
         .app-footer {
             margin-top: 60px; background: linear-gradient(180deg, #1e293b, #0f172a); padding: 50px 20px 40px;
             display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
@@ -322,13 +369,13 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .menu-card, .review-card { animation: fadeIn 0.5s ease backwards; }
 
-        /* Badge utilisateur connecté */
-        .user-badge {
-            background: #f1f5f9; padding: 6px 16px; border-radius: 50px;
-            display: inline-flex; align-items: center; gap: 8px;
-            font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 640px) {
+            .restaurant-header h1 { font-size: 1.8rem; }
+            .order-tracking .track-status { flex-direction: column; gap: 8px; }
+            .track-timer { flex-direction: column; align-items: stretch; }
+            .track-timer .countdown { text-align: center; }
         }
-        .user-badge i { color: var(--primary); }
     </style>
 </head>
 <body>
@@ -342,16 +389,24 @@
 
     <div id="menuContainer" class="menu-grid"></div>
 
-    <!-- Section Suivi de commande (cachée par défaut) -->
+    <!-- Section Suivi de commande (améliorée) -->
     <div id="orderTracking" class="order-tracking">
         <div class="track-header">
             <h3><i class="fas fa-check-circle" style="color:var(--primary);"></i> Suivi de votre commande</h3>
-            <span class="badge badge-success" id="trackStatusBadge">En cours</span>
+            <span class="badge" id="trackStatusBadge">En attente</span>
         </div>
         <div class="track-status">
             <div><span class="label">Référence :</span> <span class="value" id="trackRef">---</span></div>
-            <div><span class="label">Temps estimé :</span> <span class="value" id="trackTime">---</span></div>
             <div><span class="label">Statut :</span> <span class="value" id="trackStatus">En attente</span></div>
+            <div><span class="label">Temps estimé :</span> <span class="value" id="trackTime">---</span></div>
+        </div>
+        <!-- Compte à rebours + barre de progression -->
+        <div class="track-timer" id="trackTimerContainer" style="display:none;">
+            <span class="countdown" id="trackCountdown">--:--</span>
+            <div class="progress-wrapper">
+                <div class="progress-bar" id="trackProgressBar" style="width:0%;"></div>
+            </div>
+            <span id="trackPercent" style="font-weight:600; min-width:40px;">0%</span>
         </div>
         <div class="track-actions">
             <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
@@ -388,12 +443,12 @@
     </div>
 </footer>
 
+<!-- Modals -->
 <div class="modal-overlay" id="modalZoom" onclick="closeModal('modalZoom')">
     <img id="zoomImage" src="" alt="Agrandissement" onclick="event.stopPropagation()" />
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- ===== MODAL COMMANDE (simplifiée) ===== -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
@@ -408,7 +463,6 @@
             </div>
         </div>
 
-        <!-- Compléments -->
         <div class="order-section" id="complementsContainer" style="display:none;">
             <h4>Compléments</h4>
             <div id="complementsCheckboxes"></div>
@@ -431,7 +485,6 @@
             </div>
         </div>
 
-        <!-- Table -->
         <div class="order-section">
             <h4>Votre numéro de table <span style="color:#ef4444;">*</span></h4>
             <input type="text" id="orderTable" class="input-form" placeholder="Ex: 7, 12, ou 'Terrasse 5'" required />
@@ -440,13 +493,11 @@
             </p>
         </div>
 
-        <!-- Instructions -->
         <div class="order-section">
             <h4>Instructions particulières</h4>
             <textarea id="orderInstructions" class="input-form" placeholder="Ex: Sans sel, pas d'oignons, bien cuit, etc."></textarea>
         </div>
 
-        <!-- ===== PAIEMENT ===== -->
         <div class="order-section" style="border-bottom: none;">
             <h4>Mode de paiement</h4>
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
@@ -457,14 +508,10 @@
                     <i class="fas fa-coins"></i> Espèces (à la caisse)
                 </button>
             </div>
-            
-            <!-- Téléphone (obligatoire si Mobile Money) -->
             <input type="tel" id="orderPhone" class="input-form" placeholder="Numéro de téléphone (Mobile Money)" />
             <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:12px;">
                 <i class="fas fa-info-circle"></i> Obligatoire pour le paiement Mobile Money.
             </p>
-
-            <!-- Email (toujours obligatoire pour le compte) -->
             <input type="email" id="orderEmail" class="input-form" placeholder="Adresse email (pour votre compte et le suivi) *" required />
             <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:4px;">
                 <i class="fas fa-user-plus"></i> Votre compte sera créé avec cet email. Vous pourrez suivre vos commandes en temps réel.
@@ -482,7 +529,6 @@
     </div>
 </div>
 
-<!-- ===== MODAL AVIS ===== -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
@@ -497,6 +543,7 @@
             <i class="fas fa-star" data-value="5"></i>
         </div>
         
+        <!-- Champ Nom pré-rempli si utilisateur connecté -->
         <input type="text" id="avisNom" class="input-form" placeholder="Votre Nom et Prénom *" required />
         <textarea id="avisCommentaire" class="input-form" placeholder="Qu'avez-vous pensé de l'accueil, du cadre ou de la saveur des plats ?..."></textarea>
         
@@ -506,7 +553,6 @@
     </div>
 </div>
 
-<!-- ===== MODAL AIDE ===== -->
 <div class="modal-overlay" id="modalHelp">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalHelp')"><i class="fas fa-times"></i></button>
@@ -550,14 +596,23 @@
     let selectedCategory = 'Tous';
     let currentPlatData = null;
     let activeOrderId = null;
-    let currentUser = null; // { userId, email, displayName, phone }
+    let currentUser = null; // { userId, email, displayName, phone, favorites }
+    let countdownInterval = null;
 
-    // ===== GESTION DE L'UTILISATEUR =====
+    // ===== GESTION UTILISATEUR =====
     function loadCurrentUser() {
         const stored = localStorage.getItem('scan_user');
         if (stored) {
             try {
                 currentUser = JSON.parse(stored);
+                // Migration : si favorites est un tableau de strings, on le convertit en objets
+                if (currentUser.favorites && Array.isArray(currentUser.favorites) && currentUser.favorites.length > 0) {
+                    if (typeof currentUser.favorites[0] === 'string') {
+                        // Convertir en objets { restaurantId: current, platId: ... } ? 
+                        // On ne connaît pas le restaurantId de chaque favori, on le laisse en string mais on va les traiter comme platId pour le restaurant actuel.
+                        // Pour le profil, on gérera les deux cas.
+                    }
+                }
                 return currentUser;
             } catch(e) {}
         }
@@ -568,11 +623,16 @@
         currentUser = user;
         localStorage.setItem('scan_user', JSON.stringify(user));
         updateUserBadge();
-        // Pré-remplir les champs email et téléphone dans le modal commande si ouvert
+        // Pré-remplir les champs email et téléphone dans le modal commande
         const emailInput = document.getElementById('orderEmail');
         const phoneInput = document.getElementById('orderPhone');
         if (emailInput) emailInput.value = user.email || '';
         if (phoneInput) phoneInput.value = user.phone || '';
+        // Pré-remplir le nom dans l'avis
+        const avisNom = document.getElementById('avisNom');
+        if (avisNom && user.displayName) {
+            avisNom.value = user.displayName;
+        }
     }
 
     function updateUserBadge() {
@@ -581,6 +641,7 @@
         if (!badge) {
             badge = document.createElement('div');
             badge.className = 'user-badge';
+            badge.onclick = () => window.location.href = `profile.html?userId=${currentUser?.userId || ''}`;
             header.appendChild(badge);
         }
         if (currentUser) {
@@ -591,7 +652,6 @@
         }
     }
 
-    // Récupérer les infos utilisateur depuis Firestore via email
     async function fetchUserByEmail(email) {
         const snapshot = await db.collection('users').where('email', '==', email).get();
         if (!snapshot.empty) {
@@ -601,14 +661,13 @@
         return null;
     }
 
-    // Créer un nouvel utilisateur avec email et téléphone
     async function createUser(email, phone) {
-        // Extraire le nom de l'email
         const displayName = email.split('@')[0] || 'Client';
         const userData = {
             email,
             displayName,
             phone: phone || '',
+            favorites: [],
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         const docRef = await db.collection('users').add(userData);
@@ -617,12 +676,9 @@
         return newUser;
     }
 
-    // S'assurer que l'utilisateur existe (soit récupérer soit créer)
     async function ensureUser(email, phone) {
         if (!email) throw new Error('Email requis');
-        // Vérifier d'abord en local
         if (currentUser && currentUser.email === email) {
-            // Mettre à jour éventuellement phone
             if (phone && !currentUser.phone) {
                 currentUser.phone = phone;
                 await db.collection('users').doc(currentUser.userId).update({ phone });
@@ -630,14 +686,12 @@
             }
             return currentUser;
         }
-        // Chercher dans Firestore
         const existing = await fetchUserByEmail(email);
         if (existing) {
             if (phone && !existing.phone) {
                 await db.collection('users').doc(existing.userId).update({ phone });
                 existing.phone = phone;
             }
-            // Mettre à jour le displayName si vide
             if (!existing.displayName) {
                 const name = email.split('@')[0] || 'Client';
                 await db.collection('users').doc(existing.userId).update({ displayName: name });
@@ -650,7 +704,7 @@
         }
     }
 
-    // ===== GESTION DES FAVORIS =====
+    // ===== FAVORIS (cross‑restaurant) =====
     async function toggleFavorite(platId) {
         if (!currentUser) {
             alert('Veuillez passer une commande pour créer votre compte et pouvoir ajouter des favoris.');
@@ -659,12 +713,18 @@
         const userRef = db.collection('users').doc(currentUser.userId);
         try {
             const doc = await userRef.get();
-            const favorites = doc.data()?.favorites || [];
-            const index = favorites.indexOf(platId);
-            if (index !== -1) {
-                favorites.splice(index, 1);
+            let favorites = doc.data()?.favorites || [];
+            // Vérifier si le favori existe déjà (objet ou string)
+            const existingIndex = favorites.findIndex(fav => {
+                if (typeof fav === 'object' && fav.restaurantId === restaurantId && fav.platId === platId) return true;
+                if (typeof fav === 'string' && fav === platId) return true; // ancien format
+                return false;
+            });
+            if (existingIndex !== -1) {
+                favorites.splice(existingIndex, 1);
             } else {
-                favorites.push(platId);
+                // Ajouter sous forme d'objet
+                favorites.push({ restaurantId, platId });
             }
             await userRef.update({ favorites });
             currentUser.favorites = favorites;
@@ -678,10 +738,14 @@
 
     function isFavorite(platId) {
         if (!currentUser || !currentUser.favorites) return false;
-        return currentUser.favorites.includes(platId);
+        return currentUser.favorites.some(fav => {
+            if (typeof fav === 'object') return fav.restaurantId === restaurantId && fav.platId === platId;
+            if (typeof fav === 'string') return fav === platId; // ancien format, on considère qu'il est pour ce restaurant
+            return false;
+        });
     }
 
-    // ===== INITIALISATION =====
+    // ===== INIT =====
     if (restaurantId) {
         initPage();
     } else {
@@ -693,7 +757,6 @@
         updateUserBadge();
         await loadRestaurantData();
         await loadMenuData();
-        // Vérifier s'il y a une commande en cours dans localStorage (compatibilité)
         const savedOrder = localStorage.getItem('pendingOrder');
         if (savedOrder) {
             try {
@@ -706,7 +769,7 @@
         }
     }
 
-    // ===== CHARGEMENT DES DONNÉES =====
+    // ===== CHARGEMENT DONNÉES =====
     async function loadRestaurantData() {
         try {
             const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
@@ -844,14 +907,12 @@
             });
 
             renderMenu();
-            // Écouter les changements en temps réel pour les statuts
             listenMenuUpdates();
         } catch (error) {
             document.getElementById('menuContainer').innerHTML = '<p>Erreur lors de la récupération du menu.</p>';
         }
     }
 
-    // Écouter les mises à jour des plats (statut, timer) en temps réel
     function listenMenuUpdates() {
         db.collection('menus').where('restaurantId', '==', restaurantId).onSnapshot(snapshot => {
             snapshot.docChanges().forEach(change => {
@@ -947,7 +1008,6 @@
             container.appendChild(card);
         });
 
-        // Mettre à jour les timers en temps réel toutes les secondes
         if (window.timerInterval) clearInterval(window.timerInterval);
         window.timerInterval = setInterval(() => {
             document.querySelectorAll('.menu-card .timer-countdown').forEach(el => {
@@ -983,6 +1043,7 @@
         renderMenu();
     }
 
+    // ===== MODALS =====
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openZoom(url) {
@@ -990,7 +1051,7 @@
         openModal('modalZoom');
     }
 
-    // ===== MODAL COMMANDE =====
+    // ===== COMMANDE =====
     function openOrderModal(platId) {
         const plat = allPlats.find(p => p.id === platId);
         if (!plat) return;
@@ -1021,7 +1082,6 @@
         document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
         document.getElementById('btnCash').style.background = '#f43f5e';
 
-        // Afficher les compléments
         const compContainer = document.getElementById('complementsContainer');
         const compCheckboxes = document.getElementById('complementsCheckboxes');
         if (plat.complements && plat.complements.length > 0) {
@@ -1125,7 +1185,7 @@
         }
     }
 
-    // ===== VALIDER LA COMMANDE =====
+    // ===== VALIDATION COMMANDE AVEC COMPTEUR SÉQUENTIEL =====
     async function validerCommande() {
         const table = document.getElementById('orderTable').value.trim();
         if (!table) {
@@ -1136,7 +1196,6 @@
         currentOrder.table = table;
         currentOrder.instructions = document.getElementById('orderInstructions').value.trim();
 
-        // Récupérer email et téléphone
         const email = document.getElementById('orderEmail').value.trim();
         let phone = document.getElementById('orderPhone').value.trim();
 
@@ -1146,14 +1205,12 @@
             return;
         }
 
-        // Si paiement Mobile Money, téléphone obligatoire
         if (currentOrder.paymentMode === 'mobile' && !phone) {
             alert('Veuillez renseigner votre numéro de téléphone pour le paiement Mobile Money.');
             document.getElementById('orderPhone').focus();
             return;
         }
 
-        // Calcul du montant final
         let baseTotal = currentOrder.prixBase * currentOrder.qty;
         const compTotal = currentOrder.complements.reduce((sum, c) => sum + c.prix, 0);
         baseTotal += compTotal * currentOrder.qty;
@@ -1164,7 +1221,6 @@
 
         if(finalAmount <= 0) return alert('Le montant calculé est invalide.');
 
-        // ---- CRÉATION / RÉCUPÉRATION DE L'UTILISATEUR ----
         let user;
         try {
             user = await ensureUser(email, phone);
@@ -1173,7 +1229,15 @@
             return;
         }
 
-        // Préparer l'objet commande
+        // Génération de la référence séquentielle (transaction)
+        let refNumber;
+        try {
+            refNumber = await generateOrderReference();
+        } catch (e) {
+            alert('Erreur lors de la génération de la référence. Veuillez réessayer.');
+            return;
+        }
+
         const orderData = {
             restaurantId: restaurantId,
             userId: user.userId,
@@ -1188,6 +1252,7 @@
             phone: phone || '',
             montant: finalAmount,
             status: 'en attente',
+            reference: refNumber,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             tempsEstime: null,
             startTime: null
@@ -1212,7 +1277,7 @@
             await db.collection('notifications').add({
                 restaurantId: restaurantId,
                 orderId: orderId,
-                message: `Nouvelle commande - Table ${table} - ${currentOrder.nom}`,
+                message: `Nouvelle commande ${refNumber} - Table ${table} - ${currentOrder.nom}`,
                 targetRole: 'Cuisine',
                 read: false,
                 type: 'new_order',
@@ -1221,7 +1286,7 @@
 
             showTracking(orderId);
             closeModal('modalOrder');
-            alert('Commande enregistrée avec succès ! Vous recevrez bientôt votre plat.');
+            alert(`Commande enregistrée avec succès ! Référence : ${refNumber}`);
 
         } catch (error) {
             console.error('Erreur lors de la commande :', error);
@@ -1232,49 +1297,127 @@
         }
     }
 
-    // ===== SUIVI DE COMMANDE =====
+    async function generateOrderReference() {
+        const counterRef = db.collection('counters').doc('orderCounter');
+        // Utiliser une transaction pour incrémenter de façon atomique
+        return await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(counterRef);
+            let newCount = 1;
+            if (doc.exists) {
+                newCount = (doc.data().count || 0) + 1;
+            }
+            transaction.set(counterRef, { count: newCount }, { merge: true });
+            return `ST-${String(newCount).padStart(6, '0')}`;
+        });
+    }
+
+    // ===== SUIVI DE COMMANDE AVEC COMPTE À REBOURS ET BARRE =====
     function showTracking(orderId) {
         const trackingDiv = document.getElementById('orderTracking');
         trackingDiv.style.display = 'block';
-        document.getElementById('trackRef').textContent = orderId.substring(0,8).toUpperCase();
+        trackingDiv.classList.remove('ready');
+        document.getElementById('trackRef').textContent = '...';
         document.getElementById('trackStatus').textContent = 'En attente';
         document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
         document.getElementById('trackStatusBadge').className = 'badge badge-warning';
         document.getElementById('trackStatusBadge').textContent = 'En attente';
+        document.getElementById('trackTimerContainer').style.display = 'none';
         listenOrderStatus(orderId);
     }
 
     function listenOrderStatus(orderId) {
+        // Annuler l'intervalle précédent
+        if (countdownInterval) clearInterval(countdownInterval);
+
         db.collection('orders').doc(orderId).onSnapshot(doc => {
             if (!doc.exists) return;
             const data = doc.data();
             const status = data.status || 'en attente';
+            const ref = data.reference || '---';
+            document.getElementById('trackRef').textContent = ref;
             document.getElementById('trackStatus').textContent = status;
-            if (status === 'en préparation') {
+
+            const trackingDiv = document.getElementById('orderTracking');
+            const timerContainer = document.getElementById('trackTimerContainer');
+
+            if (status === 'en préparation' && data.tempsEstime && data.startTime) {
+                // Afficher le timer
+                timerContainer.style.display = 'flex';
+                trackingDiv.classList.remove('ready');
                 document.getElementById('trackStatusBadge').className = 'badge badge-info';
                 document.getElementById('trackStatusBadge').textContent = 'En préparation';
-                if (data.tempsEstime) {
-                    document.getElementById('trackTime').textContent = `~${data.tempsEstime} min`;
-                }
+                document.getElementById('trackTime').textContent = `~${data.tempsEstime} min`;
+
+                // Démarrer le compte à rebours
+                startCountdown(data.startTime, data.tempsEstime);
+
             } else if (status === 'prêt') {
+                // Prêt : vert, barre à 100%, timer affiché avec 00:00
+                timerContainer.style.display = 'flex';
+                trackingDiv.classList.add('ready');
                 document.getElementById('trackStatusBadge').className = 'badge badge-success';
                 document.getElementById('trackStatusBadge').textContent = 'Prêt';
                 document.getElementById('trackTime').textContent = 'Prêt à être servi !';
+                // Arrêter le compte à rebours
+                if (countdownInterval) clearInterval(countdownInterval);
+                document.getElementById('trackCountdown').textContent = '00:00';
+                document.getElementById('trackProgressBar').style.width = '100%';
+                document.getElementById('trackPercent').textContent = '100%';
+
             } else if (status === 'terminé') {
+                timerContainer.style.display = 'flex';
+                trackingDiv.classList.remove('ready');
                 document.getElementById('trackStatusBadge').className = 'badge badge-success';
                 document.getElementById('trackStatusBadge').textContent = 'Terminé';
                 document.getElementById('trackTime').textContent = 'Commande terminée. Bon appétit !';
+                if (countdownInterval) clearInterval(countdownInterval);
+                document.getElementById('trackCountdown').textContent = '00:00';
+                document.getElementById('trackProgressBar').style.width = '100%';
+                document.getElementById('trackPercent').textContent = '100%';
             } else {
+                // En attente
+                timerContainer.style.display = 'none';
+                trackingDiv.classList.remove('ready');
                 document.getElementById('trackStatusBadge').className = 'badge badge-warning';
                 document.getElementById('trackStatusBadge').textContent = 'En attente';
+                document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
             }
         });
     }
 
+    function startCountdown(startTime, totalMinutes) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        const start = startTime.toDate ? startTime.toDate() : new Date(startTime);
+        const totalSeconds = totalMinutes * 60;
+
+        function update() {
+            const now = new Date();
+            const elapsed = (now - start) / 1000;
+            const remaining = Math.max(0, totalSeconds - elapsed);
+            const mins = Math.floor(remaining / 60);
+            const secs = Math.floor(remaining % 60);
+            document.getElementById('trackCountdown').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            const progress = Math.min(100, (elapsed / totalSeconds) * 100);
+            document.getElementById('trackProgressBar').style.width = `${progress}%`;
+            document.getElementById('trackPercent').textContent = `${Math.round(progress)}%`;
+
+            if (remaining <= 0) {
+                clearInterval(countdownInterval);
+                // On ne change pas le statut, c'est le listener qui mettra "prêt" si le statut change
+            }
+        }
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
     // ===== DEMANDE D'AIDE =====
     function requestHelp() {
-        const table = document.getElementById('orderTable').value || '';
-        document.getElementById('helpTable').value = table;
+        const tableInput = document.getElementById('helpTable');
+        if (currentUser && currentUser.phone) {
+            // On peut pré-remplir avec le numéro de table actuel s'il est connu
+        }
+        tableInput.value = document.getElementById('orderTable').value || '';
         openModal('modalHelp');
     }
 
@@ -1300,7 +1443,7 @@
         }
     }
 
-    // ===== AVIS CLIENTS =====
+    // ===== AVIS =====
     const stars = document.querySelectorAll('#starContainer i');
     stars.forEach(star => {
         star.addEventListener('click', function() {
@@ -1363,7 +1506,7 @@
         }
     }
 
-    // ===== Gestion des liens partagés (QR) =====
+    // ===== GESTION DES LIENS PARTAGÉS (QR) =====
     window.onload = function() {
         const platId = params.get('plat');
         const split = params.get('split');

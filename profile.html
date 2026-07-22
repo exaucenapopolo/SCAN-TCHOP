@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary: #e67e22;
+            --primary-hover: #cf6f1b;
+            --primary-light: #fef3e8;
+            --bg-color: #fdf8f4;
+            --text-main: #0b1a2e;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px 16px 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container { max-width: 800px; margin: 0 auto; flex: 1; width: 100%; }
+        
+        .profile-header {
+            background: #fff;
+            border-radius: 28px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 28px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), #f1c40f);
+        }
+        .profile-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .profile-header .sub {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        .btn-back {
+            background: var(--border-color);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-back:hover { background: #cbd5e1; transform: translateY(-2px); }
+
+        .profile-section {
+            background: #fff;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .profile-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-section h2 i { color: var(--primary); }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+            background: #f8fafc;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(230,126,34,0.1);
+            background: #fff;
+        }
+        .form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,126,34,0.3); }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .favorite-item {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .favorite-item:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
+        .favorite-item .resto-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        .favorite-item .plat-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .favorite-item .remove-fav {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            border-radius: 50px;
+            padding: 6px 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: flex-start;
+        }
+        .favorite-item .remove-fav:hover { background: #fecaca; transform: scale(1.05); }
+
+        .order-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .order-history-item {
+            background: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .order-history-item .ref { font-weight: 700; font-size: 0.9rem; color: var(--text-muted); }
+        .order-history-item .details { font-size: 0.95rem; }
+        .order-history-item .status {
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+        }
+        .order-history-item .status.en-attente { background: #fef3c7; color: #b45309; }
+        .order-history-item .status.en-preparation { background: #dbeafe; color: #1e40af; }
+        .order-history-item .status.pret { background: #d1fae5; color: #065f46; }
+        .order-history-item .status.termine { background: #e2e8f0; color: #475569; }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px 0;
+            font-weight: 500;
+        }
+
+        .footer-mini {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .profile-header h1 { font-size: 1.5rem; }
+            .favorites-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-header">
+            <h1><i class="fas fa-user-circle" style="color:var(--primary);"></i> Mon Profil</h1>
+            <p class="sub">Gérez vos informations personnelles et vos plats favoris</p>
+            <div class="profile-actions">
+                <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Retour au menu</a>
+                <button class="btn-save" id="btnLogout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Section Informations -->
+        <div class="profile-section">
+            <h2><i class="fas fa-id-card"></i> Informations personnelles</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profileEmail" disabled />
+            </div>
+            <div class="form-group">
+                <label>Nom affiché</label>
+                <input type="text" id="profileName" placeholder="Votre nom / pseudonyme" />
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="profilePhone" placeholder="Numéro de téléphone" />
+            </div>
+            <button class="btn-save" onclick="updateProfile()"><i class="fas fa-save"></i> Mettre à jour</button>
+        </div>
+
+        <!-- Section Favoris -->
+        <div class="profile-section">
+            <h2><i class="fas fa-heart" style="color:#ef4444;"></i> Mes plats favoris</h2>
+            <div id="favoritesContainer" class="favorites-grid">
+                <div class="empty-state">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Section Historique des commandes -->
+        <div class="profile-section">
+            <h2><i class="fas fa-history"></i> Historique des commandes</h2>
+            <div id="orderHistoryContainer">
+                <div class="empty-state">Chargement...</div>
+            </div>
+        </div>
+
+        <div class="footer-mini">
+            &copy; <span id="currentYear"></span> SCAN&TCHOP – Tous droits réservés.
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+            authDomain: "cinexau-903a6.firebaseapp.com",
+            projectId: "cinexau-903a6",
+            storageBucket: "cinexau-903a6.firebasestorage.app",
+            messagingSenderId: "247230931008",
+            appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userId = new URLSearchParams(window.location.search).get('userId');
+
+        async function loadUser() {
+            if (!userId) {
+                // Tenter de récupérer depuis localStorage
+                const stored = localStorage.getItem('scan_user');
+                if (stored) {
+                    try {
+                        const u = JSON.parse(stored);
+                        userId = u.userId;
+                    } catch(e) {}
+                }
+            }
+            if (!userId) {
+                document.querySelector('.profile-header h1').innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i> Aucun utilisateur connecté';
+                document.getElementById('profileEmail').placeholder = 'Non connecté';
+                document.querySelector('.profile-section .btn-save').style.display = 'none';
+                document.getElementById('favoritesContainer').innerHTML = '<div class="empty-state">Veuillez vous connecter pour voir vos favoris.</div>';
+                document.getElementById('orderHistoryContainer').innerHTML = '<div class="empty-state">Veuillez vous connecter pour voir votre historique.</div>';
+                return;
+            }
+
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (!doc.exists) {
+                    document.querySelector('.profile-header h1').innerHTML = 'Utilisateur introuvable';
+                    return;
+                }
+                const data = doc.data();
+                currentUser = { userId, ...data };
+                // Mettre à jour les champs
+                document.getElementById('profileEmail').value = data.email || '';
+                document.getElementById('profileName').value = data.displayName || '';
+                document.getElementById('profilePhone').value = data.phone || '';
+                // Sauvegarder dans localStorage pour cohérence
+                localStorage.setItem('scan_user', JSON.stringify(currentUser));
+
+                // Charger favoris et historique
+                loadFavorites(data.favorites || []);
+                loadOrderHistory();
+
+            } catch (e) {
+                console.error('Erreur chargement profil:', e);
+            }
+        }
+
+        async function loadFavorites(favorites) {
+            const container = document.getElementById('favoritesContainer');
+            if (!favorites || favorites.length === 0) {
+                container.innerHTML = '<div class="empty-state">Aucun plat favori pour le moment.</div>';
+                return;
+            }
+
+            // Récupérer les détails des plats
+            let items = [];
+            for (let fav of favorites) {
+                let restaurantId, platId;
+                if (typeof fav === 'object') {
+                    restaurantId = fav.restaurantId;
+                    platId = fav.platId;
+                } else {
+                    // ancien format (string) – on ne peut pas connaître le restaurant
+                    // On va l'ignorer ou tenter de le récupérer depuis le platId uniquement ? 
+                    // On ignore pour l'instant.
+                    continue;
+                }
+                if (!restaurantId || !platId) continue;
+                try {
+                    const platDoc = await db.collection('menus').doc(platId).get();
+                    if (!platDoc.exists) continue;
+                    const platData = platDoc.data();
+                    const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
+                    const restoName = restoDoc.exists ? restoDoc.data().nom : 'Restaurant inconnu';
+                    items.push({
+                        restaurantId,
+                        platId,
+                        platNom: platData.nom || 'Plat inconnu',
+                        restaurantNom: restoName,
+                        image: platData.image || ''
+                    });
+                } catch(e) {
+                    console.warn('Erreur chargement favori:', e);
+                }
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">Aucun favori valide trouvé.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'favorite-item';
+                div.innerHTML = `
+                    <div class="resto-name"><i class="fas fa-store"></i> ${item.restaurantNom}</div>
+                    <div class="plat-name">${item.platNom}</div>
+                    <button class="remove-fav" onclick="removeFavorite('${item.restaurantId}', '${item.platId}')">
+                        <i class="fas fa-trash-alt"></i> Retirer
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function removeFavorite(restaurantId, platId) {
+            if (!currentUser) return;
+            try {
+                const userRef = db.collection('users').doc(currentUser.userId);
+                const doc = await userRef.get();
+                let favorites = doc.data()?.favorites || [];
+                // Supprimer l'objet correspondant
+                favorites = favorites.filter(fav => {
+                    if (typeof fav === 'object') {
+                        return !(fav.restaurantId === restaurantId && fav.platId === platId);
+                    }
+                    return true;
+                });
+                await userRef.update({ favorites });
+                currentUser.favorites = favorites;
+                localStorage.setItem('scan_user', JSON.stringify(currentUser));
+                loadFavorites(favorites);
+            } catch (e) {
+                console.error('Erreur suppression favori:', e);
+                alert('Impossible de supprimer ce favori.');
+            }
+        }
+
+        async function loadOrderHistory() {
+            const container = document.getElementById('orderHistoryContainer');
+            if (!currentUser) {
+                container.innerHTML = '<div class="empty-state">Connectez-vous pour voir vos commandes.</div>';
+                return;
+            }
+            try {
+                const snapshot = await db.collection('orders')
+                    .where('userId', '==', currentUser.userId)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state">Aucune commande passée.</div>';
+                    return;
+                }
+                let html = '<div class="order-history-list">';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const status = data.status || 'en attente';
+                    const statusClass = status.replace(' ', '-').toLowerCase();
+                    const date = data.createdAt?.toDate?.() ? new Date(data.createdAt.toDate()).toLocaleDateString('fr-FR') : 'Date inconnue';
+                    html += `
+                        <div class="order-history-item">
+                            <div>
+                                <span class="ref">${data.reference || 'N/A'}</span>
+                                <span class="details">${data.platNom} (x${data.quantite}) – ${date}</span>
+                            </div>
+                            <span class="status ${statusClass}">${status}</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                console.error('Erreur historique:', e);
+                container.innerHTML = '<div class="empty-state">Erreur lors du chargement de l\'historique.</div>';
+            }
+        }
+
+        async function updateProfile() {
+            const name = document.getElementById('profileName').value.trim();
+            const phone = document.getElementById('profilePhone').value.trim();
+            if (!currentUser) return alert('Utilisateur non connecté.');
+
+            const updates = {};
+            if (name) updates.displayName = name;
+            if (phone) updates.phone = phone;
+
+            if (Object.keys(updates).length === 0) {
+                alert('Aucune modification à enregistrer.');
+                return;
+            }
+
+            try {
+                await db.collection('users').doc(currentUser.userId).update(updates);
+                // Mettre à jour localement
+                currentUser = { ...currentUser, ...updates };
+                localStorage.setItem('scan_user', JSON.stringify(currentUser));
+                alert('Profil mis à jour avec succès !');
+            } catch (e) {
+                console.error(e);
+                alert('Erreur lors de la mise à jour.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('scan_user');
+            // Rediriger vers la page d'accueil ou menu
+            window.location.href = 'index.html';
+        }
+
+        loadUser();
+    </script>
+</body>
+</html>
