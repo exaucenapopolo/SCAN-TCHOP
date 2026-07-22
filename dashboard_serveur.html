@@ -202,12 +202,8 @@
     <div class="modal-box">
       <button class="modal-close" id="modalCloseBtn">&times;</button>
       <div class="modal-title" id="modalTitle">Notification</div>
-      <div class="modal-body" id="modalBody">
-        <!-- Contenu dynamique -->
-      </div>
-      <div class="modal-actions" id="modalActions">
-        <!-- Boutons dynamiques -->
-      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
     </div>
   </div>
 
@@ -391,6 +387,33 @@
     const db = firebase.firestore();
 
     // ============================================================
+    //  GLOBAL STATE
+    // ============================================================
+    let currentUser = null;
+    let currentRestaurantId = null;
+
+    // Listes complètes des commandes (objets avec id)
+    let readyOrders = [];        // status === 'prêt'
+    let waitingOrders = [];      // status === 'en_attente'
+    let servedOrders = [];       // status === 'terminé' (pour historique)
+
+    // Suivi des IDs déjà alertés
+    let acknowledgedOrderIds = new Set();
+    let knownHelpRequests = [];
+
+    // Timers pour les délais (file d'attente)
+    let waitingTimers = new Map(); // orderId -> { intervalId, remainingSeconds }
+
+    // Audio
+    let audioCtx = null;
+    let selectedVoiceName = 'sonnerie';
+    let alertMode = 'sonnerie';
+    let repeatIntervalSec = 8;
+    let alertIntervalId = null;
+    let availableVoices = [];
+    let isAlerting = false;
+
+    // ============================================================
     //  UI HELPERS
     // ============================================================
     function showToast(message, type = 'success') {
@@ -474,16 +497,6 @@
     // ============================================================
     //  AUDIO & ALERTES (avec répétition)
     // ============================================================
-    let audioCtx = null;
-    let selectedVoiceName = 'sonnerie';
-    let alertMode = 'sonnerie';
-    let repeatIntervalSec = 8;
-    let alertIntervalId = null;
-    let availableVoices = [];
-    let isAlerting = false;
-    // Set des IDs de commandes prêtes déjà accusées (pour ne pas rejouer l'alerte)
-    let acknowledgedOrderIds = new Set();
-
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
@@ -522,7 +535,6 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // Fonction pour déclencher l'alerte avec un message personnalisé
     function triggerAlert(message) {
       if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
         playDingDong();
@@ -536,7 +548,6 @@
       }
     }
 
-    // Confirmation d'action (voix ou son)
     function playConfirmation(message) {
       if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
         playDingDong();
@@ -550,21 +561,25 @@
       }
     }
 
+    function stopAlert() {
+      if (alertIntervalId) {
+        clearInterval(alertIntervalId);
+        alertIntervalId = null;
+      }
+      isAlerting = false;
+      window.speechSynthesis.cancel();
+    }
+
     function startAlertRepeat() {
       if (alertIntervalId) return;
       isAlerting = true;
       alertIntervalId = setInterval(() => {
-        // Récupérer les commandes prêtes non accusées
-        const readyElements = document.querySelectorAll('#readyOrdersContainer .ticket');
-        const readyTables = [];
-        readyElements.forEach(el => {
-          const tableEl = el.querySelector('.ticket-table');
-          if (tableEl) {
-            const num = tableEl.textContent.replace('Table ', '').trim();
-            if (num && !el.dataset.acknowledged) readyTables.push(num);
-          }
-        });
-        // Demandes d'aide non résolues
+        // Récupérer les tables des commandes prêtes non accusées
+        const readyTables = readyOrders
+          .filter(o => !acknowledgedOrderIds.has(o.id))
+          .map(o => o.table || o.tableNumber || '?')
+          .filter(t => t !== '?');
+        // Demandes d'aide en attente
         const helpElements = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
         const helpTables = [];
         helpElements.forEach(el => {
@@ -574,7 +589,7 @@
             if (num) helpTables.push(num);
           }
         });
-        // Commandes en attente avec délai expiré
+        // Délais expirés (on recherche les éléments avec .countdown.expired)
         const expiredElements = document.querySelectorAll('#waitingOrdersContainer .ticket .countdown.expired');
         const expiredTables = [];
         expiredElements.forEach(el => {
@@ -601,26 +616,15 @@
         if (msg) triggerAlert(msg);
         else {
           // Si plus rien, on arrête
-          const nbReady = document.getElementById('readyBadge').textContent;
-          const nbHelp = document.getElementById('helpBadge').textContent;
-          const nbWaiting = document.getElementById('waitingBadge').textContent;
-          if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0 && parseInt(nbWaiting) === 0) {
+          const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          const pendingHelp = document.getElementById('helpBadge').textContent;
+          if (pendingReady === 0 && parseInt(pendingHelp) === 0) {
             stopAlert();
           }
         }
       }, repeatIntervalSec * 1000);
     }
 
-    function stopAlert() {
-      if (alertIntervalId) {
-        clearInterval(alertIntervalId);
-        alertIntervalId = null;
-      }
-      isAlerting = false;
-      window.speechSynthesis.cancel();
-    }
-
-    // Appelé quand une nouvelle notification non traitée arrive (avec message vocal)
     function onNewNotification(message) {
       if (message) triggerAlert(message);
       if (!isAlerting) {
@@ -661,52 +665,33 @@
     }
 
     // ============================================================
-    //  AUTH & STATE
+    //  AUTH
     // ============================================================
-    let currentUser = null;
-    let currentRestaurantId = null;
-    let knownReadyOrders = [];
-    let knownWaitingOrders = [];
-    let knownHelpRequests = [];
-    // Map pour les délais des commandes en attente : orderId -> { delayMinutes, remainingSeconds, intervalId }
-    let waitingTimers = new Map();
-
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'connexion.html'; return; }
       currentUser = user;
-      
       const userDoc = await db.collection('users').doc(user.uid).get();
       if (!userDoc.exists) { auth.signOut(); return; }
-      
       const userData = userDoc.data();
-      if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') { 
-        showToast('Accès réservé aux serveurs.', 'error'); auth.signOut(); return; 
+      if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') {
+        showToast('Accès réservé aux serveurs.', 'error');
+        auth.signOut();
+        return;
       }
-      
       currentRestaurantId = userData.restaurantId;
-      
       const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
-      if (restoDoc.exists) {
-        document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
-      }
-
-      // Préférences
+      if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
       const prefs = userData.preferences || {};
       alertMode = prefs.alertMode || 'sonnerie';
       repeatIntervalSec = prefs.repeatInterval || 8;
       selectedVoiceName = prefs.voiceName || 'sonnerie';
-      
       document.getElementById('alertMode').value = alertMode;
       document.getElementById('repeatInterval').value = repeatIntervalSec;
-      setTimeout(() => { 
-        document.getElementById('voiceSelect').value = selectedVoiceName; 
-      }, 1000);
-
+      setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
       // Lancer les écouteurs
       listenOrders();
       listenHelpRequests();
       listenTips();
-      // Charger l'historique
       loadHistory(null);
     });
 
@@ -720,155 +705,97 @@
       const newMode = document.getElementById('alertMode').value;
       let newInterval = parseInt(document.getElementById('repeatInterval').value) || 8;
       const newVoice = document.getElementById('voiceSelect').value;
-
       if (newInterval < 3) newInterval = 3;
       if (newInterval > 60) newInterval = 60;
-
       try {
         await db.collection('users').doc(currentUser.uid).update({
           'preferences.alertMode': newMode,
           'preferences.repeatInterval': newInterval,
           'preferences.voiceName': newVoice
         });
-        alertMode = newMode;
-        repeatIntervalSec = newInterval;
-        selectedVoiceName = newVoice;
+        alertMode = newMode; repeatIntervalSec = newInterval; selectedVoiceName = newVoice;
         showToast('Paramètres sauvegardés', 'success');
-
         const confirmMsg = 'Paramètres mis à jour.';
-        if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
-          playDingDong();
-        }
-        if (alertMode === 'voix' || alertMode === 'lesdeux') {
-          speak(confirmMsg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
-        }
-
-        // Redémarrer l'alerte si nécessaire
-        if (isAlerting) {
-          stopAlert();
-          const nbReady = document.getElementById('readyBadge').textContent;
-          const nbHelp = document.getElementById('helpBadge').textContent;
-          const nbWaiting = document.getElementById('waitingBadge').textContent;
-          if (parseInt(nbReady) > 0 || parseInt(nbHelp) > 0 || parseInt(nbWaiting) > 0) {
-            startAlertRepeat();
-          }
-        }
+        if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
+        if (alertMode === 'voix' || alertMode === 'lesdeux') speak(confirmMsg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
+        if (isAlerting) { stopAlert(); if (readyOrders.length > 0 || waitingOrders.length > 0) startAlertRepeat(); }
       } catch(err) { showToast('Erreur de sauvegarde', 'error'); }
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (prêtes, en attente, servies)
+    //  ÉCOUTE DES COMMANDES (ORDERS)
     // ============================================================
     function listenOrders() {
-      const today = new Date();
-      today.setHours(0,0,0,0);
-
+      if (!currentRestaurantId) return;
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .onSnapshot(snapshot => {
-          const ordersReady = [];
-          const ordersWaiting = [];
-          const ordersServed = [];
-
+          const newReady = [];
+          const newWaiting = [];
+          const newServed = [];
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
             const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
+            const today = new Date(); today.setHours(0,0,0,0);
             if (orderDate >= today) {
               if (order.status === 'prêt') {
-                ordersReady.push(order);
-                // Nouvelle commande prête non encore accusée ?
-                if (!knownReadyOrders.includes(order.id) && !acknowledgedOrderIds.has(order.id)) {
-                  knownReadyOrders.push(order.id);
-                  // Afficher la modale
+                newReady.push(order);
+                // Détection de nouvelle commande prête non encore accusée
+                if (!acknowledgedOrderIds.has(order.id) && !readyOrders.some(o => o.id === order.id)) {
                   showReadyOrderModal(order);
-                  // Alerter avec voix
                   const tableNum = order.table || order.tableNumber || '?';
                   const msg = `Commande prête pour la table ${tableNum}`;
-                  onNewNotification(msg);
+                  triggerAlert(msg);
                   showToast(`Table ${tableNum} est prête !`, 'warning');
+                  if (!isAlerting) startAlertRepeat();
                 }
               } else if (order.status === 'en_attente') {
-                ordersWaiting.push(order);
-                if (!knownWaitingOrders.includes(order.id)) {
-                  knownWaitingOrders.push(order.id);
-                  // Pas d'alerte pour la file d'attente, juste un affichage
-                }
+                newWaiting.push(order);
               } else if (order.status === 'terminé') {
-                ordersServed.push(order);
-                // Retirer des listes
-                const idxReady = knownReadyOrders.indexOf(order.id);
-                if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
-                const idxWait = knownWaitingOrders.indexOf(order.id);
-                if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
-                acknowledgedOrderIds.delete(order.id);
-                // Nettoyer les timers
-                if (waitingTimers.has(order.id)) {
-                  clearInterval(waitingTimers.get(order.id).intervalId);
-                  waitingTimers.delete(order.id);
-                }
-              } else if (order.status === 'en_cours') {
-                // On les retire des listes si elles y étaient
-                const idxReady = knownReadyOrders.indexOf(order.id);
-                if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
-                const idxWait = knownWaitingOrders.indexOf(order.id);
-                if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
-                acknowledgedOrderIds.delete(order.id);
-                if (waitingTimers.has(order.id)) {
-                  clearInterval(waitingTimers.get(order.id).intervalId);
-                  waitingTimers.delete(order.id);
-                }
+                newServed.push(order);
               }
             }
           });
-
-          // Mise à jour des badges
-          const readyBadge = document.getElementById('readyBadge');
-          const pendingReady = ordersReady.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-          readyBadge.textContent = pendingReady;
-          if (pendingReady > 0) readyBadge.classList.add('show');
-          else readyBadge.classList.remove('show');
-
-          const waitingBadge = document.getElementById('waitingBadge');
-          waitingBadge.textContent = ordersWaiting.length;
-          if (ordersWaiting.length > 0) waitingBadge.classList.add('show');
-          else waitingBadge.classList.remove('show');
-
-          document.getElementById('waitingCount').textContent = `${ordersWaiting.length} en attente`;
-
-          renderOrdersToServe(ordersReady);
-          renderWaitingOrders(ordersWaiting);
-          // L'historique est géré séparément
+          // Mise à jour des listes globales
+          readyOrders = newReady;
+          waitingOrders = newWaiting;
+          // Badges
+          const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          document.getElementById('readyBadge').textContent = pendingReady;
+          document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
+          document.getElementById('waitingBadge').textContent = waitingOrders.length;
+          document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
+          document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
+          // Rendu
+          renderReadyOrders();
+          renderWaitingOrders();
         });
     }
 
     // ============================================================
     //  RENDU DES COMMANDES PRÊTES
     // ============================================================
-    function renderOrdersToServe(orders) {
+    function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
-      if (orders.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
-          <i class="fas fa-check-circle fa-3x" style="opacity:0.2; margin-bottom:15px; color:var(--success);"></i>
+      if (readyOrders.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
+          <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
           <p>Super ! Aucune commande en attente.</p>
         </div>`;
         return;
       }
-
       container.innerHTML = '';
-      orders.forEach(order => {
+      readyOrders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        const isNew = !acknowledgedOrderIds.has(order.id) && knownReadyOrders.includes(order.id);
-        
-        let itemsHtml = order.items ? order.items.map(item => {
-          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" />` : '';
-          return `<li>${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        const isNew = !acknowledgedOrderIds.has(order.id);
+        const itemsHtml = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
+          return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
         }).join('') : '<li>Détails non disponibles</li>';
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
-
         let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
         let paymentStatusHtml = '';
         let confirmBtnHtml = '';
-
         if (order.paymentMode === 'cash') {
           if (order.paymentConfirmed) {
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
@@ -879,66 +806,63 @@
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
-
-        const ticketHtml = `
-          <div class="ticket ${isNew ? 'new-ready' : ''}" data-acknowledged="${acknowledgedOrderIds.has(order.id) ? 'true' : 'false'}">
-            <div class="ticket-header">
-              <div class="ticket-table">Table ${tableNum}</div>
-              <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
-            </div>
-            ${instructions}
-            <ul class="ticket-items">${itemsHtml}</ul>
-            <div class="payment-status">
-              Moyen: ${paymentBadge}
-              ${paymentStatusHtml}
-            </div>
-            <div class="ticket-footer" style="margin-top: 15px;">
-              ${confirmBtnHtml}
-              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
-              <button class="btn btn-warning" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-              <button class="btn btn-outline-secondary" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
-            </div>
+        const ticket = document.createElement('div');
+        ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
+        ticket.dataset.acknowledged = acknowledgedOrderIds.has(order.id) ? 'true' : 'false';
+        ticket.innerHTML = `
+          <div class="ticket-header">
+            <div class="ticket-table">Table ${tableNum}</div>
+            <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
+          </div>
+          ${instructions}
+          <ul class="ticket-items">${itemsHtml}</ul>
+          <div class="payment-status">
+            Moyen: ${paymentBadge}
+            ${paymentStatusHtml}
+          </div>
+          <div class="ticket-footer" style="margin-top:15px;">
+            ${confirmBtnHtml}
+            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
+            <button class="btn btn-warning" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+            <button class="btn btn-outline-secondary" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
           </div>
         `;
-        container.innerHTML += ticketHtml;
+        container.appendChild(ticket);
       });
     }
 
     // ============================================================
     //  RENDU DES COMMANDES EN ATTENTE
     // ============================================================
-    function renderWaitingOrders(orders) {
+    function renderWaitingOrders() {
       const container = document.getElementById('waitingOrdersContainer');
-      if (orders.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
-          <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+      if (waitingOrders.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
+          <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
           <p>Aucune commande en file d'attente.</p>
         </div>`;
         return;
       }
-
       container.innerHTML = '';
-      orders.forEach(order => {
+      waitingOrders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        let itemsHtml = order.items ? order.items.map(item => {
-          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" />` : '';
-          return `<li>${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        const itemsHtml = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
+          return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
         }).join('') : '<li>Détails non disponibles</li>';
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
-        // Calcul du temps d'attente
+        // Temps d'attente
         const waitingSince = order.waitingAt ? order.waitingAt.toDate() : order.createdAt.toDate();
-        const now = new Date();
-        const diffMs = now - waitingSince;
+        const diffMs = Date.now() - waitingSince.getTime();
         const diffMin = Math.floor(diffMs / 60000);
-        let ageClass = '';
-        let ageLabel = '';
-        if (diffMin < 2) { ageClass = 'green'; ageLabel = 'Récent'; }
-        else if (diffMin < 5) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
-        else if (diffMin < 10) { ageClass = 'orange'; ageLabel = 'Ancien'; }
-        else { ageClass = 'red'; ageLabel = 'Très ancien'; }
+        let ageClass = 'green';
+        let ageLabel = 'Récent';
+        if (diffMin >= 2 && diffMin < 5) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
+        else if (diffMin >= 5 && diffMin < 10) { ageClass = 'orange'; ageLabel = 'Ancien'; }
+        else if (diffMin >= 10) { ageClass = 'red'; ageLabel = 'Très ancien'; }
 
-        // Gestion du délai
+        // Délai
         let timerInfo = waitingTimers.get(order.id);
         let countdownHtml = '';
         let delayHtml = '';
@@ -965,27 +889,25 @@
           `;
         }
 
-        const ticketHtml = `
-          <div class="ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}">
-            <div class="ticket-header">
-              <div class="ticket-table" style="background:#e0f2fe; color:#0369a1;">Table ${tableNum}</div>
-              <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
-            </div>
-            ${instructions}
-            <ul class="ticket-items">${itemsHtml}</ul>
-            <div class="waiting-timer">
-              <span class="time-badge ${ageClass}">⏱ ${ageLabel} (${diffMin} min)</span>
-            </div>
-            <div style="margin-top: 10px;">
-              ${delayHtml}
-            </div>
-            <div class="ticket-footer" style="margin-top: 15px;">
-              <button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
-            </div>
+        const ticket = document.createElement('div');
+        ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
+        ticket.innerHTML = `
+          <div class="ticket-header">
+            <div class="ticket-table" style="background:#e0f2fe;color:#0369a1;">Table ${tableNum}</div>
+            <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
+          </div>
+          ${instructions}
+          <ul class="ticket-items">${itemsHtml}</ul>
+          <div class="waiting-timer">
+            <span class="time-badge ${ageClass}">⏱ ${ageLabel} (${diffMin} min)</span>
+          </div>
+          <div style="margin-top:10px;">${delayHtml}</div>
+          <div class="ticket-footer" style="margin-top:15px;">
+            <button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
           </div>
         `;
-        container.innerHTML += ticketHtml;
+        container.appendChild(ticket);
       });
     }
 
@@ -994,24 +916,21 @@
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
-        // Marquer comme prise en charge (acknowledged) sans changer le statut
-        acknowledgedOrderIds.add(orderId);
-        // On peut stocker dans Firestore un champ 'acknowledgedAt' pour info
         await db.collection('orders').doc(orderId).update({
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
           acknowledgedBy: currentUser.uid
         });
+        acknowledgedOrderIds.add(orderId);
         showToast('Commande prise en charge !', 'success');
         playConfirmation('Commande prise en charge.');
         closeModal();
-        // Vérifier s'il reste des notifications non accusées
-        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+        renderReadyOrders();
+        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
+        if (pendingReady === 0 && pendingHelp === 0) {
           stopAlert();
-        } else {
-          // On relance l'alerte si nécessaire
-          if (!isAlerting) startAlertRepeat();
+        } else if (!isAlerting) {
+          startAlertRepeat();
         }
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
@@ -1027,20 +946,12 @@
         });
         showToast('Commande mise en file d\'attente.', 'info');
         playConfirmation('Commande mise en file d\'attente.');
-        const idxReady = knownReadyOrders.indexOf(orderId);
-        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
         acknowledgedOrderIds.delete(orderId);
-        // Nettoyer le timer si existant
         if (waitingTimers.has(orderId)) {
           clearInterval(waitingTimers.get(orderId).intervalId);
           waitingTimers.delete(orderId);
         }
         closeModal();
-        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
-        }
       } catch (error) {
         showToast('Erreur lors de la mise en file d\'attente', 'error');
         console.error(error);
@@ -1048,11 +959,9 @@
     };
 
     window.confirmerPaiement = async function(orderId) {
-      if(confirm("Confirmez-vous avoir reçu l'argent en espèces pour cette commande ?")) {
+      if (confirm("Confirmez-vous avoir reçu l'argent en espèces pour cette commande ?")) {
         try {
-          await db.collection('orders').doc(orderId).update({
-            paymentConfirmed: true
-          });
+          await db.collection('orders').doc(orderId).update({ paymentConfirmed: true });
           showToast('Paiement confirmé !', 'success');
           playConfirmation('Paiement confirmé.');
         } catch (error) {
@@ -1063,8 +972,8 @@
     };
 
     window.marquerCommeServi = async function(orderId) {
-      const orderDoc = await db.collection('orders').doc(orderId).get();
-      const order = orderDoc.data();
+      const doc = await db.collection('orders').doc(orderId).get();
+      const order = doc.data();
       if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
         if (!confirm('Cette commande est en espèces et n\'a pas encore été encaissée. Voulez-vous la marquer comme servie quand même ?')) {
           return;
@@ -1077,22 +986,12 @@
         });
         showToast('Commande marquée comme servie !', 'success');
         playConfirmation('Commande servie.');
-        const idxReady = knownReadyOrders.indexOf(orderId);
-        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
-        const idxWait = knownWaitingOrders.indexOf(orderId);
-        if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
         acknowledgedOrderIds.delete(orderId);
         if (waitingTimers.has(orderId)) {
           clearInterval(waitingTimers.get(orderId).intervalId);
           waitingTimers.delete(orderId);
         }
         closeModal();
-        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
-        }
-        // Recharger l'historique
         loadHistory(document.getElementById('historyDateFilter').value || null);
       } catch (error) {
         showToast('Erreur lors de la mise à jour', 'error');
@@ -1105,57 +1004,42 @@
     // ============================================================
     window.definirDelai = function(orderId) {
       const input = document.getElementById('delayInput_' + orderId);
+      if (!input) { showToast('Erreur : champ introuvable', 'error'); return; }
       const minutes = parseInt(input.value) || 5;
       if (minutes <= 0) { alert('Veuillez entrer un nombre de minutes valide.'); return; }
-      
-      // Si un timer existe déjà, on le supprime
       if (waitingTimers.has(orderId)) {
         clearInterval(waitingTimers.get(orderId).intervalId);
         waitingTimers.delete(orderId);
       }
-
-      const remainingSeconds = minutes * 60;
+      const totalSec = minutes * 60;
+      let remaining = totalSec;
       const timerObj = {
-        remainingSeconds: remainingSeconds,
-        intervalId: null,
-        expired: false
+        remainingSeconds: remaining,
+        intervalId: null
       };
-
-      // Fonction de mise à jour du compte à rebours
-      const updateCountdown = () => {
-        timerObj.remainingSeconds--;
-        if (timerObj.remainingSeconds <= 0) {
-          timerObj.remainingSeconds = 0;
-          timerObj.expired = true;
+      const update = () => {
+        remaining--;
+        timerObj.remainingSeconds = remaining;
+        if (remaining <= 0) {
           clearInterval(timerObj.intervalId);
-          // Déclencher une alerte
-          const tableNum = document.querySelector(`#waitingOrdersContainer .ticket .ticket-table`); // On récupérera mieux
-          // On va plutôt récupérer la table depuis l'ordre
-          db.collection('orders').doc(orderId).get().then(doc => {
-            if (doc.exists) {
-              const order = doc.data();
-              const table = order.table || order.tableNumber || '?';
-              const msg = `Délai écoulé pour la table ${table}`;
-              triggerAlert(msg);
-              showToast(`⚠️ Délai écoulé pour la table ${table}`, 'warning');
-            }
-          });
-          // On relance l'alerte répétitive si elle n'est pas active
+          timerObj.remainingSeconds = 0;
+          // Alerter
+          const order = waitingOrders.find(o => o.id === orderId);
+          const table = order ? (order.table || order.tableNumber || '?') : '?';
+          const msg = `Délai écoulé pour la table ${table}`;
+          triggerAlert(msg);
+          showToast(`⚠️ Délai écoulé pour la table ${table}`, 'warning');
           if (!isAlerting) startAlertRepeat();
-          // Mettre à jour l'affichage
-          renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+          renderWaitingOrders();
+        } else {
+          renderWaitingOrders();
         }
-        // Mettre à jour l'affichage du compteur
-        const ticket = document.querySelector(`#waitingOrdersContainer .ticket`); // On raffraîchira tout
-        renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
       };
-
-      timerObj.intervalId = setInterval(updateCountdown, 1000);
+      timerObj.intervalId = setInterval(update, 1000);
       waitingTimers.set(orderId, timerObj);
       showToast(`Délai de ${minutes} min défini pour cette commande.`, 'info');
       playConfirmation(`Délai de ${minutes} minutes défini.`);
-      // Rafraîchir l'affichage
-      renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+      renderWaitingOrders();
     };
 
     window.annulerDelai = function(orderId) {
@@ -1163,7 +1047,7 @@
         clearInterval(waitingTimers.get(orderId).intervalId);
         waitingTimers.delete(orderId);
         showToast('Délai annulé.', 'info');
-        renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+        renderWaitingOrders();
       }
     };
 
@@ -1172,12 +1056,11 @@
     // ============================================================
     function showReadyOrderModal(order) {
       const tableNum = order.table || order.tableNumber || '?';
-      let itemsHtml = order.items ? order.items.map(item => {
+      const itemsHtml = order.items ? order.items.map(item => {
         const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" />` : '';
         return `<li style="display:flex;align-items:center;gap:10px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
       }).join('') : '<li>Détails non disponibles</li>';
       const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
-
       let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
       let paymentStatusHtml = '';
       if (order.paymentMode === 'cash') {
@@ -1185,26 +1068,23 @@
       } else {
         paymentStatusHtml = '<span class="badge badge-paid">Payé en ligne</span>';
       }
-
       const bodyHTML = `
         <div style="margin-bottom:12px;"><strong><i class="fas fa-chair"></i> Table ${tableNum}</strong></div>
         ${instructions}
-        <ul style="list-style:none; padding:0;">${itemsHtml}</ul>
-        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+        <ul style="list-style:none;padding:0;">${itemsHtml}</ul>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;">
           <span>${paymentBadge}</span>
           <span>${paymentStatusHtml}</span>
         </div>
-        <div style="margin-top:12px; font-size:0.9rem; color:var(--text-muted);">
+        <div style="margin-top:12px;font-size:0.9rem;color:var(--text-muted);">
           <i class="fas fa-clock"></i> ${order.createdAt ? new Date(order.createdAt.seconds*1000).toLocaleTimeString() : ''}
         </div>
       `;
-
       const actionsHTML = `
         <button class="btn btn-success" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
         <button class="btn btn-warning" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
         <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
       `;
-
       openModal('🍽️ Commande prête !', bodyHTML, actionsHTML);
     }
 
@@ -1212,6 +1092,7 @@
     //  ÉCOUTE DES DEMANDES D'AIDE
     // ============================================================
     function listenHelpRequests() {
+      if (!currentRestaurantId) return;
       db.collection('notifications')
         .where('restaurantId', '==', currentRestaurantId)
         .where('targetRole', '==', 'Serveur')
@@ -1220,12 +1101,9 @@
           const requests = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'resolved') {
-              requests.push({ id: doc.id, ...data });
-            }
+            if (data.status !== 'resolved') requests.push({ id: doc.id, ...data });
           });
           requests.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
           const currentIds = requests.map(r => r.id);
           const newIds = currentIds.filter(id => !knownHelpRequests.includes(id));
           if (newIds.length > 0) {
@@ -1234,20 +1112,16 @@
               showHelpModal(latest);
               const table = latest.table || '?';
               const msg = `Demande d'aide de la table ${table}`;
-              onNewNotification(msg);
+              triggerAlert(msg);
               showToast(`Demande d'aide de la table ${table}`, 'info');
+              if (!isAlerting) startAlertRepeat();
             }
             newIds.forEach(id => knownHelpRequests.push(id));
           }
-
-          const badge = document.getElementById('helpBadge');
-          const pendingCount = requests.filter(r => r.status === 'pending' || !r.status).length;
-          badge.textContent = pendingCount;
-          if (pendingCount > 0) badge.classList.add('show');
-          else badge.classList.remove('show');
-
-          document.getElementById('helpPendingCount').textContent = `${pendingCount} en attente`;
-
+          const pending = requests.filter(r => r.status === 'pending' || !r.status).length;
+          document.getElementById('helpBadge').textContent = pending;
+          document.getElementById('helpBadge').classList.toggle('show', pending > 0);
+          document.getElementById('helpPendingCount').textContent = `${pending} en attente`;
           renderHelpRequests(requests);
         });
     }
@@ -1258,13 +1132,11 @@
         container.innerHTML = `<p style="color:var(--text-muted);">Aucune demande d'aide.</p>`;
         return;
       }
-
       container.innerHTML = '';
       requests.forEach(req => {
         const status = req.status || 'pending';
         const statusBadge = status === 'pending' ? 'badge-pending' : (status === 'accepted' ? 'badge-accepted' : 'badge-resolved');
         const statusLabel = status === 'pending' ? 'En attente' : (status === 'accepted' ? 'Prise en charge' : 'Résolu');
-
         const card = document.createElement('div');
         card.className = `help-request-card ${status === 'accepted' ? 'accepted' : ''}`;
         card.innerHTML = `
@@ -1278,7 +1150,7 @@
             ${status === 'accepted' ? `<button class="btn btn-success" onclick="resolveHelp('${req.id}')"><i class="fas fa-check"></i> Résoudre</button>` : ''}
             ${status === 'pending' ? `<button class="btn btn-outline-secondary" onclick="resolveHelp('${req.id}')"><i class="fas fa-times"></i> Ignorer (résolu)</button>` : ''}
           </div>
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">
             ${req.createdAt ? new Date(req.createdAt.seconds * 1000).toLocaleTimeString() : ''}
           </div>
         `;
@@ -1300,12 +1172,12 @@
         playConfirmation('Demande d\'aide prise en charge.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
-        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+        closeModal();
+        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
+        if (pendingReady === 0 && pendingHelp === 0) {
           stopAlert();
         }
-        closeModal();
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -1322,12 +1194,12 @@
         playConfirmation('Demande d\'aide résolue.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
-        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+        closeModal();
+        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
+        if (pendingReady === 0 && pendingHelp === 0) {
           stopAlert();
         }
-        closeModal();
       } catch (error) {
         showToast('Erreur lors de la résolution', 'error');
         console.error(error);
@@ -1342,8 +1214,8 @@
       const message = request.message || 'Le client a besoin d\'aide.';
       const bodyHTML = `
         <div style="margin-bottom:12px;"><strong><i class="fas fa-chair"></i> Table ${table}</strong></div>
-        <div style="padding:12px; background:#f8f9fa; border-radius:10px; margin:12px 0;">${message}</div>
-        <div style="font-size:0.85rem; color:var(--text-muted);">
+        <div style="padding:12px;background:#f8f9fa;border-radius:10px;margin:12px 0;">${message}</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">
           <i class="fas fa-clock"></i> ${request.createdAt ? new Date(request.createdAt.seconds*1000).toLocaleTimeString() : ''}
         </div>
       `;
@@ -1356,13 +1228,10 @@
     }
 
     // ============================================================
-    //  HISTORIQUE AVEC FILTRES (côté client)
+    //  HISTORIQUE AVEC FILTRES
     // ============================================================
-    let allServedOrders = [];
-
     function loadHistory(dateFilter) {
       if (!currentRestaurantId) return;
-      // Récupérer toutes les commandes terminées du restaurant
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .where('status', '==', 'terminé')
@@ -1370,7 +1239,6 @@
         .then(snapshot => {
           const orders = [];
           snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-          // Filtrer par date si fournie
           let filtered = orders;
           if (dateFilter) {
             const start = new Date(dateFilter + 'T00:00:00');
@@ -1380,23 +1248,18 @@
               return served && served >= start && served <= end;
             });
           } else {
-            // Aujourd'hui
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate()+1);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
             filtered = orders.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= today && served < tomorrow;
             });
           }
-          // Trier par date décroissante
           filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
-          allServedOrders = filtered;
           renderHistory(filtered);
         })
         .catch(err => {
-          showToast('Erreur lors du chargement de l\'historique', 'error');
+          showToast('Erreur chargement historique', 'error');
           console.error(err);
         });
     }
@@ -1404,10 +1267,9 @@
     function renderHistory(orders) {
       const container = document.getElementById('historyOrdersContainer');
       if (orders.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1 / -1;">Aucune commande servie dans cette période.</p>`;
+        container.innerHTML = `<p style="color:var(--text-muted);grid-column:1/-1;">Aucune commande servie dans cette période.</p>`;
         return;
       }
-
       container.innerHTML = '';
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
@@ -1419,23 +1281,22 @@
         const paymentMode = order.paymentMode === 'cash' ? 'Espèces' : 'Mobile';
         const servedAt = order.servedAt ? new Date(order.servedAt.seconds*1000).toLocaleString() : 'N/A';
         const tip = order.tip || 0;
-
         const card = document.createElement('div');
         card.className = 'ticket';
         card.style.borderTopColor = 'var(--text-muted)';
         card.style.opacity = '0.85';
         card.innerHTML = `
           <div class="ticket-header">
-            <div class="ticket-table" style="background:#ecf0f1; color:var(--text-muted);">Table ${tableNum}</div>
+            <div class="ticket-table" style="background:#ecf0f1;color:var(--text-muted);">Table ${tableNum}</div>
             <div class="ticket-time" style="color:var(--success);"><i class="fas fa-check"></i> Servi</div>
           </div>
           <ul class="ticket-items">${itemsList}</ul>
-          <div style="display:flex; justify-content:space-between; font-weight:600; margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;font-weight:600;margin-top:8px;">
             <span>Total : ${total} FCFA</span>
             <span>Paiement : ${paymentMode}</span>
           </div>
-          ${tip > 0 ? `<div style="color:var(--primary); font-weight:600;"><i class="fas fa-hand-holding-usd"></i> Pourboire : ${tip} FCFA</div>` : ''}
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+          ${tip > 0 ? `<div style="color:var(--primary);font-weight:600;"><i class="fas fa-hand-holding-usd"></i> Pourboire : ${tip} FCFA</div>` : ''}
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">
             <i class="fas fa-clock"></i> ${servedAt}
           </div>
         `;
@@ -1447,29 +1308,26 @@
       const dateVal = document.getElementById('historyDateFilter').value;
       loadHistory(dateVal || null);
     }
-
     function resetHistoryFilter() {
       document.getElementById('historyDateFilter').value = '';
       loadHistory(null);
     }
 
     // ============================================================
-    //  POURBOIRES (lecture seule)
+    //  POURBOIRES
     // ============================================================
     function listenTips() {
+      if (!currentUser) return;
       db.collection('tips')
         .where('restaurantId', '==', currentRestaurantId)
-        .where('userId', '==', currentUser?.uid)
+        .where('userId', '==', currentUser.uid)
         .onSnapshot(snapshot => {
-          const today = new Date();
-          today.setHours(0,0,0,0);
+          const today = new Date(); today.setHours(0,0,0,0);
           const tips = [];
           snapshot.forEach(doc => {
             const data = doc.data();
             const date = data.date?.toDate ? data.date.toDate() : new Date(data.date);
-            if (date >= today) {
-              tips.push({ id: doc.id, ...data });
-            }
+            if (date >= today) tips.push({ id: doc.id, ...data });
           });
           renderTips(tips);
         });
@@ -1479,7 +1337,6 @@
       const total = tips.reduce((sum, t) => sum + (t.montant || 0), 0);
       document.getElementById('tipTotalDisplay').textContent = `Total : ${total} FCFA`;
       document.getElementById('tipTotalBig').textContent = `${total} FCFA`;
-      
       const container = document.getElementById('tipHistoryContainer');
       if (tips.length === 0) {
         container.innerHTML = `<p style="color:var(--text-muted);">Aucun pourboire reçu aujourd'hui.</p>`;
@@ -1491,10 +1348,7 @@
         const div = document.createElement('div');
         div.className = 'tip-item';
         const dateStr = tip.date ? new Date(tip.date.seconds * 1000).toLocaleString() : '';
-        div.innerHTML = `
-          <span>${tip.montant} FCFA ${tip.note ? ' - ' + tip.note : ''}</span>
-          <span style="color:var(--text-muted);">${dateStr}</span>
-        `;
+        div.innerHTML = `<span>${tip.montant} FCFA ${tip.note ? ' - ' + tip.note : ''}</span><span style="color:var(--text-muted);">${dateStr}</span>`;
         container.appendChild(div);
       });
     }
@@ -1504,26 +1358,15 @@
     // ============================================================
     window.playTestSound = function() {
       const msg = 'Test d\'alerte serveur.';
-      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
-        playDingDong();
-      }
-      if (alertMode === 'voix' || alertMode === 'lesdeux') {
-        if (selectedVoiceName === 'sonnerie') {
-          speak(msg, null);
-        } else {
-          speak(msg, selectedVoiceName);
-        }
-      }
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
+      if (alertMode === 'voix' || alertMode === 'lesdeux') speak(msg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
       showToast('Test audio envoyé !', 'info');
     };
 
     // ============================================================
-    //  INITIALISATION
+    //  INIT
     // ============================================================
     console.log('SCAN&TCHOP Serveur prêt !');
-
-    // Pour le rechargement de l'historique après une action, on l'appelle déjà dans marquerCommeServi
-    // On peut aussi appeler loadHistory au changement de filtre
   </script>
 </body>
 </html>
