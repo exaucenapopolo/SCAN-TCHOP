@@ -1,57 +1,572 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Serveur - SCAN&TCHOP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #E67E22; --bg-body: #FAFAFA; --text-dark: #1A202C; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-body); padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .header h1 { font-size: 1.5rem; color: var(--text-dark); }
-        .btn-order { background: var(--primary); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-logout { background: transparent; border: 1px solid #E2E8F0; padding: 8px 15px; border-radius: 6px; text-decoration: none; color: var(--text-dark); }
-        .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .table-card { background: white; padding: 25px 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 4px solid #CBD5E0; }
-        .table-card.active { border-top-color: #E67E22; }
-        .table-card.waiting { border-top-color: #38A169; }
-        .table-number { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
-        .table-status { font-size: 0.9rem; font-weight: 600; padding: 5px 10px; border-radius: 20px; display: inline-block; }
-        .status-free { background: #EDF2F7; color: #718096; }
-        .status-active { background: #FEFCBF; color: #D69E2E; }
-        .status-ready { background: #C6F6D5; color: #2F855A; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>SCAN&TCHOP – Serveur Pro</title>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ============================================
+       VARIABLES & RESET (Couleurs Serveur : Bleu)
+    ============================================ */
+    :root {
+      --primary: #3498db; /* Bleu Serveur */
+      --primary-dark: #2980b9;
+      --primary-light: #ebf5fb;
+      --primary-bg: rgba(52, 152, 219, 0.1);
+      --secondary: #2c3e50;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --warning: #f1c40f;
+      --info: #0ea5e9;
+      --bg-body: #ecf0f1;
+      --text-dark: #1a1a2e;
+      --text-muted: #5d6d7e;
+      --card-bg: rgba(255,255,255,0.95);
+      --shadow-sm: 0 4px 20px rgba(0,0,0,0.03);
+      --shadow-md: 0 10px 40px rgba(0,0,0,0.05);
+      --radius: 20px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); backdrop-filter:blur(6px); z-index:90; display:none; opacity:0; transition:opacity 0.3s; }
+    .sidebar-overlay.open { display:block; opacity:1; }
+    .sidebar { width:280px; background:linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); color:#fff; padding:30px 20px; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.4s; box-shadow:4px 0 30px rgba(0,0,0,0.1); }
+    .sidebar .logo { display:flex; align-items:center; gap:12px; margin-bottom:40px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .sidebar .logo img { height:44px; border-radius:12px; background:#fff; padding:4px; }
+    .sidebar .logo span { font-weight:800; font-size:1.2rem; color:var(--primary); }
+    
+    .sidebar nav a { display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; color:rgba(255,255,255,0.7); text-decoration:none; transition:var(--transition); margin-bottom:6px; font-weight:500; cursor:pointer; position:relative; }
+    .sidebar nav a i { width:24px; text-align:center; font-size:1.1rem; }
+    .sidebar nav a:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    .sidebar nav a.active { background:var(--primary-bg); color:var(--primary); font-weight:600; box-shadow:inset 4px 0 0 var(--primary); }
+    .sidebar .logout { margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding-top:20px; }
+    .sidebar .logout a { color:rgba(255,255,255,0.6); display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; cursor:pointer; font-weight:500; }
+    .sidebar .logout a:hover { background:rgba(231,76,60,0.2); color:#e74c3c; }
+
+    .badge-notif { position:absolute; top:8px; right:12px; background:var(--danger); color:#fff; font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:30px; display:none; }
+    .badge-notif.show { display:inline-block; animation: pop 0.3s ease; }
+    @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+
+    /* ========== MAIN CONTENT ========== */
+    .main { margin-left:280px; flex:1; padding:30px 40px; min-height:100vh; width:calc(100vw - 280px); }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:15px; }
+    .header h1 { font-size:2rem; font-weight:800; color:var(--text-dark); font-family:'Playfair Display',serif; }
+    .user-badge { background:#fff; padding:10px 24px; border-radius:50px; box-shadow:var(--shadow-sm); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:10px; border:1px solid #e0e0e0; }
+    .user-badge i { color:var(--primary); font-size:1.2rem; }
+    .hamburger { display:none; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:10px 16px; font-size:1.5rem; cursor:pointer; }
+
+    .section { display:none; animation:fadeIn 0.5s ease; }
+    .section.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ========== CARDS & TICKETS ========== */
+    .card { background:var(--card-bg); border-radius:var(--radius); border:1px solid rgba(255,255,255,0.6); box-shadow:var(--shadow-md); padding:28px 30px; margin-bottom:30px; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:15px; }
+    .card-header h3 { font-size:1.4rem; font-weight:700; display:flex; align-items:center; gap:12px; font-family:'Playfair Display',serif; }
+    .card-header h3 i { color:var(--primary); background:var(--primary-bg); padding:10px; border-radius:14px; font-size:1.1rem; }
+
+    .grid-commandes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+    .ticket { background: #fff; border-radius: 16px; padding: 20px; border-top: 6px solid var(--primary); box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
+    .ticket:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .ticket.new-ready { animation: flashAlert 1.5s ease infinite alternate; border-top-color: var(--warning); }
+    
+    @keyframes flashAlert { from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.2); } to { box-shadow: 0 0 25px rgba(241, 196, 15, 0.8); } }
+
+    .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #ecf0f1; padding-bottom: 10px; }
+    .ticket-table { font-size: 1.4rem; font-weight: 900; color: var(--primary-dark); background: var(--primary-light); padding: 5px 15px; border-radius: 8px; }
+    .ticket-time { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    
+    .ticket-items { list-style: none; margin-bottom: 15px; }
+    .ticket-items li { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95rem; font-weight: 500; border-bottom: 1px dashed #ecf0f1; }
+    .ticket-items li:last-child { border-bottom: none; }
+    .instructions { background: #fef9e7; color: #a04000; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; margin-bottom: 15px; }
+    
+    .ticket-footer { display: flex; flex-direction: column; gap: 10px; }
+    .payment-status { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 600; padding: 10px; border-radius: 8px; background: #f8f9fa; }
+
+    /* ========== BOUTONS & BADGES ========== */
+    .btn { padding:10px 20px; border:none; border-radius:12px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; width: 100%; }
+    .btn:active { transform:scale(0.96); }
+    .btn-primary { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(52, 152, 219, 0.25); }
+    .btn-success { background:linear-gradient(135deg, #27ae60, #1e8449); color:#fff; }
+    .btn-warning { background:linear-gradient(135deg, #f1c40f, #d4ac0d); color:#2c3e50; }
+    .btn-payment-confirm { background:#0ea5e9; color:#fff; }
+    
+    .badge { padding:4px 12px; border-radius:30px; font-size:0.7rem; font-weight:700; text-transform:uppercase; }
+    .badge-cash { background:#fdebd0; color:#a04000; }
+    .badge-mobile { background:#d5f5e3; color:#1e8449; }
+    .badge-paid { background:#d5f5e3; color:#1e8449; }
+    .badge-unpaid { background:#fadbd8; color:#922b21; }
+
+    /* ========== FORMULAIRES ========== */
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
+    .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid #d5d8dc; border-radius: 12px; font-family: inherit; font-size: 0.95rem; }
+    .form-control:focus { outline: none; border-color: var(--primary); }
+
+    /* ========== TOAST ========== */
+    #toastContainer { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    .toast { background:#fff; border-left:5px solid; box-shadow:0 10px 35px rgba(0,0,0,0.08); padding:16px 24px; border-radius:12px; display:flex; align-items:center; gap:14px; font-weight:600; pointer-events:auto; animation:toastSlideIn 0.35s forwards; }
+    @keyframes toastSlideIn { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .main { margin-left:0; padding:20px; width:100vw; }
+      .hamburger { display:block; }
+      .header-right { width:100%; justify-content:flex-end; margin-top: 10px; }
+    }
+  </style>
 </head>
 <body>
+
+  <div id="toastContainer"></div>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <!-- Remplacer par le bon lien du logo si besoin -->
+      <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
+      <span>SCAN&TCHOP</span>
+    </div>
+    <nav id="sidebarNav">
+      <a class="active" data-section="a-servir" id="navServir">
+        <i class="fas fa-bell"></i> À Servir <span class="badge-notif" id="readyBadge">0</span>
+      </a>
+      <a data-section="historique"><i class="fas fa-history"></i> Historique (Servies)</a>
+      <a data-section="parametres"><i class="fas fa-cog"></i> Paramètres (Alertes)</a>
+    </nav>
+    <div class="logout">
+      <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main">
     <div class="header">
-        <div>
-            <h1>Interface Salle - Serveur</h1>
-            <p style="color: #718096; font-size: 0.9rem;">Vue en temps réel des tables.</p>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+        <h1 id="pageTitle">Commandes à Servir</h1>
+      </div>
+      <div class="header-right">
+        <div class="user-badge" title="Serveur">
+          <i class="fas fa-user-tie"></i> <span id="headerRestoName">Chargement...</span>
         </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <button class="btn-order">+ Nouvelle Commande (Sans smartphone)</button>
-            <a href="connexion-v2.html" class="btn-logout">Déconnexion</a>
-        </div>
+      </div>
     </div>
 
-    <div class="tables-grid">
-        <div class="table-card active">
-            <div class="table-number">T1</div>
-            <div class="table-status status-active">En attente (Cuisine)</div>
-            <p style="margin-top: 15px; font-size: 0.85rem; color: #718096;">Cmd #1042</p>
+    <!-- ========== SECTION: À SERVIR ========== -->
+    <div id="section-a-servir" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
+          <button class="btn btn-primary" style="width:auto;" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
         </div>
-        <div class="table-card">
-            <div class="table-number">T2</div>
-            <div class="table-status status-free">Libre</div>
+        
+        <!-- Conteneur des commandes prêtes -->
+        <div class="grid-commandes" id="readyOrdersContainer">
+          <!-- Injecté par JS -->
+          <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+            <i class="fas fa-coffee fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+            <p>Aucune commande en attente de service pour le moment.</p>
+          </div>
         </div>
-        <div class="table-card waiting">
-            <div class="table-number">T3</div>
-            <div class="table-status status-ready">Plat Prêt à servir !</div>
-            <button style="margin-top:15px; width:100%; padding:8px; background:#38A169; color:white; border:none; border-radius:6px; cursor:pointer;">Marquer Servi</button>
-        </div>
+      </div>
     </div>
+
+    <!-- ========== SECTION: HISTORIQUE ========== -->
+    <div id="section-historique" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-check-double"></i> Commandes Servies (Aujourd'hui)</h3>
+        </div>
+        <div class="grid-commandes" id="historyOrdersContainer">
+          <!-- Injecté par JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SECTION: PARAMÈTRES ========== -->
+    <div id="section-parametres" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-cogs"></i> Configuration des alertes Serveur</h3>
+        </div>
+        <p style="color:var(--text-muted); margin-bottom:20px;">Choisis comment tu veux être averti quand la cuisine termine une commande.</p>
+        <form id="settingsForm">
+          <div class="form-group">
+            <label>Type d'alerte / Voix</label>
+            <select id="voiceSelect" class="form-control">
+              <option value="sonnerie">🔔 Sonnerie (Ding Dong)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:auto;"><i class="fas fa-save"></i> Enregistrer mes préférences</button>
+        </form>
+        <div id="settingsStatus" style="margin-top:15px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ============================================================
+    //  UI / NAVIGATION & TOASTS
+    // ============================================================
+    window.showToast = function(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const colors = { success: '#27ae60', error: '#e74c3c', info: '#3498db', warning: '#f1c40f' };
+      const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
+      toast.className = 'toast';
+      toast.style.borderColor = colors[type];
+      toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.3rem;"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.4s forwards';
+        setTimeout(() => toast.remove(), 400);
+      }, 4500);
+    };
+
+    window.navigateToSection = function(sectionId) {
+      document.querySelectorAll('#sidebarNav a[data-section]').forEach(a => {
+        a.classList.remove('active');
+        if (a.dataset.section === sectionId) a.classList.add('active');
+      });
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('section-' + sectionId);
+      if(target) target.classList.add('active');
+      
+      const map = { 'a-servir': 'Commandes à Servir', 'historique': 'Historique des services', 'parametres': 'Paramètres' };
+      document.getElementById('pageTitle').textContent = map[sectionId];
+    };
+
+    document.querySelectorAll('#sidebarNav a[data-section]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        navigateToSection(this.dataset.section);
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+      });
+    });
+
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    });
+    document.getElementById('sidebarOverlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    });
+
+    // ============================================================
+    //  SONNERIES & VOIX (Identique à la cuisine)
+    // ============================================================
+    let audioCtx = null;
+    let selectedVoiceName = 'sonnerie';
+    let availableVoices = [];
+
+    function getAudioContext() {
+      if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playSound(freq, duration, type = 'sine', volume = 0.3) {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq; osc.type = type;
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + duration);
+      } catch(e) { console.warn('Erreur audio', e); }
+    }
+
+    function speak(text, voiceName) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      if (voiceName && voiceName !== 'sonnerie') {
+        const voice = availableVoices.find(v => v.name === voiceName);
+        if (voice) utterance.voice = voice;
+      }
+      utterance.lang = 'fr-FR';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function populateVoiceSelect() {
+      const select = document.getElementById('voiceSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="sonnerie">🔔 Sonnerie (Ding Dong)</option>';
+      availableVoices = window.speechSynthesis.getVoices();
+      const frVoices = availableVoices.filter(v => v.lang.startsWith('fr'));
+      const list = frVoices.length > 0 ? frVoices : availableVoices;
+      list.forEach((voice, index) => {
+        const opt = document.createElement('option');
+        opt.value = voice.name;
+        opt.textContent = `Voix ${index+1} - ${voice.name}`;
+        select.appendChild(opt);
+      });
+      select.value = availableVoices.some(v => v.name === selectedVoiceName) ? selectedVoiceName : 'sonnerie';
+    }
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
+      setTimeout(populateVoiceSelect, 500);
+    }
+
+    function alertServerSound(tableNum) {
+      const message = `Commande prête pour la table ${tableNum}. À servir s'il vous plait.`;
+      if (selectedVoiceName === 'sonnerie') {
+        // Un son bien distinct pour le serveur (Ding - Dong)
+        playSound(880, 0.4, 'sine', 0.4); 
+        setTimeout(() => playSound(659, 0.6, 'sine', 0.4), 300);
+      } else {
+        speak(message, selectedVoiceName);
+      }
+    }
+
+    window.playTestSound = function() {
+      alertServerSound('4');
+      showToast('Test audio envoyé !', 'info');
+    };
+
+    // ============================================================
+    //  FIREBASE CONFIG & LOGIQUE METIER
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+      authDomain: "cinexau-903a6.firebaseapp.com",
+      projectId: "cinexau-903a6",
+      storageBucket: "cinexau-903a6.firebasestorage.app",
+      messagingSenderId: "247230931008",
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let currentRestaurantId = null;
+    let knownReadyOrders = []; // Pour tracker les alertes
+
+    // Auth & Redirection
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'connexion.html'; return; }
+      currentUser = user;
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) { auth.signOut(); return; }
+      
+      const userData = userDoc.data();
+      // On autorise Serveur, Employé ou Admin
+      if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') { 
+        showToast('Accès réservé aux serveurs.', 'error'); auth.signOut(); return; 
+      }
+      
+      currentRestaurantId = userData.restaurantId;
+      
+      const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
+      if (restoDoc.exists) {
+        document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
+      }
+
+      // Préférences vocales
+      const prefs = userData.preferences || {};
+      selectedVoiceName = prefs.voiceName || 'sonnerie';
+      setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 1000);
+
+      // Lancement de l'écoute des commandes
+      listenServerOrders();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+    document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      selectedVoiceName = document.getElementById('voiceSelect').value;
+      try {
+        await db.collection('users').doc(currentUser.uid).update({ 'preferences.voiceName': selectedVoiceName });
+        showToast('Paramètres audio sauvegardés', 'success');
+      } catch(err) { showToast('Erreur de sauvegarde', 'error'); }
+    });
+
+    // ============================================================
+    //  ECOUTE ET AFFICHAGE DES COMMANDES (Filtre intelligent)
+    // ============================================================
+    function listenServerOrders() {
+      // On écoute toutes les commandes du jour pour ce resto, et on gère le tri côté client.
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      db.collection('orders')
+        .where('restaurantId', '==', currentRestaurantId)
+        .onSnapshot(snapshot => {
+          const ordersToServe = [];
+          const ordersServed = [];
+
+          snapshot.forEach(doc => {
+            const order = { id: doc.id, ...doc.data() };
+            // On ne prend que les commandes du jour
+            const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
+            if (orderDate >= today) {
+              if (order.status === 'prêt') {
+                ordersToServe.push(order);
+                // Si c'est une nouvelle commande prête, on alerte !
+                if (!knownReadyOrders.includes(order.id)) {
+                  knownReadyOrders.push(order.id);
+                  alertServerSound(order.table || order.tableNumber || '?');
+                  showToast(`Table ${order.table || order.tableNumber} est prête !`, 'warning');
+                }
+              } else if (order.status === 'terminé') {
+                ordersServed.push(order);
+              }
+            }
+          });
+
+          // Mise à jour du badge
+          const badge = document.getElementById('readyBadge');
+          badge.textContent = ordersToServe.length;
+          if (ordersToServe.length > 0) badge.classList.add('show');
+          else badge.classList.remove('show');
+
+          renderOrdersToServe(ordersToServe);
+          renderOrdersServed(ordersServed);
+        });
+    }
+
+    function renderOrdersToServe(orders) {
+      const container = document.getElementById('readyOrdersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+          <i class="fas fa-check-circle fa-3x" style="opacity:0.2; margin-bottom:15px; color:var(--success);"></i>
+          <p>Super ! Aucune commande en attente. La salle est gérée.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const tableNum = order.table || order.tableNumber || '?';
+        const isNew = knownReadyOrders.includes(order.id); // Optionnel : pour l'animation visuelle
+        
+        let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+        
+        const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
+
+        // Logique de paiement
+        let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
+        
+        let paymentStatusHtml = '';
+        let confirmBtnHtml = '';
+
+        if (order.paymentMode === 'cash') {
+          if (order.paymentConfirmed) {
+            paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
+          } else {
+            paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
+            confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser l'argent</button>`;
+          }
+        } else {
+          paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
+        }
+
+        const ticketHtml = `
+          <div class="ticket ${isNew ? 'new-ready' : ''}">
+            <div class="ticket-header">
+              <div class="ticket-table">Table ${tableNum}</div>
+              <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
+            </div>
+            ${instructions}
+            <ul class="ticket-items">${itemsHtml}</ul>
+            <div class="payment-status">
+              Moyen: ${paymentBadge}
+              ${paymentStatusHtml}
+            </div>
+            <div class="ticket-footer" style="margin-top: 15px;">
+              ${confirmBtnHtml}
+              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer comme SERVI</button>
+            </div>
+          </div>
+        `;
+        container.innerHTML += ticketHtml;
+      });
+    }
+
+    function renderOrdersServed(orders) {
+      const container = document.getElementById('historyOrdersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1 / -1;">Aucun historique de service pour aujourd'hui.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const tableNum = order.table || order.tableNumber || '?';
+        const ticketHtml = `
+          <div class="ticket" style="border-top-color: var(--text-muted); opacity: 0.8;">
+            <div class="ticket-header">
+              <div class="ticket-table" style="background:#ecf0f1; color:var(--text-muted);">Table ${tableNum}</div>
+              <div class="ticket-time" style="color:var(--success);"><i class="fas fa-check"></i> Servi</div>
+            </div>
+            <p style="font-size:0.85rem; margin-top:10px;">Commande #${order.id.substring(0,6).toUpperCase()}</p>
+          </div>
+        `;
+        container.innerHTML += ticketHtml;
+      });
+    }
+
+    // ============================================================
+    //  ACTIONS DU SERVEUR
+    // ============================================================
+    window.marquerCommeServi = async function(orderId) {
+      try {
+        await db.collection('orders').doc(orderId).update({
+          status: 'terminé'
+        });
+        showToast('Commande marquée comme servie !', 'success');
+      } catch (error) {
+        showToast('Erreur lors de la mise à jour', 'error');
+        console.error(error);
+      }
+    };
+
+    window.confirmerPaiement = async function(orderId) {
+      if(confirm("Confirmez-vous avoir reçu l'argent en espèces pour cette commande ?")) {
+        try {
+          await db.collection('orders').doc(orderId).update({
+            paymentConfirmed: true
+          });
+          showToast('Paiement confirmé avec succès !', 'success');
+        } catch (error) {
+          showToast('Erreur lors de la confirmation du paiement', 'error');
+          console.error(error);
+        }
+      }
+    };
+
+  </script>
 </body>
 </html>
