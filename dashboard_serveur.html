@@ -74,12 +74,14 @@
     .card-header h3 { font-size:1.4rem; font-weight:700; display:flex; align-items:center; gap:12px; font-family:'Playfair Display',serif; }
     .card-header h3 i { color:var(--primary); background:var(--primary-bg); padding:10px; border-radius:14px; font-size:1.1rem; }
 
-    .grid-commandes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .grid-commandes { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
     .ticket { background: #fff; border-radius: 16px; padding: 20px; border-top: 6px solid var(--primary); box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
     .ticket:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
     .ticket.new-ready { animation: flashAlert 1.5s ease infinite alternate; border-top-color: var(--warning); }
     .ticket.waiting { border-top-color: var(--info); }
+    .ticket.waiting.old { border-top-color: var(--warning); }
+    .ticket.waiting.very-old { border-top-color: var(--danger); }
     
     @keyframes flashAlert { from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.2); } to { box-shadow: 0 0 25px rgba(241, 196, 15, 0.8); } }
 
@@ -88,12 +90,24 @@
     .ticket-time { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
     
     .ticket-items { list-style: none; margin-bottom: 15px; }
-    .ticket-items li { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95rem; font-weight: 500; border-bottom: 1px dashed #ecf0f1; }
+    .ticket-items li { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 0.95rem; font-weight: 500; border-bottom: 1px dashed #ecf0f1; }
     .ticket-items li:last-child { border-bottom: none; }
+    .ticket-items li img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
     .instructions { background: #fef9e7; color: #a04000; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; margin-bottom: 15px; }
     
     .ticket-footer { display: flex; flex-direction: column; gap: 10px; }
     .payment-status { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 600; padding: 10px; border-radius: 8px; background: #f8f9fa; }
+
+    .waiting-timer { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .waiting-timer .time-badge { padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; }
+    .waiting-timer .time-badge.green { background: #d5f5e3; color: #1e8449; }
+    .waiting-timer .time-badge.yellow { background: #fef9e7; color: #b7950b; }
+    .waiting-timer .time-badge.orange { background: #fdebd0; color: #a04000; }
+    .waiting-timer .time-badge.red { background: #fadbd8; color: #922b21; }
+
+    .delay-control { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .delay-control input { width: 80px; padding: 6px 10px; border: 1.5px solid #d5d8dc; border-radius: 8px; font-size: 0.9rem; }
+    .delay-control .countdown { font-weight: 700; font-size: 1.1rem; color: var(--danger); }
 
     /* ========== DEMANDES D'AIDE ========== */
     .help-request-card {
@@ -467,7 +481,8 @@
     let alertIntervalId = null;
     let availableVoices = [];
     let isAlerting = false;
-    let pendingNotifications = [];
+    // Set des IDs de commandes prêtes déjà accusées (pour ne pas rejouer l'alerte)
+    let acknowledgedOrderIds = new Set();
 
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -538,41 +553,61 @@
     function startAlertRepeat() {
       if (alertIntervalId) return;
       isAlerting = true;
-      // Le premier message est déjà joué lors de la détection, mais on démarre l'intervalle pour les répétitions
       alertIntervalId = setInterval(() => {
-        const nbReady = document.getElementById('readyBadge').textContent;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
-          return;
-        }
-        let tablesReady = [];
-        let helpTables = [];
-        // On va chercher les tables concernées
-        const readyOrders = document.querySelectorAll('#readyOrdersContainer .ticket');
-        readyOrders.forEach(ticket => {
-          const tableEl = ticket.querySelector('.ticket-table');
+        // Récupérer les commandes prêtes non accusées
+        const readyElements = document.querySelectorAll('#readyOrdersContainer .ticket');
+        const readyTables = [];
+        readyElements.forEach(el => {
+          const tableEl = el.querySelector('.ticket-table');
           if (tableEl) {
-            const tableNum = tableEl.textContent.replace('Table ', '').trim();
-            if (tableNum) tablesReady.push(tableNum);
+            const num = tableEl.textContent.replace('Table ', '').trim();
+            if (num && !el.dataset.acknowledged) readyTables.push(num);
           }
         });
-        const helpRequests = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
-        helpRequests.forEach(card => {
-          const tableEl = card.querySelector('.help-table');
+        // Demandes d'aide non résolues
+        const helpElements = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
+        const helpTables = [];
+        helpElements.forEach(el => {
+          const tableEl = el.querySelector('.help-table');
           if (tableEl) {
-            const tableNum = tableEl.textContent.replace('Table ', '').trim();
-            if (tableNum) helpTables.push(tableNum);
+            const num = tableEl.textContent.replace('Table ', '').trim();
+            if (num) helpTables.push(num);
           }
         });
+        // Commandes en attente avec délai expiré
+        const expiredElements = document.querySelectorAll('#waitingOrdersContainer .ticket .countdown.expired');
+        const expiredTables = [];
+        expiredElements.forEach(el => {
+          const ticket = el.closest('.ticket');
+          if (ticket) {
+            const tableEl = ticket.querySelector('.ticket-table');
+            if (tableEl) {
+              const num = tableEl.textContent.replace('Table ', '').trim();
+              if (num) expiredTables.push(num);
+            }
+          }
+        });
+
         let msg = '';
-        if (tablesReady.length > 0) {
-          msg += `Commande prête pour la table ${tablesReady.join(', ')}. `;
+        if (readyTables.length > 0) {
+          msg += `Commande prête pour la table ${readyTables.join(', ')}. `;
         }
         if (helpTables.length > 0) {
           msg += `Demande d'aide de la table ${helpTables.join(', ')}. `;
         }
+        if (expiredTables.length > 0) {
+          msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
+        }
         if (msg) triggerAlert(msg);
+        else {
+          // Si plus rien, on arrête
+          const nbReady = document.getElementById('readyBadge').textContent;
+          const nbHelp = document.getElementById('helpBadge').textContent;
+          const nbWaiting = document.getElementById('waitingBadge').textContent;
+          if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0 && parseInt(nbWaiting) === 0) {
+            stopAlert();
+          }
+        }
       }, repeatIntervalSec * 1000);
     }
 
@@ -587,7 +622,6 @@
 
     // Appelé quand une nouvelle notification non traitée arrive (avec message vocal)
     function onNewNotification(message) {
-      // On joue l'alerte immédiatement
       if (message) triggerAlert(message);
       if (!isAlerting) {
         startAlertRepeat();
@@ -634,6 +668,8 @@
     let knownReadyOrders = [];
     let knownWaitingOrders = [];
     let knownHelpRequests = [];
+    // Map pour les délais des commandes en attente : orderId -> { delayMinutes, remainingSeconds, intervalId }
+    let waitingTimers = new Map();
 
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'connexion.html'; return; }
@@ -699,7 +735,6 @@
         selectedVoiceName = newVoice;
         showToast('Paramètres sauvegardés', 'success');
 
-        // Confirmation vocale/sonore
         const confirmMsg = 'Paramètres mis à jour.';
         if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
           playDingDong();
@@ -713,7 +748,8 @@
           stopAlert();
           const nbReady = document.getElementById('readyBadge').textContent;
           const nbHelp = document.getElementById('helpBadge').textContent;
-          if (parseInt(nbReady) > 0 || parseInt(nbHelp) > 0) {
+          const nbWaiting = document.getElementById('waitingBadge').textContent;
+          if (parseInt(nbReady) > 0 || parseInt(nbHelp) > 0 || parseInt(nbWaiting) > 0) {
             startAlertRepeat();
           }
         }
@@ -740,8 +776,8 @@
             if (orderDate >= today) {
               if (order.status === 'prêt') {
                 ordersReady.push(order);
-                // Nouvelle commande prête ?
-                if (!knownReadyOrders.includes(order.id)) {
+                // Nouvelle commande prête non encore accusée ?
+                if (!knownReadyOrders.includes(order.id) && !acknowledgedOrderIds.has(order.id)) {
                   knownReadyOrders.push(order.id);
                   // Afficher la modale
                   showReadyOrderModal(order);
@@ -759,25 +795,37 @@
                 }
               } else if (order.status === 'terminé') {
                 ordersServed.push(order);
-                // Retirer des listes connues
+                // Retirer des listes
                 const idxReady = knownReadyOrders.indexOf(order.id);
                 if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
                 const idxWait = knownWaitingOrders.indexOf(order.id);
                 if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
+                acknowledgedOrderIds.delete(order.id);
+                // Nettoyer les timers
+                if (waitingTimers.has(order.id)) {
+                  clearInterval(waitingTimers.get(order.id).intervalId);
+                  waitingTimers.delete(order.id);
+                }
               } else if (order.status === 'en_cours') {
-                // On les retire des listes si elles y étaient (ex: prise en charge)
+                // On les retire des listes si elles y étaient
                 const idxReady = knownReadyOrders.indexOf(order.id);
                 if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
                 const idxWait = knownWaitingOrders.indexOf(order.id);
                 if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
+                acknowledgedOrderIds.delete(order.id);
+                if (waitingTimers.has(order.id)) {
+                  clearInterval(waitingTimers.get(order.id).intervalId);
+                  waitingTimers.delete(order.id);
+                }
               }
             }
           });
 
           // Mise à jour des badges
           const readyBadge = document.getElementById('readyBadge');
-          readyBadge.textContent = ordersReady.length;
-          if (ordersReady.length > 0) readyBadge.classList.add('show');
+          const pendingReady = ordersReady.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          readyBadge.textContent = pendingReady;
+          if (pendingReady > 0) readyBadge.classList.add('show');
           else readyBadge.classList.remove('show');
 
           const waitingBadge = document.getElementById('waitingBadge');
@@ -793,6 +841,9 @@
         });
     }
 
+    // ============================================================
+    //  RENDU DES COMMANDES PRÊTES
+    // ============================================================
     function renderOrdersToServe(orders) {
       const container = document.getElementById('readyOrdersContainer');
       if (orders.length === 0) {
@@ -806,9 +857,12 @@
       container.innerHTML = '';
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        const isNew = knownReadyOrders.includes(order.id);
+        const isNew = !acknowledgedOrderIds.has(order.id) && knownReadyOrders.includes(order.id);
         
-        let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+        let itemsHtml = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" />` : '';
+          return `<li>${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        }).join('') : '<li>Détails non disponibles</li>';
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
         let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
@@ -827,7 +881,7 @@
         }
 
         const ticketHtml = `
-          <div class="ticket ${isNew ? 'new-ready' : ''}">
+          <div class="ticket ${isNew ? 'new-ready' : ''}" data-acknowledged="${acknowledgedOrderIds.has(order.id) ? 'true' : 'false'}">
             <div class="ticket-header">
               <div class="ticket-table">Table ${tableNum}</div>
               <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
@@ -850,6 +904,9 @@
       });
     }
 
+    // ============================================================
+    //  RENDU DES COMMANDES EN ATTENTE
+    // ============================================================
     function renderWaitingOrders(orders) {
       const container = document.getElementById('waitingOrdersContainer');
       if (orders.length === 0) {
@@ -863,17 +920,65 @@
       container.innerHTML = '';
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+        let itemsHtml = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" />` : '';
+          return `<li>${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        }).join('') : '<li>Détails non disponibles</li>';
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
+        // Calcul du temps d'attente
+        const waitingSince = order.waitingAt ? order.waitingAt.toDate() : order.createdAt.toDate();
+        const now = new Date();
+        const diffMs = now - waitingSince;
+        const diffMin = Math.floor(diffMs / 60000);
+        let ageClass = '';
+        let ageLabel = '';
+        if (diffMin < 2) { ageClass = 'green'; ageLabel = 'Récent'; }
+        else if (diffMin < 5) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
+        else if (diffMin < 10) { ageClass = 'orange'; ageLabel = 'Ancien'; }
+        else { ageClass = 'red'; ageLabel = 'Très ancien'; }
+
+        // Gestion du délai
+        let timerInfo = waitingTimers.get(order.id);
+        let countdownHtml = '';
+        let delayHtml = '';
+        if (timerInfo) {
+          const remaining = timerInfo.remainingSeconds;
+          const mins = Math.floor(remaining / 60);
+          const secs = remaining % 60;
+          const isExpired = remaining <= 0;
+          countdownHtml = `<span class="countdown ${isExpired ? 'expired' : ''}" style="color:${isExpired ? 'var(--danger)' : 'var(--text-dark)'}">${mins}:${secs.toString().padStart(2, '0')}</span>`;
+          delayHtml = `
+            <div class="delay-control">
+              <span>Délai :</span>
+              ${countdownHtml}
+              ${isExpired ? '<span class="badge badge-danger">EXPIRÉ</span>' : ''}
+              <button class="btn btn-sm btn-outline-secondary" onclick="annulerDelai('${order.id}')"><i class="fas fa-times"></i></button>
+            </div>
+          `;
+        } else {
+          delayHtml = `
+            <div class="delay-control">
+              <input type="number" id="delayInput_${order.id}" placeholder="Minutes" min="1" value="5" style="width:80px;" />
+              <button class="btn btn-sm btn-primary" onclick="definirDelai('${order.id}')"><i class="fas fa-hourglass-start"></i> Démarrer</button>
+            </div>
+          `;
+        }
+
         const ticketHtml = `
-          <div class="ticket waiting">
+          <div class="ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}">
             <div class="ticket-header">
               <div class="ticket-table" style="background:#e0f2fe; color:#0369a1;">Table ${tableNum}</div>
               <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
             </div>
             ${instructions}
             <ul class="ticket-items">${itemsHtml}</ul>
+            <div class="waiting-timer">
+              <span class="time-badge ${ageClass}">⏱ ${ageLabel} (${diffMin} min)</span>
+            </div>
+            <div style="margin-top: 10px;">
+              ${delayHtml}
+            </div>
             <div class="ticket-footer" style="margin-top: 15px;">
               <button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
               <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
@@ -889,25 +994,25 @@
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
+        // Marquer comme prise en charge (acknowledged) sans changer le statut
+        acknowledgedOrderIds.add(orderId);
+        // On peut stocker dans Firestore un champ 'acknowledgedAt' pour info
         await db.collection('orders').doc(orderId).update({
-          status: 'en_cours',
-          takenAt: firebase.firestore.FieldValue.serverTimestamp(),
-          takenBy: currentUser.uid
+          acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          acknowledgedBy: currentUser.uid
         });
         showToast('Commande prise en charge !', 'success');
         playConfirmation('Commande prise en charge.');
-        // Retirer de toutes les listes
-        const idxReady = knownReadyOrders.indexOf(orderId);
-        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
-        const idxWait = knownWaitingOrders.indexOf(orderId);
-        if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
-        // Vérifier s'il reste des notifications
-        const nbReady = document.getElementById('readyBadge').textContent;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
-        }
         closeModal();
+        // Vérifier s'il reste des notifications non accusées
+        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        } else {
+          // On relance l'alerte si nécessaire
+          if (!isAlerting) startAlertRepeat();
+        }
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -924,14 +1029,18 @@
         playConfirmation('Commande mise en file d\'attente.');
         const idxReady = knownReadyOrders.indexOf(orderId);
         if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
-        // On l'ajoute à la liste des en attente
-        if (!knownWaitingOrders.includes(orderId)) knownWaitingOrders.push(orderId);
-        const nbReady = document.getElementById('readyBadge').textContent;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
+        acknowledgedOrderIds.delete(orderId);
+        // Nettoyer le timer si existant
+        if (waitingTimers.has(orderId)) {
+          clearInterval(waitingTimers.get(orderId).intervalId);
+          waitingTimers.delete(orderId);
         }
         closeModal();
+        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
       } catch (error) {
         showToast('Erreur lors de la mise en file d\'attente', 'error');
         console.error(error);
@@ -954,7 +1063,6 @@
     };
 
     window.marquerCommeServi = async function(orderId) {
-      // Vérifier paiement espèces non confirmé
       const orderDoc = await db.collection('orders').doc(orderId).get();
       const order = orderDoc.data();
       if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
@@ -973,12 +1081,17 @@
         if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
         const idxWait = knownWaitingOrders.indexOf(orderId);
         if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
-        const nbReady = document.getElementById('readyBadge').textContent;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
+        acknowledgedOrderIds.delete(orderId);
+        if (waitingTimers.has(orderId)) {
+          clearInterval(waitingTimers.get(orderId).intervalId);
+          waitingTimers.delete(orderId);
         }
         closeModal();
+        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
         // Recharger l'historique
         loadHistory(document.getElementById('historyDateFilter').value || null);
       } catch (error) {
@@ -988,11 +1101,81 @@
     };
 
     // ============================================================
+    //  GESTION DES DÉLAIS (file d'attente)
+    // ============================================================
+    window.definirDelai = function(orderId) {
+      const input = document.getElementById('delayInput_' + orderId);
+      const minutes = parseInt(input.value) || 5;
+      if (minutes <= 0) { alert('Veuillez entrer un nombre de minutes valide.'); return; }
+      
+      // Si un timer existe déjà, on le supprime
+      if (waitingTimers.has(orderId)) {
+        clearInterval(waitingTimers.get(orderId).intervalId);
+        waitingTimers.delete(orderId);
+      }
+
+      const remainingSeconds = minutes * 60;
+      const timerObj = {
+        remainingSeconds: remainingSeconds,
+        intervalId: null,
+        expired: false
+      };
+
+      // Fonction de mise à jour du compte à rebours
+      const updateCountdown = () => {
+        timerObj.remainingSeconds--;
+        if (timerObj.remainingSeconds <= 0) {
+          timerObj.remainingSeconds = 0;
+          timerObj.expired = true;
+          clearInterval(timerObj.intervalId);
+          // Déclencher une alerte
+          const tableNum = document.querySelector(`#waitingOrdersContainer .ticket .ticket-table`); // On récupérera mieux
+          // On va plutôt récupérer la table depuis l'ordre
+          db.collection('orders').doc(orderId).get().then(doc => {
+            if (doc.exists) {
+              const order = doc.data();
+              const table = order.table || order.tableNumber || '?';
+              const msg = `Délai écoulé pour la table ${table}`;
+              triggerAlert(msg);
+              showToast(`⚠️ Délai écoulé pour la table ${table}`, 'warning');
+            }
+          });
+          // On relance l'alerte répétitive si elle n'est pas active
+          if (!isAlerting) startAlertRepeat();
+          // Mettre à jour l'affichage
+          renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+        }
+        // Mettre à jour l'affichage du compteur
+        const ticket = document.querySelector(`#waitingOrdersContainer .ticket`); // On raffraîchira tout
+        renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+      };
+
+      timerObj.intervalId = setInterval(updateCountdown, 1000);
+      waitingTimers.set(orderId, timerObj);
+      showToast(`Délai de ${minutes} min défini pour cette commande.`, 'info');
+      playConfirmation(`Délai de ${minutes} minutes défini.`);
+      // Rafraîchir l'affichage
+      renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+    };
+
+    window.annulerDelai = function(orderId) {
+      if (waitingTimers.has(orderId)) {
+        clearInterval(waitingTimers.get(orderId).intervalId);
+        waitingTimers.delete(orderId);
+        showToast('Délai annulé.', 'info');
+        renderWaitingOrders(knownWaitingOrders.map(id => /* on récupère les ordres */));
+      }
+    };
+
+    // ============================================================
     //  MODALE POUR COMMANDE PRÊTE
     // ============================================================
     function showReadyOrderModal(order) {
       const tableNum = order.table || order.tableNumber || '?';
-      let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+      let itemsHtml = order.items ? order.items.map(item => {
+        const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" />` : '';
+        return `<li style="display:flex;align-items:center;gap:10px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+      }).join('') : '<li>Détails non disponibles</li>';
       const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
       let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
@@ -1117,9 +1300,9 @@
         playConfirmation('Demande d\'aide prise en charge.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
-        const nbReady = document.getElementById('readyBadge').textContent;
+        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
         const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
           stopAlert();
         }
         closeModal();
@@ -1139,9 +1322,9 @@
         playConfirmation('Demande d\'aide résolue.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
-        const nbReady = document.getElementById('readyBadge').textContent;
+        const pendingReady = document.querySelectorAll('#readyOrdersContainer .ticket[data-acknowledged="false"]').length;
         const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+        if (pendingReady === 0 && parseInt(nbHelp) === 0) {
           stopAlert();
         }
         closeModal();
@@ -1173,47 +1356,49 @@
     }
 
     // ============================================================
-    //  HISTORIQUE AVEC FILTRES
+    //  HISTORIQUE AVEC FILTRES (côté client)
     // ============================================================
     let allServedOrders = [];
 
     function loadHistory(dateFilter) {
       if (!currentRestaurantId) return;
-      const start = dateFilter ? new Date(dateFilter + 'T00:00:00') : new Date();
-      const end = dateFilter ? new Date(dateFilter + 'T23:59:59') : new Date();
-      if (!dateFilter) {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate()+1);
-        db.collection('orders')
-          .where('restaurantId', '==', currentRestaurantId)
-          .where('status', '==', 'terminé')
-          .where('servedAt', '>=', today)
-          .where('servedAt', '<', tomorrow)
-          .get()
-          .then(snapshot => {
-            const orders = [];
-            snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-            allServedOrders = orders;
-            renderHistory(orders);
-          });
-      } else {
-        const startDate = new Date(dateFilter + 'T00:00:00');
-        const endDate = new Date(dateFilter + 'T23:59:59');
-        db.collection('orders')
-          .where('restaurantId', '==', currentRestaurantId)
-          .where('status', '==', 'terminé')
-          .where('servedAt', '>=', startDate)
-          .where('servedAt', '<=', endDate)
-          .get()
-          .then(snapshot => {
-            const orders = [];
-            snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-            allServedOrders = orders;
-            renderHistory(orders);
-          });
-      }
+      // Récupérer toutes les commandes terminées du restaurant
+      db.collection('orders')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('status', '==', 'terminé')
+        .get()
+        .then(snapshot => {
+          const orders = [];
+          snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+          // Filtrer par date si fournie
+          let filtered = orders;
+          if (dateFilter) {
+            const start = new Date(dateFilter + 'T00:00:00');
+            const end = new Date(dateFilter + 'T23:59:59');
+            filtered = orders.filter(o => {
+              const served = o.servedAt ? o.servedAt.toDate() : null;
+              return served && served >= start && served <= end;
+            });
+          } else {
+            // Aujourd'hui
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate()+1);
+            filtered = orders.filter(o => {
+              const served = o.servedAt ? o.servedAt.toDate() : null;
+              return served && served >= today && served < tomorrow;
+            });
+          }
+          // Trier par date décroissante
+          filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
+          allServedOrders = filtered;
+          renderHistory(filtered);
+        })
+        .catch(err => {
+          showToast('Erreur lors du chargement de l\'historique', 'error');
+          console.error(err);
+        });
     }
 
     function renderHistory(orders) {
@@ -1226,7 +1411,10 @@
       container.innerHTML = '';
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        const itemsList = order.items ? order.items.map(item => `<li>${item.quantite}x ${item.nom}</li>`).join('') : '<li>Détails non disponibles</li>';
+        const itemsList = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
+          return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        }).join('') : '<li>Détails non disponibles</li>';
         const total = order.total || 'N/A';
         const paymentMode = order.paymentMode === 'cash' ? 'Espèces' : 'Mobile';
         const servedAt = order.servedAt ? new Date(order.servedAt.seconds*1000).toLocaleString() : 'N/A';
@@ -1257,11 +1445,7 @@
 
     function applyHistoryFilter() {
       const dateVal = document.getElementById('historyDateFilter').value;
-      if (!dateVal) {
-        loadHistory(null);
-      } else {
-        loadHistory(dateVal);
-      }
+      loadHistory(dateVal || null);
     }
 
     function resetHistoryFilter() {
@@ -1336,13 +1520,10 @@
     // ============================================================
     //  INITIALISATION
     // ============================================================
-    // L'historique est chargé après l'auth dans le onAuthStateChanged
-    // On s'assure que la fonction loadHistory est appelée après la connexion
-    // Le onAuthStateChanged appelle déjà loadHistory(null)
-
-    // Pour les filtres historiques, on a déjà les fonctions applyHistoryFilter et resetHistoryFilter
-
     console.log('SCAN&TCHOP Serveur prêt !');
+
+    // Pour le rechargement de l'historique après une action, on l'appelle déjà dans marquerCommeServi
+    // On peut aussi appeler loadHistory au changement de filtre
   </script>
 </body>
 </html>
