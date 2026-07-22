@@ -371,6 +371,7 @@
       padding:30px 10px;
       font-size:0.9rem;
     }
+    .kanban-col.hidden-col { display:none; }
 
     /* ========== ORDER TICKET ========== */
     .order-ticket {
@@ -1880,7 +1881,6 @@
         }
       }, error => {
         console.error('Erreur écoute commandes:', error);
-        // Si erreur d'index, afficher un message d'erreur
         if (error.code === 'failed-precondition') {
           showToast('⚠️ Erreur d\'index Firebase. Veuillez créer l\'index composite requis.', 'error');
           console.error('Index composite nécessaire. Créez un index sur restaurantId (Asc) et createdAt (Desc)');
@@ -1923,7 +1923,24 @@
     }
 
     // ============================================================
-    //  RENDU KANBAN (avec données enrichies + confirmation paiement)
+    //  CORRESPONDANCE STATUT -> ID DE COLONNE
+    // ============================================================
+    const statusToId = {
+      'en attente': 'col-en-attente',
+      'en préparation': 'col-en-preparation',
+      'prêt': 'col-pret',
+      'terminé': 'col-termine'
+    };
+
+    const statusToCountId = {
+      'en attente': 'countEnAttente',
+      'en préparation': 'countEnPreparation',
+      'prêt': 'countPret',
+      'terminé': 'countTermine'
+    };
+
+    // ============================================================
+    //  RENDU KANBAN (avec masquage des colonnes vides selon filtre)
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
@@ -1959,14 +1976,26 @@
         else cols['en attente'].push(o); // fallback
       });
 
+      const showAll = (filter === 'all');
       for (const [status, orders] of Object.entries(cols)) {
-        const container = document.getElementById('col-' + status);
-        const countEl = document.getElementById('count' + status.charAt(0).toUpperCase() + status.slice(1).replace('-', ''));
+        const colId = statusToId[status];
+        const container = document.getElementById(colId);
+        const countEl = document.getElementById(statusToCountId[status]);
         if (countEl) countEl.textContent = orders.length;
         if (!container) {
-          console.warn('Container non trouvé pour status:', status);
+          console.warn('Container non trouvé pour status:', status, 'avec ID:', colId);
           continue;
         }
+
+        // Masquer ou afficher la colonne selon le filtre et le nombre d'éléments
+        const colDiv = container.parentElement;
+        if (!showAll && orders.length === 0) {
+          colDiv.classList.add('hidden-col');
+        } else {
+          colDiv.classList.remove('hidden-col');
+        }
+
+        // Remplir le contenu
         if (orders.length === 0) {
           container.innerHTML = `<div class="empty-state">Aucune commande</div>`;
           continue;
@@ -2002,7 +2031,6 @@
 
           const statusBadge = getStatusBadge(order.status);
           
-          // Affichage des items (plats + compléments)
           let itemsHtml = '';
           if (order.items && order.items.length > 0) {
             itemsHtml = order.items.map(item => {
@@ -3100,7 +3128,7 @@
     document.getElementById('modalCancel').addEventListener('click', closeModal);
 
     // ============================================================
-    //  FILTRES & TRI
+    //  ÉCOUTEURS SUR LES FILTRES ET TRI
     // ============================================================
     document.getElementById('filterCommandes').addEventListener('change', renderKanban);
     document.getElementById('sortCommandes').addEventListener('change', renderKanban);
