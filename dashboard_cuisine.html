@@ -10,7 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ========== VARIABLES & RESET ========== */
+    /* ============================================
+       VARIABLES & RESET
+    ============================================ */
     :root {
       --primary: #e67e22;
       --primary-dark: #d35400;
@@ -39,6 +41,7 @@
       background: var(--bg-body);
       color: var(--text-dark);
       display: flex;
+      flex-direction: column;
       min-height: 100vh;
       overflow-x: hidden;
       width: 100vw;
@@ -155,7 +158,7 @@
     .main {
       margin-left:280px;
       flex:1;
-      padding:30px 40px;
+      padding:30px 40px 20px;
       min-height:100vh;
       width:calc(100vw - 280px);
       max-width:100%;
@@ -262,11 +265,7 @@
       font-size:1.1rem;
     }
 
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
-
-    /* ========== STATISTIQUES MODERNES ========== */
+    /* ========== STATISTIQUES ========== */
     .stats-grid {
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
@@ -299,7 +298,6 @@
       font-size:1.6rem;
       color:#fff;
       margin-bottom:12px;
-      background:linear-gradient(135deg, #f39c12, #e67e22);
     }
     .stat-item:nth-child(1) .stat-icon { background:linear-gradient(135deg, #6c5ce7, #a29bfe); }
     .stat-item:nth-child(2) .stat-icon { background:linear-gradient(135deg, #00b894, #55efc4); }
@@ -333,6 +331,7 @@
       color:#0e7c6b;
     }
     .stat-item .stat-trend.down { background:#fdedec; color:#b03a2e; }
+    .stat-item .stat-trend.neutral { background:#f1f2f6; color:#5d6d7e; }
 
     /* ========== KANBAN ========== */
     .kanban {
@@ -963,6 +962,22 @@
     }
     .fire-mode-banner .btn:hover { background:rgba(255,255,255,0.25); }
 
+    /* ========== FOOTER ========== */
+    .app-footer {
+      background: #fff;
+      border-top: 1px solid #ecf0f1;
+      padding: 16px 30px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.02);
+      margin-left: 280px;
+      width: calc(100vw - 280px);
+    }
+    .app-footer span { font-weight: 600; color: var(--primary-dark); }
+
     /* ========== UPLOAD ========== */
     .upload-preview {
       display:flex;
@@ -1030,6 +1045,7 @@
       .sidebar { transform:translateX(-100%); }
       .sidebar.open { transform:translateX(0); box-shadow:20px 0 50px rgba(0,0,0,0.2); }
       .main { margin-left:0; padding:20px; width:100vw; }
+      .app-footer { margin-left:0; width:100vw; }
       .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
       .hamburger { display:block; }
       .card { padding:24px 20px; }
@@ -1046,6 +1062,7 @@
       .modal-footer .btn { width:100%; }
       .header h1 { font-size:1.6rem; }
       .timer-overlay .big-timer { font-size:3.5rem; padding:20px 30px; }
+      .app-footer { padding:12px 16px; font-size:0.8rem; }
     }
   </style>
 </head>
@@ -1109,7 +1126,7 @@
           <div class="stat-icon"><i class="fas fa-utensils"></i></div>
           <div class="stat-number" id="statPlats">0</div>
           <div class="stat-label">Plats actifs</div>
-          <div class="stat-trend"><i class="fas fa-arrow-up"></i> +0</div>
+          <div class="stat-trend" id="trendPlats"><i class="fas fa-arrow-up"></i> +0</div>
         </div>
         <div class="stat-item" onclick="navigateToSection('commandes')">
           <div class="stat-icon"><i class="fas fa-clock"></i></div>
@@ -1121,7 +1138,7 @@
           <div class="stat-icon" style="background:linear-gradient(135deg, #e74c3c, #c0392b);"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="stat-number" id="statRetards">0</div>
           <div class="stat-label">En retard</div>
-          <div class="stat-trend down"><i class="fas fa-arrow-down"></i> urgent</div>
+          <div class="stat-trend down" id="trendRetards"><i class="fas fa-arrow-down"></i> -0%</div>
         </div>
       </div>
 
@@ -1259,6 +1276,11 @@
     </div>
   </div>
 
+  <!-- ========== FOOTER ========== -->
+  <footer class="app-footer">
+    <p>© 2026 <span>SCAN&TCHOP</span> — Tous droits réservés. Version 3.0</p>
+  </footer>
+
   <!-- ========== MODALE UNIFIÉE ========== -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
@@ -1317,19 +1339,38 @@
     // ============================================================
     let audioCtx = null;
 
+    function getAudioContext() {
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch(e) {
+          console.warn('Web Audio non supporté');
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
     function playSound(freq, duration, type = 'sine', volume = 0.3) {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         osc.frequency.value = freq;
         osc.type = type;
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + duration);
+        // Pour s'assurer que le son est bien joué si contexte suspendu
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
       } catch(e) { console.warn('Son non disponible', e); }
     }
 
@@ -1494,7 +1535,7 @@
     });
 
     // ============================================================
-    //  DASHBOARD & STATS
+    //  DASHBOARD & STATS (DYNAMIQUES)
     // ============================================================
     async function loadDashboardData() {
       if (!currentRestaurantId) return;
@@ -1514,7 +1555,7 @@
       let dailyCount = 0, dailyCA = 0, enCours = 0, retards = 0;
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toDateString();
-      let yesterdayCount = 0, yesterdayCA = 0;
+      let yesterdayCount = 0, yesterdayCA = 0, yesterdayEnCours = 0;
 
       toutesLesCommandes.forEach(o => {
         const d = o.dateObj ? o.dateObj.toDateString() : '';
@@ -1526,7 +1567,10 @@
           yesterdayCount++;
           yesterdayCA += parseFloat(o.total || 0);
         }
-        if (o.status === 'en préparation' || o.status === 'en attente') enCours++;
+        if (o.status === 'en préparation' || o.status === 'en attente') {
+          enCours++;
+          if (d === yesterdayStr) yesterdayEnCours++;
+        }
         if (o.status === 'en préparation' && o.startTime && o.tempsEstime) {
           const start = o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime);
           const elapsed = (new Date() - start) / 60000;
@@ -1534,32 +1578,42 @@
         }
       });
 
+      // Mise à jour des nombres
       document.getElementById('statCommandes').textContent = dailyCount;
       document.getElementById('statCA').textContent = dailyCA.toLocaleString('fr-FR') + ' F';
       document.getElementById('statEnCours').textContent = enCours;
       document.getElementById('statRetards').textContent = retards;
       document.getElementById('statPlats').textContent = menuItems.length;
 
-      // Tendances dynamiques
+      // Tendances réelles
       const trendCommands = yesterdayCount === 0 ? 100 : Math.round(((dailyCount - yesterdayCount) / yesterdayCount) * 100);
       const trendCA = yesterdayCA === 0 ? 100 : Math.round(((dailyCA - yesterdayCA) / yesterdayCA) * 100);
-      const trendEnCours = retards > 0 ? -Math.round((retards / (enCours+1)) * 100) : 5;
+      const trendEnCours = yesterdayEnCours === 0 ? (enCours > 0 ? 100 : 0) : Math.round(((enCours - yesterdayEnCours) / yesterdayEnCours) * 100);
+      const trendRetards = (retards === 0) ? 0 : Math.round(((retards - (toutesLesCommandes.filter(o => o.status === 'en préparation' && o.startTime && o.tempsEstime && ((new Date() - (o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime))) / 60000 > o.tempsEstime)).length || 0)) / (retards+1)) * 100); // simplification
 
       updateTrend('trendCommandes', trendCommands);
       updateTrend('trendCA', trendCA);
       updateTrend('trendEnCours', trendEnCours);
+      // Pour les retards, on met une tendance simple
+      const trendRet = retards > 0 ? 100 : 0;
+      updateTrend('trendRetards', trendRet);
+      // Tendance plats
+      document.getElementById('trendPlats').innerHTML = `<i class="fas fa-arrow-up"></i> +${menuItems.length > 0 ? menuItems.length : 0}`;
     }
 
     function updateTrend(id, value) {
       const el = document.getElementById(id);
       if (!el) return;
       const abs = Math.abs(value);
-      if (value >= 0) {
+      if (value > 0) {
         el.innerHTML = `<i class="fas fa-arrow-up"></i> +${abs}%`;
         el.className = 'stat-trend';
-      } else {
+      } else if (value < 0) {
         el.innerHTML = `<i class="fas fa-arrow-down"></i> -${abs}%`;
         el.className = 'stat-trend down';
+      } else {
+        el.innerHTML = `<i class="fas fa-minus"></i> 0%`;
+        el.className = 'stat-trend neutral';
       }
     }
 
@@ -1611,7 +1665,7 @@
     }
 
     // ============================================================
-    //  ÉCOUTE COMMANDES
+    //  ÉCOUTE COMMANDES EN TEMPS RÉEL
     // ============================================================
     function listenOrders() {
       if (unlistenOrders) unlistenOrders();
@@ -1637,7 +1691,6 @@
         updateChargeIndicator();
         checkFireMode();
 
-        // Nouvelles commandes : alerte + proposition de temps
         if (newOrdersCount > 0) {
           commandesNonLues += newOrdersCount;
           const badge = document.getElementById('newOrderBadge');
@@ -1647,7 +1700,6 @@
           for (let i = 0; i < playCount; i++) setTimeout(() => playNotificationSound(), i * 400);
           showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
 
-          // Proposer de définir le temps pour chaque nouvelle commande en attente
           orders.filter(o => o.status === 'en attente').forEach(order => {
             if (!order.tempsEstime && !order.startTime) {
               setTimeout(() => proposeTempsCommande(order.id), 500);
@@ -1694,7 +1746,7 @@
     }
 
     // ============================================================
-    //  RENDU KANBAN AVEC PRIORITÉ
+    //  RENDU KANBAN
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
@@ -1703,7 +1755,6 @@
       let filtered = toutesLesCommandes;
       if (filter !== 'all') filtered = filtered.filter(o => o.status === filter);
 
-      // Tri
       if (sort === 'arrivee') {
         filtered.sort((a,b) => (a.dateObj ? a.dateObj.getTime() : 0) - (b.dateObj ? b.dateObj.getTime() : 0));
       } else if (sort === 'urgence') {
@@ -1864,7 +1915,6 @@
       }
     }
 
-    // Toggle manuel du mode coup de feu
     document.getElementById('toggleFireModeBtn').addEventListener('click', function() {
       const banner = document.getElementById('fireModeBanner');
       if (banner.style.display === 'none') {
@@ -2074,7 +2124,6 @@
       const container = document.getElementById('preparationsList');
       let items = [];
 
-      // Commandes en préparation
       const prepOrders = toutesLesCommandes.filter(o => o.status === 'en préparation' && o.tempsEstime && o.startTime);
       prepOrders.forEach(order => {
         const start = order.startTime.toDate ? order.startTime.toDate() : new Date(order.startTime);
@@ -2094,7 +2143,6 @@
         });
       });
 
-      // Plats masqués en préparation (menu)
       const platItems = menuItems.filter(p => p.masque === true && p.statut === 'en_preparation' && p.dureePreparation && p.timerStart);
       platItems.forEach(plat => {
         const start = plat.timerStart.toDate ? plat.timerStart.toDate() : new Date(plat.timerStart);
@@ -2145,15 +2193,14 @@
         `;
         container.appendChild(div);
 
-        // Déclencher l'alerte si temps écoulé et non ignorée
         if (item.remaining <= 0) {
           const key = item.type === 'commande' ? 'cmd_' + item.id : 'plat_' + item.id;
           const now = Date.now();
-          // Si l'utilisateur a fermé l'alerte il y a moins de 2 minutes, on ne la réaffiche pas
           if (alertDismissed[key] && (now - alertDismissed[key] < 120000)) {
             // Ignorer
           } else {
             if (!document.getElementById('timerOverlay').classList.contains('open')) {
+              // Jouer le son immédiatement
               playRappelSound();
               showTimerOverlay(item.id, item.label, item.type === 'commande' ? 'Commande' : 'Plat');
             }
@@ -2174,7 +2221,7 @@
       document.getElementById('overlayPlatName').textContent = `${type} : ${label}`;
       document.getElementById('overlayTimer').textContent = '00:00';
       document.getElementById('timerOverlay').classList.add('open');
-      // Démarrer la sonnerie répétitive toutes les 2 secondes
+      // Démarrer la sonnerie répétitive
       if (alertInterval) clearInterval(alertInterval);
       alertInterval = setInterval(() => {
         if (!document.getElementById('timerOverlay').classList.contains('open')) {
@@ -2192,7 +2239,6 @@
         alertInterval = null;
       }
       document.getElementById('timerOverlay').classList.remove('open');
-      // Enregistrer l'ignorance pour éviter le retour immédiat
       if (currentTimerEntityId) {
         const key = currentTimerEntityType === 'Commande' ? 'cmd_' + currentTimerEntityId : 'plat_' + currentTimerEntityId;
         alertDismissed[key] = Date.now();
@@ -2462,7 +2508,7 @@
     };
 
     // ============================================================
-    //  AJOUT / MODIFICATION PLAT (simplifié)
+    //  AJOUT / MODIFICATION PLAT (inchangé, conservation)
     // ============================================================
     document.getElementById('openAddPlat').addEventListener('click', () => {
       let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
@@ -2576,7 +2622,6 @@
         updateChefMode();
       });
 
-      // Événements
       setTimeout(() => {
         const statutSelect = document.getElementById('platStatut');
         const dureeGroup = document.getElementById('platDureeGroup');
@@ -2645,9 +2690,6 @@
       }, 100);
     });
 
-    // ============================================================
-    //  ÉDITION PLAT
-    // ============================================================
     window.editPlat = async (id) => {
       const doc = await db.collection('menus').doc(id).get();
       const data = doc.data();
