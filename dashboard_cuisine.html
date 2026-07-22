@@ -16,8 +16,7 @@
     :root {
       --primary: #e67e22;
       --primary-dark: #d35400;
-      --primary-light: #f39c12;
-      --primary-bg: #fef9e7;
+      --primary-light: #fef9e7;
       --secondary: #2c3e50;
       --success: #27ae60;
       --danger: #e74c3c;
@@ -333,10 +332,10 @@
     .stat-item .stat-trend.down { background:#fdedec; color:#b03a2e; }
     .stat-item .stat-trend.neutral { background:#f1f2f6; color:#5d6d7e; }
 
-    /* ========== KANBAN (réduit à 3 colonnes) ========== */
+    /* ========== KANBAN ========== */
     .kanban {
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr 1fr;
       gap:20px;
     }
     .kanban-col {
@@ -542,6 +541,7 @@
     .badge-danger { background:#fadbd8; color:#922b21; }
     .badge-info { background:#d6eaf8; color:#1a5276; }
     .badge-purple { background:#e8daef; color:#6c3483; }
+    .badge-payment { background:#fef9e7; color:#7d6608; }
 
     /* ========== FILTRES ========== */
     .filter-group {
@@ -1165,7 +1165,7 @@
       </div>
     </div>
 
-    <!-- ========== COMMANDES (KANBAN - 3 colonnes) ========== -->
+    <!-- ========== COMMANDES (KANBAN) ========== -->
     <div id="section-commandes" class="section">
       <div class="card">
         <div class="card-header">
@@ -1185,6 +1185,7 @@
             <select id="filterCommandes" class="form-control" style="min-width:160px;">
               <option value="all">Toutes</option>
               <option value="en attente">En attente</option>
+              <option value="en préparation">En préparation</option>
               <option value="prêt">Prêt</option>
               <option value="terminé">Terminé</option>
             </select>
@@ -1206,6 +1207,10 @@
             <div class="kanban-col" data-status="en attente">
               <h4>En attente <span class="badge" id="countEnAttente">0</span></h4>
               <div id="col-en-attente"></div>
+            </div>
+            <div class="kanban-col" data-status="en préparation">
+              <h4>En préparation <span class="badge" id="countEnPreparation">0</span></h4>
+              <div id="col-en-preparation"></div>
             </div>
             <div class="kanban-col" data-status="prêt">
               <h4>Prêts <span class="badge" id="countPret">0</span></h4>
@@ -1337,7 +1342,7 @@
 
   <script>
     // ============================================================
-    //  TOASTS (inchangé)
+    //  TOASTS
     // ============================================================
     window.showToast = function(message, type = 'success') {
       const container = document.getElementById('toastContainer');
@@ -1358,7 +1363,7 @@
     //  SONNERIES & VOIX
     // ============================================================
     let audioCtx = null;
-    let selectedVoiceName = 'sonnerie'; // 'sonnerie' ou nom de la voix
+    let selectedVoiceName = 'sonnerie';
     let availableVoices = [];
 
     function getAudioContext() {
@@ -1407,16 +1412,12 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // Fonction pour charger les voix dans le select
     function populateVoiceSelect() {
       const select = document.getElementById('voiceSelect');
       if (!select) return;
-      // Garder l'option sonnerie
       select.innerHTML = '<option value="sonnerie">🔔 Sonnerie</option>';
-      // Récupérer les voix
       const voices = window.speechSynthesis.getVoices();
       availableVoices = voices;
-      // Filtrer les voix françaises ou toutes
       const frVoices = voices.filter(v => v.lang.startsWith('fr'));
       const list = frVoices.length > 0 ? frVoices : voices;
       list.forEach((voice, index) => {
@@ -1425,7 +1426,6 @@
         opt.textContent = `Voix ${index+1} - ${voice.name} (${voice.lang})`;
         select.appendChild(opt);
       });
-      // Restaurer la sélection
       if (selectedVoiceName && selectedVoiceName !== 'sonnerie') {
         if (list.some(v => v.name === selectedVoiceName)) {
           select.value = selectedVoiceName;
@@ -1438,23 +1438,20 @@
       }
     }
 
-    // Charger les voix dès que disponibles
     if (window.speechSynthesis) {
       window.speechSynthesis.onvoiceschanged = function() {
         populateVoiceSelect();
       };
-      // tentative immédiate
       setTimeout(() => {
         if (window.speechSynthesis.getVoices().length > 0) populateVoiceSelect();
       }, 500);
     }
 
     // ============================================================
-    //  ALERTES CENTRALISÉES (avec voix ou son)
+    //  ALERTES CENTRALISÉES
     // ============================================================
     function alertUser(message, type = 'notification', soundOnly = false) {
       if (selectedVoiceName === 'sonnerie' || soundOnly) {
-        // son
         if (type === 'new_order') {
           playSound(880, 0.4, 'sine', 0.3);
           setTimeout(() => playSound(1200, 0.3, 'sine', 0.25), 200);
@@ -1471,7 +1468,6 @@
           playSound(880, 0.2, 'sine', 0.2);
         }
       } else {
-        // voix
         speak(message, selectedVoiceName);
       }
     }
@@ -1487,7 +1483,6 @@
     function alertTimerExpired(name, type) {
       const msg = `Attention, ${type} ${name} est normalement prêt. Est-il prêt ?`;
       if (selectedVoiceName === 'sonnerie') {
-        // son répétitif géré par l'intervalle
         playSound(660, 0.3, 'square', 0.2);
         setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
         setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
@@ -1614,13 +1609,11 @@
       // Charger les préférences
       const prefs = userData.preferences || {};
       selectedVoiceName = prefs.voiceName || 'sonnerie';
-      // Mettre à jour le select après chargement des voix
       setTimeout(() => {
         const select = document.getElementById('voiceSelect');
         if (select) {
           if (selectedVoiceName === 'sonnerie') select.value = 'sonnerie';
           else {
-            // chercher si la voix existe
             const exists = availableVoices.some(v => v.name === selectedVoiceName);
             if (exists) select.value = selectedVoiceName;
             else select.value = 'sonnerie';
@@ -1658,7 +1651,6 @@
         selectedVoiceName = newVoice;
         document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--success);"><i class="fas fa-check-circle"></i> Préférences mises à jour.</span>`;
         showToast('Paramètres sauvegardés', 'success');
-        // Test de la voix si choisie
         if (newVoice !== 'sonnerie') {
           speak('Paramètres mis à jour', newVoice);
         }
@@ -1673,6 +1665,7 @@
     // ============================================================
     async function loadDashboardData() {
       if (!currentRestaurantId) return;
+      // Requête simplifiée sans orderBy pour éviter les index composites
       const snapshot = await db.collection('orders').where('restaurantId', '==', currentRestaurantId).get();
       toutesLesCommandes = [];
       snapshot.forEach(doc => {
@@ -1680,6 +1673,8 @@
         const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
         toutesLesCommandes.push({ id: doc.id, ...data, dateObj });
       });
+      // Trier côté client
+      toutesLesCommandes.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
       updateStats();
       initChart();
     }
@@ -1691,18 +1686,17 @@
       const yesterdayStr = yesterday.toDateString();
       let yesterdayCount = 0, yesterdayCA = 0, yesterdayEnCours = 0;
 
-      // Plats en préparation (menu)
       const menuItemsInPrep = menuItems.filter(item => item.statut === 'en_preparation' && item.timerStart).length;
 
       toutesLesCommandes.forEach(o => {
         const d = o.dateObj ? o.dateObj.toDateString() : '';
         if (d === rightNow) {
           dailyCount++;
-          dailyCA += parseFloat(o.total || 0);
+          dailyCA += parseFloat(o.montant || o.total || 0);
         }
         if (d === yesterdayStr) {
           yesterdayCount++;
-          yesterdayCA += parseFloat(o.total || 0);
+          yesterdayCA += parseFloat(o.montant || o.total || 0);
         }
         if (o.status === 'en préparation') {
           enCours++;
@@ -1758,7 +1752,7 @@
         const d = new Date(); d.setDate(d.getDate() - i);
         daysLabels.push(d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }));
         let sum = 0;
-        toutesLesCommandes.forEach(o => { if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) sum += parseFloat(o.total || 0); });
+        toutesLesCommandes.forEach(o => { if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) sum += parseFloat(o.montant || o.total || 0); });
         revenueData.push(sum);
       }
       if(salesChart) salesChart.destroy();
@@ -1798,11 +1792,11 @@
     }
 
     // ============================================================
-    //  ÉCOUTE COMMANDES EN TEMPS RÉEL
+    //  ÉCOUTE COMMANDES EN TEMPS RÉEL (sans orderBy)
     // ============================================================
     function listenOrders() {
       if (unlistenOrders) unlistenOrders();
-      const q = db.collection('orders').where('restaurantId', '==', currentRestaurantId).orderBy('createdAt', 'desc');
+      const q = db.collection('orders').where('restaurantId', '==', currentRestaurantId);
       unlistenOrders = q.onSnapshot(snapshot => {
         const orders = [];
         let newOrdersCount = 0;
@@ -1816,6 +1810,8 @@
             if (diff < 30) newOrdersCount++;
           }
         });
+        // Trier côté client
+        orders.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
         toutesLesCommandes = orders;
         updateStats();
         renderKanban();
@@ -1829,15 +1825,15 @@
           const badge = document.getElementById('newOrderBadge');
           badge.textContent = commandesNonLues;
           badge.classList.add('show');
+          // Alerte sonore pour chaque nouvelle commande
           orders.filter(o => o.status === 'en attente').forEach(order => {
-            if (!order.tempsEstime && !order.startTime) {
-              let itemsSummary = order.items ? order.items.map(i => `${i.nom} x${i.quantite}`).join(', ') : '';
-              let tableInfo = order.table || order.tableNumber || '?';
-              let msg = `Nouvelle commande reçue, table ${tableInfo}`;
-              if (itemsSummary) msg += `, avec ${itemsSummary}`;
-              playNotificationSound(msg);
-              setTimeout(() => proposeTempsCommande(order.id), 500);
-            }
+            let itemsSummary = order.items ? order.items.map(i => `${i.nom} x${i.quantite}`).join(', ') : '';
+            let tableInfo = order.table || order.tableNumber || '?';
+            let msg = `Nouvelle commande reçue, table ${tableInfo}`;
+            if (itemsSummary) msg += `, avec ${itemsSummary}`;
+            playNotificationSound(msg);
+            // Proposer d'estimer le temps après quelques secondes
+            setTimeout(() => proposeTempsCommande(order.id), 500);
           });
           showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
         }
@@ -1856,6 +1852,9 @@
     function proposeTempsCommande(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) return;
+      // Si déjà en préparation ou temps estimé déjà défini, on ne propose pas
+      if (order.status === 'en préparation' || order.tempsEstime) return;
+      
       const html = `
         <p><strong>#${order.reference || order.id.substring(0,6).toUpperCase()}</strong> — Table ${order.table || order.tableNumber || '?'}</p>
         <p style="color:var(--text-muted); margin-bottom:16px;">Veuillez estimer le temps de préparation pour cette commande.</p>
@@ -1881,15 +1880,13 @@
     }
 
     // ============================================================
-    //  RENDU KANBAN (3 colonnes: en attente, prêt, terminé)
+    //  RENDU KANBAN (avec données enrichies)
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
       const sort = document.getElementById('sortCommandes').value;
 
-      // Ne garder que les statuts autorisés
-      const allowedStatus = ['en attente', 'prêt', 'terminé'];
-      let filtered = toutesLesCommandes.filter(o => allowedStatus.includes(o.status));
+      let filtered = toutesLesCommandes;
       if (filter !== 'all') filtered = filtered.filter(o => o.status === filter);
 
       if (sort === 'arrivee') {
@@ -1910,6 +1907,7 @@
 
       const cols = {
         'en attente': [],
+        'en préparation': [],
         'prêt': [],
         'terminé': []
       };
@@ -1957,15 +1955,34 @@
           }
 
           const statusBadge = getStatusBadge(order.status);
-          const itemsHtml = order.items ? order.items.map(item => 
-            `<li><span>${item.nom || 'Plat'} x${item.quantite || 1}</span><span>${(item.prix || 0).toLocaleString('fr-FR')} F</span></li>`
-          ).join('') : '<li>Aucun détail</li>';
+          
+          // Affichage des items (plats + compléments)
+          let itemsHtml = '';
+          if (order.items && order.items.length > 0) {
+            itemsHtml = order.items.map(item => {
+              let comps = '';
+              if (item.complements && item.complements.length > 0) {
+                comps = ' <span style="font-size:0.7rem;color:var(--text-muted);">(+ ' + item.complements.map(c => c.nom).join(', ') + ')</span>';
+              }
+              return `<li><span>${item.nom || 'Plat'} x${item.quantite || 1}${comps}</span><span>${(item.prix || 0).toLocaleString('fr-FR')} F</span></li>`;
+            }).join('');
+          } else {
+            itemsHtml = '<li>Aucun détail</li>';
+          }
 
-          const tableNum = order.tableNumber || order.table || '--';
+          const tableNum = order.table || order.tableNumber || '--';
+          const instructions = order.instructions ? `<p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><i class="fas fa-comment"></i> ${order.instructions}</p>` : '';
+          const paymentInfo = order.paymentMode ? `<span class="badge badge-payment">${order.paymentMode === 'mobile' ? '💳 Mobile Money' : '💰 Espèces'}</span>` : '';
+          const phoneInfo = order.phone ? `<span style="font-size:0.75rem;color:var(--text-muted);"><i class="fas fa-phone"></i> ${order.phone}</span>` : '';
 
           let actionsHtml = '';
           if (order.status === 'en attente') {
             actionsHtml = `<button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>`;
+          } else if (order.status === 'en préparation') {
+            actionsHtml = `
+              <button class="btn btn-success btn-sm" onclick="readyOrder('${order.id}')"><i class="fas fa-check-double"></i> Prêt</button>
+              <button class="btn btn-warning btn-sm" onclick="prolongerOrder('${order.id}')"><i class="fas fa-clock"></i> +</button>
+            `;
           } else if (order.status === 'prêt') {
             actionsHtml = `<button class="btn btn-info btn-sm" onclick="alertServer('${order.id}')"><i class="fas fa-bell"></i> Alerter serveur</button>`;
           }
@@ -1974,12 +1991,14 @@
           card.innerHTML = `
             <div class="ticket-header">
               <div><span class="ref">#${order.reference || order.id.substring(0,8).toUpperCase()}</span> <span class="table-num"><i class="fas fa-chair"></i> Table ${tableNum}</span></div>
-              <div><span class="badge ${statusBadge.class}">${statusBadge.label}</span></div>
+              <div><span class="badge ${statusBadge.class}">${statusBadge.label}</span> ${paymentInfo}</div>
               ${timerHtml}
             </div>
+            ${phoneInfo}
             <div class="ticket-items">
               <ul>${itemsHtml}</ul>
             </div>
+            ${instructions}
             <div class="ticket-actions">
               ${actionsHtml}
             </div>
@@ -1993,6 +2012,7 @@
     function getStatusBadge(status) {
       const map = {
         'en attente': { class: 'badge-warning', label: 'En attente' },
+        'en préparation': { class: 'badge-info', label: 'En préparation' },
         'prêt': { class: 'badge-success', label: 'Prêt' },
         'terminé': { class: 'badge-danger', label: 'Terminé' }
       };
@@ -2146,9 +2166,15 @@
     window.viewOrderDetails = function(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) { showToast('Commande introuvable', 'error'); return; }
+      
       const itemsHtml = order.items ? order.items.map(item => `
         <tr><td>${item.nom || 'Plat'}</td><td>${item.quantite || 1}</td><td>${(item.prix || 0).toLocaleString('fr-FR')} F</td></tr>
       `).join('') : '<tr><td colspan="3">Aucun détail</td></tr>';
+
+      const compsHtml = order.complements ? order.complements.map(c => `<span class="complement-tag">${c.nom} +${c.prix} F</span>`).join(' ') : 'Aucun';
+      const instructions = order.instructions ? `<p><strong>Instructions :</strong> ${order.instructions}</p>` : '';
+      const paymentMode = order.paymentMode ? (order.paymentMode === 'mobile' ? 'Mobile Money' : 'Espèces') : 'Non spécifié';
+      const phone = order.phone ? order.phone : 'Non renseigné';
 
       const html = `
         <div style="margin-bottom:16px;">
@@ -2156,13 +2182,17 @@
           <p><strong>Table :</strong> ${order.table || order.tableNumber || '--'}</p>
           <p><strong>Statut :</strong> <span class="badge ${getStatusBadge(order.status).class}">${getStatusBadge(order.status).label}</span></p>
           <p><strong>Date :</strong> ${order.dateObj ? order.dateObj.toLocaleString('fr-FR') : 'N/A'}</p>
+          <p><strong>Paiement :</strong> ${paymentMode} ${order.paymentMode === 'mobile' ? `(Tél: ${phone})` : ''}</p>
+          ${instructions}
+          <p><strong>Compléments :</strong> ${compsHtml}</p>
+          <p><strong>Montant :</strong> ${(order.montant || order.total || 0).toLocaleString('fr-FR')} FCFA</p>
         </div>
         <h4 style="margin-bottom:10px;">Articles commandés</h4>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Nom</th><th>Qté</th><th>Prix unit.</th></tr></thead>
             <tbody>${itemsHtml}</tbody>
-            <tfoot><tr><td colspan="2" style="text-align:right;font-weight:700;">Total</td><td style="font-weight:700;">${(order.total || 0).toLocaleString('fr-FR')} F</td></tr></tfoot>
+            <tfoot><tr><td colspan="2" style="text-align:right;font-weight:700;">Total</td><td style="font-weight:700;">${(order.montant || order.total || 0).toLocaleString('fr-FR')} F</td></tr></tfoot>
           </table>
         </div>
         <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -2340,7 +2370,7 @@
     }
 
     // ============================================================
-    //  OVERLAY TIMER ÉCOULÉ (avec répétition espacée de 5s)
+    //  OVERLAY TIMER ÉCOULÉ
     // ============================================================
     let currentTimerEntityId = null;
     let currentTimerEntityType = 'commande';
@@ -2358,7 +2388,6 @@
           alertInterval = null;
           return;
         }
-        // Rappel toutes les 5 secondes
         if (selectedVoiceName === 'sonnerie') {
           playSound(660, 0.3, 'square', 0.2);
           setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
@@ -2366,7 +2395,7 @@
         } else {
           speak(`Attention, ${type} ${label} est normalement prêt. Est-il prêt ?`, selectedVoiceName);
         }
-      }, 5000); // 5 secondes entre chaque répétition
+      }, 5000);
     }
 
     function closeTimerOverlay() {
@@ -2495,7 +2524,7 @@
     };
 
     // ============================================================
-    //  MENU
+    //  MENU (inchangé)
     // ============================================================
     async function loadMenu() {
       if (!currentRestaurantId) return;
@@ -2647,7 +2676,7 @@
     };
 
     // ============================================================
-    //  AJOUT / MODIFICATION PLAT
+    //  AJOUT / MODIFICATION PLAT (inchangé)
     // ============================================================
     document.getElementById('openAddPlat').addEventListener('click', () => {
       let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
@@ -3031,7 +3060,7 @@
     // ============================================================
     //  INIT
     // ============================================================
-    console.log('SCAN&TCHOP Cuisine Pro - avec voix multiples et commandes filtrées');
+    console.log('SCAN&TCHOP Cuisine Pro - avec données enrichies et écoute temps réel');
   </script>
 </body>
 </html>
