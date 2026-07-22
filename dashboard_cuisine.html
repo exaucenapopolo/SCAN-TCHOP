@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       VARIABLES & RESET
+       VARIABLES & RESET (inchangé)
     ============================================ */
     :root {
       --primary: #e67e22;
@@ -333,10 +333,10 @@
     .stat-item .stat-trend.down { background:#fdedec; color:#b03a2e; }
     .stat-item .stat-trend.neutral { background:#f1f2f6; color:#5d6d7e; }
 
-    /* ========== KANBAN ========== */
+    /* ========== KANBAN (réduit à 3 colonnes) ========== */
     .kanban {
       display:grid;
-      grid-template-columns:1fr 1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr;
       gap:20px;
     }
     .kanban-col {
@@ -1165,7 +1165,7 @@
       </div>
     </div>
 
-    <!-- ========== COMMANDES (KANBAN) ========== -->
+    <!-- ========== COMMANDES (KANBAN - 3 colonnes) ========== -->
     <div id="section-commandes" class="section">
       <div class="card">
         <div class="card-header">
@@ -1185,7 +1185,6 @@
             <select id="filterCommandes" class="form-control" style="min-width:160px;">
               <option value="all">Toutes</option>
               <option value="en attente">En attente</option>
-              <option value="en préparation">En préparation</option>
               <option value="prêt">Prêt</option>
               <option value="terminé">Terminé</option>
             </select>
@@ -1207,10 +1206,6 @@
             <div class="kanban-col" data-status="en attente">
               <h4>En attente <span class="badge" id="countEnAttente">0</span></h4>
               <div id="col-en-attente"></div>
-            </div>
-            <div class="kanban-col" data-status="en préparation">
-              <h4>En préparation <span class="badge" id="countEnPreparation">0</span></h4>
-              <div id="col-en-preparation"></div>
             </div>
             <div class="kanban-col" data-status="prêt">
               <h4>Prêts <span class="badge" id="countPret">0</span></h4>
@@ -1288,11 +1283,10 @@
         </div>
         <form id="settingsForm">
           <div class="form-group">
-            <label>Type d'alerte</label>
-            <select id="alertType" class="form-control">
-              <option value="sonnerie">Sonnerie</option>
-              <option value="voix_feminine">Voix féminine</option>
-              <option value="voix_masculine">Voix masculine</option>
+            <label>Type d'alerte / Voix</label>
+            <select id="voiceSelect" class="form-control">
+              <option value="sonnerie">🔔 Sonnerie</option>
+              <!-- Les voix seront ajoutées dynamiquement -->
             </select>
           </div>
           <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
@@ -1343,7 +1337,7 @@
 
   <script>
     // ============================================================
-    //  TOASTS
+    //  TOASTS (inchangé)
     // ============================================================
     window.showToast = function(message, type = 'success') {
       const container = document.getElementById('toastContainer');
@@ -1361,11 +1355,11 @@
     };
 
     // ============================================================
-    //  SONNERIES (Web Audio) & VOIX (Speech Synthesis)
+    //  SONNERIES & VOIX
     // ============================================================
     let audioCtx = null;
-    let alertPreference = 'sonnerie'; // 'sonnerie', 'voix_feminine', 'voix_masculine'
-    let voiceGender = 'female';
+    let selectedVoiceName = 'sonnerie'; // 'sonnerie' ou nom de la voix
+    let availableVoices = [];
 
     function getAudioContext() {
       if (!audioCtx) {
@@ -1399,29 +1393,68 @@
       } catch(e) { console.warn('Son non disponible', e); }
     }
 
-    function speak(text, gender) {
+    function speak(text, voiceName) {
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices();
-      let selectedVoice = null;
-      if (gender === 'female') {
-        selectedVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha')) || voices.find(v => v.lang.startsWith('fr'));
-      } else if (gender === 'male') {
-        selectedVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')) || voices.find(v => v.lang.startsWith('fr'));
+      if (voiceName && voiceName !== 'sonnerie') {
+        const voice = availableVoices.find(v => v.name === voiceName) || null;
+        if (voice) utterance.voice = voice;
       }
-      if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('fr')) || voices[0];
-      utterance.voice = selectedVoice;
       utterance.lang = 'fr-FR';
       utterance.rate = 0.9;
-      utterance.pitch = gender === 'female' ? 1.2 : 1.0;
+      utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
 
-    // Alertes centralisées
+    // Fonction pour charger les voix dans le select
+    function populateVoiceSelect() {
+      const select = document.getElementById('voiceSelect');
+      if (!select) return;
+      // Garder l'option sonnerie
+      select.innerHTML = '<option value="sonnerie">🔔 Sonnerie</option>';
+      // Récupérer les voix
+      const voices = window.speechSynthesis.getVoices();
+      availableVoices = voices;
+      // Filtrer les voix françaises ou toutes
+      const frVoices = voices.filter(v => v.lang.startsWith('fr'));
+      const list = frVoices.length > 0 ? frVoices : voices;
+      list.forEach((voice, index) => {
+        const opt = document.createElement('option');
+        opt.value = voice.name;
+        opt.textContent = `Voix ${index+1} - ${voice.name} (${voice.lang})`;
+        select.appendChild(opt);
+      });
+      // Restaurer la sélection
+      if (selectedVoiceName && selectedVoiceName !== 'sonnerie') {
+        if (list.some(v => v.name === selectedVoiceName)) {
+          select.value = selectedVoiceName;
+        } else {
+          select.value = 'sonnerie';
+          selectedVoiceName = 'sonnerie';
+        }
+      } else {
+        select.value = 'sonnerie';
+      }
+    }
+
+    // Charger les voix dès que disponibles
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = function() {
+        populateVoiceSelect();
+      };
+      // tentative immédiate
+      setTimeout(() => {
+        if (window.speechSynthesis.getVoices().length > 0) populateVoiceSelect();
+      }, 500);
+    }
+
+    // ============================================================
+    //  ALERTES CENTRALISÉES (avec voix ou son)
+    // ============================================================
     function alertUser(message, type = 'notification', soundOnly = false) {
-      if (alertPreference === 'sonnerie' || soundOnly) {
-        // jouer un son selon le type
+      if (selectedVoiceName === 'sonnerie' || soundOnly) {
+        // son
         if (type === 'new_order') {
           playSound(880, 0.4, 'sine', 0.3);
           setTimeout(() => playSound(1200, 0.3, 'sine', 0.25), 200);
@@ -1431,7 +1464,6 @@
         } else if (type === 'prolonged') {
           playSound(660, 0.2, 'sine', 0.2);
         } else if (type === 'timer_expired') {
-          // son répétitif géré ailleurs
           playSound(660, 0.3, 'square', 0.2);
           setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
           setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
@@ -1440,7 +1472,7 @@
         }
       } else {
         // voix
-        speak(message, voiceGender);
+        speak(message, selectedVoiceName);
       }
     }
 
@@ -1452,20 +1484,15 @@
       alertUser(message || 'Prêt !', 'ready');
     }
 
-    function playRappelSound(message) {
-      // pour le rappel répétitif, on utilise alertTimerExpired avec répétition
-      // on ne l'appelle pas directement
-    }
-
     function alertTimerExpired(name, type) {
       const msg = `Attention, ${type} ${name} est normalement prêt. Est-il prêt ?`;
-      if (alertPreference === 'sonnerie') {
+      if (selectedVoiceName === 'sonnerie') {
         // son répétitif géré par l'intervalle
         playSound(660, 0.3, 'square', 0.2);
         setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
         setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
       } else {
-        speak(msg, voiceGender);
+        speak(msg, selectedVoiceName);
       }
     }
 
@@ -1586,11 +1613,20 @@
 
       // Charger les préférences
       const prefs = userData.preferences || {};
-      alertPreference = prefs.alertType || 'sonnerie';
-      voiceGender = alertPreference === 'voix_feminine' ? 'female' : (alertPreference === 'voix_masculine' ? 'male' : 'female');
-      // Mettre à jour le select
-      const alertSelect = document.getElementById('alertType');
-      if (alertSelect) alertSelect.value = alertPreference;
+      selectedVoiceName = prefs.voiceName || 'sonnerie';
+      // Mettre à jour le select après chargement des voix
+      setTimeout(() => {
+        const select = document.getElementById('voiceSelect');
+        if (select) {
+          if (selectedVoiceName === 'sonnerie') select.value = 'sonnerie';
+          else {
+            // chercher si la voix existe
+            const exists = availableVoices.some(v => v.name === selectedVoiceName);
+            if (exists) select.value = selectedVoiceName;
+            else select.value = 'sonnerie';
+          }
+        }
+      }, 1000);
 
       await loadDashboardData();
       loadMenu();
@@ -1613,19 +1649,18 @@
     // ============================================================
     document.getElementById('settingsForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const newPref = document.getElementById('alertType').value;
+      const newVoice = document.getElementById('voiceSelect').value;
       const uid = currentUser.uid;
       try {
         await db.collection('users').doc(uid).update({
-          'preferences.alertType': newPref
+          'preferences.voiceName': newVoice
         });
-        alertPreference = newPref;
-        voiceGender = newPref === 'voix_feminine' ? 'female' : (newPref === 'voix_masculine' ? 'male' : 'female');
+        selectedVoiceName = newVoice;
         document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--success);"><i class="fas fa-check-circle"></i> Préférences mises à jour.</span>`;
         showToast('Paramètres sauvegardés', 'success');
         // Test de la voix si choisie
-        if (newPref !== 'sonnerie') {
-          speak('Paramètres mis à jour', voiceGender);
+        if (newVoice !== 'sonnerie') {
+          speak('Paramètres mis à jour', newVoice);
         }
       } catch(err) {
         document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--danger);">Erreur: ${err.message}</span>`;
@@ -1634,7 +1669,7 @@
     });
 
     // ============================================================
-    //  DASHBOARD & STATS (DYNAMIQUES)
+    //  DASHBOARD & STATS
     // ============================================================
     async function loadDashboardData() {
       if (!currentRestaurantId) return;
@@ -1656,7 +1691,7 @@
       const yesterdayStr = yesterday.toDateString();
       let yesterdayCount = 0, yesterdayCA = 0, yesterdayEnCours = 0;
 
-      // Compter les plats en préparation (menu)
+      // Plats en préparation (menu)
       const menuItemsInPrep = menuItems.filter(item => item.statut === 'en_preparation' && item.timerStart).length;
 
       toutesLesCommandes.forEach(o => {
@@ -1669,12 +1704,10 @@
           yesterdayCount++;
           yesterdayCA += parseFloat(o.total || 0);
         }
-        // En préparation : uniquement les commandes avec statut 'en préparation'
         if (o.status === 'en préparation') {
           enCours++;
           if (d === yesterdayStr) yesterdayEnCours++;
         }
-        // Retards pour commandes
         if (o.status === 'en préparation' && o.startTime && o.tempsEstime) {
           const start = o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime);
           const elapsed = (new Date() - start) / 60000;
@@ -1682,7 +1715,6 @@
         }
       });
 
-      // Ajouter les plats en préparation au compteur "En préparation"
       enCours += menuItemsInPrep;
 
       document.getElementById('statCommandes').textContent = dailyCount;
@@ -1797,10 +1829,8 @@
           const badge = document.getElementById('newOrderBadge');
           badge.textContent = commandesNonLues;
           badge.classList.add('show');
-          // Sonnerie ou voix pour nouvelle commande
           orders.filter(o => o.status === 'en attente').forEach(order => {
             if (!order.tempsEstime && !order.startTime) {
-              // préparer le message vocal
               let itemsSummary = order.items ? order.items.map(i => `${i.nom} x${i.quantite}`).join(', ') : '';
               let tableInfo = order.table || order.tableNumber || '?';
               let msg = `Nouvelle commande reçue, table ${tableInfo}`;
@@ -1809,10 +1839,6 @@
               setTimeout(() => proposeTempsCommande(order.id), 500);
             }
           });
-          const playCount = Math.min(newOrdersCount, 3);
-          for (let i = 0; i < playCount; i++) setTimeout(() => {
-            // on a déjà joué le son pour chaque commande dans la boucle
-          }, i * 400);
           showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
         }
 
@@ -1855,13 +1881,15 @@
     }
 
     // ============================================================
-    //  RENDU KANBAN
+    //  RENDU KANBAN (3 colonnes: en attente, prêt, terminé)
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
       const sort = document.getElementById('sortCommandes').value;
 
-      let filtered = toutesLesCommandes;
+      // Ne garder que les statuts autorisés
+      const allowedStatus = ['en attente', 'prêt', 'terminé'];
+      let filtered = toutesLesCommandes.filter(o => allowedStatus.includes(o.status));
       if (filter !== 'all') filtered = filtered.filter(o => o.status === filter);
 
       if (sort === 'arrivee') {
@@ -1882,7 +1910,6 @@
 
       const cols = {
         'en attente': [],
-        'en préparation': [],
         'prêt': [],
         'terminé': []
       };
@@ -1939,11 +1966,6 @@
           let actionsHtml = '';
           if (order.status === 'en attente') {
             actionsHtml = `<button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>`;
-          } else if (order.status === 'en préparation') {
-            actionsHtml = `
-              <button class="btn btn-success btn-sm" onclick="readyOrder('${order.id}')"><i class="fas fa-check-double"></i> Prêt</button>
-              <button class="btn btn-warning btn-sm" onclick="prolongerOrder('${order.id}')"><i class="fas fa-clock"></i> +</button>
-            `;
           } else if (order.status === 'prêt') {
             actionsHtml = `<button class="btn btn-info btn-sm" onclick="alertServer('${order.id}')"><i class="fas fa-bell"></i> Alerter serveur</button>`;
           }
@@ -1971,7 +1993,6 @@
     function getStatusBadge(status) {
       const map = {
         'en attente': { class: 'badge-warning', label: 'En attente' },
-        'en préparation': { class: 'badge-info', label: 'En préparation' },
         'prêt': { class: 'badge-success', label: 'Prêt' },
         'terminé': { class: 'badge-danger', label: 'Terminé' }
       };
@@ -2310,7 +2331,6 @@
             // Ignorer
           } else {
             if (!document.getElementById('timerOverlay').classList.contains('open')) {
-              // Alerter avec son ou voix
               alertTimerExpired(item.label, item.type === 'commande' ? 'Commande' : 'Plat');
               showTimerOverlay(item.id, item.label, item.type === 'commande' ? 'Commande' : 'Plat');
             }
@@ -2320,7 +2340,7 @@
     }
 
     // ============================================================
-    //  OVERLAY TIMER ÉCOULÉ (avec arrêt de la sonnerie/voix)
+    //  OVERLAY TIMER ÉCOULÉ (avec répétition espacée de 5s)
     // ============================================================
     let currentTimerEntityId = null;
     let currentTimerEntityType = 'commande';
@@ -2338,15 +2358,15 @@
           alertInterval = null;
           return;
         }
-        // Rappel : son ou voix
-        if (alertPreference === 'sonnerie') {
+        // Rappel toutes les 5 secondes
+        if (selectedVoiceName === 'sonnerie') {
           playSound(660, 0.3, 'square', 0.2);
           setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
           setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
         } else {
-          speak(`Attention, ${type} ${label} est normalement prêt. Est-il prêt ?`, voiceGender);
+          speak(`Attention, ${type} ${label} est normalement prêt. Est-il prêt ?`, selectedVoiceName);
         }
-      }, 4000);
+      }, 5000); // 5 secondes entre chaque répétition
     }
 
     function closeTimerOverlay() {
@@ -2627,7 +2647,7 @@
     };
 
     // ============================================================
-    //  AJOUT / MODIFICATION PLAT (inchangé, conservation)
+    //  AJOUT / MODIFICATION PLAT
     // ============================================================
     document.getElementById('openAddPlat').addEventListener('click', () => {
       let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
@@ -2987,10 +3007,10 @@
     //  TEST SOUND
     // ============================================================
     function playTestSound() {
-      if (alertPreference === 'sonnerie') {
+      if (selectedVoiceName === 'sonnerie') {
         playNotificationSound('Test son');
       } else {
-        speak('Test voix, paramètres bien enregistrés', voiceGender);
+        speak('Test voix, paramètres bien enregistrés', selectedVoiceName);
       }
       showToast('🔊 Test effectué', 'info');
     }
@@ -3011,7 +3031,7 @@
     // ============================================================
     //  INIT
     // ============================================================
-    console.log('SCAN&TCHOP Cuisine Pro - avec voix et statistiques corrigées');
+    console.log('SCAN&TCHOP Cuisine Pro - avec voix multiples et commandes filtrées');
   </script>
 </body>
 </html>
