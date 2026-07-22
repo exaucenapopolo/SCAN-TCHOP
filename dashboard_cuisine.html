@@ -1083,6 +1083,7 @@
       <a data-section="menu"><i class="fas fa-utensils"></i> Menu</a>
       <a data-section="chef"><i class="fas fa-hat-chef"></i> Mode Chef</a>
       <a data-section="preparations"><i class="fas fa-clock"></i> En préparation</a>
+      <a data-section="parametres"><i class="fas fa-cog"></i> Paramètres</a>
     </nav>
     <div class="logout">
       <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
@@ -1128,7 +1129,7 @@
           <div class="stat-label">Plats actifs</div>
           <div class="stat-trend" id="trendPlats"><i class="fas fa-arrow-up"></i> +0</div>
         </div>
-        <div class="stat-item" onclick="navigateToSection('commandes')">
+        <div class="stat-item" onclick="navigateToSection('preparations')">
           <div class="stat-icon"><i class="fas fa-clock"></i></div>
           <div class="stat-number" id="statEnCours">0</div>
           <div class="stat-label">En préparation</div>
@@ -1274,6 +1275,31 @@
         </div>
       </div>
     </div>
+
+    <!-- ========== PARAMÈTRES ========== -->
+    <div id="section-parametres" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="navigateToSection('dashboard')"><i class="fas fa-arrow-left"></i> Retour</button>
+            <h3 style="margin:0;"><i class="fas fa-cog"></i> Paramètres des alertes</h3>
+          </div>
+          <span class="badge badge-info">Préférences utilisateur</span>
+        </div>
+        <form id="settingsForm">
+          <div class="form-group">
+            <label>Type d'alerte</label>
+            <select id="alertType" class="form-control">
+              <option value="sonnerie">Sonnerie</option>
+              <option value="voix_feminine">Voix féminine</option>
+              <option value="voix_masculine">Voix masculine</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+        </form>
+        <div id="settingsStatus" style="margin-top:15px;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ========== FOOTER ========== -->
@@ -1335,9 +1361,11 @@
     };
 
     // ============================================================
-    //  SONNERIES (Web Audio)
+    //  SONNERIES (Web Audio) & VOIX (Speech Synthesis)
     // ============================================================
     let audioCtx = null;
+    let alertPreference = 'sonnerie'; // 'sonnerie', 'voix_feminine', 'voix_masculine'
+    let voiceGender = 'female';
 
     function getAudioContext() {
       if (!audioCtx) {
@@ -1367,45 +1395,83 @@
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + duration);
-        // Pour s'assurer que le son est bien joué si contexte suspendu
-        if (ctx.state === 'suspended') {
-          ctx.resume();
-        }
+        if (ctx.state === 'suspended') ctx.resume();
       } catch(e) { console.warn('Son non disponible', e); }
     }
 
-    function playNotificationSound() {
-      playSound(880, 0.4, 'sine', 0.3);
-      setTimeout(() => playSound(1200, 0.3, 'sine', 0.25), 200);
+    function speak(text, gender) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      let selectedVoice = null;
+      if (gender === 'female') {
+        selectedVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha')) || voices.find(v => v.lang.startsWith('fr'));
+      } else if (gender === 'male') {
+        selectedVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')) || voices.find(v => v.lang.startsWith('fr'));
+      }
+      if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('fr')) || voices[0];
+      utterance.voice = selectedVoice;
+      utterance.lang = 'fr-FR';
+      utterance.rate = 0.9;
+      utterance.pitch = gender === 'female' ? 1.2 : 1.0;
+      window.speechSynthesis.speak(utterance);
     }
 
-    function playGongSound() {
-      playSound(440, 1.0, 'triangle', 0.3);
-      setTimeout(() => playSound(660, 0.6, 'triangle', 0.2), 400);
+    // Alertes centralisées
+    function alertUser(message, type = 'notification', soundOnly = false) {
+      if (alertPreference === 'sonnerie' || soundOnly) {
+        // jouer un son selon le type
+        if (type === 'new_order') {
+          playSound(880, 0.4, 'sine', 0.3);
+          setTimeout(() => playSound(1200, 0.3, 'sine', 0.25), 200);
+        } else if (type === 'ready') {
+          playSound(440, 1.0, 'triangle', 0.3);
+          setTimeout(() => playSound(660, 0.6, 'triangle', 0.2), 400);
+        } else if (type === 'prolonged') {
+          playSound(660, 0.2, 'sine', 0.2);
+        } else if (type === 'timer_expired') {
+          // son répétitif géré ailleurs
+          playSound(660, 0.3, 'square', 0.2);
+          setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
+          setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
+        } else {
+          playSound(880, 0.2, 'sine', 0.2);
+        }
+      } else {
+        // voix
+        speak(message, voiceGender);
+      }
     }
 
-    function playRappelSound() {
-      playSound(660, 0.3, 'square', 0.2);
-      setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
-      setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
+    function playNotificationSound(message) {
+      alertUser(message || 'Nouvelle commande reçue', 'new_order');
     }
 
-    function playTestSound() {
-      playNotificationSound();
-      showToast('🔊 Son de notification testé', 'info');
+    function playGongSound(message) {
+      alertUser(message || 'Prêt !', 'ready');
     }
 
-    // ============================================================
-    //  ÉTATS VIDES
-    // ============================================================
-    function renderEmptyState(icon, message, actionBtnHtml = '') {
-      return `
-        <div class="empty-state-container">
-          <div class="empty-state-icon"><i class="fas ${icon}"></i></div>
-          <div class="empty-state-text">${message}</div>
-          ${actionBtnHtml}
-        </div>
-      `;
+    function playRappelSound(message) {
+      // pour le rappel répétitif, on utilise alertTimerExpired avec répétition
+      // on ne l'appelle pas directement
+    }
+
+    function alertTimerExpired(name, type) {
+      const msg = `Attention, ${type} ${name} est normalement prêt. Est-il prêt ?`;
+      if (alertPreference === 'sonnerie') {
+        // son répétitif géré par l'intervalle
+        playSound(660, 0.3, 'square', 0.2);
+        setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
+        setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
+      } else {
+        speak(msg, voiceGender);
+      }
+    }
+
+    function alertProlonged(name, type, minutes) {
+      const msg = `Préparation prolongée de ${minutes} minutes pour ${type} ${name}`;
+      alertUser(msg, 'prolonged');
     }
 
     // ============================================================
@@ -1419,7 +1485,7 @@
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       const target = document.getElementById('section-' + sectionId);
       if(target) target.classList.add('active');
-      const map = { 'dashboard':'Tableau de bord', 'commandes':'Commandes', 'menu':'Menu', 'chef':'Mode Chef', 'preparations':'En préparation' };
+      const map = { 'dashboard':'Tableau de bord', 'commandes':'Commandes', 'menu':'Menu', 'chef':'Mode Chef', 'preparations':'En préparation', 'parametres':'Paramètres' };
       document.getElementById('pageTitle').textContent = map[sectionId] || 'Tableau de bord';
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (sectionId === 'chef') updateChefMode();
@@ -1497,8 +1563,8 @@
     let unlistenOrders = null;
     let menuItems = [];
     let timerInterval = null;
-    let alertInterval = null; // pour la sonnerie répétitive
-    let alertDismissed = {}; // stocke les timestamps d'ignorance pour chaque commande/plat
+    let alertInterval = null;
+    let alertDismissed = {};
 
     // ============================================================
     //  AUTHENTIFICATION
@@ -1518,6 +1584,14 @@
         document.getElementById('headerRestoName').textContent = restaurantData.nom || 'Mon restaurant';
       } else { showToast('Restaurant introuvable.', 'error'); auth.signOut(); return; }
 
+      // Charger les préférences
+      const prefs = userData.preferences || {};
+      alertPreference = prefs.alertType || 'sonnerie';
+      voiceGender = alertPreference === 'voix_feminine' ? 'female' : (alertPreference === 'voix_masculine' ? 'male' : 'female');
+      // Mettre à jour le select
+      const alertSelect = document.getElementById('alertType');
+      if (alertSelect) alertSelect.value = alertPreference;
+
       await loadDashboardData();
       loadMenu();
       listenOrders();
@@ -1532,6 +1606,31 @@
         updateStats();
         checkFireMode();
       }, 1000);
+    });
+
+    // ============================================================
+    //  PARAMÈTRES
+    // ============================================================
+    document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const newPref = document.getElementById('alertType').value;
+      const uid = currentUser.uid;
+      try {
+        await db.collection('users').doc(uid).update({
+          'preferences.alertType': newPref
+        });
+        alertPreference = newPref;
+        voiceGender = newPref === 'voix_feminine' ? 'female' : (newPref === 'voix_masculine' ? 'male' : 'female');
+        document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--success);"><i class="fas fa-check-circle"></i> Préférences mises à jour.</span>`;
+        showToast('Paramètres sauvegardés', 'success');
+        // Test de la voix si choisie
+        if (newPref !== 'sonnerie') {
+          speak('Paramètres mis à jour', voiceGender);
+        }
+      } catch(err) {
+        document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--danger);">Erreur: ${err.message}</span>`;
+        showToast('Erreur lors de la sauvegarde', 'error');
+      }
     });
 
     // ============================================================
@@ -1557,6 +1656,9 @@
       const yesterdayStr = yesterday.toDateString();
       let yesterdayCount = 0, yesterdayCA = 0, yesterdayEnCours = 0;
 
+      // Compter les plats en préparation (menu)
+      const menuItemsInPrep = menuItems.filter(item => item.statut === 'en_preparation' && item.timerStart).length;
+
       toutesLesCommandes.forEach(o => {
         const d = o.dateObj ? o.dateObj.toDateString() : '';
         if (d === rightNow) {
@@ -1567,10 +1669,12 @@
           yesterdayCount++;
           yesterdayCA += parseFloat(o.total || 0);
         }
-        if (o.status === 'en préparation' || o.status === 'en attente') {
+        // En préparation : uniquement les commandes avec statut 'en préparation'
+        if (o.status === 'en préparation') {
           enCours++;
           if (d === yesterdayStr) yesterdayEnCours++;
         }
+        // Retards pour commandes
         if (o.status === 'en préparation' && o.startTime && o.tempsEstime) {
           const start = o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime);
           const elapsed = (new Date() - start) / 60000;
@@ -1578,26 +1682,23 @@
         }
       });
 
-      // Mise à jour des nombres
+      // Ajouter les plats en préparation au compteur "En préparation"
+      enCours += menuItemsInPrep;
+
       document.getElementById('statCommandes').textContent = dailyCount;
       document.getElementById('statCA').textContent = dailyCA.toLocaleString('fr-FR') + ' F';
       document.getElementById('statEnCours').textContent = enCours;
       document.getElementById('statRetards').textContent = retards;
       document.getElementById('statPlats').textContent = menuItems.length;
 
-      // Tendances réelles
       const trendCommands = yesterdayCount === 0 ? 100 : Math.round(((dailyCount - yesterdayCount) / yesterdayCount) * 100);
       const trendCA = yesterdayCA === 0 ? 100 : Math.round(((dailyCA - yesterdayCA) / yesterdayCA) * 100);
       const trendEnCours = yesterdayEnCours === 0 ? (enCours > 0 ? 100 : 0) : Math.round(((enCours - yesterdayEnCours) / yesterdayEnCours) * 100);
-      const trendRetards = (retards === 0) ? 0 : Math.round(((retards - (toutesLesCommandes.filter(o => o.status === 'en préparation' && o.startTime && o.tempsEstime && ((new Date() - (o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime))) / 60000 > o.tempsEstime)).length || 0)) / (retards+1)) * 100); // simplification
-
+      const trendRet = retards > 0 ? 100 : 0;
       updateTrend('trendCommandes', trendCommands);
       updateTrend('trendCA', trendCA);
       updateTrend('trendEnCours', trendEnCours);
-      // Pour les retards, on met une tendance simple
-      const trendRet = retards > 0 ? 100 : 0;
       updateTrend('trendRetards', trendRet);
-      // Tendance plats
       document.getElementById('trendPlats').innerHTML = `<i class="fas fa-arrow-up"></i> +${menuItems.length > 0 ? menuItems.length : 0}`;
     }
 
@@ -1696,15 +1797,23 @@
           const badge = document.getElementById('newOrderBadge');
           badge.textContent = commandesNonLues;
           badge.classList.add('show');
-          const playCount = Math.min(newOrdersCount, 3);
-          for (let i = 0; i < playCount; i++) setTimeout(() => playNotificationSound(), i * 400);
-          showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
-
+          // Sonnerie ou voix pour nouvelle commande
           orders.filter(o => o.status === 'en attente').forEach(order => {
             if (!order.tempsEstime && !order.startTime) {
+              // préparer le message vocal
+              let itemsSummary = order.items ? order.items.map(i => `${i.nom} x${i.quantite}`).join(', ') : '';
+              let tableInfo = order.table || order.tableNumber || '?';
+              let msg = `Nouvelle commande reçue, table ${tableInfo}`;
+              if (itemsSummary) msg += `, avec ${itemsSummary}`;
+              playNotificationSound(msg);
               setTimeout(() => proposeTempsCommande(order.id), 500);
             }
           });
+          const playCount = Math.min(newOrdersCount, 3);
+          for (let i = 0; i < playCount; i++) setTimeout(() => {
+            // on a déjà joué le son pour chaque commande dans la boucle
+          }, i * 400);
+          showToast(`🍽️ ${newOrdersCount} nouvelle(s) commande(s) reçue(s) !`, 'info');
         }
 
         const pending = orders.filter(o => o.status === 'en attente').length;
@@ -1971,7 +2080,7 @@
           readyTime: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Commande prête ! 🎉', 'success');
-        playGongSound();
+        playGongSound('Commande prête !');
 
         const order = toutesLesCommandes.find(o => o.id === orderId);
         if (order && alertServer) {
@@ -2009,7 +2118,7 @@
           type: 'alert_serveur'
         });
         showToast('Alerte envoyée au serveur 📡', 'info');
-        playNotificationSound();
+        playNotificationSound('Alerte serveur');
       } catch(e) { showToast('Erreur', 'error'); }
     };
 
@@ -2077,6 +2186,7 @@
           startTime: now
         });
         showToast(`Préparation prolongée de ${extra} min`, 'info');
+        alertProlonged(order.reference || 'commande', 'Commande', extra);
         renderKanban();
         renderPreparations();
       });
@@ -2200,8 +2310,8 @@
             // Ignorer
           } else {
             if (!document.getElementById('timerOverlay').classList.contains('open')) {
-              // Jouer le son immédiatement
-              playRappelSound();
+              // Alerter avec son ou voix
+              alertTimerExpired(item.label, item.type === 'commande' ? 'Commande' : 'Plat');
               showTimerOverlay(item.id, item.label, item.type === 'commande' ? 'Commande' : 'Plat');
             }
           }
@@ -2210,7 +2320,7 @@
     }
 
     // ============================================================
-    //  OVERLAY TIMER ÉCOULÉ (avec arrêt de la sonnerie)
+    //  OVERLAY TIMER ÉCOULÉ (avec arrêt de la sonnerie/voix)
     // ============================================================
     let currentTimerEntityId = null;
     let currentTimerEntityType = 'commande';
@@ -2221,7 +2331,6 @@
       document.getElementById('overlayPlatName').textContent = `${type} : ${label}`;
       document.getElementById('overlayTimer').textContent = '00:00';
       document.getElementById('timerOverlay').classList.add('open');
-      // Démarrer la sonnerie répétitive
       if (alertInterval) clearInterval(alertInterval);
       alertInterval = setInterval(() => {
         if (!document.getElementById('timerOverlay').classList.contains('open')) {
@@ -2229,8 +2338,15 @@
           alertInterval = null;
           return;
         }
-        playRappelSound();
-      }, 2000);
+        // Rappel : son ou voix
+        if (alertPreference === 'sonnerie') {
+          playSound(660, 0.3, 'square', 0.2);
+          setTimeout(() => playSound(550, 0.3, 'square', 0.2), 300);
+          setTimeout(() => playSound(440, 0.4, 'square', 0.2), 600);
+        } else {
+          speak(`Attention, ${type} ${label} est normalement prêt. Est-il prêt ?`, voiceGender);
+        }
+      }, 4000);
     }
 
     function closeTimerOverlay() {
@@ -2263,7 +2379,7 @@
           timerStart: null
         }).then(() => {
           showToast('Plat prêt ! 🎉', 'success');
-          playGongSound();
+          playGongSound('Plat prêt !');
           loadMenu();
           renderPreparations();
           updateChefMode();
@@ -2293,6 +2409,7 @@
               startTime: firebase.firestore.FieldValue.serverTimestamp()
             });
             showToast(`Préparation prolongée de ${extra} min`, 'info');
+            alertProlonged(order.reference || 'commande', 'Commande', extra);
           }
         } else {
           const plat = menuItems.find(p => p.id === id);
@@ -2303,6 +2420,7 @@
               timerStart: firebase.firestore.FieldValue.serverTimestamp()
             });
             showToast(`Préparation prolongée de ${extra} min`, 'info');
+            alertProlonged(plat.nom, 'Plat', extra);
           }
         }
         renderPreparations();
@@ -2327,7 +2445,7 @@
         timerStart: null
       });
       showToast('Plat prêt ! 🎉', 'success');
-      playGongSound();
+      playGongSound('Plat prêt !');
       loadMenu();
       renderPreparations();
       updateChefMode();
@@ -2350,6 +2468,7 @@
           timerStart: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast(`Préparation prolongée de ${extra} min`, 'info');
+        alertProlonged(plat.nom, 'Plat', extra);
         renderPreparations();
         updateChefMode();
       });
@@ -2865,9 +2984,34 @@
     });
 
     // ============================================================
+    //  TEST SOUND
+    // ============================================================
+    function playTestSound() {
+      if (alertPreference === 'sonnerie') {
+        playNotificationSound('Test son');
+      } else {
+        speak('Test voix, paramètres bien enregistrés', voiceGender);
+      }
+      showToast('🔊 Test effectué', 'info');
+    }
+
+    // ============================================================
+    //  ÉTATS VIDES
+    // ============================================================
+    function renderEmptyState(icon, message, actionBtnHtml = '') {
+      return `
+        <div class="empty-state-container">
+          <div class="empty-state-icon"><i class="fas ${icon}"></i></div>
+          <div class="empty-state-text">${message}</div>
+          ${actionBtnHtml}
+        </div>
+      `;
+    }
+
+    // ============================================================
     //  INIT
     // ============================================================
-    console.log('SCAN&TCHOP Cuisine Pro - version premium opérationnelle');
+    console.log('SCAN&TCHOP Cuisine Pro - avec voix et statistiques corrigées');
   </script>
 </body>
 </html>
