@@ -526,6 +526,12 @@
     }
     .btn-outline:hover { background:#f8f9fa; border-color:var(--primary); color:var(--primary); transform:translateY(-2px); }
     .btn-sm { padding:6px 14px; font-size:0.8rem; border-radius:8px; }
+    .btn-payment-confirm {
+      background:#0ea5e9;
+      color:#fff;
+      box-shadow:0 4px 15px rgba(14,165,233,0.25);
+    }
+    .btn-payment-confirm:hover { background:#0284c7; transform:translateY(-2px); }
 
     .badge {
       padding:4px 12px;
@@ -542,6 +548,7 @@
     .badge-info { background:#d6eaf8; color:#1a5276; }
     .badge-purple { background:#e8daef; color:#6c3483; }
     .badge-payment { background:#fef9e7; color:#7d6608; }
+    .badge-paid { background:#d5f5e3; color:#1e8449; }
 
     /* ========== FILTRES ========== */
     .filter-group {
@@ -1690,17 +1697,23 @@
 
       toutesLesCommandes.forEach(o => {
         const d = o.dateObj ? o.dateObj.toDateString() : '';
+        // Ne comptabiliser que les commandes payées (Mobile Money ou espèces confirmées)
+        const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé') || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
         if (d === rightNow) {
           dailyCount++;
-          dailyCA += parseFloat(o.montant || o.total || 0);
+          if (isPaid) {
+            dailyCA += parseFloat(o.montant || o.total || 0);
+          }
         }
         if (d === yesterdayStr) {
           yesterdayCount++;
-          yesterdayCA += parseFloat(o.montant || o.total || 0);
+          if (isPaid) {
+            yesterdayCA += parseFloat(o.montant || o.total || 0);
+          }
+          if (o.status === 'en préparation') yesterdayEnCours++;
         }
         if (o.status === 'en préparation') {
           enCours++;
-          if (d === yesterdayStr) yesterdayEnCours++;
         }
         if (o.status === 'en préparation' && o.startTime && o.tempsEstime) {
           const start = o.startTime.toDate ? o.startTime.toDate() : new Date(o.startTime);
@@ -1752,7 +1765,12 @@
         const d = new Date(); d.setDate(d.getDate() - i);
         daysLabels.push(d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }));
         let sum = 0;
-        toutesLesCommandes.forEach(o => { if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) sum += parseFloat(o.montant || o.total || 0); });
+        toutesLesCommandes.forEach(o => {
+          if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) {
+            const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé') || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
+            if (isPaid) sum += parseFloat(o.montant || o.total || 0);
+          }
+        });
         revenueData.push(sum);
       }
       if(salesChart) salesChart.destroy();
@@ -1843,7 +1861,14 @@
           document.getElementById('newOrderBadge').classList.remove('show');
           commandesNonLues = 0;
         }
-      }, error => { console.error('Erreur écoute commandes:', error); });
+      }, error => {
+        console.error('Erreur écoute commandes:', error);
+        // Si erreur d'index, afficher un message d'erreur
+        if (error.code === 'failed-precondition') {
+          showToast('⚠️ Erreur d\'index Firebase. Veuillez créer l\'index composite requis.', 'error');
+          console.error('Index composite nécessaire. Créez un index sur restaurantId (Asc) et createdAt (Desc)');
+        }
+      });
     }
 
     // ============================================================
@@ -1852,7 +1877,6 @@
     function proposeTempsCommande(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) return;
-      // Si déjà en préparation ou temps estimé déjà défini, on ne propose pas
       if (order.status === 'en préparation' || order.tempsEstime) return;
       
       const html = `
@@ -1880,7 +1904,7 @@
     }
 
     // ============================================================
-    //  RENDU KANBAN (avec données enrichies)
+    //  RENDU KANBAN (avec données enrichies + confirmation paiement)
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
@@ -1974,6 +1998,12 @@
           const instructions = order.instructions ? `<p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><i class="fas fa-comment"></i> ${order.instructions}</p>` : '';
           const paymentInfo = order.paymentMode ? `<span class="badge badge-payment">${order.paymentMode === 'mobile' ? '💳 Mobile Money' : '💰 Espèces'}</span>` : '';
           const phoneInfo = order.phone ? `<span style="font-size:0.75rem;color:var(--text-muted);"><i class="fas fa-phone"></i> ${order.phone}</span>` : '';
+          
+          // Badge de paiement confirmé (espèces)
+          let paidBadge = '';
+          if (order.paymentMode === 'cash' && order.paymentConfirmed === true) {
+            paidBadge = `<span class="badge badge-paid">✅ Payé</span>`;
+          }
 
           let actionsHtml = '';
           if (order.status === 'en attente') {
@@ -1985,13 +2015,22 @@
             `;
           } else if (order.status === 'prêt') {
             actionsHtml = `<button class="btn btn-info btn-sm" onclick="alertServer('${order.id}')"><i class="fas fa-bell"></i> Alerter serveur</button>`;
+            // Si paiement en espèces et non confirmé, ajouter bouton de confirmation
+            if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+              actionsHtml += `<button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}')"><i class="fas fa-check-circle"></i> Confirmer paiement</button>`;
+            }
+          } else if (order.status === 'terminé') {
+            // Pour les commandes terminées en espèces non confirmées, permettre aussi
+            if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+              actionsHtml = `<button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}')"><i class="fas fa-check-circle"></i> Confirmer paiement</button>`;
+            }
           }
           actionsHtml += `<button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i></button>`;
 
           card.innerHTML = `
             <div class="ticket-header">
               <div><span class="ref">#${order.reference || order.id.substring(0,8).toUpperCase()}</span> <span class="table-num"><i class="fas fa-chair"></i> Table ${tableNum}</span></div>
-              <div><span class="badge ${statusBadge.class}">${statusBadge.label}</span> ${paymentInfo}</div>
+              <div><span class="badge ${statusBadge.class}">${statusBadge.label}</span> ${paymentInfo} ${paidBadge}</div>
               ${timerHtml}
             </div>
             ${phoneInfo}
@@ -2038,6 +2077,24 @@
     }
 
     // ============================================================
+    //  CONFIRMATION PAIEMENT ESPÈCES
+    // ============================================================
+    window.confirmCashPayment = async function(orderId) {
+      try {
+        await db.collection('orders').doc(orderId).update({
+          paymentConfirmed: true,
+          paymentConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('💵 Paiement en espèces confirmé !', 'success');
+        renderKanban();
+        updateStats();
+      } catch(e) {
+        showToast('Erreur lors de la confirmation', 'error');
+        console.error(e);
+      }
+    };
+
+    // ============================================================
     //  CHARGE & MODE COUP DE FEU
     // ============================================================
     function updateChargeIndicator() {
@@ -2079,7 +2136,7 @@
     });
 
     // ============================================================
-    //  ACTIONS SUR COMMANDES
+    //  ACTIONS SUR COMMANDES (start, ready, alert, details, prolonger)
     // ============================================================
     window.startOrder = async function(orderId) {
       const html = `
@@ -2175,6 +2232,7 @@
       const instructions = order.instructions ? `<p><strong>Instructions :</strong> ${order.instructions}</p>` : '';
       const paymentMode = order.paymentMode ? (order.paymentMode === 'mobile' ? 'Mobile Money' : 'Espèces') : 'Non spécifié';
       const phone = order.phone ? order.phone : 'Non renseigné';
+      const paid = order.paymentConfirmed ? '✅ Payé' : '❌ Non payé (espèces)';
 
       const html = `
         <div style="margin-bottom:16px;">
@@ -2182,7 +2240,7 @@
           <p><strong>Table :</strong> ${order.table || order.tableNumber || '--'}</p>
           <p><strong>Statut :</strong> <span class="badge ${getStatusBadge(order.status).class}">${getStatusBadge(order.status).label}</span></p>
           <p><strong>Date :</strong> ${order.dateObj ? order.dateObj.toLocaleString('fr-FR') : 'N/A'}</p>
-          <p><strong>Paiement :</strong> ${paymentMode} ${order.paymentMode === 'mobile' ? `(Tél: ${phone})` : ''}</p>
+          <p><strong>Paiement :</strong> ${paymentMode} ${order.paymentMode === 'mobile' ? `(Tél: ${phone})` : ''} - ${paid}</p>
           ${instructions}
           <p><strong>Compléments :</strong> ${compsHtml}</p>
           <p><strong>Montant :</strong> ${(order.montant || order.total || 0).toLocaleString('fr-FR')} FCFA</p>
@@ -2199,6 +2257,9 @@
           ${order.status !== 'terminé' ? `
             <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'prêt'); closeModal();">Prêt</button>
             <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${order.id}', 'en préparation'); closeModal();">En préparation</button>
+          ` : ''}
+          ${order.paymentMode === 'cash' && !order.paymentConfirmed ? `
+            <button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}'); closeModal();">Confirmer paiement</button>
           ` : ''}
           <button class="btn btn-outline btn-sm" onclick="closeModal();">Fermer</button>
         </div>
