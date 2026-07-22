@@ -79,6 +79,7 @@
     .ticket { background: #fff; border-radius: 16px; padding: 20px; border-top: 6px solid var(--primary); box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
     .ticket:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
     .ticket.new-ready { animation: flashAlert 1.5s ease infinite alternate; border-top-color: var(--warning); }
+    .ticket.waiting { border-top-color: var(--info); }
     
     @keyframes flashAlert { from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.2); } to { box-shadow: 0 0 25px rgba(241, 196, 15, 0.8); } }
 
@@ -206,6 +207,9 @@
       <a class="active" data-section="a-servir" id="navServir">
         <i class="fas fa-bell"></i> À Servir <span class="badge-notif" id="readyBadge">0</span>
       </a>
+      <a data-section="file-attente">
+        <i class="fas fa-clock"></i> En attente <span class="badge-notif" id="waitingBadge">0</span>
+      </a>
       <a data-section="demandes-aide">
         <i class="fas fa-life-ring"></i> Demandes d'aide <span class="badge-notif" id="helpBadge">0</span>
       </a>
@@ -244,6 +248,23 @@
           <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
             <i class="fas fa-coffee fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
             <p>Aucune commande en attente de service pour le moment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SECTION: FILE D'ATTENTE ========== -->
+    <div id="section-file-attente" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-clock"></i> Commandes en attente</h3>
+          <span class="badge badge-pending" id="waitingCount">0 en attente</span>
+        </div>
+        <div class="grid-commandes" id="waitingOrdersContainer">
+          <!-- Injecté par JS -->
+          <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+            <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+            <p>Aucune commande en file d'attente.</p>
           </div>
         </div>
       </div>
@@ -384,6 +405,7 @@
       
       const map = {
         'a-servir': 'Commandes à Servir',
+        'file-attente': 'File d\'attente',
         'demandes-aide': 'Demandes d\'aide',
         'historique': 'Historique des services',
         'pourboires': 'Mes Pourboires',
@@ -445,7 +467,7 @@
     let alertIntervalId = null;
     let availableVoices = [];
     let isAlerting = false;
-    let pendingNotifications = []; // ids des notifications non traitées (commande prête ou demande aide non prise en charge)
+    let pendingNotifications = [];
 
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -485,7 +507,22 @@
       window.speechSynthesis.speak(utterance);
     }
 
+    // Fonction pour déclencher l'alerte avec un message personnalisé
     function triggerAlert(message) {
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
+        playDingDong();
+      }
+      if (alertMode === 'voix' || alertMode === 'lesdeux') {
+        if (selectedVoiceName === 'sonnerie') {
+          speak(message, null);
+        } else {
+          speak(message, selectedVoiceName);
+        }
+      }
+    }
+
+    // Confirmation d'action (voix ou son)
+    function playConfirmation(message) {
       if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
         playDingDong();
       }
@@ -501,24 +538,41 @@
     function startAlertRepeat() {
       if (alertIntervalId) return;
       isAlerting = true;
-      const nbReady = document.getElementById('readyBadge').textContent;
-      const nbHelp = document.getElementById('helpBadge').textContent;
-      let msg = '';
-      if (parseInt(nbReady) > 0) msg += `Commande prête à servir. `;
-      if (parseInt(nbHelp) > 0) msg += `Demande d'aide en attente. `;
-      if (msg) triggerAlert(msg);
-
+      // Le premier message est déjà joué lors de la détection, mais on démarre l'intervalle pour les répétitions
       alertIntervalId = setInterval(() => {
-        const nbReadyNow = document.getElementById('readyBadge').textContent;
-        const nbHelpNow = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReadyNow) === 0 && parseInt(nbHelpNow) === 0) {
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
           stopAlert();
           return;
         }
-        let m = '';
-        if (parseInt(nbReadyNow) > 0) m += `Commande prête à servir. `;
-        if (parseInt(nbHelpNow) > 0) m += `Demande d'aide en attente. `;
-        if (m) triggerAlert(m);
+        let tablesReady = [];
+        let helpTables = [];
+        // On va chercher les tables concernées
+        const readyOrders = document.querySelectorAll('#readyOrdersContainer .ticket');
+        readyOrders.forEach(ticket => {
+          const tableEl = ticket.querySelector('.ticket-table');
+          if (tableEl) {
+            const tableNum = tableEl.textContent.replace('Table ', '').trim();
+            if (tableNum) tablesReady.push(tableNum);
+          }
+        });
+        const helpRequests = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
+        helpRequests.forEach(card => {
+          const tableEl = card.querySelector('.help-table');
+          if (tableEl) {
+            const tableNum = tableEl.textContent.replace('Table ', '').trim();
+            if (tableNum) helpTables.push(tableNum);
+          }
+        });
+        let msg = '';
+        if (tablesReady.length > 0) {
+          msg += `Commande prête pour la table ${tablesReady.join(', ')}. `;
+        }
+        if (helpTables.length > 0) {
+          msg += `Demande d'aide de la table ${helpTables.join(', ')}. `;
+        }
+        if (msg) triggerAlert(msg);
       }, repeatIntervalSec * 1000);
     }
 
@@ -531,8 +585,10 @@
       window.speechSynthesis.cancel();
     }
 
-    // Appelé quand une nouvelle notification non traitée arrive
-    function onNewNotification() {
+    // Appelé quand une nouvelle notification non traitée arrive (avec message vocal)
+    function onNewNotification(message) {
+      // On joue l'alerte immédiatement
+      if (message) triggerAlert(message);
       if (!isAlerting) {
         startAlertRepeat();
       }
@@ -576,6 +632,7 @@
     let currentUser = null;
     let currentRestaurantId = null;
     let knownReadyOrders = [];
+    let knownWaitingOrders = [];
     let knownHelpRequests = [];
 
     auth.onAuthStateChanged(async user => {
@@ -609,10 +666,12 @@
         document.getElementById('voiceSelect').value = selectedVoiceName; 
       }, 1000);
 
-      // Écouteurs
-      listenServerOrders();
+      // Lancer les écouteurs
+      listenOrders();
       listenHelpRequests();
       listenTips();
+      // Charger l'historique
+      loadHistory(null);
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
@@ -623,7 +682,7 @@
     document.getElementById('settingsForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const newMode = document.getElementById('alertMode').value;
-      const newInterval = parseInt(document.getElementById('repeatInterval').value) || 8;
+      let newInterval = parseInt(document.getElementById('repeatInterval').value) || 8;
       const newVoice = document.getElementById('voiceSelect').value;
 
       if (newInterval < 3) newInterval = 3;
@@ -635,7 +694,6 @@
           'preferences.repeatInterval': newInterval,
           'preferences.voiceName': newVoice
         });
-        // Mettre à jour les variables
         alertMode = newMode;
         repeatIntervalSec = newInterval;
         selectedVoiceName = newVoice;
@@ -663,16 +721,17 @@
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES PRÊTES
+    //  ÉCOUTE DES COMMANDES (prêtes, en attente, servies)
     // ============================================================
-    function listenServerOrders() {
+    function listenOrders() {
       const today = new Date();
       today.setHours(0,0,0,0);
 
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .onSnapshot(snapshot => {
-          const ordersToServe = [];
+          const ordersReady = [];
+          const ordersWaiting = [];
           const ordersServed = [];
 
           snapshot.forEach(doc => {
@@ -680,37 +739,57 @@
             const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
             if (orderDate >= today) {
               if (order.status === 'prêt') {
-                ordersToServe.push(order);
+                ordersReady.push(order);
                 // Nouvelle commande prête ?
                 if (!knownReadyOrders.includes(order.id)) {
                   knownReadyOrders.push(order.id);
                   // Afficher la modale
                   showReadyOrderModal(order);
-                  // Alerter
-                  onNewNotification();
-                  showToast(`Table ${order.table || order.tableNumber} est prête !`, 'warning');
+                  // Alerter avec voix
+                  const tableNum = order.table || order.tableNumber || '?';
+                  const msg = `Commande prête pour la table ${tableNum}`;
+                  onNewNotification(msg);
+                  showToast(`Table ${tableNum} est prête !`, 'warning');
+                }
+              } else if (order.status === 'en_attente') {
+                ordersWaiting.push(order);
+                if (!knownWaitingOrders.includes(order.id)) {
+                  knownWaitingOrders.push(order.id);
+                  // Pas d'alerte pour la file d'attente, juste un affichage
                 }
               } else if (order.status === 'terminé') {
                 ordersServed.push(order);
-                // Retirer de la liste des connues
-                const idx = knownReadyOrders.indexOf(order.id);
-                if (idx !== -1) knownReadyOrders.splice(idx, 1);
-              } else if (order.status === 'en_cours' || order.status === 'en_attente') {
-                // On les affiche pas dans "à servir", mais on les garde peut-être pour l'historique ? Non, on les ignore ici.
+                // Retirer des listes connues
+                const idxReady = knownReadyOrders.indexOf(order.id);
+                if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
+                const idxWait = knownWaitingOrders.indexOf(order.id);
+                if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
+              } else if (order.status === 'en_cours') {
+                // On les retire des listes si elles y étaient (ex: prise en charge)
+                const idxReady = knownReadyOrders.indexOf(order.id);
+                if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
+                const idxWait = knownWaitingOrders.indexOf(order.id);
+                if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
               }
             }
           });
 
-          // Mise à jour du badge
-          const badge = document.getElementById('readyBadge');
-          badge.textContent = ordersToServe.length;
-          if (ordersToServe.length > 0) badge.classList.add('show');
-          else badge.classList.remove('show');
+          // Mise à jour des badges
+          const readyBadge = document.getElementById('readyBadge');
+          readyBadge.textContent = ordersReady.length;
+          if (ordersReady.length > 0) readyBadge.classList.add('show');
+          else readyBadge.classList.remove('show');
 
-          renderOrdersToServe(ordersToServe);
-          // L'historique sera géré séparément avec filtre
-          // On stocke les ordersServed pour l'historique, mais on les récupérera via une requête séparée
-          // On va plutôt recharger l'historique quand on change de filtre
+          const waitingBadge = document.getElementById('waitingBadge');
+          waitingBadge.textContent = ordersWaiting.length;
+          if (ordersWaiting.length > 0) waitingBadge.classList.add('show');
+          else waitingBadge.classList.remove('show');
+
+          document.getElementById('waitingCount').textContent = `${ordersWaiting.length} en attente`;
+
+          renderOrdersToServe(ordersReady);
+          renderWaitingOrders(ordersWaiting);
+          // L'historique est géré séparément
         });
     }
 
@@ -771,8 +850,42 @@
       });
     }
 
+    function renderWaitingOrders(orders) {
+      const container = document.getElementById('waitingOrdersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+          <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+          <p>Aucune commande en file d'attente.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const tableNum = order.table || order.tableNumber || '?';
+        let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+        const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
+
+        const ticketHtml = `
+          <div class="ticket waiting">
+            <div class="ticket-header">
+              <div class="ticket-table" style="background:#e0f2fe; color:#0369a1;">Table ${tableNum}</div>
+              <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
+            </div>
+            ${instructions}
+            <ul class="ticket-items">${itemsHtml}</ul>
+            <div class="ticket-footer" style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
+            </div>
+          </div>
+        `;
+        container.innerHTML += ticketHtml;
+      });
+    }
+
     // ============================================================
-    //  ACTIONS SUR COMMANDES PRÊTES
+    //  ACTIONS SUR COMMANDES
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
@@ -782,10 +895,13 @@
           takenBy: currentUser.uid
         });
         showToast('Commande prise en charge !', 'success');
-        // Retirer de la liste des connues
-        const idx = knownReadyOrders.indexOf(orderId);
-        if (idx !== -1) knownReadyOrders.splice(idx, 1);
-        // Arrêter l'alerte si plus de notifications
+        playConfirmation('Commande prise en charge.');
+        // Retirer de toutes les listes
+        const idxReady = knownReadyOrders.indexOf(orderId);
+        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
+        const idxWait = knownWaitingOrders.indexOf(orderId);
+        if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
+        // Vérifier s'il reste des notifications
         const nbReady = document.getElementById('readyBadge').textContent;
         const nbHelp = document.getElementById('helpBadge').textContent;
         if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
@@ -805,8 +921,11 @@
           waitingAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Commande mise en file d\'attente.', 'info');
-        const idx = knownReadyOrders.indexOf(orderId);
-        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        playConfirmation('Commande mise en file d\'attente.');
+        const idxReady = knownReadyOrders.indexOf(orderId);
+        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
+        // On l'ajoute à la liste des en attente
+        if (!knownWaitingOrders.includes(orderId)) knownWaitingOrders.push(orderId);
         const nbReady = document.getElementById('readyBadge').textContent;
         const nbHelp = document.getElementById('helpBadge').textContent;
         if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
@@ -826,6 +945,7 @@
             paymentConfirmed: true
           });
           showToast('Paiement confirmé !', 'success');
+          playConfirmation('Paiement confirmé.');
         } catch (error) {
           showToast('Erreur lors de la confirmation', 'error');
           console.error(error);
@@ -834,7 +954,7 @@
     };
 
     window.marquerCommeServi = async function(orderId) {
-      // Vérifier si paiement en espèces non confirmé
+      // Vérifier paiement espèces non confirmé
       const orderDoc = await db.collection('orders').doc(orderId).get();
       const order = orderDoc.data();
       if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
@@ -848,14 +968,19 @@
           servedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Commande marquée comme servie !', 'success');
-        const idx = knownReadyOrders.indexOf(orderId);
-        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        playConfirmation('Commande servie.');
+        const idxReady = knownReadyOrders.indexOf(orderId);
+        if (idxReady !== -1) knownReadyOrders.splice(idxReady, 1);
+        const idxWait = knownWaitingOrders.indexOf(orderId);
+        if (idxWait !== -1) knownWaitingOrders.splice(idxWait, 1);
         const nbReady = document.getElementById('readyBadge').textContent;
         const nbHelp = document.getElementById('helpBadge').textContent;
         if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
           stopAlert();
         }
         closeModal();
+        // Recharger l'historique
+        loadHistory(document.getElementById('historyDateFilter').value || null);
       } catch (error) {
         showToast('Erreur lors de la mise à jour', 'error');
         console.error(error);
@@ -921,11 +1046,14 @@
           const currentIds = requests.map(r => r.id);
           const newIds = currentIds.filter(id => !knownHelpRequests.includes(id));
           if (newIds.length > 0) {
-            // Afficher la modale pour la plus récente
             const latest = requests.find(r => r.id === newIds[0]);
-            if (latest) showHelpModal(latest);
-            onNewNotification();
-            showToast(`Nouvelle demande d'aide !`, 'info');
+            if (latest) {
+              showHelpModal(latest);
+              const table = latest.table || '?';
+              const msg = `Demande d'aide de la table ${table}`;
+              onNewNotification(msg);
+              showToast(`Demande d'aide de la table ${table}`, 'info');
+            }
             newIds.forEach(id => knownHelpRequests.push(id));
           }
 
@@ -986,6 +1114,7 @@
           takenBy: currentUser.uid
         });
         showToast('Demande prise en charge !', 'success');
+        playConfirmation('Demande d\'aide prise en charge.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
         const nbReady = document.getElementById('readyBadge').textContent;
@@ -1007,6 +1136,7 @@
           resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Demande résolue.', 'success');
+        playConfirmation('Demande d\'aide résolue.');
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
         const nbReady = document.getElementById('readyBadge').textContent;
@@ -1048,11 +1178,10 @@
     let allServedOrders = [];
 
     function loadHistory(dateFilter) {
-      // dateFilter est une string 'YYYY-MM-DD' ou null
+      if (!currentRestaurantId) return;
       const start = dateFilter ? new Date(dateFilter + 'T00:00:00') : new Date();
       const end = dateFilter ? new Date(dateFilter + 'T23:59:59') : new Date();
       if (!dateFilter) {
-        // Aujourd'hui
         const today = new Date();
         today.setHours(0,0,0,0);
         const tomorrow = new Date(today);
@@ -1140,9 +1269,6 @@
       loadHistory(null);
     }
 
-    // Initialiser l'historique au chargement
-    // On le fera après l'auth
-
     // ============================================================
     //  POURBOIRES (lecture seule)
     // ============================================================
@@ -1193,7 +1319,7 @@
     //  TEST SONORE
     // ============================================================
     window.playTestSound = function() {
-      const msg = 'Test d\'alerte serveur';
+      const msg = 'Test d\'alerte serveur.';
       if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
         playDingDong();
       }
@@ -1210,49 +1336,13 @@
     // ============================================================
     //  INITIALISATION
     // ============================================================
-    document.addEventListener('DOMContentLoaded', function() {
-      // L'historique sera chargé après l'auth
-      // On écoute l'auth pour charger l'historique
-      const originalOnAuth = auth.onAuthStateChanged;
-      auth.onAuthStateChanged = function(callback) {
-        originalOnAuth.call(auth, async (user) => {
-          await callback(user);
-          if (user) {
-            // Charger l'historique par défaut (aujourd'hui)
-            loadHistory(null);
-          }
-        });
-      };
-      // On ré-attache l'écouteur
-      // Mais on a déjà un onAuthStateChanged plus haut, on va juste appeler loadHistory après connexion
-      // Pour éviter de dupliquer, on va surcharger
-      // En fait on va simplement appeler loadHistory dans le onAuthStateChanged existant après avoir défini currentRestaurantId
-    });
+    // L'historique est chargé après l'auth dans le onAuthStateChanged
+    // On s'assure que la fonction loadHistory est appelée après la connexion
+    // Le onAuthStateChanged appelle déjà loadHistory(null)
 
-    // Patch : on va modifier le onAuthStateChanged pour charger l'historique après la connexion
-    // On garde l'existant, on ajoute un appel à loadHistory après avoir défini currentRestaurantId
-    const originalAuthListener = auth.onAuthStateChanged;
-    auth.onAuthStateChanged = function(callback) {
-      return originalAuthListener.call(auth, async (user) => {
-        await callback(user);
-        if (user && currentRestaurantId) {
-          loadHistory(null);
-        }
-      });
-    };
+    // Pour les filtres historiques, on a déjà les fonctions applyHistoryFilter et resetHistoryFilter
 
-    // On réexécute l'initialisation de l'écouteur avec notre patch
-    // Mais comme le script est déjà en cours, on va juste forcer le chargement de l'historique après un court délai
-    setTimeout(() => {
-      if (currentRestaurantId) {
-        loadHistory(null);
-      }
-    }, 2000);
-
-    // ============================================================
-    //  GESTION DU BOUTON SILENCE DANS LES MODALES
-    // ============================================================
-    // Déjà intégré dans les actions des modales avec closeModal() et stopAlert()
+    console.log('SCAN&TCHOP Serveur prêt !');
   </script>
 </body>
 </html>
