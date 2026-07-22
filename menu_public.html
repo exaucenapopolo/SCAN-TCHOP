@@ -241,9 +241,9 @@
         .order-section { margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         .order-section:last-of-type { border-bottom: none; }
         .order-section h4 { font-size: 1.05rem; color: var(--text-main); margin-bottom: 14px; font-weight: 700; }
-        .order-section .input-form { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; margin-bottom: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
+        .order-section .input-form { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; margin-bottom: 10px; outline: none; transition: 0.3s; background: #f8fafc; }
         .order-section .input-form:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); background: #fff; }
-        .order-section textarea.input-form { resize: vertical; min-height: 80px; }
+        .order-section textarea.input-form { resize: vertical; min-height: 60px; }
         
         .qty-selector { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 8px 12px; border-radius: 16px; width: fit-content; border: 1px solid var(--border-color); }
         .qty-btn { background: #fff; border: 1px solid #cbd5e1; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -393,22 +393,11 @@
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- ===== MODAL COMMANDE (avec numéro de table, consignes, choix paiement) ===== -->
+<!-- ===== MODAL COMMANDE (simplifiée) ===== -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
         <h2 id="orderPlatNom" style="margin-bottom: 24px; font-size:1.5rem; font-weight:800; padding-right:24px; color:var(--text-main); font-family: 'Playfair Display', serif;">Nom du plat</h2>
-
-        <!-- Section identité utilisateur (visible uniquement si pas de compte) -->
-        <div id="userIdentitySection" class="order-section" style="border-bottom: 2px dashed var(--primary-light);">
-            <h4>Vos coordonnées <span style="color:#ef4444;">*</span></h4>
-            <input type="email" id="orderEmail" class="input-form" placeholder="Adresse email *" required />
-            <input type="text" id="orderUserName" class="input-form" placeholder="Nom complet (pour l'affichage)" />
-            <input type="tel" id="orderPhone" class="input-form" placeholder="Numéro de téléphone (Mobile Money) *" required />
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                <i class="fas fa-info-circle"></i> Ces informations seront conservées pour vos prochaines commandes.
-            </p>
-        </div>
 
         <div class="order-section">
             <h4>Quantité</h4>
@@ -419,7 +408,7 @@
             </div>
         </div>
 
-        <!-- Compléments (si existants) -->
+        <!-- Compléments -->
         <div class="order-section" id="complementsContainer" style="display:none;">
             <h4>Compléments</h4>
             <div id="complementsCheckboxes"></div>
@@ -442,7 +431,7 @@
             </div>
         </div>
 
-        <!-- Numéro de table -->
+        <!-- Table -->
         <div class="order-section">
             <h4>Votre numéro de table <span style="color:#ef4444;">*</span></h4>
             <input type="text" id="orderTable" class="input-form" placeholder="Ex: 7, 12, ou 'Terrasse 5'" required />
@@ -457,10 +446,10 @@
             <textarea id="orderInstructions" class="input-form" placeholder="Ex: Sans sel, pas d'oignons, bien cuit, etc."></textarea>
         </div>
 
-        <!-- Choix du mode de paiement -->
-        <div class="order-section">
+        <!-- ===== PAIEMENT ===== -->
+        <div class="order-section" style="border-bottom: none;">
             <h4>Mode de paiement</h4>
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
                 <button class="btn-contact btn-phone" id="btnMobileMoney" onclick="selectPaymentMode('mobile')" style="flex:1;">
                     <i class="fas fa-mobile-alt"></i> Mobile Money
                 </button>
@@ -468,17 +457,18 @@
                     <i class="fas fa-coins"></i> Espèces (à la caisse)
                 </button>
             </div>
-        </div>
+            
+            <!-- Téléphone (obligatoire si Mobile Money) -->
+            <input type="tel" id="orderPhone" class="input-form" placeholder="Numéro de téléphone (Mobile Money)" />
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:12px;">
+                <i class="fas fa-info-circle"></i> Obligatoire pour le paiement Mobile Money.
+            </p>
 
-        <!-- Champ téléphone (Mobile Money) - affiché ou non selon le mode -->
-        <div id="phoneField" style="display:block;">
-            <div class="order-section" style="border-bottom: none; padding-bottom: 5px;">
-                <h4>Numéro de téléphone (Mobile Money)</h4>
-                <input type="tel" id="orderPhoneMobile" class="input-form" placeholder="Ex: 6XXXXXXXX" />
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                    <i class="fas fa-info-circle"></i> Obligatoire si vous payez par Mobile Money.
-                </p>
-            </div>
+            <!-- Email (toujours obligatoire pour le compte) -->
+            <input type="email" id="orderEmail" class="input-form" placeholder="Adresse email (pour votre compte et le suivi) *" required />
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:4px;">
+                <i class="fas fa-user-plus"></i> Votre compte sera créé avec cet email. Vous pourrez suivre vos commandes en temps réel.
+            </p>
         </div>
 
         <div class="total-display">
@@ -577,8 +567,12 @@
     function saveCurrentUser(user) {
         currentUser = user;
         localStorage.setItem('scan_user', JSON.stringify(user));
-        // Mettre à jour l'affichage du badge utilisateur
         updateUserBadge();
+        // Pré-remplir les champs email et téléphone dans le modal commande si ouvert
+        const emailInput = document.getElementById('orderEmail');
+        const phoneInput = document.getElementById('orderPhone');
+        if (emailInput) emailInput.value = user.email || '';
+        if (phoneInput) phoneInput.value = user.phone || '';
     }
 
     function updateUserBadge() {
@@ -607,11 +601,13 @@
         return null;
     }
 
-    // Créer un nouvel utilisateur
-    async function createUser(email, displayName, phone) {
+    // Créer un nouvel utilisateur avec email et téléphone
+    async function createUser(email, phone) {
+        // Extraire le nom de l'email
+        const displayName = email.split('@')[0] || 'Client';
         const userData = {
             email,
-            displayName: displayName || email.split('@')[0],
+            displayName,
             phone: phone || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
@@ -622,11 +618,11 @@
     }
 
     // S'assurer que l'utilisateur existe (soit récupérer soit créer)
-    async function ensureUser(email, displayName, phone) {
+    async function ensureUser(email, phone) {
         if (!email) throw new Error('Email requis');
         // Vérifier d'abord en local
         if (currentUser && currentUser.email === email) {
-            // Mettre à jour éventuellement phone et displayName
+            // Mettre à jour éventuellement phone
             if (phone && !currentUser.phone) {
                 currentUser.phone = phone;
                 await db.collection('users').doc(currentUser.userId).update({ phone });
@@ -637,20 +633,20 @@
         // Chercher dans Firestore
         const existing = await fetchUserByEmail(email);
         if (existing) {
-            // Mettre à jour si besoin
             if (phone && !existing.phone) {
                 await db.collection('users').doc(existing.userId).update({ phone });
                 existing.phone = phone;
             }
-            if (displayName && !existing.displayName) {
-                await db.collection('users').doc(existing.userId).update({ displayName });
-                existing.displayName = displayName;
+            // Mettre à jour le displayName si vide
+            if (!existing.displayName) {
+                const name = email.split('@')[0] || 'Client';
+                await db.collection('users').doc(existing.userId).update({ displayName: name });
+                existing.displayName = name;
             }
             saveCurrentUser(existing);
             return existing;
         } else {
-            // Créer
-            return await createUser(email, displayName, phone);
+            return await createUser(email, phone);
         }
     }
 
@@ -671,10 +667,8 @@
                 favorites.push(platId);
             }
             await userRef.update({ favorites });
-            // Mettre à jour local
             currentUser.favorites = favorites;
             saveCurrentUser(currentUser);
-            // Rafraîchir l'affichage des cartes pour mettre à jour les cœurs
             renderMenu();
         } catch (e) {
             console.error('Erreur favoris:', e);
@@ -699,7 +693,7 @@
         updateUserBadge();
         await loadRestaurantData();
         await loadMenuData();
-        // Vérifier s'il y a une commande en cours dans localStorage (pour compatibilité)
+        // Vérifier s'il y a une commande en cours dans localStorage (compatibilité)
         const savedOrder = localStorage.getItem('pendingOrder');
         if (savedOrder) {
             try {
@@ -710,7 +704,6 @@
                 }
             } catch(e) {}
         }
-        // Si utilisateur connecté, charger ses favoris (déjà dans currentUser)
     }
 
     // ===== CHARGEMENT DES DONNÉES =====
@@ -872,7 +865,7 @@
                     }
                 }
             });
-            renderMenu(); // rafraîchir l'affichage
+            renderMenu();
         }, error => console.error('Erreur écoute menu:', error));
     }
 
@@ -895,7 +888,6 @@
             const promoBadge = (plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="badge-promo">Promo</span>` : '';
             const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
             
-            // Compléments
             let complementsHtml = '';
             if (plat.complements && plat.complements.length > 0) {
                 complementsHtml = `<div class="complements-list">` +
@@ -903,7 +895,6 @@
                     `</div>`;
             }
 
-            // Statut et timer
             let statutBadgeHtml = '';
             let timerHtml = '';
             if (plat.statut === 'en_preparation' && plat.timerStart && plat.dureePreparation) {
@@ -1020,33 +1011,17 @@
             displayName: ''
         };
 
-        // Réinitialiser les champs
         document.getElementById('orderPlatNom').innerText = plat.nom;
         document.getElementById('orderQty').innerText = 1;
         document.getElementById('splitCount').value = '';
         document.getElementById('orderTable').value = '';
         document.getElementById('orderInstructions').value = '';
-        document.getElementById('orderPhoneMobile').value = '';
-        document.getElementById('orderEmail').value = '';
-        document.getElementById('orderUserName').value = '';
-        document.getElementById('phoneField').style.display = 'block';
+        document.getElementById('orderPhone').value = currentUser?.phone || '';
+        document.getElementById('orderEmail').value = currentUser?.email || '';
         document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
         document.getElementById('btnCash').style.background = '#f43f5e';
 
-        // Gérer l'affichage de la section identité
-        const identitySection = document.getElementById('userIdentitySection');
-        if (currentUser) {
-            identitySection.style.display = 'none';
-            // Pré-remplir les champs cachés pour la commande
-            document.getElementById('orderEmail').value = currentUser.email;
-            document.getElementById('orderUserName').value = currentUser.displayName || '';
-            document.getElementById('orderPhoneMobile').value = currentUser.phone || '';
-            document.getElementById('orderPhone').value = currentUser.phone || '';
-        } else {
-            identitySection.style.display = 'block';
-        }
-
-        // Afficher les compléments si présents
+        // Afficher les compléments
         const compContainer = document.getElementById('complementsContainer');
         const compCheckboxes = document.getElementById('complementsCheckboxes');
         if (plat.complements && plat.complements.length > 0) {
@@ -1142,17 +1117,16 @@
         if (mode === 'mobile') {
             document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
             document.getElementById('btnCash').style.background = '#f43f5e';
-            document.getElementById('phoneField').style.display = 'block';
+            document.getElementById('orderPhone').placeholder = 'Numéro de téléphone (Mobile Money) *';
         } else {
             document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
             document.getElementById('btnCash').style.background = '#f43f5e';
-            document.getElementById('phoneField').style.display = 'none';
+            document.getElementById('orderPhone').placeholder = 'Numéro de téléphone (optionnel)';
         }
     }
 
     // ===== VALIDER LA COMMANDE =====
     async function validerCommande() {
-        // Récupérer les champs
         const table = document.getElementById('orderTable').value.trim();
         if (!table) {
             alert('Veuillez indiquer votre numéro de table.');
@@ -1162,33 +1136,20 @@
         currentOrder.table = table;
         currentOrder.instructions = document.getElementById('orderInstructions').value.trim();
 
-        // Récupérer les infos utilisateur
-        let email = document.getElementById('orderEmail').value.trim();
-        let displayName = document.getElementById('orderUserName').value.trim();
-        let phone = document.getElementById('orderPhoneMobile').value.trim();
+        // Récupérer email et téléphone
+        const email = document.getElementById('orderEmail').value.trim();
+        let phone = document.getElementById('orderPhone').value.trim();
 
-        // Si l'utilisateur est déjà connecté, on utilise ses données
-        if (currentUser) {
-            email = currentUser.email;
-            displayName = currentUser.displayName || '';
-            phone = currentUser.phone || '';
-        } else {
-            if (!email) {
-                alert('Veuillez renseigner votre adresse email.');
-                document.getElementById('orderEmail').focus();
-                return;
-            }
-            if (!phone) {
-                alert('Veuillez renseigner votre numéro de téléphone pour le paiement Mobile Money.');
-                document.getElementById('orderPhoneMobile').focus();
-                return;
-            }
+        if (!email) {
+            alert('Veuillez renseigner votre adresse email (obligatoire pour créer votre compte et suivre votre commande).');
+            document.getElementById('orderEmail').focus();
+            return;
         }
 
-        // Valider le téléphone si mode mobile
+        // Si paiement Mobile Money, téléphone obligatoire
         if (currentOrder.paymentMode === 'mobile' && !phone) {
-            alert('Veuillez entrer votre numéro de téléphone pour le paiement Mobile Money.');
-            document.getElementById('orderPhoneMobile').focus();
+            alert('Veuillez renseigner votre numéro de téléphone pour le paiement Mobile Money.');
+            document.getElementById('orderPhone').focus();
             return;
         }
 
@@ -1206,7 +1167,7 @@
         // ---- CRÉATION / RÉCUPÉRATION DE L'UTILISATEUR ----
         let user;
         try {
-            user = await ensureUser(email, displayName, phone);
+            user = await ensureUser(email, phone);
         } catch (e) {
             alert('Erreur lors de la création du compte utilisateur.');
             return;
@@ -1224,7 +1185,7 @@
             table: currentOrder.table,
             instructions: currentOrder.instructions,
             paymentMode: currentOrder.paymentMode,
-            phone: phone,
+            phone: phone || '',
             montant: finalAmount,
             status: 'en attente',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1238,11 +1199,9 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
 
         try {
-            // Enregistrer dans Firestore
             const docRef = await db.collection('orders').add(orderData);
             const orderId = docRef.id;
             activeOrderId = orderId;
-            // Sauvegarder dans localStorage pour suivi (en plus de l'utilisateur)
             localStorage.setItem('pendingOrder', JSON.stringify({
                 restaurantId: restaurantId,
                 orderId: orderId,
@@ -1250,7 +1209,6 @@
                 timestamp: Date.now()
             }));
 
-            // Notification pour la cuisine
             await db.collection('notifications').add({
                 restaurantId: restaurantId,
                 orderId: orderId,
@@ -1283,7 +1241,6 @@
         document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
         document.getElementById('trackStatusBadge').className = 'badge badge-warning';
         document.getElementById('trackStatusBadge').textContent = 'En attente';
-        // Démarrer l'écoute en temps réel
         listenOrderStatus(orderId);
     }
 
@@ -1353,16 +1310,14 @@
         });
     });
 
-    // Auto-remplir le nom si utilisateur connecté
     function autoFillReviewName() {
         if (currentUser && currentUser.displayName) {
             document.getElementById('avisNom').value = currentUser.displayName;
         } else if (currentUser && currentUser.email) {
-            document.getElementById('avisNom').value = currentUser.email;
+            document.getElementById('avisNom').value = currentUser.email.split('@')[0] || '';
         }
     }
 
-    // Appeler lors de l'ouverture du modal avis
     document.getElementById('modalAvis').addEventListener('shown', function() {
         autoFillReviewName();
     });
