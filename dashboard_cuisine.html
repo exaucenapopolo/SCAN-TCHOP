@@ -1664,9 +1664,7 @@
         selectedVoiceName = newVoice;
         document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--success);"><i class="fas fa-check-circle"></i> Préférences mises à jour.</span>`;
         showToast('Paramètres sauvegardés', 'success');
-        if (newVoice !== 'sonnerie') {
-          speak('Paramètres mis à jour', newVoice);
-        }
+        alertUser('Paramètres mis à jour', 'notification');
       } catch(err) {
         document.getElementById('settingsStatus').innerHTML = `<span style="color:var(--danger);">Erreur: ${err.message}</span>`;
         showToast('Erreur lors de la sauvegarde', 'error');
@@ -1916,6 +1914,7 @@
           tempsEstime: minutes
         });
         showToast(`✅ Commande #${order.reference || order.id.substring(0,6)} démarrée — ${minutes} min estimées`, 'success');
+        alertUser(`Commande démarrée, ${minutes} minutes estimées`, 'notification');
         closeModal();
         renderKanban();
         renderPreparations();
@@ -2133,6 +2132,7 @@
           paymentConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('💵 Paiement en espèces confirmé !', 'success');
+        alertUser('Paiement en espèces confirmé', 'notification');
         renderKanban();
         updateStats();
       } catch(e) {
@@ -2201,6 +2201,7 @@
           tempsEstime: minutes
         });
         showToast(`Commande démarrée, ${minutes} min estimées ✅`, 'success');
+        alertUser(`Commande démarrée, ${minutes} minutes estimées`, 'notification');
         renderKanban();
         renderPreparations();
       });
@@ -2239,6 +2240,7 @@
             type: 'order_ready'
           });
           showToast('🔔 Alerte envoyée au serveur !', 'info');
+          alertUser('Alerte serveur envoyée', 'notification');
         }
         renderKanban();
         renderPreparations();
@@ -2263,7 +2265,7 @@
           type: 'alert_serveur'
         });
         showToast('Alerte envoyée au serveur 📡', 'info');
-        playNotificationSound('Alerte serveur');
+        alertUser('Alerte serveur envoyée', 'notification');
       } catch(e) { showToast('Erreur', 'error'); }
     };
 
@@ -2318,6 +2320,7 @@
       try {
         await db.collection('orders').doc(orderId).update({ status: newStatus });
         showToast(`Commande passée à "${newStatus}"`, 'success');
+        alertUser(`Commande passée à ${newStatus}`, 'notification');
         renderKanban();
         renderPreparations();
         updateChefMode();
@@ -2632,7 +2635,7 @@
     };
 
     // ============================================================
-    //  MENU (inchangé)
+    //  MENU
     // ============================================================
     async function loadMenu() {
       if (!currentRestaurantId) return;
@@ -2696,6 +2699,7 @@
     window.toggleDisponibilite = async (id, checked) => {
       await db.collection('menus').doc(id).update({ disponible: checked });
       showToast(checked ? 'Plat disponible' : 'Plat masqué', 'info');
+      alertUser(checked ? 'Plat disponible' : 'Plat masqué', 'notification');
       loadMenu();
     };
 
@@ -2703,6 +2707,7 @@
       if (confirm('Supprimer ce plat définitivement ?')) {
         await db.collection('menus').doc(id).delete();
         showToast('Plat supprimé', 'error');
+        alertUser('Plat supprimé', 'notification');
         loadMenu();
       }
     };
@@ -2751,6 +2756,7 @@
           }
           await db.collection('menus').doc(id).update(updates);
           showToast('Plat masqué', 'info');
+          alertUser('Plat masqué', 'notification');
           loadMenu();
           renderPreparations();
           updateChefMode();
@@ -2777,6 +2783,7 @@
           timerStart: null
         });
         showToast('Plat réactivé', 'success');
+        alertUser('Plat réactivé', 'notification');
         loadMenu();
         renderPreparations();
         updateChefMode();
@@ -2784,7 +2791,7 @@
     };
 
     // ============================================================
-    //  AJOUT / MODIFICATION PLAT (inchangé)
+    //  AJOUT / MODIFICATION PLAT
     // ============================================================
     document.getElementById('openAddPlat').addEventListener('click', () => {
       let uploadedPlatUrl = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop';
@@ -2891,8 +2898,9 @@
         if (statut === 'en_preparation' && duree) {
           data.timerStart = firebase.firestore.FieldValue.serverTimestamp();
         }
-        const docRef = await db.collection('menus').add(data);
+        await db.collection('menus').add(data);
         showToast('Plat ajouté avec succès ! ✨');
+        alertUser('Nouveau plat ajouté', 'notification');
         loadMenu();
         renderPreparations();
         updateChefMode();
@@ -3059,6 +3067,7 @@
         }
         await db.collection('menus').doc(id).update(updates);
         showToast('Plat modifié !');
+        alertUser('Plat modifié', 'notification');
         loadMenu();
         renderPreparations();
         updateChefMode();
