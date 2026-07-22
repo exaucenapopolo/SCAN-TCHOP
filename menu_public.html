@@ -119,13 +119,23 @@
         
         .menu-card .body { padding: 22px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 2; background: #fff; }
         .menu-card .body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); line-height: 1.3; }
-        .menu-card .body .description-plat { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; flex-grow: 1; }
+        .menu-card .body .description-plat { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; flex-grow: 1; }
         
-        .price { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        /* Compléments */
+        .complements-list {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+        }
+        .complement-tag {
+            background: var(--primary-light); color: var(--primary); padding: 4px 12px;
+            border-radius: 50px; font-size: 0.8rem; font-weight: 600;
+            border: 1px solid rgba(230,126,34,0.2);
+        }
+        .complement-tag .price { font-weight: 700; margin-left: 4px; }
+
+        .price { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .price .current { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
         .price .original { font-size: 1rem; font-weight: 600; color: #94a3b8; text-decoration: line-through; }
         
-        /* ====== BOUTONS COMMANDER ====== */
         .btn-commander {
             width: 100%; padding: 14px; margin-top: auto;
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
@@ -137,7 +147,31 @@
         .btn-commander:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35); }
         .btn-commander:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; color: #64748b; }
 
-        /* ====== SECTION AVIS CLIENTS (NOUVEAU) ====== */
+        /* Badge de statut sur la carte */
+        .statut-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 50px;
+            font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
+            margin-bottom: 10px; letter-spacing: 0.3px;
+        }
+        .statut-badge.en_preparation {
+            background: #fef3c7; color: #b45309;
+        }
+        .statut-badge.rupture {
+            background: #fee2e2; color: #b91c1c;
+        }
+        .statut-badge.disponible {
+            background: #d1fae5; color: #065f46;
+        }
+
+        /* Compte à rebours sur la carte */
+        .timer-countdown {
+            background: rgba(0,0,0,0.7); color: #fff; padding: 6px 14px; border-radius: 50px;
+            font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(4px); margin-bottom: 10px;
+        }
+        .timer-countdown i { color: #fcd34d; }
+
+        /* ====== SECTION AVIS CLIENTS ====== */
         .reviews-section { margin-top: 48px; background: #fff; padding: 32px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: none; }
         .reviews-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; }
         .reviews-section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
@@ -169,7 +203,7 @@
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-content {
-            background: #fff; border-radius: 28px; width: 100%; max-width: 460px;
+            background: #fff; border-radius: 28px; width: 100%; max-width: 480px;
             padding: 32px; position: relative; transform: translateY(20px); transition: 0.3s;
             max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
@@ -213,7 +247,30 @@
         .stars i.active { color: #f59e0b; }
         .input-form { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 0.95rem; margin-bottom: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
         .input-form:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230,126,34,0.1); background: #fff; }
-        textarea.input-form { resize: vertical; min-height: 120px; }
+        textarea.input-form { resize: vertical; min-height: 80px; }
+
+        /* Bouton d'aide */
+        .btn-help {
+            background: #f43f5e; color: white; border: none; border-radius: 50px;
+            padding: 12px 24px; font-weight: 700; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.25);
+        }
+        .btn-help:hover { transform: translateY(-2px); background: #e11d48; }
+
+        /* ====== SUIVI DE COMMANDE ====== */
+        .order-tracking {
+            background: #fff; border-radius: 24px; padding: 24px; margin-bottom: 30px;
+            border: 2px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .order-tracking .track-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+        }
+        .order-tracking .track-header h3 { font-weight: 800; font-size: 1.2rem; }
+        .order-tracking .track-status { display: flex; gap: 20px; flex-wrap: wrap; }
+        .order-tracking .track-status .label { color: var(--text-muted); font-weight: 500; }
+        .order-tracking .track-status .value { font-weight: 700; }
+        .order-tracking .track-actions { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
 
         /* ====== BAS DE PAGE ====== */
         .app-footer {
@@ -257,6 +314,23 @@
 
     <div id="menuContainer" class="menu-grid"></div>
 
+    <!-- Section Suivi de commande (cachée par défaut) -->
+    <div id="orderTracking" class="order-tracking">
+        <div class="track-header">
+            <h3><i class="fas fa-check-circle" style="color:var(--primary);"></i> Suivi de votre commande</h3>
+            <span class="badge badge-success" id="trackStatusBadge">En cours</span>
+        </div>
+        <div class="track-status">
+            <div><span class="label">Référence :</span> <span class="value" id="trackRef">---</span></div>
+            <div><span class="label">Temps estimé :</span> <span class="value" id="trackTime">---</span></div>
+            <div><span class="label">Statut :</span> <span class="value" id="trackStatus">En attente</span></div>
+        </div>
+        <div class="track-actions">
+            <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
+            <button class="btn-contact btn-avis-header" onclick="openModal('modalAvis')"><i class="fas fa-star"></i> Laisser un avis</button>
+        </div>
+    </div>
+
     <section id="reviewsSection" class="reviews-section">
         <div class="reviews-section-header">
             <h2><i class="fas fa-comments" style="color: var(--primary); margin-right: 10px;"></i> Ce que nos clients en pensent</h2>
@@ -291,19 +365,25 @@
     <button class="close-modal" onclick="closeModal('modalZoom')"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- === MODIFICATION : AJOUT DU CHAMP TÉLÉPHONE DANS LE MODAL DE COMMANDE === -->
+<!-- ===== MODAL COMMANDE (avec numéro de table, consignes, choix paiement) ===== -->
 <div class="modal-overlay" id="modalOrder">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
         <h2 id="orderPlatNom" style="margin-bottom: 24px; font-size:1.5rem; font-weight:800; padding-right:24px; color:var(--text-main); font-family: 'Playfair Display', serif;">Nom du plat</h2>
-        
+
         <div class="order-section">
-            <h4>Combien en souhaitez-vous ?</h4>
+            <h4>Quantité</h4>
             <div class="qty-selector">
                 <button class="qty-btn" onclick="updateQty(-1)"><i class="fas fa-minus" style="font-size:0.8rem;"></i></button>
                 <span class="qty-val" id="orderQty">1</span>
                 <button class="qty-btn" onclick="updateQty(1)"><i class="fas fa-plus" style="font-size:0.8rem;"></i></button>
             </div>
+        </div>
+
+        <!-- Compléments (si existants) -->
+        <div class="order-section" id="complementsContainer" style="display:none;">
+            <h4>Compléments</h4>
+            <div id="complementsCheckboxes"></div>
         </div>
 
         <div class="order-section">
@@ -323,10 +403,43 @@
             </div>
         </div>
 
-        <!-- Section de numéro de téléphone (Nouveau) -->
-        <div class="order-section" style="border-bottom: none; padding-bottom: 5px;">
-            <h4>Numéro de téléphone (Mobile Money)</h4>
-            <input type="tel" id="orderPhone" class="input-form" placeholder="Ex: 6XXXXXXXX" required style="margin-bottom: 0;" />
+        <!-- ===== NOUVEAU : Numéro de table ===== -->
+        <div class="order-section">
+            <h4>Votre numéro de table <span style="color:var(--danger);">*</span></h4>
+            <input type="text" id="orderTable" class="input-form" placeholder="Ex: 7, 12, ou 'Terrasse 5'" required />
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                <i class="fas fa-info-circle"></i> Indiquez le numéro indiqué sur le chevalet présent sur votre table.
+            </p>
+        </div>
+
+        <!-- ===== NOUVEAU : Consignes ===== -->
+        <div class="order-section">
+            <h4>Instructions particulières</h4>
+            <textarea id="orderInstructions" class="input-form" placeholder="Ex: Sans sel, pas d'oignons, bien cuit, etc."></textarea>
+        </div>
+
+        <!-- ===== NOUVEAU : Choix du mode de paiement ===== -->
+        <div class="order-section">
+            <h4>Mode de paiement</h4>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn-contact btn-phone" id="btnMobileMoney" onclick="selectPaymentMode('mobile')" style="flex:1;">
+                    <i class="fas fa-mobile-alt"></i> Mobile Money
+                </button>
+                <button class="btn-contact btn-location" id="btnCash" onclick="selectPaymentMode('cash')" style="flex:1;">
+                    <i class="fas fa-coins"></i> Espèces (à la caisse)
+                </button>
+            </div>
+        </div>
+
+        <!-- Champ téléphone (Mobile Money) -->
+        <div id="phoneField" style="display:block;">
+            <div class="order-section" style="border-bottom: none; padding-bottom: 5px;">
+                <h4>Numéro de téléphone (Mobile Money)</h4>
+                <input type="tel" id="orderPhone" class="input-form" placeholder="Ex: 6XXXXXXXX" />
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                    <i class="fas fa-info-circle"></i> Obligatoire si vous payez par Mobile Money.
+                </p>
+            </div>
         </div>
 
         <div class="total-display">
@@ -335,11 +448,12 @@
         </div>
 
         <button class="btn-commander" style="margin-top:20px;" onclick="validerCommande()">
-            Passer au paiement <i class="fas fa-lock"></i>
+            Confirmer la commande <i class="fas fa-lock"></i>
         </button>
     </div>
 </div>
 
+<!-- ===== MODAL AVIS ===== -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
@@ -363,12 +477,25 @@
     </div>
 </div>
 
+<!-- ===== MODAL AIDE ===== -->
+<div class="modal-overlay" id="modalHelp">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('modalHelp')"><i class="fas fa-times"></i></button>
+        <h2 style="text-align: center; margin-bottom: 16px; font-weight:800; color:var(--text-main); font-family: 'Playfair Display', serif;">
+            <i class="fas fa-hands-helping" style="color:var(--primary);"></i> Besoin d'aide ?
+        </h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom: 24px;">Un membre de l'équipe viendra vous assister dans quelques instants.</p>
+        <input type="text" id="helpTable" class="input-form" placeholder="Votre numéro de table *" required />
+        <button class="btn-commander" onclick="sendHelpRequest()"><i class="fas fa-paper-plane"></i> Envoyer ma demande</button>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 <script>
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    // === Configuration Firebase unifiée avec le dashboard propriétaire ===
+    // === Configuration Firebase ===
     const firebaseConfig = {
       apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
       authDomain: "cinexau-903a6.firebaseapp.com",
@@ -385,9 +512,11 @@
 
     let allPlats = [];
     let allReviews = [];
-    let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, isSplit: false, splitCount: 1 };
+    let currentOrder = { id: '', nom: '', prixBase: 0, qty: 1, isSplit: false, splitCount: 1, complements: [], table: '', instructions: '', paymentMode: 'mobile', phone: '' };
     let currentRating = 0;
     let selectedCategory = 'Tous';
+    let currentPlatData = null; // pour stocker le plat en cours de commande
+    let activeOrderId = null; // pour le suivi de commande
 
     if (restaurantId) {
         initPage();
@@ -398,6 +527,17 @@
     async function initPage() {
         await loadRestaurantData();
         await loadMenuData();
+        // Vérifier s'il y a une commande en cours dans localStorage
+        const savedOrder = localStorage.getItem('pendingOrder');
+        if (savedOrder) {
+            try {
+                const order = JSON.parse(savedOrder);
+                if (order.restaurantId === restaurantId) {
+                    activeOrderId = order.orderId;
+                    startTracking(order.orderId);
+                }
+            } catch(e) {}
+        }
     }
 
     async function loadRestaurantData() {
@@ -537,9 +677,29 @@
             });
 
             renderMenu();
+            // Écouter les changements en temps réel pour les statuts
+            listenMenuUpdates();
         } catch (error) {
             document.getElementById('menuContainer').innerHTML = '<p>Erreur lors de la récupération du menu.</p>';
         }
+    }
+
+    // Écouter les mises à jour des plats (statut, timer) en temps réel
+    function listenMenuUpdates() {
+        db.collection('menus').where('restaurantId', '==', restaurantId).onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type === 'modified' || change.type === 'added') {
+                    const data = change.doc.data();
+                    const index = allPlats.findIndex(p => p.id === change.doc.id);
+                    if (index !== -1) {
+                        allPlats[index] = { ...allPlats[index], ...data };
+                    } else {
+                        allPlats.push({ id: change.doc.id, ...data });
+                    }
+                }
+            });
+            renderMenu(); // rafraîchir l'affichage
+        }, error => console.error('Erreur écoute menu:', error));
     }
 
     function renderMenu() {
@@ -561,30 +721,85 @@
             const promoBadge = (plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="badge-promo">Promo</span>` : '';
             const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
             
+            // Compléments
+            let complementsHtml = '';
+            if (plat.complements && plat.complements.length > 0) {
+                complementsHtml = `<div class="complements-list">` +
+                    plat.complements.map(c => `<span class="complement-tag">${c.nom} <span class="price">+${c.prix} FCFA</span></span>`).join('') +
+                    `</div>`;
+            }
+
+            // Statut et timer
+            let statutBadgeHtml = '';
+            let timerHtml = '';
+            if (plat.statut === 'en_preparation' && plat.timerStart && plat.dureePreparation) {
+                const start = plat.timerStart.toDate ? plat.timerStart.toDate() : new Date(plat.timerStart);
+                const elapsed = (new Date() - start) / 60000;
+                const remaining = Math.max(0, plat.dureePreparation - elapsed);
+                const mins = Math.floor(remaining);
+                const secs = Math.floor((remaining - mins) * 60);
+                const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                statutBadgeHtml = `<span class="statut-badge en_preparation"><i class="fas fa-clock"></i> En préparation</span>`;
+                timerHtml = `<div class="timer-countdown"><i class="fas fa-hourglass-half"></i> ${timeStr} restant</div>`;
+                // Mettre à jour le timer en temps réel via un intervalle ?
+                // On le fera globalement
+            } else if (plat.statut === 'rupture') {
+                statutBadgeHtml = `<span class="statut-badge rupture">Rupture de stock</span>`;
+            } else if (plat.statut === 'disponible') {
+                statutBadgeHtml = `<span class="statut-badge disponible">Disponible</span>`;
+            }
+
             const card = document.createElement('div');
             card.className = `menu-card ${isDisponible ? '' : 'disabled-item'}`;
             card.style.animationDelay = `${index * 0.05}s`;
+            card.dataset.platId = plat.id;
 
             card.innerHTML = `
                 <div class="image-container">
                     ${promoBadge}
-                    ${!isDisponible ? `<div class="disabled-badge">Pas encore prêt</div>` : ''}
+                    ${!isDisponible ? `<div class="disabled-badge">Indisponible</div>` : ''}
                     ${plat.image ? `<img src="${plat.image}" ${isDisponible ? `onclick="openZoom('${plat.image}')"` : ''} alt="${plat.nom}" />` : ''}
                 </div>
                 <div class="body">
                     <h3>${plat.nom}</h3>
+                    ${statutBadgeHtml}
+                    ${timerHtml}
                     ${descriptionHtml}
+                    ${complementsHtml}
                     <div class="price">
                         <span class="current">${plat.prix} FCFA</span>
                         ${(plat.prixOriginal && plat.prixOriginal > plat.prix) ? `<span class="original">${plat.prixOriginal} FCFA</span>` : ''}
                     </div>
-                    <button class="btn-commander" ${isDisponible ? `onclick="openOrderModal('${plat.id}', '${plat.nom.replace(/'/g, "\\'")}', ${plat.prix})"` : 'disabled'}>
+                    <button class="btn-commander" ${isDisponible ? `onclick="openOrderModal('${plat.id}')"` : 'disabled'}>
                         <i class="fas fa-shopping-cart"></i> ${isDisponible ? 'Sélectionner le plat' : 'Indisponible'}
                     </button>
                 </div>
             `;
             container.appendChild(card);
         });
+
+        // Mettre à jour les timers en temps réel toutes les secondes
+        if (window.timerInterval) clearInterval(window.timerInterval);
+        window.timerInterval = setInterval(() => {
+            document.querySelectorAll('.menu-card .timer-countdown').forEach(el => {
+                const card = el.closest('.menu-card');
+                if (!card) return;
+                const platId = card.dataset.platId;
+                const plat = allPlats.find(p => p.id === platId);
+                if (plat && plat.statut === 'en_preparation' && plat.timerStart && plat.dureePreparation) {
+                    const start = plat.timerStart.toDate ? plat.timerStart.toDate() : new Date(plat.timerStart);
+                    const elapsed = (new Date() - start) / 60000;
+                    const remaining = Math.max(0, plat.dureePreparation - elapsed);
+                    const mins = Math.floor(remaining);
+                    const secs = Math.floor((remaining - mins) * 60);
+                    const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                    el.innerHTML = `<i class="fas fa-hourglass-half"></i> ${timeStr} restant`;
+                    if (remaining <= 0) {
+                        el.innerHTML = `<i class="fas fa-clock"></i> Prêt !`;
+                    }
+                }
+            });
+        }, 1000);
     }
 
     function filterCategory(catName) {
@@ -606,13 +821,65 @@
         openModal('modalZoom');
     }
 
-    function openOrderModal(id, nom, prix) {
-        currentOrder = { id: id, nom: nom, prixBase: prix, qty: 1, isSplit: false, splitCount: 1 };
-        document.getElementById('orderPlatNom').innerText = nom;
+    // ===== MODAL COMMANDE =====
+    function openOrderModal(platId) {
+        const plat = allPlats.find(p => p.id === platId);
+        if (!plat) return;
+        currentPlatData = plat;
+        currentOrder = {
+            id: plat.id,
+            nom: plat.nom,
+            prixBase: plat.prix,
+            qty: 1,
+            isSplit: false,
+            splitCount: 1,
+            complements: [],
+            table: '',
+            instructions: '',
+            paymentMode: 'mobile',
+            phone: ''
+        };
+
+        // Réinitialiser les champs
+        document.getElementById('orderPlatNom').innerText = plat.nom;
         document.getElementById('orderQty').innerText = 1;
         document.getElementById('splitCount').value = '';
-        document.getElementById('orderPhone').value = ''; // Réinitialiser le téléphone
-        
+        document.getElementById('orderTable').value = '';
+        document.getElementById('orderInstructions').value = '';
+        document.getElementById('orderPhone').value = '';
+        document.getElementById('phoneField').style.display = 'block';
+        document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
+        document.getElementById('btnCash').style.background = '#f43f5e';
+
+        // Afficher les compléments si présents
+        const compContainer = document.getElementById('complementsContainer');
+        const compCheckboxes = document.getElementById('complementsCheckboxes');
+        if (plat.complements && plat.complements.length > 0) {
+            compContainer.style.display = 'block';
+            compCheckboxes.innerHTML = '';
+            plat.complements.forEach((comp, idx) => {
+                const label = document.createElement('label');
+                label.style.display = 'flex'; label.style.alignItems = 'center'; label.style.gap = '8px';
+                label.style.marginBottom = '8px'; label.style.fontWeight = '500';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = idx;
+                cb.onchange = function() {
+                    if (this.checked) {
+                        currentOrder.complements.push(comp);
+                    } else {
+                        currentOrder.complements = currentOrder.complements.filter(c => c !== comp);
+                    }
+                    calculateTotal();
+                };
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(`${comp.nom} (+${comp.prix} FCFA)`));
+                compCheckboxes.appendChild(label);
+            });
+        } else {
+            compContainer.style.display = 'none';
+        }
+
         setSplit(false);
         calculateTotal();
         openModal('modalOrder');
@@ -644,6 +911,9 @@
 
     function calculateTotal() {
         let baseTotal = currentOrder.prixBase * currentOrder.qty;
+        // Ajouter les compléments
+        const compTotal = currentOrder.complements.reduce((sum, c) => sum + c.prix, 0);
+        baseTotal += compTotal * currentOrder.qty;
         
         if (currentOrder.isSplit) {
             let inputCount = parseInt(document.getElementById('splitCount').value);
@@ -653,7 +923,7 @@
                 let perPerson = Math.ceil(baseTotal / currentOrder.splitCount);
                 document.getElementById('totalLabel').innerText = `Total par convive (${currentOrder.splitCount} pers.) :`;
                 document.getElementById('orderTotal').innerText = `${perPerson} FCFA`;
-                generateShareQR(); // On met à jour le QR Code
+                generateShareQR();
                 return;
             }
         }
@@ -667,26 +937,47 @@
         const containerQr = document.getElementById('qrShareContainer');
         const imgQr = document.getElementById('qrShareImg');
         
-        // Le lien pointe désormais sur la même page, qui ouvrira automatiquement le modal de paiement
         const shareUrl = `${window.location.origin}${window.location.pathname}?restaurant=${restaurantId}&plat=${currentOrder.id}&nom=${encodeURIComponent(currentOrder.nom)}&prixBase=${currentOrder.prixBase}&qte=${currentOrder.qty}&split=true&splitCount=${currentOrder.splitCount}`;
         
         imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}&color=0b1a2e&bgcolor=ffffff&margin=5`;
         containerQr.style.display = 'flex';
     }
 
-    // === MODIFICATION : LA NOUVELLE FONCTION QUI APPELLE L'API DE PAIEMENT ===
+    function selectPaymentMode(mode) {
+        currentOrder.paymentMode = mode;
+        if (mode === 'mobile') {
+            document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
+            document.getElementById('btnCash').style.background = '#f43f5e';
+            document.getElementById('phoneField').style.display = 'block';
+        } else {
+            document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
+            document.getElementById('btnCash').style.background = '#f43f5e';
+            document.getElementById('phoneField').style.display = 'none';
+        }
+    }
+
+    // ===== VALIDER LA COMMANDE =====
     async function validerCommande() {
-        const phoneInput = document.getElementById('orderPhone').value;
-        const btn = document.querySelector('#modalOrder .btn-commander');
-        
-        if (!phoneInput) {
-            alert('Veuillez entrer votre numéro de téléphone pour le paiement.');
+        const table = document.getElementById('orderTable').value.trim();
+        if (!table) {
+            alert('Veuillez indiquer votre numéro de table.');
+            document.getElementById('orderTable').focus();
+            return;
+        }
+        currentOrder.table = table;
+        currentOrder.instructions = document.getElementById('orderInstructions').value.trim();
+        currentOrder.phone = document.getElementById('orderPhone').value.trim();
+
+        if (currentOrder.paymentMode === 'mobile' && !currentOrder.phone) {
+            alert('Veuillez entrer votre numéro de téléphone pour le paiement Mobile Money.');
             document.getElementById('orderPhone').focus();
             return;
         }
 
-        // 1. Calcul du montant exact en tenant compte du partage d'addition
+        // Calcul du montant final
         let baseTotal = currentOrder.prixBase * currentOrder.qty;
+        const compTotal = currentOrder.complements.reduce((sum, c) => sum + c.prix, 0);
+        baseTotal += compTotal * currentOrder.qty;
         let finalAmount = baseTotal;
         if (currentOrder.isSplit && currentOrder.splitCount > 1) {
             finalAmount = Math.ceil(baseTotal / currentOrder.splitCount);
@@ -694,50 +985,141 @@
 
         if(finalAmount <= 0) return alert('Le montant calculé est invalide.');
 
-        // 2. Interface de chargement
+        // Préparer l'objet commande
+        const orderData = {
+            restaurantId: restaurantId,
+            platId: currentOrder.id,
+            platNom: currentOrder.nom,
+            quantite: currentOrder.qty,
+            complements: currentOrder.complements,
+            table: currentOrder.table,
+            instructions: currentOrder.instructions,
+            paymentMode: currentOrder.paymentMode,
+            phone: currentOrder.phone,
+            montant: finalAmount,
+            status: 'en attente',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            tempsEstime: null,
+            startTime: null
+        };
+
+        const btn = document.querySelector('#modalOrder .btn-commander');
         const oldText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initialisation...';
-
-        // Lien de retour une fois le paiement terminé
-        const redirectUrl = window.location.href; 
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
 
         try {
-            // Remplacer "/api/create-order-checkout" par l'URL complète si ton front-end 
-            // n'est pas hébergé sur le même serveur (ex: "https://ton-site.vercel.app/api/create-order-checkout")
-            const response = await fetch('/api/create-order-checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    restoId: restaurantId,
-                    platId: currentOrder.id,
-                    nomPlat: currentOrder.nom,
-                    qty: currentOrder.qty,
-                    isSplit: currentOrder.isSplit,
-                    splitCount: currentOrder.splitCount,
-                    amount: finalAmount,
-                    phone: phoneInput,
-                    redirectUrl: redirectUrl
-                })
+            // Enregistrer dans Firestore
+            const docRef = await db.collection('orders').add(orderData);
+            const orderId = docRef.id;
+            activeOrderId = orderId;
+            // Sauvegarder dans localStorage pour suivi
+            localStorage.setItem('pendingOrder', JSON.stringify({
+                restaurantId: restaurantId,
+                orderId: orderId,
+                timestamp: Date.now()
+            }));
+
+            // Notification sonore (via la cuisine)
+            // On va aussi créer une notification pour la cuisine
+            await db.collection('notifications').add({
+                restaurantId: restaurantId,
+                orderId: orderId,
+                message: `Nouvelle commande - Table ${table} - ${currentOrder.nom}`,
+                targetRole: 'Cuisine',
+                read: false,
+                type: 'new_order',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            const data = await response.json();
+            showTracking(orderId);
+            closeModal('modalOrder');
+            alert('Commande enregistrée avec succès ! Vous recevrez bientôt votre plat.');
 
-            // 3. Redirection vers la page de paiement Fapshi
-            if (data.success && data.checkoutUrl) {
-                window.location.href = data.checkoutUrl;
-            } else {
-                throw new Error(data.error || 'Erreur lors de l\'initialisation.');
-            }
+            // Si paiement Mobile Money, redirection vers la page de paiement (optionnel)
+            // Ici on pourrait intégrer l'API de paiement si nécessaire.
+            // Pour l'instant, on laisse le client en suivi.
+
         } catch (error) {
-            console.error("Erreur de paiement :", error);
-            alert("Une erreur est survenue : " + error.message);
+            console.error('Erreur lors de la commande :', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        } finally {
             btn.disabled = false;
             btn.innerHTML = oldText;
         }
     }
 
-    /* ====== INTERACTION DES AVIS CLIENTS ====== */
+    // ===== SUIVI DE COMMANDE =====
+    function showTracking(orderId) {
+        const trackingDiv = document.getElementById('orderTracking');
+        trackingDiv.style.display = 'block';
+        document.getElementById('trackRef').textContent = orderId.substring(0,8).toUpperCase();
+        document.getElementById('trackStatus').textContent = 'En attente';
+        document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
+        document.getElementById('trackStatusBadge').className = 'badge badge-warning';
+        document.getElementById('trackStatusBadge').textContent = 'En attente';
+        // Démarrer l'écoute en temps réel
+        listenOrderStatus(orderId);
+    }
+
+    function listenOrderStatus(orderId) {
+        db.collection('orders').doc(orderId).onSnapshot(doc => {
+            if (!doc.exists) return;
+            const data = doc.data();
+            const status = data.status || 'en attente';
+            document.getElementById('trackStatus').textContent = status;
+            if (status === 'en préparation') {
+                document.getElementById('trackStatusBadge').className = 'badge badge-info';
+                document.getElementById('trackStatusBadge').textContent = 'En préparation';
+                if (data.tempsEstime) {
+                    document.getElementById('trackTime').textContent = `~${data.tempsEstime} min`;
+                }
+            } else if (status === 'prêt') {
+                document.getElementById('trackStatusBadge').className = 'badge badge-success';
+                document.getElementById('trackStatusBadge').textContent = 'Prêt';
+                document.getElementById('trackTime').textContent = 'Prêt à être servi !';
+            } else if (status === 'terminé') {
+                document.getElementById('trackStatusBadge').className = 'badge badge-success';
+                document.getElementById('trackStatusBadge').textContent = 'Terminé';
+                document.getElementById('trackTime').textContent = 'Commande terminée. Bon appétit !';
+            } else {
+                document.getElementById('trackStatusBadge').className = 'badge badge-warning';
+                document.getElementById('trackStatusBadge').textContent = 'En attente';
+            }
+        });
+    }
+
+    // ===== DEMANDE D'AIDE =====
+    function requestHelp() {
+        // Pré-remplir le champ table si déjà commandé
+        const table = document.getElementById('orderTable').value || '';
+        document.getElementById('helpTable').value = table;
+        openModal('modalHelp');
+    }
+
+    async function sendHelpRequest() {
+        const table = document.getElementById('helpTable').value.trim();
+        if (!table) {
+            alert('Veuillez indiquer votre numéro de table.');
+            return;
+        }
+        try {
+            await db.collection('notifications').add({
+                restaurantId: restaurantId,
+                message: `🆘 Le client de la table ${table} a besoin d'aide.`,
+                targetRole: 'Cuisine',
+                read: false,
+                type: 'help_request',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert('Demande d\'aide envoyée. Un membre de l\'équipe va venir vous aider.');
+            closeModal('modalHelp');
+        } catch (error) {
+            alert('Erreur lors de l\'envoi. Veuillez réessayer.');
+        }
+    }
+
+    // ===== AVIS CLIENTS =====
     const stars = document.querySelectorAll('#starContainer i');
     stars.forEach(star => {
         star.addEventListener('click', function() {
@@ -788,7 +1170,7 @@
         }
     }
 
-    // Gestion automatique des liens partagés par QR code (Si l'URL contient des infos de plat partagé)
+    // ===== Gestion des liens partagés (QR) =====
     window.onload = function() {
         const platId = params.get('plat');
         const split = params.get('split');
@@ -799,7 +1181,7 @@
             const qty = parseInt(params.get('qte'));
             const splitCount = parseInt(params.get('splitCount'));
             
-            currentOrder = { id: platId, nom: nomPlat, prixBase: prixBase, qty: qty, isSplit: true, splitCount: splitCount };
+            currentOrder = { id: platId, nom: nomPlat, prixBase: prixBase, qty: qty, isSplit: true, splitCount: splitCount, complements: [], table: '', instructions: '', paymentMode: 'mobile', phone: '' };
             
             document.getElementById('orderPlatNom').innerText = nomPlat;
             document.getElementById('orderQty').innerText = qty;
