@@ -1182,6 +1182,7 @@
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
             <span class="badge badge-success" id="liveStatus">🟢 En direct</span>
+            <span id="totalOrderCount" class="badge badge-info" style="margin-left:10px;">0 commande(s)</span>
             <button class="btn btn-sm btn-outline" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester le son</button>
           </div>
         </div>
@@ -1628,19 +1629,23 @@
         }
       }, 1000);
 
+      // Chargement initial
       await loadDashboardData();
       loadMenu();
-      listenOrders();
       renderPreparations();
 
-      // Mise à jour toutes les secondes
+      // Démarrer l'écoute en temps réel APRÈS le chargement initial
+      listenOrders();
+
+      // Mise à jour des timers toutes les secondes (pour les compteurs)
       if (timerInterval) clearInterval(timerInterval);
       timerInterval = setInterval(() => {
-        renderKanban();
         updateChargeIndicator();
         renderPreparations();
         updateStats();
         checkFireMode();
+        // On rafraîchit le Kanban pour mettre à jour les timers affichés
+        renderKanban();
       }, 1000);
     });
 
@@ -1672,18 +1677,27 @@
     // ============================================================
     async function loadDashboardData() {
       if (!currentRestaurantId) return;
-      // Requête simplifiée sans orderBy pour éviter les index composites
-      const snapshot = await db.collection('orders').where('restaurantId', '==', currentRestaurantId).get();
-      toutesLesCommandes = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
-        toutesLesCommandes.push({ id: doc.id, ...data, dateObj });
-      });
-      // Trier côté client
-      toutesLesCommandes.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
-      updateStats();
-      initChart();
+      try {
+        const snapshot = await db.collection('orders').where('restaurantId', '==', currentRestaurantId).get();
+        const orders = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
+          orders.push({ id: doc.id, ...data, dateObj });
+        });
+        // Trier côté client
+        orders.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
+        toutesLesCommandes = orders;
+        updateStats();
+        initChart();
+        // Afficher immédiatement les commandes
+        renderKanban();
+        // Mettre à jour le compteur total
+        document.getElementById('totalOrderCount').textContent = `${toutesLesCommandes.length} commande(s)`;
+      } catch (error) {
+        console.error('Erreur chargement commandes:', error);
+        showToast('Erreur de chargement des commandes. Vérifiez la console.', 'error');
+      }
     }
 
     function updateStats() {
@@ -1831,6 +1845,9 @@
         // Trier côté client
         orders.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
         toutesLesCommandes = orders;
+        // Mettre à jour le compteur total
+        document.getElementById('totalOrderCount').textContent = `${toutesLesCommandes.length} commande(s)`;
+        // Mettre à jour les stats et l'affichage
         updateStats();
         renderKanban();
         updateChefMode();
@@ -1867,6 +1884,8 @@
         if (error.code === 'failed-precondition') {
           showToast('⚠️ Erreur d\'index Firebase. Veuillez créer l\'index composite requis.', 'error');
           console.error('Index composite nécessaire. Créez un index sur restaurantId (Asc) et createdAt (Desc)');
+        } else {
+          showToast('Erreur de connexion Firestore. Vérifiez votre réseau.', 'error');
         }
       });
     }
@@ -1937,14 +1956,17 @@
       };
       filtered.forEach(o => {
         if (cols[o.status]) cols[o.status].push(o);
-        else cols['en attente'].push(o);
+        else cols['en attente'].push(o); // fallback
       });
 
       for (const [status, orders] of Object.entries(cols)) {
         const container = document.getElementById('col-' + status);
         const countEl = document.getElementById('count' + status.charAt(0).toUpperCase() + status.slice(1).replace('-', ''));
         if (countEl) countEl.textContent = orders.length;
-        if (!container) continue;
+        if (!container) {
+          console.warn('Container non trouvé pour status:', status);
+          continue;
+        }
         if (orders.length === 0) {
           container.innerHTML = `<div class="empty-state">Aucune commande</div>`;
           continue;
@@ -1999,7 +2021,6 @@
           const paymentInfo = order.paymentMode ? `<span class="badge badge-payment">${order.paymentMode === 'mobile' ? '💳 Mobile Money' : '💰 Espèces'}</span>` : '';
           const phoneInfo = order.phone ? `<span style="font-size:0.75rem;color:var(--text-muted);"><i class="fas fa-phone"></i> ${order.phone}</span>` : '';
           
-          // Badge de paiement confirmé (espèces)
           let paidBadge = '';
           if (order.paymentMode === 'cash' && order.paymentConfirmed === true) {
             paidBadge = `<span class="badge badge-paid">✅ Payé</span>`;
@@ -2015,12 +2036,10 @@
             `;
           } else if (order.status === 'prêt') {
             actionsHtml = `<button class="btn btn-info btn-sm" onclick="alertServer('${order.id}')"><i class="fas fa-bell"></i> Alerter serveur</button>`;
-            // Si paiement en espèces et non confirmé, ajouter bouton de confirmation
             if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
               actionsHtml += `<button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}')"><i class="fas fa-check-circle"></i> Confirmer paiement</button>`;
             }
           } else if (order.status === 'terminé') {
-            // Pour les commandes terminées en espèces non confirmées, permettre aussi
             if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
               actionsHtml = `<button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}')"><i class="fas fa-check-circle"></i> Confirmer paiement</button>`;
             }
