@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       VARIABLES & RESET (Couleurs Serveur : Bleu)
+       VARIABLES & RESET
     ============================================ */
     :root {
       --primary: #3498db;
@@ -108,9 +108,7 @@
     /* ========== POURBOIRES ========== */
     .tip-box { background:#f8f9fa; border-radius:16px; padding:20px; margin-bottom:20px; }
     .tip-box .tip-total { font-size:2rem; font-weight:800; color:var(--primary-dark); }
-    .tip-box .tip-input-group { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    .tip-box .tip-input-group input { flex:1; min-width:150px; padding:12px 16px; border:1.5px solid #d5d8dc; border-radius:12px; font-size:1rem; }
-    .tip-history { max-height:200px; overflow-y:auto; }
+    .tip-history { max-height:300px; overflow-y:auto; }
     .tip-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #ecf0f1; font-size:0.95rem; }
 
     /* ========== BOUTONS & BADGES ========== */
@@ -122,6 +120,7 @@
     .btn-payment-confirm { background:#0ea5e9; color:#fff; }
     .btn-danger { background:linear-gradient(135deg, #e74c3c, #c0392b); color:#fff; }
     .btn-outline-secondary { background:transparent; border:2px solid #95a5a6; color:#2c3e50; }
+    .btn-silence { background:#6c757d; color:#fff; }
 
     .badge { padding:4px 12px; border-radius:30px; font-size:0.7rem; font-weight:700; text-transform:uppercase; }
     .badge-cash { background:#fdebd0; color:#a04000; }
@@ -131,6 +130,7 @@
     .badge-pending { background:#fef3c7; color:#b45309; }
     .badge-accepted { background:#dbeafe; color:#1e40af; }
     .badge-resolved { background:#d1fae5; color:#065f46; }
+    .badge-serving { background:#e0f2fe; color:#0369a1; }
 
     /* ========== FORMULAIRES ========== */
     .form-group { margin-bottom: 15px; }
@@ -142,6 +142,30 @@
     #toastContainer { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
     .toast { background:#fff; border-left:5px solid; box-shadow:0 10px 35px rgba(0,0,0,0.08); padding:16px 24px; border-radius:12px; display:flex; align-items:center; gap:14px; font-weight:600; pointer-events:auto; animation:toastSlideIn 0.35s forwards; }
     @keyframes toastSlideIn { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    @keyframes toastSlideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(120%); opacity:0; } }
+
+    /* ========== MODALE ========== */
+    .modal-overlay {
+      position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(8px);
+      z-index:200; display:none; align-items:center; justify-content:center;
+    }
+    .modal-overlay.show { display:flex; animation:fadeIn 0.3s ease; }
+    .modal-box {
+      background:#fff; border-radius:24px; max-width:500px; width:90%;
+      padding:30px; box-shadow:0 30px 60px rgba(0,0,0,0.2);
+      position:relative; max-height:90vh; overflow-y:auto;
+    }
+    .modal-box .modal-close { position:absolute; top:16px; right:20px; font-size:1.6rem; cursor:pointer; color:var(--text-muted); background:none; border:none; }
+    .modal-box .modal-title { font-size:1.6rem; font-weight:800; margin-bottom:12px; font-family:'Playfair Display',serif; }
+    .modal-box .modal-body { margin:20px 0; }
+    .modal-box .modal-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+    .modal-box .badge-large { font-size:1rem; padding:8px 16px; }
+
+    /* ========== FILTRES HISTORIQUE ========== */
+    .filters-row { display:flex; gap:15px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+    .filters-row label { font-weight:600; color:var(--text-muted); }
+    .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
     /* ========== RESPONSIVE ========== */
     @media (max-width:768px) {
@@ -158,6 +182,20 @@
   <div id="toastContainer"></div>
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
+  <!-- ========== MODALE GÉNÉRIQUE ========== -->
+  <div id="notificationModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <div class="modal-title" id="modalTitle">Notification</div>
+      <div class="modal-body" id="modalBody">
+        <!-- Contenu dynamique -->
+      </div>
+      <div class="modal-actions" id="modalActions">
+        <!-- Boutons dynamiques -->
+      </div>
+    </div>
+  </div>
+
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
@@ -171,9 +209,9 @@
       <a data-section="demandes-aide">
         <i class="fas fa-life-ring"></i> Demandes d'aide <span class="badge-notif" id="helpBadge">0</span>
       </a>
-      <a data-section="historique"><i class="fas fa-history"></i> Historique (Servies)</a>
+      <a data-section="historique"><i class="fas fa-history"></i> Historique</a>
       <a data-section="pourboires"><i class="fas fa-hand-holding-usd"></i> Pourboires</a>
-      <a data-section="parametres"><i class="fas fa-cog"></i> Paramètres (Alertes)</a>
+      <a data-section="parametres"><i class="fas fa-cog"></i> Paramètres</a>
     </nav>
     <div class="logout">
       <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
@@ -191,9 +229,6 @@
         <div class="user-badge" title="Serveur">
           <i class="fas fa-user-tie"></i> <span id="headerRestoName">Chargement...</span>
         </div>
-        <button class="btn btn-outline-secondary" onclick="stopAlert()" style="width:auto; margin-left:10px;" title="Couper l'alerte en cours">
-          <i class="fas fa-volume-mute"></i> Silence
-        </button>
       </div>
     </div>
 
@@ -202,7 +237,7 @@
       <div class="card">
         <div class="card-header">
           <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
-          <button class="btn btn-primary" style="width:auto;" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
+          <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
         </div>
         <div class="grid-commandes" id="readyOrdersContainer">
           <!-- Injecté par JS -->
@@ -232,7 +267,13 @@
     <div id="section-historique" class="section">
       <div class="card">
         <div class="card-header">
-          <h3><i class="fas fa-check-double"></i> Commandes Servies (Aujourd'hui)</h3>
+          <h3><i class="fas fa-check-double"></i> Historique des services</h3>
+        </div>
+        <div class="filters-row">
+          <label><i class="fas fa-calendar-alt"></i> Filtrer par date :</label>
+          <input type="date" id="historyDateFilter" />
+          <button class="btn btn-primary" onclick="applyHistoryFilter()"><i class="fas fa-filter"></i> Appliquer</button>
+          <button class="btn btn-outline-secondary" onclick="resetHistoryFilter()"><i class="fas fa-undo"></i> Réinitialiser</button>
         </div>
         <div class="grid-commandes" id="historyOrdersContainer">
           <!-- Injecté par JS -->
@@ -248,11 +289,8 @@
           <span class="badge badge-success" id="tipTotalDisplay">Total : 0 FCFA</span>
         </div>
         <div class="tip-box">
-          <div class="tip-input-group">
-            <input type="number" id="tipAmountInput" placeholder="Montant (FCFA)" min="1" step="1" />
-            <button class="btn btn-success" onclick="addTip()"><i class="fas fa-plus-circle"></i> Ajouter un pourboire</button>
-          </div>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Saisissez le montant reçu puis cliquez sur "Ajouter".</p>
+          <div class="tip-total" id="tipTotalBig">0 FCFA</div>
+          <p style="color:var(--text-muted); font-size:0.9rem;">Pourboires reçus automatiquement via les commandes.</p>
         </div>
         <div class="tip-history" id="tipHistoryContainer">
           <p style="color:var(--text-muted);">Aucun pourboire enregistré aujourd'hui.</p>
@@ -287,7 +325,7 @@
               <option value="sonnerie">🔔 Sonnerie (Ding Dong)</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:auto;"><i class="fas fa-save"></i> Enregistrer mes préférences</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer mes préférences</button>
         </form>
         <div id="settingsStatus" style="margin-top:15px;"></div>
       </div>
@@ -295,31 +333,47 @@
 
   </div>
 
-  <!-- ========== SCRIPTS ========== -->
+  <!-- ========== FIREBASE & SCRIPTS ========== -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
   <script>
     // ============================================================
-    //  UI / NAVIGATION & TOASTS
+    //  CONFIGURATION FIREBASE
     // ============================================================
-    window.showToast = function(message, type = 'success') {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+      authDomain: "cinexau-903a6.firebaseapp.com",
+      projectId: "cinexau-903a6",
+      storageBucket: "cinexau-903a6.firebasestorage.app",
+      messagingSenderId: "247230931008",
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ============================================================
+    //  UI HELPERS
+    // ============================================================
+    function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       const colors = { success: '#27ae60', error: '#e74c3c', info: '#3498db', warning: '#f1c40f' };
       const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
       toast.className = 'toast';
-      toast.style.borderColor = colors[type];
-      toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.3rem;"></i> <span>${message}</span>`;
+      toast.style.borderColor = colors[type] || '#3498db';
+      toast.innerHTML = `<i class="fas ${icons[type] || 'fa-info-circle'}" style="color:${colors[type] || '#3498db'};font-size:1.3rem;"></i> <span>${message}</span>`;
       container.appendChild(toast);
       setTimeout(() => {
         toast.style.animation = 'toastSlideOut 0.4s forwards';
         setTimeout(() => toast.remove(), 400);
-      }, 4500);
-    };
+      }, 5000);
+    }
 
-    window.navigateToSection = function(sectionId) {
+    function navigateToSection(sectionId) {
       document.querySelectorAll('#sidebarNav a[data-section]').forEach(a => {
         a.classList.remove('active');
         if (a.dataset.section === sectionId) a.classList.add('active');
@@ -336,7 +390,7 @@
         'parametres': 'Paramètres'
       };
       document.getElementById('pageTitle').textContent = map[sectionId] || 'Tableau de bord';
-    };
+    }
 
     document.querySelectorAll('#sidebarNav a[data-section]').forEach(link => {
       link.addEventListener('click', function(e) {
@@ -357,16 +411,41 @@
     });
 
     // ============================================================
-    //  SONNERIES & VOIX AVEC RÉPÉTITION
+    //  MODALE GÉNÉRIQUE
+    // ============================================================
+    const modalOverlay = document.getElementById('notificationModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalActions = document.getElementById('modalActions');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    function openModal(title, bodyHTML, actionsHTML) {
+      modalTitle.textContent = title;
+      modalBody.innerHTML = bodyHTML;
+      modalActions.innerHTML = actionsHTML;
+      modalOverlay.classList.add('show');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ============================================================
+    //  AUDIO & ALERTES (avec répétition)
     // ============================================================
     let audioCtx = null;
     let selectedVoiceName = 'sonnerie';
-    let alertMode = 'sonnerie'; // sonnerie, voix, lesdeux
+    let alertMode = 'sonnerie';
     let repeatIntervalSec = 8;
     let alertIntervalId = null;
     let availableVoices = [];
     let isAlerting = false;
-    let pendingNotifications = []; // listes des IDs de notifications non traitées (commandes prêtes + demandes aide)
+    let pendingNotifications = []; // ids des notifications non traitées (commande prête ou demande aide non prise en charge)
 
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -406,14 +485,12 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // Alerte principale : joue selon le mode
     function triggerAlert(message) {
       if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
         playDingDong();
       }
       if (alertMode === 'voix' || alertMode === 'lesdeux') {
         if (selectedVoiceName === 'sonnerie') {
-          // si voix non sélectionnée, on utilise une voix par défaut
           speak(message, null);
         } else {
           speak(message, selectedVoiceName);
@@ -421,25 +498,17 @@
       }
     }
 
-    // Fonction pour lancer la répétition
     function startAlertRepeat() {
       if (alertIntervalId) return;
       isAlerting = true;
-      // On détermine le message en fonction des notifications en attente
       const nbReady = document.getElementById('readyBadge').textContent;
       const nbHelp = document.getElementById('helpBadge').textContent;
       let msg = '';
-      if (parseInt(nbReady) > 0) {
-        msg += `Commande prête à servir. `;
-      }
-      if (parseInt(nbHelp) > 0) {
-        msg += `Demande d'aide en attente. `;
-      }
-      if (msg) {
-        triggerAlert(msg);
-      }
+      if (parseInt(nbReady) > 0) msg += `Commande prête à servir. `;
+      if (parseInt(nbHelp) > 0) msg += `Demande d'aide en attente. `;
+      if (msg) triggerAlert(msg);
+
       alertIntervalId = setInterval(() => {
-        // Vérifier s'il y a encore des notifications
         const nbReadyNow = document.getElementById('readyBadge').textContent;
         const nbHelpNow = document.getElementById('helpBadge').textContent;
         if (parseInt(nbReadyNow) === 0 && parseInt(nbHelpNow) === 0) {
@@ -462,16 +531,15 @@
       window.speechSynthesis.cancel();
     }
 
-    // Appelé quand une nouvelle notification arrive (commande prête ou demande aide)
+    // Appelé quand une nouvelle notification non traitée arrive
     function onNewNotification() {
-      // Si aucune alerte en cours, on la lance
       if (!isAlerting) {
         startAlertRepeat();
       }
     }
 
     // ============================================================
-    //  PEUPLEMENT DES VOIX
+    //  VOIX
     // ============================================================
     function populateVoiceSelect() {
       const select = document.getElementById('voiceSelect');
@@ -486,7 +554,6 @@
         opt.textContent = `Voix ${index+1} - ${voice.name}`;
         select.appendChild(opt);
       });
-      // Restaurer la valeur sélectionnée
       if (selectedVoiceName && selectedVoiceName !== 'sonnerie') {
         if (availableVoices.some(v => v.name === selectedVoiceName)) {
           select.value = selectedVoiceName;
@@ -504,27 +571,13 @@
     }
 
     // ============================================================
-    //  FIREBASE CONFIG & LOGIQUE METIER
+    //  AUTH & STATE
     // ============================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
-      authDomain: "cinexau-903a6.firebaseapp.com",
-      projectId: "cinexau-903a6",
-      storageBucket: "cinexau-903a6.firebasestorage.app",
-      messagingSenderId: "247230931008",
-      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     let currentUser = null;
     let currentRestaurantId = null;
     let knownReadyOrders = [];
     let knownHelpRequests = [];
 
-    // Auth & Redirection
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'connexion.html'; return; }
       currentUser = user;
@@ -556,7 +609,7 @@
         document.getElementById('voiceSelect').value = selectedVoiceName; 
       }, 1000);
 
-      // Lancement des écoute
+      // Écouteurs
       listenServerOrders();
       listenHelpRequests();
       listenTips();
@@ -569,23 +622,37 @@
     // ============================================================
     document.getElementById('settingsForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      alertMode = document.getElementById('alertMode').value;
-      repeatIntervalSec = parseInt(document.getElementById('repeatInterval').value) || 8;
-      selectedVoiceName = document.getElementById('voiceSelect').value;
-      if (repeatIntervalSec < 3) repeatIntervalSec = 3;
-      if (repeatIntervalSec > 60) repeatIntervalSec = 60;
+      const newMode = document.getElementById('alertMode').value;
+      const newInterval = parseInt(document.getElementById('repeatInterval').value) || 8;
+      const newVoice = document.getElementById('voiceSelect').value;
+
+      if (newInterval < 3) newInterval = 3;
+      if (newInterval > 60) newInterval = 60;
 
       try {
         await db.collection('users').doc(currentUser.uid).update({
-          'preferences.alertMode': alertMode,
-          'preferences.repeatInterval': repeatIntervalSec,
-          'preferences.voiceName': selectedVoiceName
+          'preferences.alertMode': newMode,
+          'preferences.repeatInterval': newInterval,
+          'preferences.voiceName': newVoice
         });
+        // Mettre à jour les variables
+        alertMode = newMode;
+        repeatIntervalSec = newInterval;
+        selectedVoiceName = newVoice;
         showToast('Paramètres sauvegardés', 'success');
-        // Redémarrer l'alerte si elle est en cours
+
+        // Confirmation vocale/sonore
+        const confirmMsg = 'Paramètres mis à jour.';
+        if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
+          playDingDong();
+        }
+        if (alertMode === 'voix' || alertMode === 'lesdeux') {
+          speak(confirmMsg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
+        }
+
+        // Redémarrer l'alerte si nécessaire
         if (isAlerting) {
           stopAlert();
-          // Vérifier s'il y a encore des notifications
           const nbReady = document.getElementById('readyBadge').textContent;
           const nbHelp = document.getElementById('helpBadge').textContent;
           if (parseInt(nbReady) > 0 || parseInt(nbHelp) > 0) {
@@ -617,15 +684,19 @@
                 // Nouvelle commande prête ?
                 if (!knownReadyOrders.includes(order.id)) {
                   knownReadyOrders.push(order.id);
+                  // Afficher la modale
+                  showReadyOrderModal(order);
                   // Alerter
                   onNewNotification();
                   showToast(`Table ${order.table || order.tableNumber} est prête !`, 'warning');
                 }
               } else if (order.status === 'terminé') {
                 ordersServed.push(order);
-                // On retire de la liste des connues si présente
+                // Retirer de la liste des connues
                 const idx = knownReadyOrders.indexOf(order.id);
                 if (idx !== -1) knownReadyOrders.splice(idx, 1);
+              } else if (order.status === 'en_cours' || order.status === 'en_attente') {
+                // On les affiche pas dans "à servir", mais on les garde peut-être pour l'historique ? Non, on les ignore ici.
               }
             }
           });
@@ -637,7 +708,9 @@
           else badge.classList.remove('show');
 
           renderOrdersToServe(ordersToServe);
-          renderOrdersServed(ordersServed);
+          // L'historique sera géré séparément avec filtre
+          // On stocke les ordersServed pour l'historique, mais on les récupérera via une requête séparée
+          // On va plutôt recharger l'historique quand on change de filtre
         });
     }
 
@@ -689,6 +762,8 @@
             <div class="ticket-footer" style="margin-top: 15px;">
               ${confirmBtnHtml}
               <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
+              <button class="btn btn-warning" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+              <button class="btn btn-outline-secondary" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
             </div>
           </div>
         `;
@@ -696,27 +771,133 @@
       });
     }
 
-    function renderOrdersServed(orders) {
-      const container = document.getElementById('historyOrdersContainer');
-      if (orders.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1 / -1;">Aucun historique de service pour aujourd'hui.</p>`;
-        return;
+    // ============================================================
+    //  ACTIONS SUR COMMANDES PRÊTES
+    // ============================================================
+    window.prendreEnCharge = async function(orderId) {
+      try {
+        await db.collection('orders').doc(orderId).update({
+          status: 'en_cours',
+          takenAt: firebase.firestore.FieldValue.serverTimestamp(),
+          takenBy: currentUser.uid
+        });
+        showToast('Commande prise en charge !', 'success');
+        // Retirer de la liste des connues
+        const idx = knownReadyOrders.indexOf(orderId);
+        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        // Arrêter l'alerte si plus de notifications
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
+        closeModal();
+      } catch (error) {
+        showToast('Erreur lors de la prise en charge', 'error');
+        console.error(error);
+      }
+    };
+
+    window.mettreEnFileAttente = async function(orderId) {
+      try {
+        await db.collection('orders').doc(orderId).update({
+          status: 'en_attente',
+          waitingAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Commande mise en file d\'attente.', 'info');
+        const idx = knownReadyOrders.indexOf(orderId);
+        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
+        closeModal();
+      } catch (error) {
+        showToast('Erreur lors de la mise en file d\'attente', 'error');
+        console.error(error);
+      }
+    };
+
+    window.confirmerPaiement = async function(orderId) {
+      if(confirm("Confirmez-vous avoir reçu l'argent en espèces pour cette commande ?")) {
+        try {
+          await db.collection('orders').doc(orderId).update({
+            paymentConfirmed: true
+          });
+          showToast('Paiement confirmé !', 'success');
+        } catch (error) {
+          showToast('Erreur lors de la confirmation', 'error');
+          console.error(error);
+        }
+      }
+    };
+
+    window.marquerCommeServi = async function(orderId) {
+      // Vérifier si paiement en espèces non confirmé
+      const orderDoc = await db.collection('orders').doc(orderId).get();
+      const order = orderDoc.data();
+      if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+        if (!confirm('Cette commande est en espèces et n\'a pas encore été encaissée. Voulez-vous la marquer comme servie quand même ?')) {
+          return;
+        }
+      }
+      try {
+        await db.collection('orders').doc(orderId).update({
+          status: 'terminé',
+          servedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Commande marquée comme servie !', 'success');
+        const idx = knownReadyOrders.indexOf(orderId);
+        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
+        closeModal();
+      } catch (error) {
+        showToast('Erreur lors de la mise à jour', 'error');
+        console.error(error);
+      }
+    };
+
+    // ============================================================
+    //  MODALE POUR COMMANDE PRÊTE
+    // ============================================================
+    function showReadyOrderModal(order) {
+      const tableNum = order.table || order.tableNumber || '?';
+      let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
+      const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
+
+      let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
+      let paymentStatusHtml = '';
+      if (order.paymentMode === 'cash') {
+        paymentStatusHtml = order.paymentConfirmed ? '<span class="badge badge-paid">Payé en espèces</span>' : '<span class="badge badge-unpaid">Non encaissé</span>';
+      } else {
+        paymentStatusHtml = '<span class="badge badge-paid">Payé en ligne</span>';
       }
 
-      container.innerHTML = '';
-      orders.forEach(order => {
-        const tableNum = order.table || order.tableNumber || '?';
-        const ticketHtml = `
-          <div class="ticket" style="border-top-color: var(--text-muted); opacity: 0.8;">
-            <div class="ticket-header">
-              <div class="ticket-table" style="background:#ecf0f1; color:var(--text-muted);">Table ${tableNum}</div>
-              <div class="ticket-time" style="color:var(--success);"><i class="fas fa-check"></i> Servi</div>
-            </div>
-            <p style="font-size:0.85rem; margin-top:10px;">Commande #${order.id.substring(0,6).toUpperCase()}</p>
-          </div>
-        `;
-        container.innerHTML += ticketHtml;
-      });
+      const bodyHTML = `
+        <div style="margin-bottom:12px;"><strong><i class="fas fa-chair"></i> Table ${tableNum}</strong></div>
+        ${instructions}
+        <ul style="list-style:none; padding:0;">${itemsHtml}</ul>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+          <span>${paymentBadge}</span>
+          <span>${paymentStatusHtml}</span>
+        </div>
+        <div style="margin-top:12px; font-size:0.9rem; color:var(--text-muted);">
+          <i class="fas fa-clock"></i> ${order.createdAt ? new Date(order.createdAt.seconds*1000).toLocaleTimeString() : ''}
+        </div>
+      `;
+
+      const actionsHTML = `
+        <button class="btn btn-success" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+        <button class="btn btn-warning" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
+        <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
+      `;
+
+      openModal('🍽️ Commande prête !', bodyHTML, actionsHTML);
     }
 
     // ============================================================
@@ -731,24 +912,23 @@
           const requests = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'resolved') { // on n'affiche que les non résolus
+            if (data.status !== 'resolved') {
               requests.push({ id: doc.id, ...data });
             }
           });
-          // Trier par date (plus récent en premier)
           requests.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-          // Gérer les nouvelles demandes
           const currentIds = requests.map(r => r.id);
           const newIds = currentIds.filter(id => !knownHelpRequests.includes(id));
           if (newIds.length > 0) {
-            // Alerter
+            // Afficher la modale pour la plus récente
+            const latest = requests.find(r => r.id === newIds[0]);
+            if (latest) showHelpModal(latest);
             onNewNotification();
             showToast(`Nouvelle demande d'aide !`, 'info');
             newIds.forEach(id => knownHelpRequests.push(id));
           }
 
-          // Mettre à jour le badge
           const badge = document.getElementById('helpBadge');
           const pendingCount = requests.filter(r => r.status === 'pending' || !r.status).length;
           badge.textContent = pendingCount;
@@ -796,7 +976,7 @@
     }
 
     // ============================================================
-    //  ACTIONS SUR LES DEMANDES D'AIDE
+    //  ACTIONS SUR DEMANDES D'AIDE
     // ============================================================
     window.takeHelpCharge = async function(notifId) {
       try {
@@ -806,8 +986,14 @@
           takenBy: currentUser.uid
         });
         showToast('Demande prise en charge !', 'success');
-        // Envoyer une notification au client (pourrait être affichée dans le menu public)
-        // On peut aussi ajouter une notification de confirmation, mais ce n'est pas obligatoire.
+        const idx = knownHelpRequests.indexOf(notifId);
+        if (idx !== -1) knownHelpRequests.splice(idx, 1);
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
+        closeModal();
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -821,9 +1007,14 @@
           resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Demande résolue.', 'success');
-        // Retirer de la liste des connues
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
+        closeModal();
       } catch (error) {
         showToast('Erreur lors de la résolution', 'error');
         console.error(error);
@@ -831,48 +1022,130 @@
     };
 
     // ============================================================
-    //  ACTIONS SUR LES COMMANDES
+    //  MODALE POUR DEMANDE D'AIDE
     // ============================================================
-    window.marquerCommeServi = async function(orderId) {
-      try {
-        await db.collection('orders').doc(orderId).update({
-          status: 'terminé'
-        });
-        showToast('Commande marquée comme servie !', 'success');
-        // Retirer de la liste des connues
-        const idx = knownReadyOrders.indexOf(orderId);
-        if (idx !== -1) knownReadyOrders.splice(idx, 1);
-        // Vérifier s'il reste des notifications
-        const nbReady = document.getElementById('readyBadge').textContent;
-        const nbHelp = document.getElementById('helpBadge').textContent;
-        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
-          stopAlert();
-        }
-      } catch (error) {
-        showToast('Erreur lors de la mise à jour', 'error');
-        console.error(error);
-      }
-    };
+    function showHelpModal(request) {
+      const table = request.table || '?';
+      const message = request.message || 'Le client a besoin d\'aide.';
+      const bodyHTML = `
+        <div style="margin-bottom:12px;"><strong><i class="fas fa-chair"></i> Table ${table}</strong></div>
+        <div style="padding:12px; background:#f8f9fa; border-radius:10px; margin:12px 0;">${message}</div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">
+          <i class="fas fa-clock"></i> ${request.createdAt ? new Date(request.createdAt.seconds*1000).toLocaleTimeString() : ''}
+        </div>
+      `;
+      const actionsHTML = `
+        <button class="btn btn-primary" onclick="takeHelpCharge('${request.id}')"><i class="fas fa-hand-holding-heart"></i> Je prends en charge</button>
+        <button class="btn btn-outline-secondary" onclick="resolveHelp('${request.id}')"><i class="fas fa-times"></i> Ignorer (résolu)</button>
+        <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
+      `;
+      openModal('🆘 Demande d\'aide', bodyHTML, actionsHTML);
+    }
 
-    window.confirmerPaiement = async function(orderId) {
-      if(confirm("Confirmez-vous avoir reçu l'argent en espèces pour cette commande ?")) {
-        try {
-          await db.collection('orders').doc(orderId).update({
-            paymentConfirmed: true
+    // ============================================================
+    //  HISTORIQUE AVEC FILTRES
+    // ============================================================
+    let allServedOrders = [];
+
+    function loadHistory(dateFilter) {
+      // dateFilter est une string 'YYYY-MM-DD' ou null
+      const start = dateFilter ? new Date(dateFilter + 'T00:00:00') : new Date();
+      const end = dateFilter ? new Date(dateFilter + 'T23:59:59') : new Date();
+      if (!dateFilter) {
+        // Aujourd'hui
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate()+1);
+        db.collection('orders')
+          .where('restaurantId', '==', currentRestaurantId)
+          .where('status', '==', 'terminé')
+          .where('servedAt', '>=', today)
+          .where('servedAt', '<', tomorrow)
+          .get()
+          .then(snapshot => {
+            const orders = [];
+            snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+            allServedOrders = orders;
+            renderHistory(orders);
           });
-          showToast('Paiement confirmé !', 'success');
-        } catch (error) {
-          showToast('Erreur lors de la confirmation', 'error');
-          console.error(error);
-        }
+      } else {
+        const startDate = new Date(dateFilter + 'T00:00:00');
+        const endDate = new Date(dateFilter + 'T23:59:59');
+        db.collection('orders')
+          .where('restaurantId', '==', currentRestaurantId)
+          .where('status', '==', 'terminé')
+          .where('servedAt', '>=', startDate)
+          .where('servedAt', '<=', endDate)
+          .get()
+          .then(snapshot => {
+            const orders = [];
+            snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+            allServedOrders = orders;
+            renderHistory(orders);
+          });
       }
-    };
+    }
+
+    function renderHistory(orders) {
+      const container = document.getElementById('historyOrdersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1 / -1;">Aucune commande servie dans cette période.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const tableNum = order.table || order.tableNumber || '?';
+        const itemsList = order.items ? order.items.map(item => `<li>${item.quantite}x ${item.nom}</li>`).join('') : '<li>Détails non disponibles</li>';
+        const total = order.total || 'N/A';
+        const paymentMode = order.paymentMode === 'cash' ? 'Espèces' : 'Mobile';
+        const servedAt = order.servedAt ? new Date(order.servedAt.seconds*1000).toLocaleString() : 'N/A';
+        const tip = order.tip || 0;
+
+        const card = document.createElement('div');
+        card.className = 'ticket';
+        card.style.borderTopColor = 'var(--text-muted)';
+        card.style.opacity = '0.85';
+        card.innerHTML = `
+          <div class="ticket-header">
+            <div class="ticket-table" style="background:#ecf0f1; color:var(--text-muted);">Table ${tableNum}</div>
+            <div class="ticket-time" style="color:var(--success);"><i class="fas fa-check"></i> Servi</div>
+          </div>
+          <ul class="ticket-items">${itemsList}</ul>
+          <div style="display:flex; justify-content:space-between; font-weight:600; margin-top:8px;">
+            <span>Total : ${total} FCFA</span>
+            <span>Paiement : ${paymentMode}</span>
+          </div>
+          ${tip > 0 ? `<div style="color:var(--primary); font-weight:600;"><i class="fas fa-hand-holding-usd"></i> Pourboire : ${tip} FCFA</div>` : ''}
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+            <i class="fas fa-clock"></i> ${servedAt}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function applyHistoryFilter() {
+      const dateVal = document.getElementById('historyDateFilter').value;
+      if (!dateVal) {
+        loadHistory(null);
+      } else {
+        loadHistory(dateVal);
+      }
+    }
+
+    function resetHistoryFilter() {
+      document.getElementById('historyDateFilter').value = '';
+      loadHistory(null);
+    }
+
+    // Initialiser l'historique au chargement
+    // On le fera après l'auth
 
     // ============================================================
-    //  POURBOIRES
+    //  POURBOIRES (lecture seule)
     // ============================================================
-    let tips = [];
-
     function listenTips() {
       db.collection('tips')
         .where('restaurantId', '==', currentRestaurantId)
@@ -880,7 +1153,7 @@
         .onSnapshot(snapshot => {
           const today = new Date();
           today.setHours(0,0,0,0);
-          tips = [];
+          const tips = [];
           snapshot.forEach(doc => {
             const data = doc.data();
             const date = data.date?.toDate ? data.date.toDate() : new Date(data.date);
@@ -888,26 +1161,26 @@
               tips.push({ id: doc.id, ...data });
             }
           });
-          renderTips();
+          renderTips(tips);
         });
     }
 
-    function renderTips() {
+    function renderTips(tips) {
       const total = tips.reduce((sum, t) => sum + (t.montant || 0), 0);
       document.getElementById('tipTotalDisplay').textContent = `Total : ${total} FCFA`;
+      document.getElementById('tipTotalBig').textContent = `${total} FCFA`;
       
       const container = document.getElementById('tipHistoryContainer');
       if (tips.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted);">Aucun pourboire enregistré aujourd'hui.</p>`;
+        container.innerHTML = `<p style="color:var(--text-muted);">Aucun pourboire reçu aujourd'hui.</p>`;
         return;
       }
       container.innerHTML = '';
-      // Trier par date décroissante
       const sorted = [...tips].sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
       sorted.forEach(tip => {
         const div = document.createElement('div');
         div.className = 'tip-item';
-        const dateStr = tip.date ? new Date(tip.date.seconds * 1000).toLocaleTimeString() : '';
+        const dateStr = tip.date ? new Date(tip.date.seconds * 1000).toLocaleString() : '';
         div.innerHTML = `
           <span>${tip.montant} FCFA ${tip.note ? ' - ' + tip.note : ''}</span>
           <span style="color:var(--text-muted);">${dateStr}</span>
@@ -915,29 +1188,6 @@
         container.appendChild(div);
       });
     }
-
-    window.addTip = async function() {
-      const input = document.getElementById('tipAmountInput');
-      const montant = parseInt(input.value);
-      if (!montant || montant <= 0) {
-        alert('Veuillez saisir un montant valide.');
-        return;
-      }
-      try {
-        await db.collection('tips').add({
-          restaurantId: currentRestaurantId,
-          userId: currentUser.uid,
-          montant: montant,
-          date: firebase.firestore.FieldValue.serverTimestamp(),
-          note: '' // possibilité d'ajouter un champ note plus tard
-        });
-        input.value = '';
-        showToast('Pourboire ajouté !', 'success');
-      } catch (error) {
-        showToast('Erreur lors de l\'ajout', 'error');
-        console.error(error);
-      }
-    };
 
     // ============================================================
     //  TEST SONORE
@@ -958,15 +1208,51 @@
     };
 
     // ============================================================
-    //  INITIALISATION APRÈS CHARGEMENT
+    //  INITIALISATION
     // ============================================================
-    // Au chargement, on prépare les badges
     document.addEventListener('DOMContentLoaded', function() {
-      // S'assurer que les badges sont à jour
-      const readyBadge = document.getElementById('readyBadge');
-      const helpBadge = document.getElementById('helpBadge');
-      // Les écouteurs mettront à jour
+      // L'historique sera chargé après l'auth
+      // On écoute l'auth pour charger l'historique
+      const originalOnAuth = auth.onAuthStateChanged;
+      auth.onAuthStateChanged = function(callback) {
+        originalOnAuth.call(auth, async (user) => {
+          await callback(user);
+          if (user) {
+            // Charger l'historique par défaut (aujourd'hui)
+            loadHistory(null);
+          }
+        });
+      };
+      // On ré-attache l'écouteur
+      // Mais on a déjà un onAuthStateChanged plus haut, on va juste appeler loadHistory après connexion
+      // Pour éviter de dupliquer, on va surcharger
+      // En fait on va simplement appeler loadHistory dans le onAuthStateChanged existant après avoir défini currentRestaurantId
     });
+
+    // Patch : on va modifier le onAuthStateChanged pour charger l'historique après la connexion
+    // On garde l'existant, on ajoute un appel à loadHistory après avoir défini currentRestaurantId
+    const originalAuthListener = auth.onAuthStateChanged;
+    auth.onAuthStateChanged = function(callback) {
+      return originalAuthListener.call(auth, async (user) => {
+        await callback(user);
+        if (user && currentRestaurantId) {
+          loadHistory(null);
+        }
+      });
+    };
+
+    // On réexécute l'initialisation de l'écouteur avec notre patch
+    // Mais comme le script est déjà en cours, on va juste forcer le chargement de l'historique après un court délai
+    setTimeout(() => {
+      if (currentRestaurantId) {
+        loadHistory(null);
+      }
+    }, 2000);
+
+    // ============================================================
+    //  GESTION DU BOUTON SILENCE DANS LES MODALES
+    // ============================================================
+    // Déjà intégré dans les actions des modales avec closeModal() et stopAlert()
   </script>
 </body>
 </html>
