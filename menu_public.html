@@ -18,7 +18,6 @@
             --border-color: #e2e8f0;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -30,59 +29,451 @@
             min-height: 100vh;
         }
         .container { max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
-        
+
         /* ====== EN-TÊTE RESTAURANT ====== */
         .restaurant-header {
-            background: #fff; border-radius: 28px; padding: 32px 24px;
+            background: #fff; border-radius: 28px; padding: 24px 24px 24px 32px;
             box-shadow: 0 10px 30px rgba(230,126,34,0.05); margin-bottom: 28px;
-            display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;
+            display: flex; align-items: center; justify-content: space-between;
             position: relative; overflow: hidden; border: 1px solid rgba(230,126,34,0.1);
+            flex-wrap: wrap;
         }
         .restaurant-header::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
             background: linear-gradient(90deg, var(--primary), #f1c40f);
         }
-        .restaurant-header img.logo { 
-            width: 110px; height: 110px; object-fit: contain;
-            border-radius: 24px; background: transparent; margin-bottom: 5px;
+        .header-left {
+            display: flex; align-items: center; gap: 16px;
+            flex: 1;
+        }
+        .header-left img.logo {
+            width: 70px; height: 70px; object-fit: contain;
+            border-radius: 20px; background: transparent;
             box-shadow: 0 8px 20px rgba(0,0,0,0.06); padding: 5px; border: 1px solid var(--border-color);
         }
-        .restaurant-header h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
-        .restaurant-header .description { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 8px; line-height: 1.6; }
-        
-        .restaurant-address { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; background: #f8fafc; padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border-color); }
-        .restaurant-address i { color: var(--primary); }
-
-        .global-rating { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 8px 16px; background: #fff; border-radius: 50px; transition: var(--transition); border: 1px solid transparent; }
-        .global-rating:hover { transform: translateY(-2px); }
-        .global-rating .stars-display { color: #f59e0b; font-size: 1.1rem; }
-        .global-rating .rating-text { font-size: 0.95rem; color: var(--text-main); font-weight: 700; }
-
-        .contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; width: 100%; }
-        .btn-contact {
-            padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; cursor: pointer;
+        .header-left .resto-info {
+            display: flex; flex-direction: column;
         }
-        .btn-phone { background: #0ea5e9; color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2); }
-        .btn-phone:hover { background: #0284c7; transform: translateY(-2px); }
-        .btn-whatsapp { background: #25D366; color: white; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2); }
-        .btn-whatsapp:hover { background: #128C7E; transform: translateY(-2px); }
-        .btn-location { background: #f43f5e; color: white; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.2); }
-        .btn-location:hover { background: #e11d48; transform: translateY(-2px); }
-        .btn-avis-header { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(230,126,34,0.2); }
-        .btn-avis-header:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        .header-left .resto-info h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+        .header-left .resto-info .description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin-top: 2px;
+        }
+        .header-actions {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .hamburger-btn {
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .hamburger-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+        .hamburger-btn .badge-connect {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #22c55e;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: none;
+        }
+        .hamburger-btn .badge-connect.connected {
+            display: block;
+        }
 
-        .user-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #f1f5f9; padding: 6px 16px; border-radius: 50px;
-            font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+        .user-badge-mini {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 6px 14px 6px 10px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
             border: 1px solid var(--border-color);
             cursor: pointer;
             transition: var(--transition);
-            text-decoration: none;
+            white-space: nowrap;
         }
-        .user-badge:hover { background: #e2e8f0; transform: translateY(-2px); }
-        .user-badge i { color: var(--primary); }
+        .user-badge-mini:hover {
+            background: #e2e8f0;
+        }
+        .user-badge-mini i {
+            color: var(--primary);
+        }
+
+        /* ====== PANEL LATERAL ====== */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 400px;
+            max-width: 90vw;
+            height: 100%;
+            background: #fff;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: right 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow-y: auto;
+            padding: 24px 20px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        .side-panel.open {
+            right: 0;
+        }
+        .side-panel .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .side-panel .panel-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .side-panel .panel-header .close-panel {
+            background: #f1f5f9;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .side-panel .panel-header .close-panel:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+        }
+        .side-panel .panel-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .side-panel .panel-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+            margin-top: 16px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Overlay sombre */
+        .panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 26, 46, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 1999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .panel-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Style du contenu du profil */
+        .profile-section {
+            margin-bottom: 24px;
+        }
+        .profile-section h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+        .profile-section h3 i {
+            color: var(--primary);
+        }
+        .profile-section .form-group {
+            margin-bottom: 14px;
+        }
+        .profile-section .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+        .profile-section .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+            background: #f8fafc;
+        }
+        .profile-section .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(230,126,34,0.08);
+            background: #fff;
+        }
+        .profile-section .form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-action {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(230,126,34,0.3);
+        }
+        .btn-action-secondary {
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        .btn-action-secondary:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        .btn-action-danger {
+            background: #f43f5e;
+            color: #fff;
+        }
+        .btn-action-danger:hover {
+            background: #e11d48;
+            transform: translateY(-2px);
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .favorite-item {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        .favorite-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .favorite-item .resto-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+        .favorite-item .plat-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .favorite-item .remove-fav {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: flex-start;
+        }
+        .favorite-item .remove-fav:hover {
+            background: #fecaca;
+            transform: scale(1.05);
+        }
+
+        .order-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order-history-item {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+        }
+        .order-history-item .ref {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .order-history-item .details {
+            font-weight: 500;
+        }
+        .order-history-item .status {
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        .order-history-item .status.en-attente { background: #fef3c7; color: #b45309; }
+        .order-history-item .status.en-préparation { background: #dbeafe; color: #1e40af; }
+        .order-history-item .status.pret { background: #d1fae5; color: #065f46; }
+        .order-history-item .status.termine { background: #e2e8f0; color: #475569; }
+
+        .avis-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 6px;
+        }
+        .avis-item {
+            background: #f8fafc;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .avis-item .avis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .avis-item .avis-stars {
+            color: #f59e0b;
+            font-size: 0.9rem;
+        }
+        .avis-item .avis-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+        .avis-item .avis-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .avis-item .avis-actions button {
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .avis-item .avis-actions .edit-avis {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .avis-item .avis-actions .edit-avis:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .avis-item .avis-actions .delete-avis {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .avis-item .avis-actions .delete-avis:hover {
+            background: #fecaca;
+        }
+        .avis-edit-form {
+            display: none;
+            margin-top: 10px;
+            background: #fff;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+        .avis-edit-form.active {
+            display: block;
+        }
+        .avis-edit-form .stars-edit {
+            display: flex;
+            gap: 6px;
+            font-size: 1.4rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .avis-edit-form .stars-edit i.active {
+            color: #f59e0b;
+        }
+        .avis-edit-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+            outline: none;
+        }
+        .avis-edit-form textarea:focus {
+            border-color: var(--primary);
+        }
+        .avis-edit-form .btn-save-avis {
+            margin-top: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
         /* ====== CATÉGORIES ====== */
         .category-container {
@@ -282,7 +673,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 26, 46, 0.6); backdrop-filter: blur(6px);
             display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px;
+            z-index: 3000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px;
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-content {
@@ -382,7 +773,12 @@
 
         /* ====== RESPONSIVE ====== */
         @media (max-width: 640px) {
-            .restaurant-header h1 { font-size: 1.8rem; }
+            .restaurant-header { padding: 16px; flex-direction: column; align-items: stretch; }
+            .header-left { flex-direction: column; align-items: center; text-align: center; }
+            .header-left .resto-info h1 { font-size: 1.4rem; }
+            .header-actions { margin-top: 12px; justify-content: center; }
+            .side-panel { width: 100%; max-width: 100%; right: -100%; }
+            .favorites-grid { grid-template-columns: 1fr; }
             .order-tracking .track-status { flex-direction: column; gap: 8px; }
             .track-timer { flex-direction: column; align-items: stretch; }
             .track-timer .countdown { text-align: center; }
@@ -392,12 +788,32 @@
 <body>
 
 <div class="container">
+    <!-- En-tête restaurant avec hamburger -->
     <div id="restaurantInfo" class="restaurant-header">
-        <p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Chargement de l'établissement...</p>
+        <div class="header-left">
+            <img src="" alt="Logo" class="logo" id="restoLogo" style="display:none;" />
+            <div class="resto-info">
+                <h1 id="restoNom">Chargement...</h1>
+                <p class="description" id="restoDesc"></p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="user-badge-mini" id="userBadgeMini" onclick="togglePanel()">
+                <i class="fas fa-user-circle"></i>
+                <span id="userBadgeName">Compte</span>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="togglePanel()" aria-label="Menu">
+                <i class="fas fa-bars" id="hamburgerIcon"></i>
+                <span class="badge-connect" id="connectBadge"></span>
+            </button>
+        </div>
+        <!-- (les infos supplémentaires comme adresse, notes, contacts seront injectées dynamiquement dans le header via JS) -->
     </div>
 
+    <!-- Catégories -->
     <div class="category-container" id="categoryTabs"></div>
 
+    <!-- Grille menu -->
     <div id="menuContainer" class="menu-grid"></div>
 
     <!-- Section Suivi de commande -->
@@ -424,6 +840,7 @@
         </div>
     </div>
 
+    <!-- Section avis publics -->
     <section id="reviewsSection" class="reviews-section">
         <div class="reviews-section-header">
             <h2><i class="fas fa-comments" style="color: var(--primary); margin-right: 10px;"></i> Ce que nos clients en pensent</h2>
@@ -452,6 +869,24 @@
         &copy; <span id="currentYear"></span> SCAN&TCHOP. Tous droits réservés.
     </div>
 </footer>
+
+<!-- Overlay panel latéral -->
+<div class="panel-overlay" id="panelOverlay" onclick="togglePanel()"></div>
+
+<!-- Panel latéral -->
+<div class="side-panel" id="sidePanel">
+    <div class="panel-header">
+        <h2><i class="fas fa-user-circle" style="color:var(--primary);"></i> Mon espace</h2>
+        <button class="close-panel" onclick="togglePanel()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="panel-body" id="panelBody">
+        <!-- Contenu chargé dynamiquement -->
+        <div style="text-align:center; padding:40px 0;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--primary);"></i></div>
+    </div>
+    <div class="panel-footer">
+        &copy; SCAN&TCHOP
+    </div>
+</div>
 
 <!-- Modals -->
 <div class="modal-overlay" id="modalZoom" onclick="closeModal('modalZoom')">
@@ -553,7 +988,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL AVIS ===== -->
+<!-- Modal Avis -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
@@ -580,7 +1015,7 @@
     </div>
 </div>
 
-<!-- MODAL AIDE -->
+<!-- Modal Aide -->
 <div class="modal-overlay" id="modalHelp">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalHelp')"><i class="fas fa-times"></i></button>
@@ -642,151 +1077,541 @@
     function saveCurrentUser(user) {
         currentUser = user;
         localStorage.setItem('scan_user', JSON.stringify(user));
-        updateUserBadge();
-        const emailInput = document.getElementById('orderEmail');
-        const phoneInput = document.getElementById('orderPhone');
-        if (emailInput) emailInput.value = user.email || '';
-        if (phoneInput) phoneInput.value = user.phone || '';
-        const avisNom = document.getElementById('avisNom');
-        if (avisNom && user.displayName) {
-            avisNom.value = user.displayName;
-            document.getElementById('avisNomContainer').style.display = 'none';
-        }
-        if (user && user.email) {
-            document.getElementById('emailFieldContainer').style.display = 'none';
-        } else {
-            document.getElementById('emailFieldContainer').style.display = 'block';
-        }
+        updateUIForUser();
     }
 
-    function updateUserBadge() {
-        const header = document.getElementById('restaurantInfo');
-        let badge = header.querySelector('.user-badge');
-        if (!badge) {
-            badge = document.createElement('a');
-            badge.className = 'user-badge';
-            badge.target = '_blank';
-            header.appendChild(badge);
-        }
+    function updateUIForUser() {
+        const badgeName = document.getElementById('userBadgeName');
+        const connectBadge = document.getElementById('connectBadge');
         if (currentUser) {
-            badge.href = `profile.html?userId=${currentUser.userId}`;
-            badge.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.displayName || currentUser.email}`;
-            badge.style.display = 'inline-flex';
+            badgeName.textContent = currentUser.displayName || currentUser.email || 'Compte';
+            connectBadge.classList.add('connected');
+            // Mettre à jour le mini badge
+            const mini = document.getElementById('userBadgeMini');
+            mini.style.display = 'flex';
+            // Remplir les champs email/phone dans la commande si présents
+            const emailInput = document.getElementById('orderEmail');
+            const phoneInput = document.getElementById('orderPhone');
+            if (emailInput && currentUser.email) emailInput.value = currentUser.email;
+            if (phoneInput && currentUser.phone) phoneInput.value = currentUser.phone;
+            // Masquer le champ email si déjà connecté
+            const emailContainer = document.getElementById('emailFieldContainer');
+            if (emailContainer && currentUser.email) emailContainer.style.display = 'none';
         } else {
-            badge.style.display = 'none';
+            badgeName.textContent = 'Compte';
+            connectBadge.classList.remove('connected');
+            const mini = document.getElementById('userBadgeMini');
+            mini.style.display = 'none';
+            // Réafficher le champ email pour la commande
+            const emailContainer = document.getElementById('emailFieldContainer');
+            if (emailContainer) emailContainer.style.display = 'block';
+        }
+        // Si le panneau est ouvert, on le rafraîchit
+        if (document.getElementById('sidePanel').classList.contains('open')) {
+            renderPanelContent();
         }
     }
 
-    // ===== FAVORIS =====
-    async function toggleFavorite(platId) {
+    // ===== PANEL LATÉRAL =====
+    function togglePanel() {
+        const panel = document.getElementById('sidePanel');
+        const overlay = document.getElementById('panelOverlay');
+        const isOpen = panel.classList.toggle('open');
+        overlay.classList.toggle('active', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+        if (isOpen) {
+            renderPanelContent();
+        }
+    }
+
+    function renderPanelContent() {
+        const body = document.getElementById('panelBody');
         if (!currentUser) {
-            alert('Veuillez passer une commande pour créer votre compte et pouvoir ajouter des favoris.');
+            body.innerHTML = `
+                <div style="padding:20px 0;">
+                    <h3 style="margin-bottom:16px; font-weight:700;">Se connecter / Créer un compte</h3>
+                    <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.95rem;">Connectez-vous pour gérer vos informations, favoris et suivre vos commandes.</p>
+                    <div class="form-group">
+                        <label>Adresse email *</label>
+                        <input type="email" id="loginEmail" placeholder="votre@email.com" />
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone (optionnel)</label>
+                        <input type="tel" id="loginPhone" placeholder="Numéro de téléphone" />
+                    </div>
+                    <button class="btn-action" style="width:100%; justify-content:center;" onclick="loginOrCreate()">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter / Créer mon compte
+                    </button>
+                    <p style="margin-top:12px; font-size:0.8rem; color:var(--text-muted); text-align:center;">En créant un compte, vous acceptez nos conditions d'utilisation.</p>
+                </div>
+            `;
             return;
         }
-        const userRef = db.collection('users').doc(currentUser.userId);
+
+        // Utilisateur connecté : afficher le profil complet
+        let html = `
+            <div class="profile-section">
+                <h3><i class="fas fa-id-card"></i> Informations personnelles</h3>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="${currentUser.email || ''}" disabled />
+                </div>
+                <div class="form-group">
+                    <label>Nom affiché</label>
+                    <input type="text" id="profileName" value="${currentUser.displayName || ''}" placeholder="Votre nom / pseudonyme" />
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="profilePhone" value="${currentUser.phone || ''}" placeholder="Numéro de téléphone" />
+                </div>
+                <button class="btn-action" onclick="updateProfile()"><i class="fas fa-save"></i> Mettre à jour</button>
+                <button class="btn-action btn-action-secondary" style="margin-left:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-heart" style="color:#ef4444;"></i> Mes favoris</h3>
+                <div id="favoritesContainer" class="favorites-grid">
+                    <div class="empty-state">Chargement...</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-history"></i> Historique des commandes</h3>
+                <div id="orderHistoryContainer">
+                    <div class="empty-state">Chargement...</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-star"></i> Mes avis</h3>
+                <div id="myReviewsContainer">
+                    <div class="empty-state">Chargement...</div>
+                </div>
+            </div>
+        `;
+        body.innerHTML = html;
+
+        // Charger les données du profil
+        loadFavorites();
+        loadOrderHistory();
+        loadMyReviews();
+    }
+
+    // ===== PROFIL : FAVORIS =====
+    async function loadFavorites() {
+        const container = document.getElementById('favoritesContainer');
+        if (!container) return;
+        if (!currentUser || !currentUser.favorites || currentUser.favorites.length === 0) {
+            container.innerHTML = '<div class="empty-state">Aucun plat favori pour le moment.</div>';
+            return;
+        }
+
+        let items = [];
+        for (let fav of currentUser.favorites) {
+            let restaurantId, platId;
+            if (typeof fav === 'object') {
+                restaurantId = fav.restaurantId;
+                platId = fav.platId;
+            } else continue;
+            if (!restaurantId || !platId) continue;
+            try {
+                const platDoc = await db.collection('menus').doc(platId).get();
+                if (!platDoc.exists) continue;
+                const platData = platDoc.data();
+                const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
+                const restoName = restoDoc.exists ? restoDoc.data().nom : 'Restaurant inconnu';
+                items.push({
+                    restaurantId,
+                    platId,
+                    platNom: platData.nom || 'Plat inconnu',
+                    restaurantNom: restoName,
+                });
+            } catch(e) {
+                console.warn('Erreur chargement favori:', e);
+            }
+        }
+
+        if (items.length === 0) {
+            container.innerHTML = '<div class="empty-state">Aucun favori valide trouvé.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'favorite-item';
+            div.innerHTML = `
+                <div class="resto-name"><i class="fas fa-store"></i> ${item.restaurantNom}</div>
+                <div class="plat-name">${item.platNom}</div>
+                <button class="remove-fav" onclick="removeFavorite('${item.restaurantId}', '${item.platId}')">
+                    <i class="fas fa-trash-alt"></i> Retirer
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    async function removeFavorite(restaurantId, platId) {
+        if (!currentUser) return;
         try {
+            const userRef = db.collection('users').doc(currentUser.userId);
             const doc = await userRef.get();
             let favorites = doc.data()?.favorites || [];
-            const existingIndex = favorites.findIndex(fav => {
-                if (typeof fav === 'object' && fav.restaurantId === restaurantId && fav.platId === platId) return true;
-                if (typeof fav === 'string' && fav === platId) return true;
-                return false;
+            favorites = favorites.filter(fav => {
+                if (typeof fav === 'object') {
+                    return !(fav.restaurantId === restaurantId && fav.platId === platId);
+                }
+                return true;
             });
-            if (existingIndex !== -1) {
-                favorites.splice(existingIndex, 1);
-            } else {
-                favorites.push({ restaurantId, platId });
-            }
             await userRef.update({ favorites });
             currentUser.favorites = favorites;
             saveCurrentUser(currentUser);
+            loadFavorites();
+            // Mettre à jour l'affichage du menu (favoris sur les cartes)
             renderMenu();
         } catch (e) {
-            console.error('Erreur favoris:', e);
-            alert('Impossible de mettre à jour les favoris.');
+            console.error('Erreur suppression favori:', e);
+            alert('Impossible de supprimer ce favori.');
         }
     }
 
-    function isFavorite(platId) {
-        if (!currentUser || !currentUser.favorites) return false;
-        return currentUser.favorites.some(fav => {
-            if (typeof fav === 'object') return fav.restaurantId === restaurantId && fav.platId === platId;
-            if (typeof fav === 'string') return fav === platId;
-            return false;
-        });
-    }
-
-    // ===== INIT =====
-    if (restaurantId) {
-        initPage();
-    } else {
-        document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold; padding: 40px;">Aucun identifiant de restaurant spécifié dans l\'URL.</p>';
-    }
-
-    async function initPage() {
-        loadCurrentUser();
-        updateUserBadge();
-        if (currentUser) {
-            saveCurrentUser(currentUser);
+    // ===== PROFIL : HISTORIQUE =====
+    async function loadOrderHistory() {
+        const container = document.getElementById('orderHistoryContainer');
+        if (!container) return;
+        if (!currentUser) {
+            container.innerHTML = '<div class="empty-state">Connectez-vous pour voir vos commandes.</div>';
+            return;
         }
-        await loadRestaurantData();
-        await loadMenuData();
-        const savedOrder = localStorage.getItem('pendingOrder');
-        if (savedOrder) {
-            try {
-                const order = JSON.parse(savedOrder);
-                if (order.restaurantId === restaurantId) {
-                    activeOrderId = order.orderId;
-                    startTracking(order.orderId);
-                }
-            } catch(e) {}
-        }
-        document.querySelectorAll('.instruction-tag').forEach(tag => {
-            tag.addEventListener('click', function() {
-                this.classList.toggle('active');
-                updateInstructionsField();
+        try {
+            // Requête sans orderBy pour éviter l'index composite
+            const snapshot = await db.collection('orders')
+                .where('userId', '==', currentUser.userId)
+                .get();
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state">Aucune commande passée.</div>';
+                return;
+            }
+            let orders = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.createdAt?.toDate?.() ? new Date(data.createdAt.toDate()) : new Date(0);
+                orders.push({ id: doc.id, ...data, _date: date });
             });
-        });
-    }
+            // Trier côté client par date décroissante
+            orders.sort((a, b) => b._date - a._date);
 
-    function updateInstructionsField() {
-        const activeTags = document.querySelectorAll('.instruction-tag.active');
-        const texts = Array.from(activeTags).map(tag => tag.dataset.text);
-        const textarea = document.getElementById('orderInstructions');
-        const currentText = textarea.value.trim();
-        let newText = texts.join(', ');
-        if (currentText && !texts.some(t => currentText.includes(t))) {
-            newText = newText ? newText + ', ' + currentText : currentText;
+            let html = '<div class="order-history-list">';
+            orders.forEach(order => {
+                const status = order.status || 'en attente';
+                const statusClass = status.replace(' ', '-').toLowerCase();
+                const dateStr = order._date.getFullYear() > 1970 ? order._date.toLocaleDateString('fr-FR') : 'Date inconnue';
+                html += `
+                    <div class="order-history-item">
+                        <div>
+                            <span class="ref">${order.reference || 'N/A'}</span>
+                            <span class="details">${order.platNom} (x${order.quantite}) – ${dateStr}</span>
+                        </div>
+                        <span class="status ${statusClass}">${status}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } catch (e) {
+            console.error('Erreur historique:', e);
+            container.innerHTML = '<div class="empty-state">Erreur lors du chargement de l\'historique.</div>';
         }
-        textarea.value = newText;
     }
 
-    // ===== CHARGEMENT DONNÉES =====
+    // ===== PROFIL : MES AVIS =====
+    async function loadMyReviews() {
+        const container = document.getElementById('myReviewsContainer');
+        if (!container) return;
+        if (!currentUser) {
+            container.innerHTML = '<div class="empty-state">Connectez-vous pour voir vos avis.</div>';
+            return;
+        }
+        try {
+            const snapshot = await db.collection('avis')
+                .where('userId', '==', currentUser.userId)
+                .get();
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state">Vous n\'avez pas encore laissé d\'avis.</div>';
+                return;
+            }
+            let avisList = [];
+            snapshot.forEach(doc => {
+                avisList.push({ id: doc.id, ...doc.data() });
+            });
+            // Trier par date (récent en premier)
+            avisList.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+
+            let html = '<div class="avis-list">';
+            avisList.forEach(avis => {
+                const stars = '★'.repeat(avis.note) + '☆'.repeat(5 - avis.note);
+                const dateStr = avis.date?.toDate?.() ? new Date(avis.date.toDate()).toLocaleDateString('fr-FR') : '';
+                html += `
+                    <div class="avis-item" data-id="${avis.id}">
+                        <div class="avis-header">
+                            <div class="avis-stars">${stars}</div>
+                            <span style="font-size:0.75rem;color:var(--text-muted);">${dateStr}</span>
+                        </div>
+                        <div class="avis-text">${avis.commentaire || ''}</div>
+                        <div class="avis-actions">
+                            <button class="edit-avis" onclick="editAvis('${avis.id}')"><i class="fas fa-edit"></i> Modifier</button>
+                            <button class="delete-avis" onclick="deleteAvis('${avis.id}')"><i class="fas fa-trash-alt"></i> Supprimer</button>
+                        </div>
+                        <div class="avis-edit-form" id="editForm_${avis.id}">
+                            <div class="stars-edit" data-avisid="${avis.id}">
+                                <i class="fas fa-star" data-value="1"></i>
+                                <i class="fas fa-star" data-value="2"></i>
+                                <i class="fas fa-star" data-value="3"></i>
+                                <i class="fas fa-star" data-value="4"></i>
+                                <i class="fas fa-star" data-value="5"></i>
+                            </div>
+                            <textarea placeholder="Modifiez votre commentaire...">${avis.commentaire || ''}</textarea>
+                            <button class="btn-action btn-save-avis" onclick="saveAvisEdit('${avis.id}')"><i class="fas fa-save"></i> Enregistrer</button>
+                            <button class="btn-action btn-action-secondary" onclick="cancelAvisEdit('${avis.id}')">Annuler</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Initialiser les étoiles des formulaires d'édition
+            document.querySelectorAll('.avis-edit-form .stars-edit').forEach(el => {
+                const avisId = el.dataset.avisid;
+                const avisItem = document.querySelector(`.avis-item[data-id="${avisId}"]`);
+                const note = avisItem ? parseInt(avisItem.querySelector('.avis-stars').textContent.match(/★/g)?.length || 0) : 0;
+                const stars = el.querySelectorAll('i');
+                stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.value) <= note));
+                stars.forEach(s => {
+                    s.addEventListener('click', function() {
+                        const val = parseInt(this.dataset.value);
+                        stars.forEach(ss => ss.classList.toggle('active', parseInt(ss.dataset.value) <= val));
+                    });
+                });
+            });
+
+        } catch (e) {
+            console.error('Erreur chargement avis:', e);
+            container.innerHTML = '<div class="empty-state">Erreur lors du chargement de vos avis.</div>';
+        }
+    }
+
+    async function editAvis(avisId) {
+        const form = document.getElementById(`editForm_${avisId}`);
+        if (form) form.classList.toggle('active');
+    }
+
+    function cancelAvisEdit(avisId) {
+        const form = document.getElementById(`editForm_${avisId}`);
+        if (form) form.classList.remove('active');
+    }
+
+    async function saveAvisEdit(avisId) {
+        const form = document.getElementById(`editForm_${avisId}`);
+        if (!form) return;
+        const starsDiv = form.querySelector('.stars-edit');
+        const activeStars = starsDiv.querySelectorAll('i.active');
+        const note = activeStars.length;
+        const commentaire = form.querySelector('textarea').value.trim();
+
+        if (note === 0) {
+            alert('Veuillez sélectionner une note.');
+            return;
+        }
+
+        try {
+            await db.collection('avis').doc(avisId).update({
+                note: note,
+                commentaire: commentaire || '',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert('Avis mis à jour avec succès !');
+            form.classList.remove('active');
+            loadMyReviews(); // rafraîchir
+        } catch (e) {
+            console.error(e);
+            alert('Erreur lors de la mise à jour.');
+        }
+    }
+
+    async function deleteAvis(avisId) {
+        if (!confirm('Voulez-vous vraiment supprimer cet avis ?')) return;
+        try {
+            await db.collection('avis').doc(avisId).delete();
+            alert('Avis supprimé.');
+            loadMyReviews();
+            // Recharger aussi les avis publics pour mettre à jour la note moyenne
+            loadRestaurantData();
+        } catch (e) {
+            console.error(e);
+            alert('Erreur lors de la suppression.');
+        }
+    }
+
+    // ===== PROFIL : MISE À JOUR =====
+    async function updateProfile() {
+        const name = document.getElementById('profileName').value.trim();
+        const phone = document.getElementById('profilePhone').value.trim();
+        if (!currentUser) return alert('Utilisateur non connecté.');
+
+        const updates = {};
+        if (name) updates.displayName = name;
+        if (phone) updates.phone = phone;
+
+        if (Object.keys(updates).length === 0) {
+            alert('Aucune modification à enregistrer.');
+            return;
+        }
+
+        try {
+            await db.collection('users').doc(currentUser.userId).update(updates);
+            currentUser = { ...currentUser, ...updates };
+            saveCurrentUser(currentUser);
+            alert('Profil mis à jour avec succès !');
+            renderPanelContent(); // rafraîchir
+        } catch (e) {
+            console.error(e);
+            alert('Erreur lors de la mise à jour.');
+        }
+    }
+
+    // ===== LOGIN / CREATE =====
+    async function loginOrCreate() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const phone = document.getElementById('loginPhone').value.trim();
+        if (!email) {
+            alert('Veuillez renseigner votre adresse email.');
+            return;
+        }
+        try {
+            const user = await ensureUser(email, phone);
+            if (user) {
+                saveCurrentUser(user);
+                alert('Connexion réussie !');
+                togglePanel(); // fermer le panneau
+                // Recharger l'affichage du menu (favoris)
+                renderMenu();
+                // Mettre à jour les champs dans la commande
+                const emailInput = document.getElementById('orderEmail');
+                const phoneInput = document.getElementById('orderPhone');
+                if (emailInput) emailInput.value = user.email;
+                if (phoneInput && user.phone) phoneInput.value = user.phone;
+                document.getElementById('emailFieldContainer').style.display = 'none';
+            } else {
+                alert('Erreur lors de la création du compte.');
+            }
+        } catch (e) {
+            alert('Erreur: ' + e.message);
+        }
+    }
+
+    async function ensureUser(email, phone) {
+        if (!email) throw new Error('Email requis');
+        // Vérifier si déjà connecté avec cet email
+        if (currentUser && currentUser.email === email) {
+            if (phone && !currentUser.phone) {
+                currentUser.phone = phone;
+                await db.collection('users').doc(currentUser.userId).update({ phone });
+                saveCurrentUser(currentUser);
+            }
+            return currentUser;
+        }
+        // Chercher l'utilisateur existant
+        const existing = await fetchUserByEmail(email);
+        if (existing) {
+            if (phone && !existing.phone) {
+                await db.collection('users').doc(existing.userId).update({ phone });
+                existing.phone = phone;
+            }
+            if (!existing.displayName) {
+                const name = email.split('@')[0] || 'Client';
+                await db.collection('users').doc(existing.userId).update({ displayName: name });
+                existing.displayName = name;
+            }
+            saveCurrentUser(existing);
+            return existing;
+        } else {
+            return await createUser(email, phone);
+        }
+    }
+
+    async function fetchUserByEmail(email) {
+        const snapshot = await db.collection('users').where('email', '==', email).get();
+        if (!snapshot.empty) {
+            const doc = snapshot.docs[0];
+            return { userId: doc.id, ...doc.data() };
+        }
+        return null;
+    }
+
+    async function createUser(email, phone) {
+        const displayName = email.split('@')[0] || 'Client';
+        const userData = {
+            email,
+            displayName,
+            phone: phone || '',
+            favorites: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        const docRef = await db.collection('users').add(userData);
+        const newUser = { userId: docRef.id, ...userData };
+        saveCurrentUser(newUser);
+        return newUser;
+    }
+
+    function logout() {
+        localStorage.removeItem('scan_user');
+        currentUser = null;
+        updateUIForUser();
+        togglePanel();
+        // Réafficher les champs email dans la commande
+        document.getElementById('emailFieldContainer').style.display = 'block';
+        document.getElementById('orderEmail').value = '';
+        // Rafraîchir le menu (favoris)
+        renderMenu();
+        alert('Vous êtes déconnecté.');
+    }
+
+    // ===== RESTAURANT HEADER =====
     async function loadRestaurantData() {
         try {
             const restoDoc = await db.collection('restaurants').doc(restaurantId).get();
             if (!restoDoc.exists) {
-                document.getElementById('restaurantInfo').innerHTML = '<p style="color:red; font-weight:bold;">Établissement introuvable.</p>';
+                document.getElementById('restoNom').textContent = 'Établissement introuvable';
                 return;
             }
             const resto = restoDoc.data();
 
+            // Mettre à jour l'en-tête
+            document.getElementById('restoNom').textContent = resto.nom || 'Restaurant';
+            document.getElementById('restoDesc').textContent = resto.description || '';
+            const logo = document.getElementById('restoLogo');
+            if (resto.logo) {
+                logo.src = resto.logo;
+                logo.style.display = 'block';
+            } else {
+                logo.style.display = 'none';
+            }
+
+            // Avis pour la note
             const avisSnapshot = await db.collection('avis').where('restaurantId', '==', restaurantId).get();
             allReviews = [];
             let sommeNotes = 0;
-
             avisSnapshot.forEach(doc => {
                 const data = doc.data();
                 allReviews.push(data);
                 if(data.note) sommeNotes += data.note;
             });
-
             allReviews.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
 
             const totalAvis = allReviews.length;
             let noteMoyenne = 0;
             let etoilesHtml = '';
-
             if (totalAvis > 0) {
                 noteMoyenne = (sommeNotes / totalAvis).toFixed(1);
                 const pleinStars = Math.round(noteMoyenne);
@@ -797,38 +1622,69 @@
                 etoilesHtml = '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
             }
 
-            let addressHtml = (resto.adresse && resto.ville) ? `<div class="restaurant-address"><i class="fas fa-map-pin"></i> ${resto.adresse}, ${resto.ville}</div>` : '';
-            
-            let btnPhoneHtml = resto.telephone ? `<a href="tel:${resto.telephone.replace(/\s+/g, '')}" class="btn-contact btn-phone"><i class="fas fa-phone-alt"></i> Appeler</a>` : '';
-            
-            let btnWhatsAppHtml = '';
+            // Ajouter les infos supplémentaires dans le header (adresse, contacts, note)
+            const header = document.getElementById('restaurantInfo');
+            // On supprime les anciens éléments ajoutés pour éviter les doublons
+            const existingExtra = header.querySelectorAll('.restaurant-extra');
+            existingExtra.forEach(el => el.remove());
+
+            let extraDiv = document.createElement('div');
+            extraDiv.className = 'restaurant-extra';
+            extraDiv.style.width = '100%';
+            extraDiv.style.marginTop = '12px';
+            extraDiv.style.display = 'flex';
+            extraDiv.style.flexWrap = 'wrap';
+            extraDiv.style.alignItems = 'center';
+            extraDiv.style.justifyContent = 'center';
+            extraDiv.style.gap = '12px';
+            extraDiv.style.fontSize = '0.9rem';
+
+            if (resto.adresse && resto.ville) {
+                const addr = document.createElement('span');
+                addr.innerHTML = `<i class="fas fa-map-pin" style="color:var(--primary);"></i> ${resto.adresse}, ${resto.ville}`;
+                addr.style.color = 'var(--text-muted)';
+                extraDiv.appendChild(addr);
+            }
+
+            // Note
+            const noteDiv = document.createElement('span');
+            noteDiv.innerHTML = `
+                <span style="cursor:pointer;" onclick="document.getElementById('reviewsSection').scrollIntoView({behavior:'smooth'})">
+                    <span style="color:#f59e0b;">${etoilesHtml}</span>
+                    <span style="font-weight:700; margin-left:4px;">${totalAvis > 0 ? noteMoyenne + '/5 ('+totalAvis+' avis)' : 'Aucun avis'}</span>
+                </span>
+            `;
+            extraDiv.appendChild(noteDiv);
+
+            // Boutons contacts
+            if (resto.telephone) {
+                const btn = document.createElement('a');
+                btn.href = `tel:${resto.telephone.replace(/\s+/g, '')}`;
+                btn.className = 'btn-contact btn-phone';
+                btn.innerHTML = '<i class="fas fa-phone-alt"></i> Appeler';
+                extraDiv.appendChild(btn);
+            }
             if (resto.whatsapp) {
                 const cleanWa = resto.whatsapp.replace(/\s+/g, '').replace(/\+/g, '');
                 const waMessage = encodeURIComponent(`Bonjour ${resto.nom}, j'ai trouvé votre menu sur SCAN&TCHOP. Je voudrais savoir...`);
-                btnWhatsAppHtml = `<a href="https://wa.me/${cleanWa}?text=${waMessage}" target="_blank" class="btn-contact btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+                const btn = document.createElement('a');
+                btn.href = `https://wa.me/${cleanWa}?text=${waMessage}`;
+                btn.target = '_blank';
+                btn.className = 'btn-contact btn-whatsapp';
+                btn.innerHTML = '<i class="fab fa-whatsapp"></i> WhatsApp';
+                extraDiv.appendChild(btn);
+            }
+            if (resto.map) {
+                const btn = document.createElement('a');
+                btn.href = resto.map;
+                btn.target = '_blank';
+                btn.className = 'btn-contact btn-location';
+                btn.innerHTML = '<i class="fas fa-map-marked-alt"></i> S\'y rendre';
+                extraDiv.appendChild(btn);
             }
 
-            let btnLocalisationHtml = resto.map ? `<a href="${resto.map}" target="_blank" class="btn-contact btn-location"><i class="fas fa-map-marked-alt"></i> S'y rendre</a>` : '';
+            header.appendChild(extraDiv);
 
-            document.getElementById('restaurantInfo').innerHTML = `
-                ${resto.logo ? `<img src="${resto.logo}" class="logo" alt="Logo de ${resto.nom}" />` : ''}
-                <h1>${resto.nom}</h1>
-                <p class="description">${resto.description || 'Bienvenue dans notre établissement.'}</p>
-                ${addressHtml}
-                
-                <div class="global-rating" onclick="document.getElementById('reviewsSection').scrollIntoView({behavior: 'smooth'})" title="Voir les avis">
-                    <span class="stars-display">${etoilesHtml}</span>
-                    <span class="rating-text">${totalAvis > 0 ? `${noteMoyenne}/5 (${totalAvis} avis)` : 'Aucun avis'}</span>
-                    <i class="fas fa-chevron-down" style="color:var(--text-muted); font-size: 0.8rem; margin-left: 5px;"></i>
-                </div>
-
-                <div class="contact-buttons">
-                    ${btnPhoneHtml}
-                    ${btnWhatsAppHtml}
-                    ${btnLocalisationHtml}
-                </div>
-            `;
-            
             renderReviewsSection();
 
         } catch (error) {
@@ -839,7 +1695,6 @@
     function renderReviewsSection() {
         const section = document.getElementById('reviewsSection');
         const grid = document.getElementById('reviewsGrid');
-        
         section.style.display = 'block';
         grid.innerHTML = '';
 
@@ -873,6 +1728,7 @@
         });
     }
 
+    // ===== MENU =====
     async function loadMenuData() {
         try {
             const snapshot = await db.collection('menus').where('restaurantId', '==', restaurantId).get();
@@ -1035,6 +1891,49 @@
         renderMenu();
     }
 
+    function isFavorite(platId) {
+        if (!currentUser || !currentUser.favorites) return false;
+        return currentUser.favorites.some(fav => {
+            if (typeof fav === 'object') return fav.restaurantId === restaurantId && fav.platId === platId;
+            if (typeof fav === 'string') return fav === platId;
+            return false;
+        });
+    }
+
+    async function toggleFavorite(platId) {
+        if (!currentUser) {
+            alert('Veuillez vous connecter pour ajouter des favoris.');
+            togglePanel(); // ouvre le panneau de connexion
+            return;
+        }
+        const userRef = db.collection('users').doc(currentUser.userId);
+        try {
+            const doc = await userRef.get();
+            let favorites = doc.data()?.favorites || [];
+            const existingIndex = favorites.findIndex(fav => {
+                if (typeof fav === 'object' && fav.restaurantId === restaurantId && fav.platId === platId) return true;
+                if (typeof fav === 'string' && fav === platId) return true;
+                return false;
+            });
+            if (existingIndex !== -1) {
+                favorites.splice(existingIndex, 1);
+            } else {
+                favorites.push({ restaurantId, platId });
+            }
+            await userRef.update({ favorites });
+            currentUser.favorites = favorites;
+            saveCurrentUser(currentUser);
+            renderMenu();
+            // Si le panneau est ouvert, rafraîchir les favoris
+            if (document.getElementById('sidePanel').classList.contains('open')) {
+                loadFavorites();
+            }
+        } catch (e) {
+            console.error('Erreur favoris:', e);
+            alert('Impossible de mettre à jour les favoris.');
+        }
+    }
+
     // ===== MODALS =====
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -1059,9 +1958,9 @@
             table: '',
             instructions: '',
             paymentMode: 'mobile',
-            phone: '',
-            email: '',
-            displayName: ''
+            phone: currentUser?.phone || '',
+            email: currentUser?.email || '',
+            displayName: currentUser?.displayName || ''
         };
 
         document.getElementById('orderPlatNom').innerText = plat.nom;
@@ -1079,7 +1978,7 @@
         } else {
             document.getElementById('emailFieldContainer').style.display = 'block';
         }
-        document.getElementById('phoneFieldContainer').style.display = 'block';
+        document.getElementById('phoneFieldContainer').style.display = currentOrder.paymentMode === 'mobile' ? 'block' : 'none';
 
         const compContainer = document.getElementById('complementsContainer');
         const compCheckboxes = document.getElementById('complementsCheckboxes');
@@ -1314,58 +2213,6 @@
         });
     }
 
-    async function ensureUser(email, phone) {
-        if (!email) throw new Error('Email requis');
-        if (currentUser && currentUser.email === email) {
-            if (phone && !currentUser.phone) {
-                currentUser.phone = phone;
-                await db.collection('users').doc(currentUser.userId).update({ phone });
-                saveCurrentUser(currentUser);
-            }
-            return currentUser;
-        }
-        const existing = await fetchUserByEmail(email);
-        if (existing) {
-            if (phone && !existing.phone) {
-                await db.collection('users').doc(existing.userId).update({ phone });
-                existing.phone = phone;
-            }
-            if (!existing.displayName) {
-                const name = email.split('@')[0] || 'Client';
-                await db.collection('users').doc(existing.userId).update({ displayName: name });
-                existing.displayName = name;
-            }
-            saveCurrentUser(existing);
-            return existing;
-        } else {
-            return await createUser(email, phone);
-        }
-    }
-
-    async function fetchUserByEmail(email) {
-        const snapshot = await db.collection('users').where('email', '==', email).get();
-        if (!snapshot.empty) {
-            const doc = snapshot.docs[0];
-            return { userId: doc.id, ...doc.data() };
-        }
-        return null;
-    }
-
-    async function createUser(email, phone) {
-        const displayName = email.split('@')[0] || 'Client';
-        const userData = {
-            email,
-            displayName,
-            phone: phone || '',
-            favorites: [],
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        const docRef = await db.collection('users').add(userData);
-        const newUser = { userId: docRef.id, ...userData };
-        saveCurrentUser(newUser);
-        return newUser;
-    }
-
     // ===== SUIVI DE COMMANDE =====
     function showTracking(orderId) {
         const trackingDiv = document.getElementById('orderTracking');
@@ -1458,7 +2305,7 @@
         countdownInterval = setInterval(update, 1000);
     }
 
-    // ===== DEMANDE D'AIDE (MODIFIÉ POUR SERVEUR) =====
+    // ===== DEMANDE D'AIDE =====
     function requestHelp() {
         const tableInput = document.getElementById('helpTable');
         tableInput.value = document.getElementById('orderTable').value || '';
@@ -1472,14 +2319,13 @@
             return;
         }
         try {
-            // Envoi d'une notification au serveur (targetRole: 'Serveur')
             await db.collection('notifications').add({
                 restaurantId: restaurantId,
                 message: `🆘 Le client de la table ${table} a besoin d'aide.`,
                 targetRole: 'Serveur',
                 read: false,
                 type: 'help_request',
-                status: 'pending',   // sera utilisé par le serveur
+                status: 'pending',
                 table: table,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -1532,6 +2378,7 @@
         try {
             await db.collection('avis').add({
                 restaurantId: restaurantId,
+                userId: currentUser?.userId || null,
                 nomClient: nomClient,
                 note: parseInt(currentRating),
                 commentaire: commentaire,
@@ -1556,6 +2403,50 @@
             btn.disabled = false;
             btn.innerHTML = oldText;
         }
+    }
+
+    // ===== INIT =====
+    if (restaurantId) {
+        loadCurrentUser();
+        updateUIForUser();
+        initPage();
+    } else {
+        document.getElementById('restoNom').textContent = 'Aucun identifiant de restaurant spécifié dans l\'URL.';
+    }
+
+    async function initPage() {
+        await loadRestaurantData();
+        await loadMenuData();
+        const savedOrder = localStorage.getItem('pendingOrder');
+        if (savedOrder) {
+            try {
+                const order = JSON.parse(savedOrder);
+                if (order.restaurantId === restaurantId) {
+                    activeOrderId = order.orderId;
+                    startTracking(order.orderId);
+                }
+            } catch(e) {}
+        }
+        document.querySelectorAll('.instruction-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.classList.toggle('active');
+                updateInstructionsField();
+            });
+        });
+        // Gestion du panel overlay
+        document.getElementById('panelOverlay').addEventListener('click', togglePanel);
+    }
+
+    function updateInstructionsField() {
+        const activeTags = document.querySelectorAll('.instruction-tag.active');
+        const texts = Array.from(activeTags).map(tag => tag.dataset.text);
+        const textarea = document.getElementById('orderInstructions');
+        const currentText = textarea.value.trim();
+        let newText = texts.join(', ');
+        if (currentText && !texts.some(t => currentText.includes(t))) {
+            newText = newText ? newText + ', ' + currentText : currentText;
+        }
+        textarea.value = newText;
     }
 
     // ===== GESTION DES LIENS PARTAGÉS (QR) =====
