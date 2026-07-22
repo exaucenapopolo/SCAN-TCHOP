@@ -14,7 +14,7 @@
        VARIABLES & RESET (Couleurs Serveur : Bleu)
     ============================================ */
     :root {
-      --primary: #3498db; /* Bleu Serveur */
+      --primary: #3498db;
       --primary-dark: #2980b9;
       --primary-light: #ebf5fb;
       --primary-bg: rgba(52, 152, 219, 0.1);
@@ -94,19 +94,43 @@
     .ticket-footer { display: flex; flex-direction: column; gap: 10px; }
     .payment-status { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 600; padding: 10px; border-radius: 8px; background: #f8f9fa; }
 
+    /* ========== DEMANDES D'AIDE ========== */
+    .help-request-card {
+      background: #fff; border-radius: 16px; padding: 18px; border-left: 6px solid var(--danger);
+      box-shadow: var(--shadow-sm); margin-bottom: 16px; transition: var(--transition);
+    }
+    .help-request-card.accepted { border-left-color: var(--success); opacity:0.7; }
+    .help-request-card .help-header { display:flex; justify-content:space-between; align-items:center; }
+    .help-request-card .help-table { font-weight:800; font-size:1.2rem; color:var(--danger); }
+    .help-request-card .help-message { margin:12px 0; color:var(--text-dark); }
+    .help-request-card .help-actions { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+
+    /* ========== POURBOIRES ========== */
+    .tip-box { background:#f8f9fa; border-radius:16px; padding:20px; margin-bottom:20px; }
+    .tip-box .tip-total { font-size:2rem; font-weight:800; color:var(--primary-dark); }
+    .tip-box .tip-input-group { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .tip-box .tip-input-group input { flex:1; min-width:150px; padding:12px 16px; border:1.5px solid #d5d8dc; border-radius:12px; font-size:1rem; }
+    .tip-history { max-height:200px; overflow-y:auto; }
+    .tip-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #ecf0f1; font-size:0.95rem; }
+
     /* ========== BOUTONS & BADGES ========== */
-    .btn { padding:10px 20px; border:none; border-radius:12px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; width: 100%; }
+    .btn { padding:10px 20px; border:none; border-radius:12px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; }
     .btn:active { transform:scale(0.96); }
     .btn-primary { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(52, 152, 219, 0.25); }
     .btn-success { background:linear-gradient(135deg, #27ae60, #1e8449); color:#fff; }
     .btn-warning { background:linear-gradient(135deg, #f1c40f, #d4ac0d); color:#2c3e50; }
     .btn-payment-confirm { background:#0ea5e9; color:#fff; }
-    
+    .btn-danger { background:linear-gradient(135deg, #e74c3c, #c0392b); color:#fff; }
+    .btn-outline-secondary { background:transparent; border:2px solid #95a5a6; color:#2c3e50; }
+
     .badge { padding:4px 12px; border-radius:30px; font-size:0.7rem; font-weight:700; text-transform:uppercase; }
     .badge-cash { background:#fdebd0; color:#a04000; }
     .badge-mobile { background:#d5f5e3; color:#1e8449; }
     .badge-paid { background:#d5f5e3; color:#1e8449; }
     .badge-unpaid { background:#fadbd8; color:#922b21; }
+    .badge-pending { background:#fef3c7; color:#b45309; }
+    .badge-accepted { background:#dbeafe; color:#1e40af; }
+    .badge-resolved { background:#d1fae5; color:#065f46; }
 
     /* ========== FORMULAIRES ========== */
     .form-group { margin-bottom: 15px; }
@@ -137,7 +161,6 @@
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
-      <!-- Remplacer par le bon lien du logo si besoin -->
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
       <span>SCAN&TCHOP</span>
     </div>
@@ -145,7 +168,11 @@
       <a class="active" data-section="a-servir" id="navServir">
         <i class="fas fa-bell"></i> À Servir <span class="badge-notif" id="readyBadge">0</span>
       </a>
+      <a data-section="demandes-aide">
+        <i class="fas fa-life-ring"></i> Demandes d'aide <span class="badge-notif" id="helpBadge">0</span>
+      </a>
       <a data-section="historique"><i class="fas fa-history"></i> Historique (Servies)</a>
+      <a data-section="pourboires"><i class="fas fa-hand-holding-usd"></i> Pourboires</a>
       <a data-section="parametres"><i class="fas fa-cog"></i> Paramètres (Alertes)</a>
     </nav>
     <div class="logout">
@@ -164,6 +191,9 @@
         <div class="user-badge" title="Serveur">
           <i class="fas fa-user-tie"></i> <span id="headerRestoName">Chargement...</span>
         </div>
+        <button class="btn btn-outline-secondary" onclick="stopAlert()" style="width:auto; margin-left:10px;" title="Couper l'alerte en cours">
+          <i class="fas fa-volume-mute"></i> Silence
+        </button>
       </div>
     </div>
 
@@ -174,14 +204,26 @@
           <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
           <button class="btn btn-primary" style="width:auto;" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
         </div>
-        
-        <!-- Conteneur des commandes prêtes -->
         <div class="grid-commandes" id="readyOrdersContainer">
           <!-- Injecté par JS -->
           <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
             <i class="fas fa-coffee fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
             <p>Aucune commande en attente de service pour le moment.</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SECTION: DEMANDES D'AIDE ========== -->
+    <div id="section-demandes-aide" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-life-ring"></i> Demandes d'aide des clients</h3>
+          <span class="badge badge-pending" id="helpPendingCount">0 en attente</span>
+        </div>
+        <div id="helpRequestsContainer">
+          <!-- Injecté par JS -->
+          <p style="color:var(--text-muted);">Aucune demande d'aide pour le moment.</p>
         </div>
       </div>
     </div>
@@ -198,16 +240,49 @@
       </div>
     </div>
 
+    <!-- ========== SECTION: POURBOIRES ========== -->
+    <div id="section-pourboires" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-hand-holding-usd"></i> Mes Pourboires</h3>
+          <span class="badge badge-success" id="tipTotalDisplay">Total : 0 FCFA</span>
+        </div>
+        <div class="tip-box">
+          <div class="tip-input-group">
+            <input type="number" id="tipAmountInput" placeholder="Montant (FCFA)" min="1" step="1" />
+            <button class="btn btn-success" onclick="addTip()"><i class="fas fa-plus-circle"></i> Ajouter un pourboire</button>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Saisissez le montant reçu puis cliquez sur "Ajouter".</p>
+        </div>
+        <div class="tip-history" id="tipHistoryContainer">
+          <p style="color:var(--text-muted);">Aucun pourboire enregistré aujourd'hui.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- ========== SECTION: PARAMÈTRES ========== -->
     <div id="section-parametres" class="section">
       <div class="card">
         <div class="card-header">
           <h3><i class="fas fa-cogs"></i> Configuration des alertes Serveur</h3>
         </div>
-        <p style="color:var(--text-muted); margin-bottom:20px;">Choisis comment tu veux être averti quand la cuisine termine une commande.</p>
+        <p style="color:var(--text-muted); margin-bottom:20px;">Choisissez comment vous voulez être averti quand une commande est prête ou qu'un client demande de l'aide.</p>
         <form id="settingsForm">
           <div class="form-group">
-            <label>Type d'alerte / Voix</label>
+            <label>Type d'alerte</label>
+            <select id="alertMode" class="form-control">
+              <option value="sonnerie">🔔 Sonnerie</option>
+              <option value="voix">🗣 Voix</option>
+              <option value="lesdeux">🔔+🗣 Les deux</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fréquence de répétition (secondes)</label>
+            <input type="number" id="repeatInterval" class="form-control" value="8" min="3" max="60" />
+            <small style="color:var(--text-muted);">L'alerte se répétera toutes les X secondes tant qu'il y a des notifications non traitées.</small>
+          </div>
+          <div class="form-group">
+            <label>Voix (si sélectionnée)</label>
             <select id="voiceSelect" class="form-control">
               <option value="sonnerie">🔔 Sonnerie (Ding Dong)</option>
             </select>
@@ -253,8 +328,14 @@
       const target = document.getElementById('section-' + sectionId);
       if(target) target.classList.add('active');
       
-      const map = { 'a-servir': 'Commandes à Servir', 'historique': 'Historique des services', 'parametres': 'Paramètres' };
-      document.getElementById('pageTitle').textContent = map[sectionId];
+      const map = {
+        'a-servir': 'Commandes à Servir',
+        'demandes-aide': 'Demandes d\'aide',
+        'historique': 'Historique des services',
+        'pourboires': 'Mes Pourboires',
+        'parametres': 'Paramètres'
+      };
+      document.getElementById('pageTitle').textContent = map[sectionId] || 'Tableau de bord';
     };
 
     document.querySelectorAll('#sidebarNav a[data-section]').forEach(link => {
@@ -276,11 +357,16 @@
     });
 
     // ============================================================
-    //  SONNERIES & VOIX (Identique à la cuisine)
+    //  SONNERIES & VOIX AVEC RÉPÉTITION
     // ============================================================
     let audioCtx = null;
     let selectedVoiceName = 'sonnerie';
+    let alertMode = 'sonnerie'; // sonnerie, voix, lesdeux
+    let repeatIntervalSec = 8;
+    let alertIntervalId = null;
     let availableVoices = [];
+    let isAlerting = false;
+    let pendingNotifications = []; // listes des IDs de notifications non traitées (commandes prêtes + demandes aide)
 
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -302,6 +388,11 @@
       } catch(e) { console.warn('Erreur audio', e); }
     }
 
+    function playDingDong() {
+      playSound(880, 0.4, 'sine', 0.5);
+      setTimeout(() => playSound(659, 0.6, 'sine', 0.5), 300);
+    }
+
     function speak(text, voiceName) {
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
@@ -315,6 +406,73 @@
       window.speechSynthesis.speak(utterance);
     }
 
+    // Alerte principale : joue selon le mode
+    function triggerAlert(message) {
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
+        playDingDong();
+      }
+      if (alertMode === 'voix' || alertMode === 'lesdeux') {
+        if (selectedVoiceName === 'sonnerie') {
+          // si voix non sélectionnée, on utilise une voix par défaut
+          speak(message, null);
+        } else {
+          speak(message, selectedVoiceName);
+        }
+      }
+    }
+
+    // Fonction pour lancer la répétition
+    function startAlertRepeat() {
+      if (alertIntervalId) return;
+      isAlerting = true;
+      // On détermine le message en fonction des notifications en attente
+      const nbReady = document.getElementById('readyBadge').textContent;
+      const nbHelp = document.getElementById('helpBadge').textContent;
+      let msg = '';
+      if (parseInt(nbReady) > 0) {
+        msg += `Commande prête à servir. `;
+      }
+      if (parseInt(nbHelp) > 0) {
+        msg += `Demande d'aide en attente. `;
+      }
+      if (msg) {
+        triggerAlert(msg);
+      }
+      alertIntervalId = setInterval(() => {
+        // Vérifier s'il y a encore des notifications
+        const nbReadyNow = document.getElementById('readyBadge').textContent;
+        const nbHelpNow = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReadyNow) === 0 && parseInt(nbHelpNow) === 0) {
+          stopAlert();
+          return;
+        }
+        let m = '';
+        if (parseInt(nbReadyNow) > 0) m += `Commande prête à servir. `;
+        if (parseInt(nbHelpNow) > 0) m += `Demande d'aide en attente. `;
+        if (m) triggerAlert(m);
+      }, repeatIntervalSec * 1000);
+    }
+
+    function stopAlert() {
+      if (alertIntervalId) {
+        clearInterval(alertIntervalId);
+        alertIntervalId = null;
+      }
+      isAlerting = false;
+      window.speechSynthesis.cancel();
+    }
+
+    // Appelé quand une nouvelle notification arrive (commande prête ou demande aide)
+    function onNewNotification() {
+      // Si aucune alerte en cours, on la lance
+      if (!isAlerting) {
+        startAlertRepeat();
+      }
+    }
+
+    // ============================================================
+    //  PEUPLEMENT DES VOIX
+    // ============================================================
     function populateVoiceSelect() {
       const select = document.getElementById('voiceSelect');
       if (!select) return;
@@ -328,29 +486,22 @@
         opt.textContent = `Voix ${index+1} - ${voice.name}`;
         select.appendChild(opt);
       });
-      select.value = availableVoices.some(v => v.name === selectedVoiceName) ? selectedVoiceName : 'sonnerie';
+      // Restaurer la valeur sélectionnée
+      if (selectedVoiceName && selectedVoiceName !== 'sonnerie') {
+        if (availableVoices.some(v => v.name === selectedVoiceName)) {
+          select.value = selectedVoiceName;
+        } else {
+          select.value = 'sonnerie';
+        }
+      } else {
+        select.value = 'sonnerie';
+      }
     }
 
     if (window.speechSynthesis) {
       window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
       setTimeout(populateVoiceSelect, 500);
     }
-
-    function alertServerSound(tableNum) {
-      const message = `Commande prête pour la table ${tableNum}. À servir s'il vous plait.`;
-      if (selectedVoiceName === 'sonnerie') {
-        // Un son bien distinct pour le serveur (Ding - Dong)
-        playSound(880, 0.4, 'sine', 0.4); 
-        setTimeout(() => playSound(659, 0.6, 'sine', 0.4), 300);
-      } else {
-        speak(message, selectedVoiceName);
-      }
-    }
-
-    window.playTestSound = function() {
-      alertServerSound('4');
-      showToast('Test audio envoyé !', 'info');
-    };
 
     // ============================================================
     //  FIREBASE CONFIG & LOGIQUE METIER
@@ -370,7 +521,8 @@
 
     let currentUser = null;
     let currentRestaurantId = null;
-    let knownReadyOrders = []; // Pour tracker les alertes
+    let knownReadyOrders = [];
+    let knownHelpRequests = [];
 
     // Auth & Redirection
     auth.onAuthStateChanged(async user => {
@@ -381,7 +533,6 @@
       if (!userDoc.exists) { auth.signOut(); return; }
       
       const userData = userDoc.data();
-      // On autorise Serveur, Employé ou Admin
       if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') { 
         showToast('Accès réservé aux serveurs.', 'error'); auth.signOut(); return; 
       }
@@ -393,31 +544,61 @@
         document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
       }
 
-      // Préférences vocales
+      // Préférences
       const prefs = userData.preferences || {};
+      alertMode = prefs.alertMode || 'sonnerie';
+      repeatIntervalSec = prefs.repeatInterval || 8;
       selectedVoiceName = prefs.voiceName || 'sonnerie';
-      setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 1000);
+      
+      document.getElementById('alertMode').value = alertMode;
+      document.getElementById('repeatInterval').value = repeatIntervalSec;
+      setTimeout(() => { 
+        document.getElementById('voiceSelect').value = selectedVoiceName; 
+      }, 1000);
 
-      // Lancement de l'écoute des commandes
+      // Lancement des écoute
       listenServerOrders();
+      listenHelpRequests();
+      listenTips();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
+    // ============================================================
+    //  PARAMÈTRES
+    // ============================================================
     document.getElementById('settingsForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+      alertMode = document.getElementById('alertMode').value;
+      repeatIntervalSec = parseInt(document.getElementById('repeatInterval').value) || 8;
       selectedVoiceName = document.getElementById('voiceSelect').value;
+      if (repeatIntervalSec < 3) repeatIntervalSec = 3;
+      if (repeatIntervalSec > 60) repeatIntervalSec = 60;
+
       try {
-        await db.collection('users').doc(currentUser.uid).update({ 'preferences.voiceName': selectedVoiceName });
-        showToast('Paramètres audio sauvegardés', 'success');
+        await db.collection('users').doc(currentUser.uid).update({
+          'preferences.alertMode': alertMode,
+          'preferences.repeatInterval': repeatIntervalSec,
+          'preferences.voiceName': selectedVoiceName
+        });
+        showToast('Paramètres sauvegardés', 'success');
+        // Redémarrer l'alerte si elle est en cours
+        if (isAlerting) {
+          stopAlert();
+          // Vérifier s'il y a encore des notifications
+          const nbReady = document.getElementById('readyBadge').textContent;
+          const nbHelp = document.getElementById('helpBadge').textContent;
+          if (parseInt(nbReady) > 0 || parseInt(nbHelp) > 0) {
+            startAlertRepeat();
+          }
+        }
       } catch(err) { showToast('Erreur de sauvegarde', 'error'); }
     });
 
     // ============================================================
-    //  ECOUTE ET AFFICHAGE DES COMMANDES (Filtre intelligent)
+    //  ÉCOUTE DES COMMANDES PRÊTES
     // ============================================================
     function listenServerOrders() {
-      // On écoute toutes les commandes du jour pour ce resto, et on gère le tri côté client.
       const today = new Date();
       today.setHours(0,0,0,0);
 
@@ -429,19 +610,22 @@
 
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
-            // On ne prend que les commandes du jour
             const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
             if (orderDate >= today) {
               if (order.status === 'prêt') {
                 ordersToServe.push(order);
-                // Si c'est une nouvelle commande prête, on alerte !
+                // Nouvelle commande prête ?
                 if (!knownReadyOrders.includes(order.id)) {
                   knownReadyOrders.push(order.id);
-                  alertServerSound(order.table || order.tableNumber || '?');
+                  // Alerter
+                  onNewNotification();
                   showToast(`Table ${order.table || order.tableNumber} est prête !`, 'warning');
                 }
               } else if (order.status === 'terminé') {
                 ordersServed.push(order);
+                // On retire de la liste des connues si présente
+                const idx = knownReadyOrders.indexOf(order.id);
+                if (idx !== -1) knownReadyOrders.splice(idx, 1);
               }
             }
           });
@@ -462,7 +646,7 @@
       if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2; margin-bottom:15px; color:var(--success);"></i>
-          <p>Super ! Aucune commande en attente. La salle est gérée.</p>
+          <p>Super ! Aucune commande en attente.</p>
         </div>`;
         return;
       }
@@ -470,15 +654,12 @@
       container.innerHTML = '';
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        const isNew = knownReadyOrders.includes(order.id); // Optionnel : pour l'animation visuelle
+        const isNew = knownReadyOrders.includes(order.id);
         
         let itemsHtml = order.items ? order.items.map(item => `<li><span>${item.quantite}x ${item.nom}</span></li>`).join('') : '<li>Détails non disponibles</li>';
-        
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
-        // Logique de paiement
         let paymentBadge = order.paymentMode === 'cash' ? '<span class="badge badge-cash"><i class="fas fa-coins"></i> Espèces</span>' : '<span class="badge badge-mobile"><i class="fas fa-mobile-alt"></i> Mobile</span>';
-        
         let paymentStatusHtml = '';
         let confirmBtnHtml = '';
 
@@ -487,7 +668,7 @@
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
           } else {
             paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
-            confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser l'argent</button>`;
+            confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
           }
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
@@ -507,7 +688,7 @@
             </div>
             <div class="ticket-footer" style="margin-top: 15px;">
               ${confirmBtnHtml}
-              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer comme SERVI</button>
+              <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
             </div>
           </div>
         `;
@@ -539,7 +720,118 @@
     }
 
     // ============================================================
-    //  ACTIONS DU SERVEUR
+    //  ÉCOUTE DES DEMANDES D'AIDE
+    // ============================================================
+    function listenHelpRequests() {
+      db.collection('notifications')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('targetRole', '==', 'Serveur')
+        .where('type', '==', 'help_request')
+        .onSnapshot(snapshot => {
+          const requests = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'resolved') { // on n'affiche que les non résolus
+              requests.push({ id: doc.id, ...data });
+            }
+          });
+          // Trier par date (plus récent en premier)
+          requests.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+          // Gérer les nouvelles demandes
+          const currentIds = requests.map(r => r.id);
+          const newIds = currentIds.filter(id => !knownHelpRequests.includes(id));
+          if (newIds.length > 0) {
+            // Alerter
+            onNewNotification();
+            showToast(`Nouvelle demande d'aide !`, 'info');
+            newIds.forEach(id => knownHelpRequests.push(id));
+          }
+
+          // Mettre à jour le badge
+          const badge = document.getElementById('helpBadge');
+          const pendingCount = requests.filter(r => r.status === 'pending' || !r.status).length;
+          badge.textContent = pendingCount;
+          if (pendingCount > 0) badge.classList.add('show');
+          else badge.classList.remove('show');
+
+          document.getElementById('helpPendingCount').textContent = `${pendingCount} en attente`;
+
+          renderHelpRequests(requests);
+        });
+    }
+
+    function renderHelpRequests(requests) {
+      const container = document.getElementById('helpRequestsContainer');
+      if (requests.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted);">Aucune demande d'aide.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      requests.forEach(req => {
+        const status = req.status || 'pending';
+        const statusBadge = status === 'pending' ? 'badge-pending' : (status === 'accepted' ? 'badge-accepted' : 'badge-resolved');
+        const statusLabel = status === 'pending' ? 'En attente' : (status === 'accepted' ? 'Prise en charge' : 'Résolu');
+
+        const card = document.createElement('div');
+        card.className = `help-request-card ${status === 'accepted' ? 'accepted' : ''}`;
+        card.innerHTML = `
+          <div class="help-header">
+            <span class="help-table"><i class="fas fa-chair"></i> Table ${req.table || '?'}</span>
+            <span class="badge ${statusBadge}">${statusLabel}</span>
+          </div>
+          <div class="help-message">${req.message || 'Le client a besoin d\'aide.'}</div>
+          <div class="help-actions">
+            ${status === 'pending' ? `<button class="btn btn-primary" onclick="takeHelpCharge('${req.id}')"><i class="fas fa-hand-holding-heart"></i> Je prends en charge</button>` : ''}
+            ${status === 'accepted' ? `<button class="btn btn-success" onclick="resolveHelp('${req.id}')"><i class="fas fa-check"></i> Résoudre</button>` : ''}
+            ${status === 'pending' ? `<button class="btn btn-outline-secondary" onclick="resolveHelp('${req.id}')"><i class="fas fa-times"></i> Ignorer (résolu)</button>` : ''}
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+            ${req.createdAt ? new Date(req.createdAt.seconds * 1000).toLocaleTimeString() : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ============================================================
+    //  ACTIONS SUR LES DEMANDES D'AIDE
+    // ============================================================
+    window.takeHelpCharge = async function(notifId) {
+      try {
+        await db.collection('notifications').doc(notifId).update({
+          status: 'accepted',
+          takenAt: firebase.firestore.FieldValue.serverTimestamp(),
+          takenBy: currentUser.uid
+        });
+        showToast('Demande prise en charge !', 'success');
+        // Envoyer une notification au client (pourrait être affichée dans le menu public)
+        // On peut aussi ajouter une notification de confirmation, mais ce n'est pas obligatoire.
+      } catch (error) {
+        showToast('Erreur lors de la prise en charge', 'error');
+        console.error(error);
+      }
+    };
+
+    window.resolveHelp = async function(notifId) {
+      try {
+        await db.collection('notifications').doc(notifId).update({
+          status: 'resolved',
+          resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Demande résolue.', 'success');
+        // Retirer de la liste des connues
+        const idx = knownHelpRequests.indexOf(notifId);
+        if (idx !== -1) knownHelpRequests.splice(idx, 1);
+      } catch (error) {
+        showToast('Erreur lors de la résolution', 'error');
+        console.error(error);
+      }
+    };
+
+    // ============================================================
+    //  ACTIONS SUR LES COMMANDES
     // ============================================================
     window.marquerCommeServi = async function(orderId) {
       try {
@@ -547,6 +839,15 @@
           status: 'terminé'
         });
         showToast('Commande marquée comme servie !', 'success');
+        // Retirer de la liste des connues
+        const idx = knownReadyOrders.indexOf(orderId);
+        if (idx !== -1) knownReadyOrders.splice(idx, 1);
+        // Vérifier s'il reste des notifications
+        const nbReady = document.getElementById('readyBadge').textContent;
+        const nbHelp = document.getElementById('helpBadge').textContent;
+        if (parseInt(nbReady) === 0 && parseInt(nbHelp) === 0) {
+          stopAlert();
+        }
       } catch (error) {
         showToast('Erreur lors de la mise à jour', 'error');
         console.error(error);
@@ -559,14 +860,113 @@
           await db.collection('orders').doc(orderId).update({
             paymentConfirmed: true
           });
-          showToast('Paiement confirmé avec succès !', 'success');
+          showToast('Paiement confirmé !', 'success');
         } catch (error) {
-          showToast('Erreur lors de la confirmation du paiement', 'error');
+          showToast('Erreur lors de la confirmation', 'error');
           console.error(error);
         }
       }
     };
 
+    // ============================================================
+    //  POURBOIRES
+    // ============================================================
+    let tips = [];
+
+    function listenTips() {
+      db.collection('tips')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('userId', '==', currentUser?.uid)
+        .onSnapshot(snapshot => {
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          tips = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.date?.toDate ? data.date.toDate() : new Date(data.date);
+            if (date >= today) {
+              tips.push({ id: doc.id, ...data });
+            }
+          });
+          renderTips();
+        });
+    }
+
+    function renderTips() {
+      const total = tips.reduce((sum, t) => sum + (t.montant || 0), 0);
+      document.getElementById('tipTotalDisplay').textContent = `Total : ${total} FCFA`;
+      
+      const container = document.getElementById('tipHistoryContainer');
+      if (tips.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted);">Aucun pourboire enregistré aujourd'hui.</p>`;
+        return;
+      }
+      container.innerHTML = '';
+      // Trier par date décroissante
+      const sorted = [...tips].sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+      sorted.forEach(tip => {
+        const div = document.createElement('div');
+        div.className = 'tip-item';
+        const dateStr = tip.date ? new Date(tip.date.seconds * 1000).toLocaleTimeString() : '';
+        div.innerHTML = `
+          <span>${tip.montant} FCFA ${tip.note ? ' - ' + tip.note : ''}</span>
+          <span style="color:var(--text-muted);">${dateStr}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    window.addTip = async function() {
+      const input = document.getElementById('tipAmountInput');
+      const montant = parseInt(input.value);
+      if (!montant || montant <= 0) {
+        alert('Veuillez saisir un montant valide.');
+        return;
+      }
+      try {
+        await db.collection('tips').add({
+          restaurantId: currentRestaurantId,
+          userId: currentUser.uid,
+          montant: montant,
+          date: firebase.firestore.FieldValue.serverTimestamp(),
+          note: '' // possibilité d'ajouter un champ note plus tard
+        });
+        input.value = '';
+        showToast('Pourboire ajouté !', 'success');
+      } catch (error) {
+        showToast('Erreur lors de l\'ajout', 'error');
+        console.error(error);
+      }
+    };
+
+    // ============================================================
+    //  TEST SONORE
+    // ============================================================
+    window.playTestSound = function() {
+      const msg = 'Test d\'alerte serveur';
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
+        playDingDong();
+      }
+      if (alertMode === 'voix' || alertMode === 'lesdeux') {
+        if (selectedVoiceName === 'sonnerie') {
+          speak(msg, null);
+        } else {
+          speak(msg, selectedVoiceName);
+        }
+      }
+      showToast('Test audio envoyé !', 'info');
+    };
+
+    // ============================================================
+    //  INITIALISATION APRÈS CHARGEMENT
+    // ============================================================
+    // Au chargement, on prépare les badges
+    document.addEventListener('DOMContentLoaded', function() {
+      // S'assurer que les badges sont à jour
+      const readyBadge = document.getElementById('readyBadge');
+      const helpBadge = document.getElementById('helpBadge');
+      // Les écouteurs mettront à jour
+    });
   </script>
 </body>
 </html>

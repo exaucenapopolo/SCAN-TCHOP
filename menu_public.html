@@ -72,7 +72,6 @@
         .btn-avis-header { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(230,126,34,0.2); }
         .btn-avis-header:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
-        /* User badge (cliquable vers profil) */
         .user-badge {
             display: inline-flex; align-items: center; gap: 8px;
             background: #f1f5f9; padding: 6px 16px; border-radius: 50px;
@@ -504,7 +503,6 @@
             </p>
         </div>
 
-        <!-- ===== INSTRUCTIONS PARTICULIÈRES AMÉLIORÉES ===== -->
         <div class="order-section">
             <h4>Instructions particulières</h4>
             <div class="instruction-tags" id="instructionTags">
@@ -518,7 +516,6 @@
             <textarea id="orderInstructions" class="input-form" placeholder="Ou écrivez votre propre instruction..." style="min-height:60px;"></textarea>
         </div>
 
-        <!-- ===== MODE DE PAIEMENT ===== -->
         <div class="order-section" style="border-bottom: none;">
             <h4>Mode de paiement</h4>
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
@@ -530,7 +527,6 @@
                 </button>
             </div>
 
-            <!-- Champ téléphone (masqué si paiement espèces) -->
             <div id="phoneFieldContainer">
                 <input type="tel" id="orderPhone" class="input-form" placeholder="Numéro de téléphone (Mobile Money)" />
                 <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:12px;">
@@ -538,7 +534,6 @@
                 </p>
             </div>
 
-            <!-- Champ email (masqué si utilisateur connecté) -->
             <div id="emailFieldContainer">
                 <input type="email" id="orderEmail" class="input-form" placeholder="Adresse email (pour votre compte et le suivi) *" required />
                 <p style="font-size:0.8rem; color:var(--text-muted); margin-top:-6px; margin-bottom:4px;">
@@ -558,7 +553,7 @@
     </div>
 </div>
 
-<!-- ===== MODAL AVIS AMÉLIORÉ ===== -->
+<!-- ===== MODAL AVIS ===== -->
 <div class="modal-overlay" id="modalAvis">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalAvis')"><i class="fas fa-times"></i></button>
@@ -573,7 +568,6 @@
             <i class="fas fa-star" data-value="5"></i>
         </div>
         
-        <!-- Champ Nom : pré-rempli et masqué si connecté -->
         <div id="avisNomContainer">
             <input type="text" id="avisNom" class="input-form" placeholder="Votre Nom et Prénom *" required />
         </div>
@@ -586,6 +580,7 @@
     </div>
 </div>
 
+<!-- MODAL AIDE -->
 <div class="modal-overlay" id="modalHelp">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('modalHelp')"><i class="fas fa-times"></i></button>
@@ -638,9 +633,6 @@
         if (stored) {
             try {
                 currentUser = JSON.parse(stored);
-                if (currentUser.favorites && Array.isArray(currentUser.favorites) && currentUser.favorites.length > 0) {
-                    // conversion si nécessaire (déjà gérée)
-                }
                 return currentUser;
             } catch(e) {}
         }
@@ -651,19 +643,15 @@
         currentUser = user;
         localStorage.setItem('scan_user', JSON.stringify(user));
         updateUserBadge();
-        // Pré-remplir les champs du modal commande si ouvert
         const emailInput = document.getElementById('orderEmail');
         const phoneInput = document.getElementById('orderPhone');
         if (emailInput) emailInput.value = user.email || '';
         if (phoneInput) phoneInput.value = user.phone || '';
-        // Pré-remplir le nom dans l'avis
         const avisNom = document.getElementById('avisNom');
         if (avisNom && user.displayName) {
             avisNom.value = user.displayName;
-            // Masquer le champ si connecté
             document.getElementById('avisNomContainer').style.display = 'none';
         }
-        // Afficher ou masquer le champ email dans la commande
         if (user && user.email) {
             document.getElementById('emailFieldContainer').style.display = 'none';
         } else {
@@ -738,9 +726,8 @@
     async function initPage() {
         loadCurrentUser();
         updateUserBadge();
-        // Appliquer les masquages si utilisateur connecté
         if (currentUser) {
-            saveCurrentUser(currentUser); // pour mettre à jour les champs
+            saveCurrentUser(currentUser);
         }
         await loadRestaurantData();
         await loadMenuData();
@@ -754,7 +741,6 @@
                 }
             } catch(e) {}
         }
-        // Gestion des tags d'instructions
         document.querySelectorAll('.instruction-tag').forEach(tag => {
             tag.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -768,7 +754,6 @@
         const texts = Array.from(activeTags).map(tag => tag.dataset.text);
         const textarea = document.getElementById('orderInstructions');
         const currentText = textarea.value.trim();
-        // On ajoute les tags actifs en début de champ, sans dupliquer
         let newText = texts.join(', ');
         if (currentText && !texts.some(t => currentText.includes(t))) {
             newText = newText ? newText + ', ' + currentText : currentText;
@@ -1089,16 +1074,13 @@
         document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
         document.getElementById('btnCash').style.background = '#f43f5e';
 
-        // Gérer l'affichage des champs selon connexion et mode de paiement
         if (currentUser && currentUser.email) {
             document.getElementById('emailFieldContainer').style.display = 'none';
         } else {
             document.getElementById('emailFieldContainer').style.display = 'block';
         }
-        // Par défaut, mobile money, on affiche le téléphone
         document.getElementById('phoneFieldContainer').style.display = 'block';
 
-        // Compléments
         const compContainer = document.getElementById('complementsContainer');
         const compCheckboxes = document.getElementById('complementsCheckboxes');
         if (plat.complements && plat.complements.length > 0) {
@@ -1127,7 +1109,6 @@
             compContainer.style.display = 'none';
         }
 
-        // Réinitialiser les tags d'instructions
         document.querySelectorAll('.instruction-tag').forEach(tag => tag.classList.remove('active'));
         setSplit(false);
         calculateTotal();
@@ -1202,7 +1183,6 @@
             document.getElementById('btnMobileMoney').style.background = '#0ea5e9';
             document.getElementById('btnCash').style.background = '#f43f5e';
             document.getElementById('orderPhone').placeholder = 'Numéro de téléphone (optionnel)';
-            // Masquer le champ téléphone car non nécessaire
             document.getElementById('phoneFieldContainer').style.display = 'none';
         }
     }
@@ -1216,13 +1196,11 @@
             return;
         }
         currentOrder.table = table;
-        // Récupérer les instructions du textarea (incluant les tags)
         currentOrder.instructions = document.getElementById('orderInstructions').value.trim();
 
         let email = document.getElementById('orderEmail').value.trim();
         let phone = document.getElementById('orderPhone').value.trim();
 
-        // Si utilisateur connecté, on utilise son email
         if (currentUser && currentUser.email) {
             email = currentUser.email;
         }
@@ -1256,7 +1234,6 @@
             return;
         }
 
-        // Génération de la référence séquentielle
         let refNumber;
         try {
             refNumber = await generateOrderReference();
@@ -1481,7 +1458,7 @@
         countdownInterval = setInterval(update, 1000);
     }
 
-    // ===== DEMANDE D'AIDE =====
+    // ===== DEMANDE D'AIDE (MODIFIÉ POUR SERVEUR) =====
     function requestHelp() {
         const tableInput = document.getElementById('helpTable');
         tableInput.value = document.getElementById('orderTable').value || '';
@@ -1495,15 +1472,18 @@
             return;
         }
         try {
+            // Envoi d'une notification au serveur (targetRole: 'Serveur')
             await db.collection('notifications').add({
                 restaurantId: restaurantId,
                 message: `🆘 Le client de la table ${table} a besoin d'aide.`,
-                targetRole: 'Cuisine',
+                targetRole: 'Serveur',
                 read: false,
                 type: 'help_request',
+                status: 'pending',   // sera utilisé par le serveur
+                table: table,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            alert('Demande d\'aide envoyée. Un membre de l\'équipe va venir vous aider.');
+            alert('Demande d\'aide envoyée. Un serveur va venir vous aider.');
             closeModal('modalHelp');
         } catch (error) {
             alert('Erreur lors de l\'envoi. Veuillez réessayer.');
@@ -1536,7 +1516,6 @@
 
     async function soumettreAvis() {
         let nomClient = document.getElementById('avisNom').value.trim();
-        // Si l'utilisateur est connecté, on utilise son nom
         if (currentUser && currentUser.displayName) {
             nomClient = currentUser.displayName;
         }
