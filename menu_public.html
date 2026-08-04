@@ -993,6 +993,34 @@
             box-shadow: 0 8px 28px rgba(244, 63, 94, 0.3);
         }
 
+        /* Bouton alerte sonore */
+        .btn-sound-toggle {
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .btn-sound-toggle:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-sound-toggle.active {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
         /* ============================================
                    MODALES
                 ============================================ */
@@ -1375,27 +1403,57 @@
         }
 
         /* ============================================
-                   MODALE AVIS
+                   MODALE AVIS / POURBOIRE
                 ============================================ */
-        .stars-rating {
+        .tip-options {
             display: flex;
-            justify-content: center;
-            gap: 12px;
-            font-size: 2.4rem;
-            color: #e2e8f0;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .tip-amount {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            background: #fff;
+            font-weight: 700;
             cursor: pointer;
-            margin-bottom: 20px;
             transition: var(--transition);
+            flex: 1 0 auto;
+            text-align: center;
         }
 
-        .stars-rating i.active {
-            color: #f59e0b;
-            transform: scale(1.1);
+        .tip-amount:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
-        .stars-rating i:hover {
-            transform: scale(1.2);
-            color: #f59e0b;
+        .tip-amount.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .tip-amount.custom {
+            flex: 0 0 100%;
+        }
+
+        .tip-amount.custom input {
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        /* ============================================
+                   MODALE PAIEMENT POURBOIRE
+                ============================================ */
+        .tip-payment-modal .modal-content {
+            max-width: 480px;
         }
 
         /* ============================================
@@ -2110,6 +2168,11 @@
             <div class="track-actions">
                 <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
                 <button class="btn-avis-header" onclick="openModal('modalAvis')" style="background:var(--primary);"><i class="fas fa-star"></i> Laisser un avis</button>
+                <!-- Bouton alerte sonore -->
+                <button class="btn-sound-toggle" id="btnSoundToggle" onclick="toggleSoundAlert()">
+                    <i class="fas fa-volume-up" id="soundIcon"></i>
+                    <span id="soundLabel">Activer l'alerte sonore</span>
+                </button>
             </div>
         </div>
 
@@ -2298,6 +2361,71 @@
         </div>
     </div>
 
+    <!-- ===== MODALE AVIS + POURBOIRE (après service) ===== -->
+    <div class="modal-overlay" id="modalTipReview">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('modalTipReview')"><i class="fas fa-times"></i></button>
+            <h2 style="text-align:center; margin-bottom:6px;">Votre plat est servi !</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Merci d'avoir choisi notre établissement. Votre retour est précieux.</p>
+
+            <!-- AVIS -->
+            <div class="order-section">
+                <h4>Donnez votre avis</h4>
+                <div class="stars-rating" id="tipStarContainer">
+                    <i class="fas fa-star" data-value="1"></i>
+                    <i class="fas fa-star" data-value="2"></i>
+                    <i class="fas fa-star" data-value="3"></i>
+                    <i class="fas fa-star" data-value="4"></i>
+                    <i class="fas fa-star" data-value="5"></i>
+                </div>
+                <textarea id="tipCommentaire" class="input-form" placeholder="Un petit mot sur votre expérience..." style="min-height:70px;"></textarea>
+            </div>
+
+            <!-- POURBOIRE -->
+            <div class="order-section">
+                <h4>Encourager le service <i class="fas fa-heart" style="color:#ef4444;"></i></h4>
+                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">Si vous le souhaitez, laissez un pourboire à l'équipe.</p>
+                <div class="tip-options" id="tipOptions">
+                    <div class="tip-amount" data-amount="500">500 FCFA</div>
+                    <div class="tip-amount" data-amount="1000">1 000 FCFA</div>
+                    <div class="tip-amount" data-amount="2000">2 000 FCFA</div>
+                    <div class="tip-amount" data-amount="5000">5 000 FCFA</div>
+                    <div class="tip-amount custom">
+                        <input type="number" id="tipCustomAmount" placeholder="Autre montant (FCFA)" min="0" step="100" />
+                    </div>
+                </div>
+                <div id="tipPhoneContainer" style="margin-top:12px;">
+                    <input type="tel" id="tipPhone" class="input-form" placeholder="Numéro Mobile Money pour le paiement *" />
+                </div>
+            </div>
+
+            <button class="btn-commander" onclick="submitTipAndReview()">
+                <i class="fas fa-paper-plane"></i> Envoyer mon avis et mon pourboire
+            </button>
+            <button class="btn-action btn-action-secondary" style="width:100%; margin-top:10px; justify-content:center;" onclick="skipTipReview()">
+                <i class="fas fa-times"></i> Passer
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== MODALE PAIEMENT POURBOIRE ===== -->
+    <div class="modal-overlay tip-payment-modal" id="modalTipPayment">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('modalTipPayment')"><i class="fas fa-times"></i></button>
+            <h2 style="text-align:center; margin-bottom:6px;">Confirmation du pourboire</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Vous allez payer <strong id="tipPaymentAmount">0</strong> FCFA par Mobile Money.</p>
+            <div style="margin:16px 0;">
+                <input type="tel" id="tipPaymentPhone" class="input-form" placeholder="Numéro Mobile Money *" required />
+            </div>
+            <button class="btn-commander" onclick="confirmTipPayment()">
+                <i class="fas fa-check-circle"></i> Confirmer le paiement
+            </button>
+            <button class="btn-action btn-action-secondary" style="width:100%; margin-top:10px; justify-content:center;" onclick="closeModal('modalTipPayment')">
+                Annuler
+            </button>
+        </div>
+    </div>
+
     <!-- ===== FIREBASE & JS ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
     </script>
@@ -2325,7 +2453,6 @@
                         </div>
                     `;
             container.appendChild(toast);
-            // Force reflow for animation
             requestAnimationFrame(() => {
                 toast.classList.add('show');
             });
@@ -2334,6 +2461,84 @@
                 toast.classList.add('hide');
                 setTimeout(() => toast.remove(), 500);
             }, duration);
+        }
+
+        // ============================================
+        // SON (Web Audio API)
+        // ============================================
+        let soundEnabled = false;
+
+        function toggleSoundAlert() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundAlertEnabled', soundEnabled ? 'true' : 'false');
+            updateSoundButton();
+            if (soundEnabled) {
+                showToast('Alerte sonore activée. Vous serez notifié lorsque votre plat sera prêt.', 'Son activé', 'success');
+                playBeep(); // test
+            } else {
+                showToast('Alerte sonore désactivée.', 'Son désactivé', 'info');
+            }
+        }
+
+        function updateSoundButton() {
+            const btn = document.getElementById('btnSoundToggle');
+            const icon = document.getElementById('soundIcon');
+            const label = document.getElementById('soundLabel');
+            if (soundEnabled) {
+                btn.classList.add('active');
+                icon.className = 'fas fa-volume-up';
+                label.textContent = 'Désactiver l\'alerte sonore';
+            } else {
+                btn.classList.remove('active');
+                icon.className = 'fas fa-volume-mute';
+                label.textContent = 'Activer l\'alerte sonore';
+            }
+        }
+
+        function initSoundState() {
+            const stored = localStorage.getItem('soundAlertEnabled');
+            soundEnabled = stored === 'true';
+            updateSoundButton();
+        }
+
+        function playBeep() {
+            try {
+                const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.4);
+            } catch (e) {
+                console.warn('Audio non supporté');
+            }
+        }
+
+        function playSuccessSound() {
+            // Série de beeps pour "prêt"
+            try {
+                const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                let count = 0;
+                const interval = setInterval(() => {
+                    if (count >= 3) { clearInterval(interval); return; }
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = [660, 880, 1100][count];
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                    count++;
+                }, 300);
+            } catch (e) {}
         }
 
         // ============================================
@@ -2379,6 +2584,7 @@
         let activeOrderId = null;
         let currentUser = null;
         let countdownInterval = null;
+        let tipReviewShown = false; // pour éviter d'ouvrir plusieurs fois
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -3535,6 +3741,7 @@
             document.getElementById('trackStatusBadge').className = 'badge badge-warning';
             document.getElementById('trackStatusBadge').textContent = 'En attente';
             document.getElementById('trackTimerContainer').style.display = 'none';
+            tipReviewShown = false;
             listenOrderStatus(orderId);
         }
 
@@ -3571,16 +3778,46 @@
                     document.getElementById('trackProgressBar').style.width = '100%';
                     document.getElementById('trackPercent').textContent = '100%';
 
+                    // Alerte sonore si activée
+                    if (soundEnabled) {
+                        playSuccessSound();
+                        showToast('Votre plat est prêt !', 'Prêt à servir', 'success');
+                    }
+
+                } else if (status === 'servi') {
+                    timerContainer.style.display = 'flex';
+                    trackingDiv.classList.remove('ready');
+                    document.getElementById('trackStatusBadge').className = 'badge badge-success';
+                    document.getElementById('trackStatusBadge').textContent = 'Servi';
+                    document.getElementById('trackTime').textContent = 'Bon appétit !';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    document.getElementById('trackCountdown').textContent = '00:00';
+                    document.getElementById('trackProgressBar').style.width = '100%';
+                    document.getElementById('trackPercent').textContent = '100%';
+
+                    // Ouvrir la modale avis + pourboire si pas déjà fait
+                    if (!tipReviewShown) {
+                        tipReviewShown = true;
+                        // Vérifier si l'utilisateur a déjà donné un avis pour cette commande (éviter doublon)
+                        // On peut stocker un flag dans localStorage ou vérifier dans Firestore
+                        // Ici, on ouvre simplement une fois.
+                        openTipReviewModal(orderId);
+                    }
+
                 } else if (status === 'terminé') {
                     timerContainer.style.display = 'flex';
                     trackingDiv.classList.remove('ready');
                     document.getElementById('trackStatusBadge').className = 'badge badge-success';
                     document.getElementById('trackStatusBadge').textContent = 'Terminé';
-                    document.getElementById('trackTime').textContent = 'Commande terminée. Bon appétit !';
+                    document.getElementById('trackTime').textContent = 'Commande terminée. Merci !';
                     if (countdownInterval) clearInterval(countdownInterval);
                     document.getElementById('trackCountdown').textContent = '00:00';
                     document.getElementById('trackProgressBar').style.width = '100%';
                     document.getElementById('trackPercent').textContent = '100%';
+                    if (!tipReviewShown) {
+                        tipReviewShown = true;
+                        openTipReviewModal(orderId);
+                    }
                 } else {
                     timerContainer.style.display = 'none';
                     trackingDiv.classList.remove('ready');
@@ -3645,21 +3882,156 @@
                 });
                 showToast('Demande d\'aide envoyée. Un serveur va venir vous aider.', 'Succès', 'success');
                 closeModal('modalHelp');
+                if (soundEnabled) {
+                    playBeep();
+                }
             } catch (error) {
                 showToast('Erreur lors de l\'envoi. Veuillez réessayer.', 'Erreur', 'error');
             }
         }
 
         // ============================================
-        // REVIEWS
+        // TIP & REVIEW MODAL (après service)
         // ============================================
-        const starsEl = document.querySelectorAll('#starContainer i');
-        starsEl.forEach(star => {
+        let tipOrderId = null;
+        let tipRating = 0;
+        let tipAmount = 0;
+
+        function openTipReviewModal(orderId) {
+            tipOrderId = orderId;
+            tipRating = 0;
+            tipAmount = 0;
+            document.querySelectorAll('#tipStarContainer i').forEach(s => s.classList.remove('active'));
+            document.getElementById('tipCommentaire').value = '';
+            document.getElementById('tipPhone').value = currentUser?.phone || '';
+            document.querySelectorAll('.tip-amount').forEach(el => el.classList.remove('active'));
+            document.getElementById('tipCustomAmount').value = '';
+            openModal('modalTipReview');
+        }
+
+        // Étoiles dans la modale tip
+        document.querySelectorAll('#tipStarContainer i').forEach(star => {
+            star.addEventListener('click', function() {
+                tipRating = this.getAttribute('data-value');
+                document.querySelectorAll('#tipStarContainer i').forEach(s => s.classList.remove('active'));
+                for (let i = 0; i < tipRating; i++) {
+                    document.querySelectorAll('#tipStarContainer i')[i].classList.add('active');
+                }
+            });
+        });
+
+        // Sélection des montants de pourboire
+        document.querySelectorAll('.tip-amount').forEach(el => {
+            el.addEventListener('click', function() {
+                document.querySelectorAll('.tip-amount').forEach(e => e.classList.remove('active'));
+                this.classList.add('active');
+                if (this.classList.contains('custom')) {
+                    const input = this.querySelector('input');
+                    if (input) {
+                        input.focus();
+                        tipAmount = parseInt(input.value) || 0;
+                    }
+                } else {
+                    tipAmount = parseInt(this.dataset.amount);
+                }
+            });
+        });
+
+        document.getElementById('tipCustomAmount').addEventListener('input', function() {
+            const val = parseInt(this.value);
+            if (val > 0) {
+                tipAmount = val;
+                document.querySelectorAll('.tip-amount').forEach(e => e.classList.remove('active'));
+                this.closest('.tip-amount').classList.add('active');
+            } else {
+                tipAmount = 0;
+            }
+        });
+
+        function submitTipAndReview() {
+            if (tipRating === 0) {
+                showToast('Veuillez donner une note.', 'Champ requis', 'warning');
+                return;
+            }
+            const commentaire = document.getElementById('tipCommentaire').value.trim();
+            const phone = document.getElementById('tipPhone').value.trim();
+
+            // Sauvegarder l'avis
+            db.collection('avis').add({
+                restaurantId: restaurantId,
+                userId: currentUser?.userId || null,
+                nomClient: currentUser?.displayName || 'Client Anonyme',
+                note: tipRating,
+                commentaire: commentaire || '',
+                orderId: tipOrderId,
+                date: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showToast('Avis enregistré !', 'Merci', 'success');
+            }).catch(e => console.error(e));
+
+            // Si pourboire > 0, lancer le paiement
+            if (tipAmount > 0) {
+                if (!phone) {
+                    showToast('Veuillez renseigner votre numéro Mobile Money.', 'Champ requis', 'warning');
+                    return;
+                }
+                // Ouvrir la modale de paiement
+                document.getElementById('tipPaymentAmount').textContent = tipAmount;
+                document.getElementById('tipPaymentPhone').value = phone;
+                closeModal('modalTipReview');
+                openModal('modalTipPayment');
+            } else {
+                // Pas de pourboire, juste fermer
+                closeModal('modalTipReview');
+                showToast('Merci pour votre retour !', 'À bientôt', 'success');
+            }
+        }
+
+        function skipTipReview() {
+            closeModal('modalTipReview');
+            showToast('Merci d\'avoir choisi notre établissement !', 'À bientôt', 'info');
+        }
+
+        // ============================================
+        // TIP PAYMENT
+        // ============================================
+        function confirmTipPayment() {
+            const phone = document.getElementById('tipPaymentPhone').value.trim();
+            if (!phone) {
+                showToast('Numéro Mobile Money requis.', 'Champ requis', 'warning');
+                return;
+            }
+            // Enregistrer le pourboire dans Firestore
+            db.collection('tips').add({
+                restaurantId: restaurantId,
+                userId: currentUser?.userId || null,
+                orderId: tipOrderId,
+                amount: tipAmount,
+                phone: phone,
+                status: 'paid', // simulation
+                paymentMode: 'mobile',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showToast(`Pourboire de ${tipAmount} FCFA envoyé avec succès !`, 'Merci', 'success');
+                closeModal('modalTipPayment');
+                closeModal('modalTipReview');
+                tipAmount = 0;
+            }).catch(e => {
+                console.error(e);
+                showToast('Erreur lors de l\'enregistrement du pourboire.', 'Erreur', 'error');
+            });
+        }
+
+        // ============================================
+        // REVIEWS (classique)
+        // ============================================
+        const starsClassic = document.querySelectorAll('#starContainer i');
+        starsClassic.forEach(star => {
             star.addEventListener('click', function() {
                 currentRating = this.getAttribute('data-value');
-                starsEl.forEach(s => s.classList.remove('active'));
+                starsClassic.forEach(s => s.classList.remove('active'));
                 for (let i = 0; i < currentRating; i++) {
-                    starsEl[i].classList.add('active');
+                    starsClassic[i].classList.add('active');
                 }
             });
         });
@@ -3715,7 +4087,7 @@
 
                 document.getElementById('avisNom').value = '';
                 document.getElementById('avisCommentaire').value = '';
-                starsEl.forEach(s => s.classList.remove('active'));
+                starsClassic.forEach(s => s.classList.remove('active'));
                 currentRating = 0;
 
                 await loadRestaurantData();
@@ -3736,6 +4108,7 @@
         if (restaurantId) {
             loadCurrentUser();
             updateUIForUser();
+            initSoundState();
             initPage();
         } else {
             document.getElementById('restoNom').textContent = 'Aucun identifiant de restaurant spécifié.';
@@ -3750,7 +4123,7 @@
                     const order = JSON.parse(savedOrder);
                     if (order.restaurantId === restaurantId) {
                         activeOrderId = order.orderId;
-                        startTracking(order.orderId);
+                        showTracking(order.orderId);
                     }
                 } catch (e) {}
             }
