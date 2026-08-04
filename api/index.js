@@ -174,7 +174,6 @@ app.post('/api/create-order-checkout', async (req, res) => {
   const webhookBase = process.env.BACKEND_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
   const webhookUrl = `${webhookBase}/api/fapshi-order-webhook`;
 
-  // On crée une description claire pour le paiement
   const description = isSplit 
     ? `Paiement partagé (1/${splitCount}) pour ${qty}x ${nomPlat}` 
     : `Commande de ${qty}x ${nomPlat}`;
@@ -209,7 +208,6 @@ app.post('/api/create-order-checkout', async (req, res) => {
 
     if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL de paiement manquante.' });
 
-    // On sauvegarde la transaction en attente
     const transDocId = fapshiTransId || db.collection('orderTransactions').doc().id;
     await db.collection('orderTransactions').doc(transDocId).set({
       fapshiTransId: fapshiTransId,
@@ -249,18 +247,16 @@ app.post('/api/fapshi-order-webhook', async (req, res) => {
 
     const transData = transDoc.data();
 
-    // Empêcher les doubles validations
     if (transData.status === 'CONFIRMED') {
       return res.status(200).json({ message: 'Commande déjà confirmée.' });
     }
 
-    // 1. Marquer la transaction comme confirmée
     await transRef.update({
       status: 'CONFIRMED',
       dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // 2. Enregistrer la commande officielle dans la collection "commandes"
+    // Enregistrer la commande officielle dans la collection "commandes"
     await db.collection('commandes').add({
       restoId: transData.restoId,
       platId: transData.platId,
@@ -271,12 +267,123 @@ app.post('/api/fapshi-order-webhook', async (req, res) => {
       nombrePersonnes: transData.splitCount,
       dateCommande: admin.firestore.FieldValue.serverTimestamp(),
       fapshiTransId: transId,
-      statut: 'Nouvelle' // Tu pourras changer ce statut côté restaurateur (En cours, Servie, etc.)
+      statut: 'Nouvelle'
     });
 
     return res.status(200).json({ message: 'Commande validée avec succès.' });
   } catch (err) {
     console.error('Erreur Webhook commande:', err);
+    return res.status(500).json({ error: 'Erreur webhook.' });
+  }
+});
+
+// ==========================================
+// 6. ROUTE : INITIALISATION DU PAIEMENT (POURBOIRE)
+// ==========================================
+app.post('/api/create-tip-checkout', async (req, res) => {
+  const { restoId, orderId, amount, phone, redirectUrl } = req.body;
+
+  if (!restoId || !orderId || !amount || !redirectUrl) {
+    return res.status(400).json({ success: false, error: 'Données de pourboire manquantes.' });
+  }
+
+  const API_USER = process.env.FAPSHI_API_USER;
+  const API_KEY = process.env.FAPSHI_API_KEY;
+
+  if (!API_USER || !API_KEY) {
+    return res.status(500).json({ success: false, error: 'Configuration Fapshi incomplète.' });
+  }
+
+  const webhookBase = process.env.BACKEND_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
+  const webhookUrl = `${webhookBase}/api/fapshi-tip-webhook`;
+
+  const payload = {
+    amount: Number(amount),
+    currency: 'XAF',
+    description: `Pourboire pour la commande ${orderId}`,
+    redirect_url: redirectUrl,
+    webhook_url: webhookUrl,
+    phone: phone || ''
+  };
+
+  try {
+    const fapshiRes = await fetch('https://live.fapshi.com/initiate-pay', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apiuser': API_USER,
+        'apikey': API_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const respJson = await fapshiRes.json();
+    if (!fapshiRes.ok) {
+      return res.status(fapshiRes.status).json({ success: false, error: respJson.message || respJson.error });
+    }
+
+    const checkoutUrl = respJson.url || respJson.link;
+    const fapshiTransId = respJson.transId;
+
+    if (!checkoutUrl) return res.status(502).json({ success: false, error: 'URL de paiement manquante.' });
+
+    const transDocId = fapshiTransId || db.collection('tipTransactions').doc().id;
+    await db.collection('tipTransactions').doc(transDocId).set({
+      fapshiTransId: fapshiTransId,
+      restoId: restoId,
+      orderId: orderId,
+      amount: Number(amount),
+      status: 'PENDING',
+      dateInitiated: admin.firestore.FieldValue.serverTimestamp(),
+      checkoutUrl
+    });
+
+    return res.json({ success: true, checkoutUrl });
+  } catch (err) {
+    console.error('Erreur initialisation pourboire:', err);
+    return res.status(500).json({ success: false, error: 'Erreur serveur interne.' });
+  }
+});
+
+// ==========================================
+// 7. ROUTE : WEBHOOK DE CONFIRMATION (POURBOIRE)
+// ==========================================
+app.post('/api/fapshi-tip-webhook', async (req, res) => {
+  const { status, transId } = req.body;
+
+  if (status !== 'SUCCESSFUL') return res.status(200).json({ message: 'Statut ignoré.' });
+  if (!transId) return res.status(400).json({ error: 'Données invalides.' });
+
+  const transRef = db.collection('tipTransactions').doc(transId);
+
+  try {
+    const transDoc = await transRef.get();
+    if (!transDoc.exists) return res.status(200).json({ message: 'Transaction inconnue.' });
+
+    const transData = transDoc.data();
+
+    if (transData.status === 'CONFIRMED') {
+      return res.status(200).json({ message: 'Pourboire déjà confirmé.' });
+    }
+
+    await transRef.update({
+      status: 'CONFIRMED',
+      dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Enregistrer le pourboire
+    await db.collection('tips').add({
+      restoId: transData.restoId,
+      orderId: transData.orderId,
+      amount: transData.amount,
+      date: admin.firestore.FieldValue.serverTimestamp(),
+      fapshiTransId: transId,
+      statut: 'payé'
+    });
+
+    return res.status(200).json({ message: 'Pourboire validé avec succès.' });
+  } catch (err) {
+    console.error('Erreur Webhook pourboire:', err);
     return res.status(500).json({ error: 'Erreur webhook.' });
   }
 });
