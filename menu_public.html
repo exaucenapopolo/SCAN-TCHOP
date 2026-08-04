@@ -2048,6 +2048,37 @@
         }
 
         /* ============================================
+                   MODALE CONFIRMATION PAIEMENT
+                ============================================ */
+        .confirmation-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .confirmation-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .confirmation-checkbox label {
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .confirmation-checkbox label strong {
+            color: var(--primary);
+        }
+
+        /* ============================================
                    FOOTER
                 ============================================ */
         .app-footer {
@@ -2604,39 +2635,49 @@
         </div>
     </div>
 
-    <!-- ===== MODALE PAIEMENT POURBOIRE ===== -->
-    <div class="modal-overlay tip-payment-modal" id="modalTipPayment">
+    <!-- ===== MODALE CONFIRMATION PAIEMENT (Commande) ===== -->
+    <div class="modal-overlay" id="modalConfirmOrder">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('modalTipPayment')"><i class="fas fa-times"></i></button>
-            <h2 style="text-align:center; margin-bottom:6px;">Confirmation du pourboire</h2>
-            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Vous allez payer <strong id="tipPaymentAmount">0</strong> FCFA par Mobile Money.</p>
-            <div style="margin:16px 0;">
-                <input type="tel" id="tipPaymentPhone" class="input-form" placeholder="Numéro Mobile Money *" required />
+            <button class="close-modal" onclick="closeModal('modalConfirmOrder')"><i class="fas fa-times"></i></button>
+            <h2 style="text-align:center; margin-bottom:6px;">Confirmez votre commande</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:16px;">Vous avez effectué le paiement Mobile Money. Veuillez confirmer pour finaliser votre commande.</p>
+
+            <div id="confirmOrderRecap" style="background:#f8fafc; padding:16px; border-radius:var(--radius-sm); margin-bottom:16px;">
+                <!-- Récapitulatif injecté par JS -->
             </div>
-            <button class="btn-commander" onclick="confirmTipPayment()">
-                <i class="fas fa-check-circle"></i> Confirmer le paiement
+
+            <div class="confirmation-checkbox">
+                <input type="checkbox" id="confirmOrderCheck" onchange="toggleConfirmOrderButton()" />
+                <label for="confirmOrderCheck">Je confirme avoir payé <strong>le montant indiqué</strong> par Mobile Money.</label>
+            </div>
+
+            <button class="btn-commander" id="btnFinalizeOrder" disabled onclick="finalizeOrder()">
+                <i class="fas fa-check-circle"></i> Finaliser ma commande
             </button>
-            <button class="btn-skip" onclick="closeModal('modalTipPayment')">
-                Annuler
-            </button>
+            <button class="btn-skip" onclick="closeModal('modalConfirmOrder')">Annuler</button>
         </div>
     </div>
 
-    <!-- ===== MODALE PAIEMENT COMMANDE (Mobile Money) ===== -->
-    <div class="modal-overlay" id="modalOrderPayment">
+    <!-- ===== MODALE CONFIRMATION PAIEMENT (Pourboire) ===== -->
+    <div class="modal-overlay" id="modalConfirmTip">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('modalOrderPayment')"><i class="fas fa-times"></i></button>
-            <h2 style="text-align:center; margin-bottom:6px;">Paiement Mobile Money</h2>
-            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Vous allez payer <strong id="orderPaymentAmount">0</strong> FCFA</p>
-            <div style="margin:16px 0;">
-                <input type="tel" id="orderPaymentPhone" class="input-form" placeholder="Numéro Mobile Money *" required />
+            <button class="close-modal" onclick="closeModal('modalConfirmTip')"><i class="fas fa-times"></i></button>
+            <h2 style="text-align:center; margin-bottom:6px;">Confirmez votre pourboire</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:16px;">Vous avez effectué le paiement Mobile Money pour le pourboire. Veuillez confirmer pour finaliser.</p>
+
+            <div id="confirmTipRecap" style="background:#f8fafc; padding:16px; border-radius:var(--radius-sm); margin-bottom:16px;">
+                <!-- Récapitulatif injecté par JS -->
             </div>
-            <button class="btn-commander" onclick="confirmOrderPayment()">
-                <i class="fas fa-check-circle"></i> Confirmer le paiement
+
+            <div class="confirmation-checkbox">
+                <input type="checkbox" id="confirmTipCheck" onchange="toggleConfirmTipButton()" />
+                <label for="confirmTipCheck">Je confirme avoir payé <strong>le montant indiqué</strong> par Mobile Money.</label>
+            </div>
+
+            <button class="btn-commander" id="btnFinalizeTip" disabled onclick="finalizeTip()">
+                <i class="fas fa-check-circle"></i> Finaliser mon pourboire
             </button>
-            <button class="btn-skip" onclick="closeModal('modalOrderPayment')">
-                Annuler
-            </button>
+            <button class="btn-skip" onclick="closeModal('modalConfirmTip')">Annuler</button>
         </div>
     </div>
 
@@ -2755,51 +2796,62 @@
         // ============================================
         // BACKEND API POUR MOBILE MONEY
         // ============================================
-        const API_BASE_URL = ''; // À remplacer par l'URL réelle
+        const API_BASE_URL = 'https://votre-backend.com'; // À remplacer par l'URL réelle
 
         /**
-         * Initie un paiement via la route du backend.
-         * @param {Object} params - Paramètres du paiement
-         * @param {string} params.restoId - ID du restaurant
-         * @param {string} params.platId - ID du plat (ou 'tip' pour un pourboire)
-         * @param {string} params.nomPlat - Nom du plat ou 'Pourboire'
-         * @param {number} params.amount - Montant
-         * @param {string} params.phone - Numéro de téléphone
-         * @param {string} params.redirectUrl - URL de redirection après paiement
-         * @param {number} params.qty - Quantité (1 pour pourboire)
-         * @param {boolean} params.isSplit - Indique si le paiement est partagé
-         * @param {number} params.splitCount - Nombre de personnes pour le partage
-         * @returns {Promise<{success: boolean, checkoutUrl: string}>}
+         * Initie un paiement pour une commande
          */
-        async function initierPaiementMobileMoney(params) {
+        async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount) {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/create-order-checkout`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        restoId: params.restoId,
-                        platId: params.platId,
-                        nomPlat: params.nomPlat,
-                        amount: params.amount,
-                        phone: params.phone,
-                        redirectUrl: params.redirectUrl,
-                        qty: params.qty || 1,
-                        isSplit: params.isSplit || false,
-                        splitCount: params.splitCount || 1
-                    }),
+                        restoId,
+                        platId,
+                        nomPlat,
+                        amount,
+                        phone,
+                        redirectUrl,
+                        qty,
+                        isSplit,
+                        splitCount
+                    })
                 });
-
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Erreur lors de l\'initialisation du paiement');
+                    throw new Error(errorData.error || 'Erreur initialisation commande');
                 }
-
-                const data = await response.json();
-                return data;
+                return await response.json();
             } catch (error) {
-                console.error('Erreur initierPaiementMobileMoney:', error);
+                console.error('Erreur initierPaiementCommande:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * Initie un paiement pour un pourboire
+         */
+        async function initierPaiementPourboire(restoId, orderId, amount, phone, redirectUrl) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/create-tip-checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        restoId,
+                        orderId,
+                        amount,
+                        phone,
+                        redirectUrl
+                    })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erreur initialisation pourboire');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Erreur initierPaiementPourboire:', error);
                 throw error;
             }
         }
@@ -3987,43 +4039,52 @@
                 return;
             }
 
-            // Si paiement Mobile Money, on initie le paiement avant d'enregistrer la commande
+            // Si paiement Mobile Money, on initie le paiement via le backend
             if (currentOrder.paymentMode === 'mobile') {
                 try {
-                    // Stocker les données de la commande pour finalisation après paiement
-                    window._pendingOrderData = {
-                        user,
-                        refNumber,
-                        table,
+                    const result = await initierPaiementCommande(
+                        restaurantId,
+                        currentOrder.id,
+                        currentOrder.nom,
                         finalAmount,
-                        orderData: {
-                            restaurantId,
-                            userId: user.userId,
-                            userEmail: user.email,
+                        phone,
+                        window.location.href,
+                        currentOrder.qty,
+                        currentOrder.isSplit,
+                        currentOrder.splitCount
+                    );
+
+                    if (result.success && result.checkoutUrl) {
+                        // Stocker les données en attente dans localStorage
+                        const pendingData = {
+                            type: 'order',
+                            restoId: restaurantId,
                             platId: currentOrder.id,
-                            platNom: currentOrder.nom,
-                            quantite: currentOrder.qty,
-                            complements: currentOrder.complements,
+                            nomPlat: currentOrder.nom,
+                            qty: currentOrder.qty,
+                            isSplit: currentOrder.isSplit,
+                            splitCount: currentOrder.splitCount,
                             table: currentOrder.table,
                             instructions: currentOrder.instructions,
-                            paymentMode: currentOrder.paymentMode,
-                            phone: phone || '',
-                            montant: finalAmount,
-                            status: 'en attente',
-                            reference: refNumber,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            tempsEstime: null,
-                            startTime: null
-                        }
-                    };
-                    // Ouvrir la modale de paiement
-                    document.getElementById('orderPaymentAmount').textContent = `${finalAmount} FCFA`;
-                    document.getElementById('orderPaymentPhone').value = phone;
-                    closeModal('modalOrder');
-                    openModal('modalOrderPayment');
-                    return;
-                } catch (e) {
-                    showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                            paymentMode: 'mobile',
+                            phone: phone,
+                            email: email,
+                            user: user,
+                            refNumber: refNumber,
+                            finalAmount: finalAmount,
+                            complements: currentOrder.complements,
+                            timestamp: Date.now()
+                        };
+                        localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
+                        // Rediriger vers la page de paiement
+                        window.location.href = result.checkoutUrl;
+                        return;
+                    } else {
+                        showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
                     return;
                 }
             }
@@ -4093,61 +4154,177 @@
             }
         }
 
-        // Confirmation du paiement Mobile Money pour la commande
-        async function confirmOrderPayment() {
-            const phone = document.getElementById('orderPaymentPhone').value.trim();
-            if (!phone) {
-                showToast('Numéro Mobile Money requis.', 'Champ requis', 'warning');
-                return;
-            }
-
-            const pending = window._pendingOrderData;
-            if (!pending) {
-                showToast('Aucune commande en attente.', 'Erreur', 'error');
-                return;
-            }
-
+        // ============================================
+        // GESTION DU RETOUR APRÈS PAIEMENT (COMMANDE)
+        // ============================================
+        function checkPendingPayment() {
+            const pendingRaw = localStorage.getItem('pendingPayment');
+            if (!pendingRaw) return;
             try {
-                // Initier le paiement via le backend
-                const result = await initierPaiementMobileMoney({
-                    restoId: restaurantId,
-                    platId: pending.orderData.platId,
-                    nomPlat: pending.orderData.platNom,
-                    amount: pending.finalAmount,
-                    phone: phone,
-                    redirectUrl: window.location.href,
-                    qty: pending.orderData.quantite,
-                    isSplit: currentOrder.isSplit || false,
-                    splitCount: currentOrder.splitCount || 1
-                });
-
-                if (result.success && result.checkoutUrl) {
-                    // Rediriger l'utilisateur vers la page de paiement Fapshi
-                    window.location.href = result.checkoutUrl;
-                    // La commande sera enregistrée par le webhook après confirmation
-                    showToast('Redirection vers la page de paiement...', 'Paiement', 'info');
-                } else {
-                    showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                const pending = JSON.parse(pendingRaw);
+                // Vérifier si la transaction est récente (moins de 1h)
+                if (Date.now() - pending.timestamp > 3600000) {
+                    localStorage.removeItem('pendingPayment');
+                    return;
                 }
-            } catch (error) {
-                showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+                // Afficher la modale de confirmation
+                if (pending.type === 'order') {
+                    showConfirmOrderModal(pending);
+                } else if (pending.type === 'tip') {
+                    showConfirmTipModal(pending);
+                }
+            } catch (e) {
+                console.warn('Erreur parsing pendingPayment', e);
+                localStorage.removeItem('pendingPayment');
             }
-
-            window._pendingOrderData = null;
-            closeModal('modalOrderPayment');
         }
 
-        async function generateOrderReference() {
-            const counterRef = db.collection('counters').doc('orderCounter');
-            return await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(counterRef);
-                let newCount = 1;
-                if (doc.exists) {
-                    newCount = (doc.data().count || 0) + 1;
+        function showConfirmOrderModal(pending) {
+            const recap = document.getElementById('confirmOrderRecap');
+            recap.innerHTML = `
+                        <p><strong>Plat :</strong> ${pending.nomPlat} (x${pending.qty})</p>
+                        <p><strong>Table :</strong> ${pending.table}</p>
+                        <p><strong>Montant payé :</strong> ${pending.finalAmount} FCFA</p>
+                        ${pending.isSplit ? `<p><strong>Partage :</strong> ${pending.splitCount} personnes</p>` : ''}
+                        <p><strong>Email :</strong> ${pending.email}</p>
+                        <p><strong>Téléphone :</strong> ${pending.phone}</p>
+                    `;
+            // Stocker les données en global pour finalisation
+            window._pendingOrderData = pending;
+            document.getElementById('confirmOrderCheck').checked = false;
+            document.getElementById('btnFinalizeOrder').disabled = true;
+            openModal('modalConfirmOrder');
+        }
+
+        function toggleConfirmOrderButton() {
+            const checked = document.getElementById('confirmOrderCheck').checked;
+            document.getElementById('btnFinalizeOrder').disabled = !checked;
+        }
+
+        async function finalizeOrder() {
+            const pending = window._pendingOrderData;
+            if (!pending) return;
+            // Réutiliser les données pour enregistrer la commande
+            currentOrder.id = pending.platId;
+            currentOrder.nom = pending.nomPlat;
+            currentOrder.qty = pending.qty;
+            currentOrder.isSplit = pending.isSplit;
+            currentOrder.splitCount = pending.splitCount;
+            currentOrder.table = pending.table;
+            currentOrder.instructions = pending.instructions;
+            currentOrder.paymentMode = pending.paymentMode;
+            currentOrder.phone = pending.phone;
+            currentOrder.email = pending.email;
+            currentOrder.complements = pending.complements || [];
+
+            await enregistrerCommande(pending.user, pending.refNumber, pending.finalAmount);
+            // Nettoyer
+            localStorage.removeItem('pendingPayment');
+            window._pendingOrderData = null;
+            closeModal('modalConfirmOrder');
+        }
+
+        // ============================================
+        // POURBOIRE : INITIATION ET CONFIRMATION
+        // ============================================
+        function submitTipAndReview() {
+            const commentaire = document.getElementById('tipCommentaire').value.trim();
+            const phone = document.getElementById('tipPhone').value.trim();
+
+            // Sauvegarder l'avis si note donnée
+            if (tipRating > 0) {
+                db.collection('avis').add({
+                    restaurantId,
+                    userId: currentUser?.userId || null,
+                    nomClient: currentUser?.displayName || 'Client Anonyme',
+                    note: tipRating,
+                    commentaire: commentaire || '',
+                    orderId: tipOrderId,
+                    date: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    showToast('Avis enregistré !', 'Merci', 'success');
+                }).catch(e => console.error(e));
+            }
+
+            // Si pourboire > 0, initier paiement
+            if (tipAmount > 0) {
+                if (!phone) {
+                    showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis',
+                        'warning');
+                    return;
                 }
-                transaction.set(counterRef, { count: newCount }, { merge: true });
-                return `ST-${String(newCount).padStart(6, '0')}`;
-            });
+
+                // Initier le paiement
+                initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
+                    .then(result => {
+                        if (result.success && result.checkoutUrl) {
+                            // Stocker en attente
+                            const pendingData = {
+                                type: 'tip',
+                                restoId: restaurantId,
+                                orderId: tipOrderId,
+                                amount: tipAmount,
+                                phone: phone,
+                                commentaire: commentaire,
+                                rating: tipRating,
+                                timestamp: Date.now()
+                            };
+                            localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
+                            window.location.href = result.checkoutUrl;
+                        } else {
+                            showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+                    });
+            } else {
+                closeModal('modalTipReview');
+                showToast('Merci pour votre retour !', 'À bientôt', 'success');
+            }
+        }
+
+        function showConfirmTipModal(pending) {
+            const recap = document.getElementById('confirmTipRecap');
+            recap.innerHTML = `
+                        <p><strong>Pourboire :</strong> ${pending.amount} FCFA</p>
+                        <p><strong>Commande :</strong> ${pending.orderId}</p>
+                        <p><strong>Téléphone :</strong> ${pending.phone}</p>
+                        ${pending.rating > 0 ? `<p><strong>Note :</strong> ${pending.rating} étoiles</p>` : ''}
+                        ${pending.commentaire ? `<p><strong>Commentaire :</strong> ${pending.commentaire}</p>` : ''}
+                    `;
+            window._pendingTipData = pending;
+            document.getElementById('confirmTipCheck').checked = false;
+            document.getElementById('btnFinalizeTip').disabled = true;
+            openModal('modalConfirmTip');
+        }
+
+        function toggleConfirmTipButton() {
+            const checked = document.getElementById('confirmTipCheck').checked;
+            document.getElementById('btnFinalizeTip').disabled = !checked;
+        }
+
+        async function finalizeTip() {
+            const pending = window._pendingTipData;
+            if (!pending) return;
+            // Enregistrer le pourboire dans Firestore
+            try {
+                await db.collection('tips').add({
+                    restoId: pending.restoId,
+                    orderId: pending.orderId,
+                    amount: pending.amount,
+                    phone: pending.phone,
+                    statut: 'payé',
+                    date: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`Pourboire de ${pending.amount} FCFA enregistré !`, 'Merci', 'success');
+                localStorage.removeItem('pendingPayment');
+                window._pendingTipData = null;
+                closeModal('modalConfirmTip');
+                closeModal('modalTipReview');
+            } catch (e) {
+                showToast('Erreur lors de l\'enregistrement du pourboire.', 'Erreur', 'error');
+            }
         }
 
         // ============================================
@@ -4320,7 +4497,7 @@
         }
 
         // ============================================
-        // TIP & REVIEW MODAL (après service)
+        // TIP & REVIEW MODAL (après service) - mise à jour
         // ============================================
         let tipOrderId = null;
         let tipRating = 0;
@@ -4377,78 +4554,6 @@
                 tipAmount = 0;
             }
         });
-
-        function submitTipAndReview() {
-            const commentaire = document.getElementById('tipCommentaire').value.trim();
-            const phone = document.getElementById('tipPhone').value.trim();
-
-            // Sauvegarder l'avis si une note a été donnée
-            if (tipRating > 0) {
-                db.collection('avis').add({
-                    restaurantId,
-                    userId: currentUser?.userId || null,
-                    nomClient: currentUser?.displayName || 'Client Anonyme',
-                    note: tipRating,
-                    commentaire: commentaire || '',
-                    orderId: tipOrderId,
-                    date: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    showToast('Avis enregistré !', 'Merci', 'success');
-                }).catch(e => console.error(e));
-            }
-
-            // Si pourboire > 0, lancer le paiement via le backend
-            if (tipAmount > 0) {
-                if (!phone) {
-                    showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis',
-                        'warning');
-                    return;
-                }
-
-                // Initier le paiement pourboire en utilisant la même route
-                initierPaiementMobileMoney({
-                    restoId: restaurantId,
-                    platId: 'tip', // ID générique pour pourboire
-                    nomPlat: 'Pourboire',
-                    amount: tipAmount,
-                    phone: phone,
-                    redirectUrl: window.location.href,
-                    qty: 1,
-                    isSplit: false,
-                    splitCount: 1
-                }).then(result => {
-                    if (result.success && result.checkoutUrl) {
-                        // Rediriger vers la page de paiement
-                        window.location.href = result.checkoutUrl;
-                        showToast('Redirection vers le paiement du pourboire...', 'Paiement', 'info');
-                        // Le webhook enregistrera un pourboire dans la collection 'tips' (à implémenter)
-                        // Pour l'instant, on le marque comme en attente
-                        db.collection('tips').add({
-                            restaurantId,
-                            userId: currentUser?.userId || null,
-                            orderId: tipOrderId,
-                            amount: tipAmount,
-                            phone: phone,
-                            status: 'pending',
-                            paymentMode: 'mobile',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }).catch(e => console.error(e));
-                    } else {
-                        showToast('Erreur lors du paiement du pourboire.', 'Erreur', 'error');
-                    }
-                }).catch(error => {
-                    showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
-                });
-            } else {
-                closeModal('modalTipReview');
-                showToast('Merci pour votre retour !', 'À bientôt', 'success');
-            }
-        }
-
-        function skipTipReview() {
-            closeModal('modalTipReview');
-            showToast('Merci d\'avoir choisi notre établissement !', 'À bientôt', 'info');
-        }
 
         // ============================================
         // REVIEWS (classique)
@@ -4551,6 +4656,9 @@
         async function initPage() {
             await loadRestaurantData();
             await loadMenuData();
+
+            // Vérifier s'il y a un paiement en attente
+            checkPendingPayment();
 
             const savedOrderId = localStorage.getItem('activeOrderId');
             if (savedOrderId) {
