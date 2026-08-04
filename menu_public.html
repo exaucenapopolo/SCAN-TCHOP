@@ -377,6 +377,63 @@
         }
 
         /* ============================================
+                   BARRE DE RECHERCHE
+                ============================================ */
+        .search-container {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.10), var(--shadow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: none;
+            padding: 4px;
+        }
+
+        .search-clear.visible {
+            display: block;
+        }
+
+        .search-clear:hover {
+            color: var(--text-main);
+        }
+
+        /* ============================================
                    CATÉGORIES
                 ============================================ */
         .category-container {
@@ -1744,6 +1801,14 @@
             font-size: 0.95rem;
         }
 
+        .favorite-item .plat-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 6px 0;
+        }
+
         .favorite-item .remove-fav {
             background: #fee2e2;
             color: #b91c1c;
@@ -1759,6 +1824,27 @@
 
         .favorite-item .remove-fav:hover {
             background: #fecaca;
+            transform: scale(1.05);
+        }
+
+        .favorite-item .btn-order-fav {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .favorite-item .btn-order-fav:hover {
+            background: var(--primary-hover);
             transform: scale(1.05);
         }
 
@@ -2179,6 +2265,15 @@
                 font-size: 2.2rem;
                 gap: 10px;
             }
+
+            .search-input {
+                padding: 12px 16px 12px 44px;
+                font-size: 0.95rem;
+            }
+
+            .search-icon {
+                left: 14px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2198,6 +2293,10 @@
             .stars-rating {
                 font-size: 1.8rem;
                 gap: 8px;
+            }
+
+            .favorite-item .plat-image {
+                height: 80px;
             }
         }
     </style>
@@ -2229,6 +2328,13 @@
             </div>
         </div>
 
+        <!-- ===== BARRE DE RECHERCHE ===== -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un plat..." />
+            <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
         <!-- ===== CATÉGORIES ===== -->
         <div class="category-container" id="categoryTabs"></div>
 
@@ -2256,7 +2362,6 @@
             <div class="track-actions">
                 <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
                 <button class="btn-avis-header" onclick="openModal('modalAvis')" style="background:var(--primary);"><i class="fas fa-star"></i> Laisser un avis</button>
-                <!-- Bouton alerte sonore -->
                 <button class="btn-sound-toggle" id="btnSoundToggle" onclick="toggleSoundAlert()">
                     <i class="fas fa-volume-up" id="soundIcon"></i>
                     <span id="soundLabel">Activer l'alerte sonore</span>
@@ -2517,6 +2622,24 @@
         </div>
     </div>
 
+    <!-- ===== MODALE PAIEMENT COMMANDE (Mobile Money) ===== -->
+    <div class="modal-overlay" id="modalOrderPayment">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('modalOrderPayment')"><i class="fas fa-times"></i></button>
+            <h2 style="text-align:center; margin-bottom:6px;">Paiement Mobile Money</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Vous allez payer <strong id="orderPaymentAmount">0</strong> FCFA</p>
+            <div style="margin:16px 0;">
+                <input type="tel" id="orderPaymentPhone" class="input-form" placeholder="Numéro Mobile Money *" required />
+            </div>
+            <button class="btn-commander" onclick="confirmOrderPayment()">
+                <i class="fas fa-check-circle"></i> Confirmer le paiement
+            </button>
+            <button class="btn-skip" onclick="closeModal('modalOrderPayment')">
+                Annuler
+            </button>
+        </div>
+    </div>
+
     <!-- ===== FIREBASE & JS ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
     </script>
@@ -2630,6 +2753,70 @@
         }
 
         // ============================================
+        // BACKEND API POUR MOBILE MONEY
+        // ============================================
+        const API_BASE_URL = 'https://votre-backend.com/api'; // À remplacer par l'URL réelle
+
+        /**
+         * Initie un paiement Mobile Money via le backend.
+         * @param {number} montant - Montant en FCFA
+         * @param {string} telephone - Numéro de téléphone (format international ou local)
+         * @param {string} description - Description de la transaction
+         * @param {string} type - 'commande' ou 'pourboire'
+         * @param {string} reference - Référence de la commande ou du pourboire
+         * @returns {Promise<{reference: string, status: string}>}
+         */
+        async function initierPaiementMobileMoney(montant, telephone, description, type, reference) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/initier-paiement`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        montant,
+                        telephone,
+                        description,
+                        type,
+                        reference,
+                        // Vous pouvez ajouter d'autres paramètres si nécessaire
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erreur lors de l\'initialisation du paiement');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Erreur initierPaiementMobileMoney:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * Vérifie le statut d'un paiement.
+         * @param {string} transactionRef - Référence de la transaction renvoyée par le backend
+         * @returns {Promise<{status: string, details: any}>}
+         */
+        async function verifierPaiement(transactionRef) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/verifier-paiement/${transactionRef}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erreur lors de la vérification du paiement');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Erreur verifierPaiement:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
         // FIREBASE CONFIG
         // ============================================
         const firebaseConfig = {
@@ -2673,7 +2860,8 @@
         let currentUser = null;
         let countdownInterval = null;
         let tipReviewShown = false;
-        let orderUnsubscribe = null; // pour se désabonner
+        let orderUnsubscribe = null;
+        let searchTerm = '';
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -2804,7 +2992,7 @@
         }
 
         // ============================================
-        // PROFILE: FAVORITES
+        // PROFILE: FAVORITES (avec image et bouton commander)
         // ============================================
         async function loadFavorites() {
             const container = document.getElementById('favoritesContainer');
@@ -2832,6 +3020,8 @@
                         platId,
                         platNom: platData.nom || 'Plat inconnu',
                         restaurantNom: restoName,
+                        image: platData.image || null,
+                        prix: platData.prix || 0,
                     });
                 } catch (e) { console.warn(e); }
             }
@@ -2845,13 +3035,34 @@
                 div.className = 'favorite-item';
                 div.innerHTML = `
                             <div class="resto-name"><i class="fas fa-store"></i> ${item.restaurantNom}</div>
-                            <div class="plat-name">${item.platNom}</div>
-                            <button class="remove-fav" onclick="removeFavorite('${item.restaurantId}', '${item.platId}')">
-                                <i class="fas fa-trash-alt"></i> Retirer
-                            </button>
+                            ${item.image ? `<img src="${item.image}" alt="${item.platNom}" class="plat-image" />` : ''}
+                            <div class="plat-name">${item.platNom} - ${item.prix} FCFA</div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn-order-fav" onclick="commanderFavori('${item.platId}')">
+                                    <i class="fas fa-shopping-cart"></i> Commander
+                                </button>
+                                <button class="remove-fav" onclick="removeFavorite('${item.restaurantId}', '${item.platId}')">
+                                    <i class="fas fa-trash-alt"></i> Retirer
+                                </button>
+                            </div>
                         `;
                 container.appendChild(div);
             });
+        }
+
+        function commanderFavori(platId) {
+            // Fermer le panneau
+            togglePanel();
+            // Trouver le plat dans la liste
+            const plat = allPlats.find(p => p.id === platId);
+            if (plat) {
+                // Faire défiler jusqu'au menu
+                document.getElementById('menuContainer').scrollIntoView({ behavior: 'smooth' });
+                // Ouvrir la modale de commande
+                setTimeout(() => openOrderModal(platId), 500);
+            } else {
+                showToast('Plat introuvable dans le menu actuel.', 'Erreur', 'error');
+            }
         }
 
         async function removeFavorite(restaurantId, platId) {
@@ -2908,7 +3119,6 @@
                     const statusClass = status.replace(' ', '-').toLowerCase();
                     const dateStr = order._date.getFullYear() > 1970 ? order._date.toLocaleDateString('fr-FR') :
                         'Date inconnue';
-                    // Afficher le bouton "Suivre" si la commande est en attente ou en préparation
                     const showTrack = (status === 'en attente' || status === 'en préparation');
                     html += `
                                 <div class="order-history-item">
@@ -2930,7 +3140,6 @@
             }
         }
 
-        // Fonction pour reprendre le suivi d'une commande depuis l'historique
         function resumeTracking(orderId) {
             if (orderUnsubscribe) {
                 orderUnsubscribe();
@@ -2939,7 +3148,6 @@
             if (countdownInterval) clearInterval(countdownInterval);
             activeOrderId = orderId;
             localStorage.setItem('activeOrderId', orderId);
-            // Réinitialiser l'affichage
             const trackingDiv = document.getElementById('orderTracking');
             trackingDiv.style.display = 'block';
             trackingDiv.classList.remove('ready');
@@ -2951,7 +3159,6 @@
             document.getElementById('trackTimerContainer').style.display = 'none';
             tipReviewShown = false;
             listenOrderStatus(orderId);
-            // Scroll jusqu'au tracking
             trackingDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -3339,7 +3546,7 @@
         }
 
         // ============================================
-        // MENU
+        // MENU + RECHERCHE
         // ============================================
         async function loadMenuData() {
             try {
@@ -3360,12 +3567,21 @@
                     const btn = document.createElement('button');
                     btn.className = `category-btn ${cat === 'Tous' ? 'active' : ''}`;
                     btn.innerText = cat === 'Tous' ? 'Tout le menu' : cat;
-                    btn.onclick = () => filterCategory(cat);
+                    btn.onclick = () => { filterCategory(cat); };
                     catContainer.appendChild(btn);
                 });
 
                 renderMenu();
                 listenMenuUpdates();
+
+                // Barre de recherche
+                const searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('input', function() {
+                    searchTerm = this.value.trim().toLowerCase();
+                    document.getElementById('searchClear').classList.toggle('visible', searchTerm.length > 0);
+                    renderMenu();
+                });
+
             } catch (error) {
                 document.getElementById('menuContainer').innerHTML = '<p>Erreur lors du chargement du menu.</p>';
             }
@@ -3392,14 +3608,20 @@
             const container = document.getElementById('menuContainer');
             container.innerHTML = '';
 
-            const platsFiltres = allPlats.filter(plat => {
-                if (selectedCategory === 'Tous') return true;
-                return plat.categorie === selectedCategory;
+            let platsFiltres = allPlats.filter(plat => {
+                if (selectedCategory !== 'Tous' && plat.categorie !== selectedCategory) return false;
+                // Recherche
+                if (searchTerm) {
+                    const nomMatch = plat.nom?.toLowerCase().includes(searchTerm);
+                    const descMatch = plat.description?.toLowerCase().includes(searchTerm);
+                    if (!nomMatch && !descMatch) return false;
+                }
+                return true;
             });
 
             if (platsFiltres.length === 0) {
                 container.innerHTML =
-                    `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding: 40px 0; font-weight:500;">Aucun plat dans cette catégorie.</p>`;
+                    `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding: 40px 0; font-weight:500;">Aucun plat ne correspond à votre recherche.</p>`;
                 return;
             }
 
@@ -3504,6 +3726,13 @@
                     btn.classList.remove('active');
                 }
             });
+            renderMenu();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchTerm = '';
+            document.getElementById('searchClear').classList.remove('visible');
             renderMenu();
         }
 
@@ -3716,7 +3945,7 @@
         }
 
         // ============================================
-        // VALIDATE ORDER
+        // VALIDATE ORDER (avec paiement Mobile Money)
         // ============================================
         async function validerCommande() {
             const table = document.getElementById('orderTable').value.trim();
@@ -3776,8 +4005,54 @@
                 return;
             }
 
+            // Si paiement Mobile Money, on initie le paiement avant d'enregistrer la commande
+            if (currentOrder.paymentMode === 'mobile') {
+                try {
+                    // On affiche la modale de paiement
+                    document.getElementById('orderPaymentAmount').textContent = `${finalAmount} FCFA`;
+                    document.getElementById('orderPaymentPhone').value = phone;
+                    // Stocker les données de la commande pour finalisation après paiement
+                    window._pendingOrderData = {
+                        user,
+                        refNumber,
+                        table,
+                        finalAmount,
+                        orderData: {
+                            restaurantId,
+                            userId: user.userId,
+                            userEmail: user.email,
+                            platId: currentOrder.id,
+                            platNom: currentOrder.nom,
+                            quantite: currentOrder.qty,
+                            complements: currentOrder.complements,
+                            table: currentOrder.table,
+                            instructions: currentOrder.instructions,
+                            paymentMode: currentOrder.paymentMode,
+                            phone: phone || '',
+                            montant: finalAmount,
+                            status: 'en attente',
+                            reference: refNumber,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            tempsEstime: null,
+                            startTime: null
+                        }
+                    };
+                    closeModal('modalOrder');
+                    openModal('modalOrderPayment');
+                    return;
+                } catch (e) {
+                    showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                    return;
+                }
+            }
+
+            // Paiement en espèces : on enregistre directement
+            await enregistrerCommande(user, refNumber, finalAmount);
+        }
+
+        async function enregistrerCommande(user, refNumber, finalAmount) {
             const orderData = {
-                restaurantId: restaurantId,
+                restaurantId,
                 userId: user.userId,
                 userEmail: user.email,
                 platId: currentOrder.id,
@@ -3787,7 +4062,7 @@
                 table: currentOrder.table,
                 instructions: currentOrder.instructions,
                 paymentMode: currentOrder.paymentMode,
-                phone: phone || '',
+                phone: currentOrder.phone || '',
                 montant: finalAmount,
                 status: 'en attente',
                 reference: refNumber,
@@ -3806,17 +4081,17 @@
                 const orderId = docRef.id;
                 activeOrderId = orderId;
                 localStorage.setItem('pendingOrder', JSON.stringify({
-                    restaurantId: restaurantId,
-                    orderId: orderId,
+                    restaurantId,
+                    orderId,
                     userId: user.userId,
                     timestamp: Date.now()
                 }));
                 localStorage.setItem('activeOrderId', orderId);
 
                 await db.collection('notifications').add({
-                    restaurantId: restaurantId,
-                    orderId: orderId,
-                    message: `Nouvelle commande ${refNumber} - Table ${table} - ${currentOrder.nom}`,
+                    restaurantId,
+                    orderId,
+                    message: `Nouvelle commande ${refNumber} - Table ${currentOrder.table} - ${currentOrder.nom}`,
                     targetRole: 'Cuisine',
                     read: false,
                     type: 'new_order',
@@ -3834,6 +4109,59 @@
                 btn.disabled = false;
                 btn.innerHTML = oldText;
             }
+        }
+
+        // Confirmation du paiement Mobile Money pour la commande
+        async function confirmOrderPayment() {
+            const phone = document.getElementById('orderPaymentPhone').value.trim();
+            if (!phone) {
+                showToast('Numéro Mobile Money requis.', 'Champ requis', 'warning');
+                return;
+            }
+
+            const pending = window._pendingOrderData;
+            if (!pending) {
+                showToast('Aucune commande en attente.', 'Erreur', 'error');
+                return;
+            }
+
+            try {
+                // Initier le paiement via le backend
+                const result = await initierPaiementMobileMoney(
+                    pending.finalAmount,
+                    phone,
+                    `Commande ${pending.refNumber} - ${pending.orderData.platNom}`,
+                    'commande',
+                    pending.refNumber
+                );
+
+                if (result.status === 'success' || result.status === 'pending') {
+                    // Enregistrer la commande après initiation réussie
+                    await enregistrerCommande(pending.user, pending.refNumber, pending.finalAmount);
+                    closeModal('modalOrderPayment');
+                    // Vérifier le statut du paiement après quelques secondes (simulation)
+                    if (result.transactionRef) {
+                        setTimeout(async () => {
+                            try {
+                                const verification = await verifierPaiement(result.transactionRef);
+                                if (verification.status === 'confirmed') {
+                                    showToast('Paiement confirmé !', 'Succès', 'success');
+                                } else if (verification.status === 'pending') {
+                                    showToast('Paiement en attente de validation...', 'Info', 'info');
+                                } else {
+                                    showToast('Paiement non confirmé. Veuillez vérifier.', 'Attention', 'warning');
+                                }
+                            } catch (e) {}
+                        }, 10000);
+                    }
+                } else {
+                    showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                }
+            } catch (error) {
+                showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+            }
+
+            window._pendingOrderData = null;
         }
 
         async function generateOrderReference() {
@@ -3875,7 +4203,6 @@
 
             orderUnsubscribe = db.collection('orders').doc(orderId).onSnapshot(doc => {
                 if (!doc.exists) {
-                    // La commande a peut-être été supprimée
                     if (orderUnsubscribe) {
                         orderUnsubscribe();
                         orderUnsubscribe = null;
@@ -3945,8 +4272,6 @@
                         tipReviewShown = true;
                         openTipReviewModal(orderId);
                     }
-                    // On peut arrêter l'écoute après "terminé" ou "servi"
-                    // mais on laisse pour l'historique
                 } else {
                     timerContainer.style.display = 'none';
                     trackingDiv.classList.remove('ready');
@@ -4002,7 +4327,7 @@
             }
             try {
                 await db.collection('notifications').add({
-                    restaurantId: restaurantId,
+                    restaurantId,
                     message: `🆘 Le client de la table ${table} a besoin d'aide.`,
                     targetRole: 'Serveur',
                     read: false,
@@ -4038,11 +4363,9 @@
             document.getElementById('tipPhone').value = currentUser?.phone || '';
             document.querySelectorAll('.tip-amount').forEach(el => el.classList.remove('active'));
             document.getElementById('tipCustomAmount').value = '';
-            // Réinitialiser l'état du bouton
             openModal('modalTipReview');
         }
 
-        // Étoiles dans la modale tip
         document.querySelectorAll('#tipStarContainer i').forEach(star => {
             star.addEventListener('click', function() {
                 tipRating = this.getAttribute('data-value');
@@ -4055,7 +4378,6 @@
             });
         });
 
-        // Sélection des montants de pourboire
         document.querySelectorAll('.tip-amount').forEach(el => {
             el.addEventListener('click', function() {
                 document.querySelectorAll('.tip-amount').forEach(e => e.classList.remove('active'));
@@ -4087,10 +4409,9 @@
             const commentaire = document.getElementById('tipCommentaire').value.trim();
             const phone = document.getElementById('tipPhone').value.trim();
 
-            // Sauvegarder l'avis si une note a été donnée
             if (tipRating > 0) {
                 db.collection('avis').add({
-                    restaurantId: restaurantId,
+                    restaurantId,
                     userId: currentUser?.userId || null,
                     nomClient: currentUser?.displayName || 'Client Anonyme',
                     note: tipRating,
@@ -4102,17 +4423,54 @@
                 }).catch(e => console.error(e));
             }
 
-            // Si pourboire > 0, lancer le paiement
             if (tipAmount > 0) {
                 if (!phone) {
                     showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis',
                         'warning');
                     return;
                 }
-                document.getElementById('tipPaymentAmount').textContent = tipAmount;
-                document.getElementById('tipPaymentPhone').value = phone;
-                closeModal('modalTipReview');
-                openModal('modalTipPayment');
+                // Initier paiement pourboire via le backend
+                initierPaiementMobileMoney(tipAmount, phone, `Pourboire - Commande ${tipOrderId}`, 'pourboire', tipOrderId)
+                    .then(result => {
+                        if (result.status === 'success' || result.status === 'pending') {
+                            db.collection('tips').add({
+                                restaurantId,
+                                userId: currentUser?.userId || null,
+                                orderId: tipOrderId,
+                                amount: tipAmount,
+                                phone: phone,
+                                status: 'pending',
+                                paymentMode: 'mobile',
+                                transactionRef: result.transactionRef || null,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                showToast(`Pourboire de ${tipAmount} FCFA en cours...`, 'Info', 'info');
+                                closeModal('modalTipReview');
+                                // Vérifier le statut après un délai
+                                if (result.transactionRef) {
+                                    setTimeout(async () => {
+                                        try {
+                                            const verification = await verifierPaiement(result
+                                                .transactionRef);
+                                            if (verification.status === 'confirmed') {
+                                                showToast('Pourboire payé avec succès !',
+                                                    'Merci', 'success');
+                                            } else {
+                                                showToast(
+                                                    'Pourboire en attente de confirmation.',
+                                                    'Info', 'info');
+                                            }
+                                        } catch (e) {}
+                                    }, 10000);
+                                }
+                            }).catch(e => console.error(e));
+                        } else {
+                            showToast('Erreur lors du paiement du pourboire.', 'Erreur', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+                    });
             } else {
                 closeModal('modalTipReview');
                 showToast('Merci pour votre retour !', 'À bientôt', 'success');
@@ -4122,35 +4480,6 @@
         function skipTipReview() {
             closeModal('modalTipReview');
             showToast('Merci d\'avoir choisi notre établissement !', 'À bientôt', 'info');
-        }
-
-        // ============================================
-        // TIP PAYMENT
-        // ============================================
-        function confirmTipPayment() {
-            const phone = document.getElementById('tipPaymentPhone').value.trim();
-            if (!phone) {
-                showToast('Numéro Mobile Money requis.', 'Champ requis', 'warning');
-                return;
-            }
-            db.collection('tips').add({
-                restaurantId: restaurantId,
-                userId: currentUser?.userId || null,
-                orderId: tipOrderId,
-                amount: tipAmount,
-                phone: phone,
-                status: 'paid',
-                paymentMode: 'mobile',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                showToast(`Pourboire de ${tipAmount} FCFA envoyé avec succès !`, 'Merci', 'success');
-                closeModal('modalTipPayment');
-                closeModal('modalTipReview');
-                tipAmount = 0;
-            }).catch(e => {
-                console.error(e);
-                showToast('Erreur lors de l\'enregistrement du pourboire.', 'Erreur', 'error');
-            });
         }
 
         // ============================================
@@ -4181,7 +4510,6 @@
 
         document.getElementById('modalAvis').addEventListener('shown', function() {
             autoFillReviewName();
-            // Réinitialiser les étoiles
             currentRating = 0;
             starsClassic.forEach(s => s.classList.remove('active'));
             document.getElementById('starLabel').textContent = 'Sélectionnez une note';
@@ -4211,7 +4539,7 @@
 
             try {
                 await db.collection('avis').add({
-                    restaurantId: restaurantId,
+                    restaurantId,
                     userId: currentUser?.userId || null,
                     nomClient: nomClient,
                     note: parseInt(currentRating),
@@ -4256,28 +4584,23 @@
             await loadRestaurantData();
             await loadMenuData();
 
-            // Restaurer la commande active depuis localStorage
             const savedOrderId = localStorage.getItem('activeOrderId');
             if (savedOrderId) {
-                // Vérifier si cette commande existe encore et est en cours
                 try {
                     const doc = await db.collection('orders').doc(savedOrderId).get();
                     if (doc.exists) {
                         const data = doc.data();
                         const status = data.status || 'en attente';
-                        // Si la commande n'est pas terminée ni servie, on la reprend
                         if (status !== 'terminé' && status !== 'servi') {
                             activeOrderId = savedOrderId;
                             showTracking(savedOrderId);
-                            // Mettre à jour le localStorage
                             localStorage.setItem('pendingOrder', JSON.stringify({
-                                restaurantId: restaurantId,
+                                restaurantId,
                                 orderId: savedOrderId,
                                 userId: data.userId,
                                 timestamp: Date.now()
                             }));
                         } else {
-                            // Nettoyer si terminé
                             localStorage.removeItem('activeOrderId');
                             localStorage.removeItem('pendingOrder');
                         }
@@ -4290,11 +4613,9 @@
                 }
             }
 
-            // Écouter les modifications sur les commandes pour mettre à jour l'historique en temps réel
             if (currentUser) {
                 db.collection('orders').where('userId', '==', currentUser.userId)
                     .onSnapshot(() => {
-                        // Rafraîchir l'historique si le panneau est ouvert
                         if (document.getElementById('sidePanel').classList.contains('open')) {
                             loadOrderHistory();
                         }
