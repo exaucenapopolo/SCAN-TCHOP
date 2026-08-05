@@ -2796,7 +2796,7 @@
         // ============================================
         // BACKEND API POUR MOBILE MONEY
         // ============================================
-        const API_BASE_URL = ''; // À remplacer par l'URL réelle
+        const API_BASE_URL = 'https://votre-backend.com'; // À remplacer par l'URL réelle
 
         /**
          * Initie un paiement pour une commande
@@ -3975,6 +3975,31 @@
                 document.getElementById('btnCash').classList.add('active');
                 document.getElementById('orderPhone').placeholder = 'Numéro de téléphone (optionnel)';
                 document.getElementById('phoneFieldContainer').style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // GENERATE ORDER REFERENCE (SIMPLE & ROBUSTE)
+        // ============================================
+        async function generateOrderReference() {
+            try {
+                // Utiliser un compteur Firestore avec transaction
+                const counterRef = db.collection('counters').doc('orderCounter');
+                return await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(counterRef);
+                    let newCount = 1;
+                    if (doc.exists && doc.data().count !== undefined) {
+                        newCount = doc.data().count + 1;
+                    }
+                    transaction.set(counterRef, { count: newCount }, { merge: true });
+                    return `ST-${String(newCount).padStart(6, '0')}`;
+                });
+            } catch (error) {
+                console.warn('Erreur transaction reference, fallback timestamp:', error);
+                // Fallback: référence basée sur timestamp + aléatoire
+                const timestamp = Date.now().toString(36).toUpperCase();
+                const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+                return `ST-${timestamp}-${random}`;
             }
         }
 
