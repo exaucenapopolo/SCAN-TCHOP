@@ -6,7 +6,12 @@
     <title>Memory - Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- Ajout de la bibliothèque pour les confettis -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
+        /* Les styles restent identiques et professionnels */
         :root {
             --primary: #0f172a;
             --accent: #e67e22;
@@ -34,196 +39,51 @@
             justify-content: center;
             padding: 20px;
             color: var(--text-main);
+            overflow-x: hidden; /* Empêche la page de bouger avec les confettis */
         }
 
         .app-container {
-            max-width: 500px; /* Plus étroit pour un look application mobile */
+            max-width: 500px; 
             width: 100%;
             background: var(--card-bg);
             border-radius: 24px;
             padding: 32px 24px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        h1 i {
-            color: var(--accent);
-        }
-
-        .instructions {
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 24px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .stats div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .stats span {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            perspective: 1000px; /* Nécessaire pour l'effet 3D */
-        }
-
-        .card {
-            aspect-ratio: 1;
-            cursor: pointer;
             position: relative;
+            z-index: 10;
         }
 
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-            transform-style: preserve-3d;
-        }
+        .header { text-align: center; margin-bottom: 24px; }
+        h1 { font-weight: 800; font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        h1 i { color: var(--accent); }
 
-        .card.flipped .card-inner, .card.matched .card-inner {
-            transform: rotateY(180deg);
-        }
+        .instructions { background: #f1f5f9; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; text-align: center; }
 
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
+        .stats { display: flex; justify-content: space-between; background: #f8fafc; padding: 16px; border-radius: 16px; margin-bottom: 24px; font-weight: 600; border: 1px solid #e2e8f0; }
+        .stats div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .stats span { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Face avant (cachée au début) */
-        .card-front {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            color: #cbd5e1;
-        }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; perspective: 1000px; }
+        .card { aspect-ratio: 1; cursor: pointer; position: relative; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
+        
+        .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .card-front { background: #f8fafc; border: 2px solid #e2e8f0; color: #cbd5e1; }
+        .card-front i { font-size: 1.2rem; opacity: 0.5; }
+        .card-back { background: #fff; border: 2px solid var(--accent); transform: rotateY(180deg); }
+        .card.matched .card-back { background: #d1fae5; border-color: var(--success); opacity: 0.8; }
 
-        .card-front i {
-            font-size: 1.2rem;
-            opacity: 0.5;
-        }
+        .win-message { text-align: center; background: #d1fae5; color: #065f46; padding: 16px; border-radius: 12px; font-weight: 700; margin-top: 24px; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* Dos de la carte (l'icône à trouver) */
-        .card-back {
-            background: #fff;
-            border: 2px solid var(--accent);
-            transform: rotateY(180deg);
-        }
-
-        .card.matched .card-back {
-            background: #d1fae5;
-            border-color: var(--success);
-            opacity: 0.8;
-        }
-
-        .win-message {
-            text-align: center;
-            background: #d1fae5;
-            color: #065f46;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 700;
-            margin-top: 24px;
-            display: none;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
-        }
-
-        .btn-primary:hover {
-            background: #cf6f1b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: var(--text-main);
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; }
+        .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2); }
+        .btn-primary:hover { background: #cf6f1b; transform: translateY(-2px); }
+        .btn-secondary { background: #f1f5f9; color: var(--text-main); }
+        .btn-secondary:hover { background: #e2e8f0; }
 
         @media (max-width: 480px) {
             .app-container { padding: 24px 16px; border-radius: 20px; }
@@ -241,18 +101,12 @@
     </div>
 
     <div class="instructions">
-        <strong>Comment jouer :</strong> Appuyez sur les cartes pour les retourner. Trouvez toutes les paires d'images identiques avec le moins d'essais possible !
+        <strong>Comment jouer :</strong> Appuyez sur les cartes pour les retourner. Trouvez toutes les paires d'images identiques !
     </div>
 
     <div class="stats">
-        <div>
-            <span>Tentatives</span>
-            <strong id="attempts" style="color: var(--accent); font-size: 1.2rem;">0</strong>
-        </div>
-        <div>
-            <span>Paires trouvées</span>
-            <strong style="color: var(--success); font-size: 1.2rem;"><span id="matched">0</span> / 8</strong>
-        </div>
+        <div><span>Tentatives</span><strong id="attempts" style="color: var(--accent); font-size: 1.2rem;">0</strong></div>
+        <div><span>Paires</span><strong style="color: var(--success); font-size: 1.2rem;"><span id="matched">0</span> / 8</strong></div>
     </div>
 
     <div class="grid" id="grid"></div>
@@ -262,17 +116,82 @@
     </div>
 
     <div class="actions">
-        <button class="btn btn-secondary" onclick="safeGoBack()">
-            <i class="fas fa-arrow-left"></i> Retour
-        </button>
-        <button class="btn btn-primary" onclick="location.reload()">
-            <i class="fas fa-redo"></i> Rejouer
-        </button>
+        <button class="btn btn-secondary" onclick="safeGoBack()"><i class="fas fa-arrow-left"></i> Retour</button>
+        <button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-redo"></i> Rejouer</button>
     </div>
 </div>
 
 <script>
-    // Utilisation d'emojis qui s'afficheront directement et sans erreur
+    /* =========================================
+       1. SYSTÈME AUDIO ET VIBRATION (NOUVEAU)
+       ========================================= */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Fonction pour générer un son de base
+    function playSound(type, frequency, duration, vol = 0.1) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        
+        gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+    }
+
+    // Gestionnaire global des effets (Sons + Vibrations)
+    const FX = {
+        click: () => {
+            playSound('sine', 600, 0.1, 0.05); // Son doux
+            if('vibrate' in navigator) navigator.vibrate(50); // Petite vibration
+        },
+        success: () => {
+            playSound('sine', 800, 0.1, 0.1);
+            setTimeout(() => playSound('sine', 1200, 0.2, 0.1), 100); // Double note joyeuse
+            if('vibrate' in navigator) navigator.vibrate([100, 50, 100]); // Double vibration
+        },
+        error: () => {
+            playSound('sawtooth', 200, 0.3, 0.05); // Son grave
+            if('vibrate' in navigator) navigator.vibrate(300); // Vibration longue
+        },
+        win: () => {
+            // Petite mélodie de victoire
+            [523, 659, 783, 1046].forEach((freq, i) => {
+                setTimeout(() => playSound('sine', freq, 0.2, 0.1), i * 150);
+            });
+            if('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 300]);
+        }
+    };
+
+    /* =========================================
+       2. SYSTÈME DE CONFETTIS (NOUVEAU)
+       ========================================= */
+    function triggerConfetti() {
+        var duration = 3000; // Dure 3 secondes
+        var end = Date.now() + duration;
+
+        (function frame() {
+            // Confettis venant de la gauche
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e67e22', '#10b981', '#f1c40f'] });
+            // Confettis venant de la droite
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#e67e22', '#10b981', '#f1c40f'] });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    }
+
+    /* =========================================
+       3. LOGIQUE DU JEU (MISE À JOUR)
+       ========================================= */
     const icons = ['🍕','🍔','🌮','🥗','🍣','🍰','🍩','🥤'];
     let cards = [];
     let first = null, second = null, lock = false;
@@ -283,7 +202,6 @@
     const matchedSpan = document.getElementById('matched');
     const winMsg = document.getElementById('winMessage');
 
-    // Mélange le tableau
     function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -292,14 +210,12 @@
         return arr;
     }
 
-    // Initialise le jeu
     function initGame() {
         const deck = shuffle([...icons, ...icons]);
         cards = deck.map((icon, idx) => ({ id: idx, icon, matched: false, flipped: false }));
         render();
     }
 
-    // Affiche les cartes avec la structure 3D
     function render() {
         grid.innerHTML = '';
         cards.forEach((card, index) => {
@@ -307,15 +223,10 @@
             cardDiv.className = 'card';
             if (card.flipped || card.matched) cardDiv.classList.add(card.matched ? 'matched' : 'flipped');
             
-            // Structure interne pour l'animation 3D de retournement
             cardDiv.innerHTML = `
                 <div class="card-inner">
-                    <div class="card-front">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div class="card-back">
-                        ${card.icon}
-                    </div>
+                    <div class="card-front"><i class="fas fa-brain"></i></div>
+                    <div class="card-back">${card.icon}</div>
                 </div>
             `;
             
@@ -324,22 +235,24 @@
         });
     }
 
-    // Logique lorsqu'on clique sur une carte
     function flipCard(index) {
-        if (lock) return; // Empêche de cliquer pendant l'animation
+        if (lock) return; 
         const card = cards[index];
         if (card.matched || card.flipped) return;
         
         card.flipped = true;
         render();
         
+        // Joue le son de clic classique et vibre
+        FX.click();
+
         if (first === null) {
             first = index;
             return;
         }
         
         second = index;
-        lock = true; // Bloque la grille le temps de comparer
+        lock = true; 
         attempts++;
         attemptsSpan.textContent = attempts;
 
@@ -347,27 +260,34 @@
         const secondCard = cards[second];
         
         if (firstCard.icon === secondCard.icon) {
-            // C'est une paire
+            // --- SUCCÈS : Paire trouvée ---
             firstCard.matched = true;
             secondCard.matched = true;
             matched++;
             matchedSpan.textContent = matched;
+            
+            // Joue le son de réussite et vibre
+            FX.success();
             resetTurn();
             
-            // Vérifie la victoire
             if (matched === 8) {
                 setTimeout(() => {
                     winMsg.style.display = 'block';
+                    // --- VICTOIRE : Musique + Confettis ---
+                    FX.win();
+                    triggerConfetti();
                 }, 500);
             }
         } else {
-            // Ce n'est pas une paire, on retourne après un court délai
+            // --- ÉCHEC : Mauvaise paire ---
             setTimeout(() => {
+                // Joue le son d'erreur et vibre juste avant que les cartes se retournent
+                FX.error(); 
                 firstCard.flipped = false;
                 secondCard.flipped = false;
                 render();
                 resetTurn();
-            }, 1000); // 1 seconde de délai pour bien voir l'erreur
+            }, 1000); 
         }
     }
 
@@ -377,17 +297,15 @@
         lock = false;
     }
 
-    // Bouton retour sécurisé
     function safeGoBack() {
         if (window.history.length > 1) {
             window.history.back();
         } else {
-            // Si pas d'historique, on redirige vers la page d'accueil du site
             window.location.href = '/'; 
         }
     }
 
-    // Lancer le jeu au chargement
+    // Initialisation au démarrage
     initGame();
 </script>
 </body>
