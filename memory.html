@@ -79,13 +79,11 @@
         .win-message { text-align: center; background: #d1fae5; color: #065f46; padding: 16px; border-radius: 12px; font-weight: 700; margin-top: 24px; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* Boutons d'action */
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        /* Boutons d'action - Mis à jour pour un seul bouton */
+        .actions { display: grid; grid-template-columns: 1fr; margin-top: 24px; }
         .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; }
         .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2); }
         .btn-primary:hover { background: #cf6f1b; transform: translateY(-2px); }
-        .btn-secondary { background: #f1f5f9; color: var(--text-main); }
-        .btn-secondary:hover { background: #e2e8f0; }
 
         /* Adaptabilité pour les petits écrans (mobiles) */
         @media (max-width: 480px) {
@@ -119,10 +117,7 @@
     </div>
 
     <div class="actions">
-        <!-- Bouton de retour qui pointe maintenant directement vers ton fichier -->
-        <a href="menu_public.html" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Retour
-        </a>
+        <!-- Bouton unique pour relancer la partie -->
         <button class="btn btn-primary" onclick="location.reload()">
             <i class="fas fa-redo"></i> Rejouer
         </button>
@@ -136,8 +131,6 @@
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     // Fonction qui joue une note précise à un instant précis
-    // Utiliser "audioCtx.currentTime" est une excellente pratique de code car 
-    // l'horloge audio interne est infiniment plus précise que les setTimeout de JavaScript.
     function playNote(frequency, startTime, duration, type = 'triangle', vol = 0.1) {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
@@ -145,10 +138,10 @@
         oscillator.type = type; 
         oscillator.frequency.value = frequency;
         
-        // Enveloppe sonore pour éviter les "clics" désagréables en début et fin de note
+        // Enveloppe sonore pour éviter les "clics"
         gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(vol, startTime + 0.02); // Montée rapide
-        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration); // Descente douce
+        gainNode.gain.linearRampToValueAtTime(vol, startTime + 0.02); 
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration); 
         
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
@@ -172,7 +165,7 @@
         success: () => {
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
-            // Arpège ascendant plus professionnel : Do5 - Mi5 - Sol5
+            // Arpège ascendant : Do5 - Mi5 - Sol5
             playNote(523.25, now, 0.15);         
             playNote(659.25, now + 0.1, 0.15);   
             playNote(783.99, now + 0.2, 0.3);    
@@ -181,7 +174,7 @@
         win: () => {
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
-            // Fanfare triomphale de victoire ! (plus longue et satisfaisante)
+            // Fanfare triomphale de victoire
             playNote(261.63, now, 0.2);        // Do4
             playNote(329.63, now + 0.2, 0.2);  // Mi4
             playNote(392.00, now + 0.4, 0.2);  // Sol4
@@ -289,14 +282,14 @@
             matched++;
             matchedSpan.textContent = matched;
             
-            FX.success(); // Joue l'arpège de réussite
+            FX.success(); 
             resetTurn();
             
             // Vérification de la victoire
             if (matched === 8) {
                 setTimeout(() => {
                     winMsg.style.display = 'block';
-                    FX.win(); // Joue la longue fanfare
+                    FX.win(); 
                     triggerConfetti();
                 }, 500);
             }
