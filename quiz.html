@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter',sans-serif;
+            background:#fdf8f4;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+        }
+        .container {
+            max-width:600px;
+            width:100%;
+            background:#fff;
+            border-radius:32px;
+            padding:32px 28px;
+            box-shadow:0 20px 40px rgba(0,0,0,0.06);
+            border:1px solid #e2e8f0;
+        }
+        h1 {
+            font-family:'Playfair Display',serif;
+            font-weight:700;
+            font-size:2rem;
+            color:#0b1a2e;
+            text-align:center;
+        }
+        h1 i { color:#e67e22; }
+        .sub { text-align:center; color:#64748b; margin-bottom:24px; }
+        .question {
+            font-size:1.2rem;
+            font-weight:600;
+            margin-bottom:20px;
+            color:#0b1a2e;
+        }
+        .options {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+        .option {
+            background:#f8fafc;
+            border:2px solid #e2e8f0;
+            border-radius:16px;
+            padding:16px;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.2s;
+            text-align:center;
+        }
+        .option:hover:not(.disabled) {
+            border-color:#e67e22;
+            background:#fef3e8;
+            transform:translateY(-2px);
+        }
+        .option.correct { background:#d1fae5; border-color:#10b981; }
+        .option.wrong { background:#fee2e2; border-color:#ef4444; }
+        .option.disabled { cursor:default; opacity:0.7; }
+        .stats {
+            display:flex;
+            justify-content:space-between;
+            background:#f8fafc;
+            padding:12px 20px;
+            border-radius:16px;
+            margin-bottom:24px;
+            font-weight:600;
+        }
+        .stats .score { color:#e67e22; }
+        .btn-group {
+            display:flex;
+            justify-content:center;
+            gap:12px;
+            margin-top:24px;
+            flex-wrap:wrap;
+        }
+        .btn {
+            padding:12px 28px;
+            border-radius:50px;
+            font-weight:700;
+            font-size:0.95rem;
+            border:none;
+            cursor:pointer;
+            transition:0.3s;
+            background:#e67e22;
+            color:#fff;
+            box-shadow:0 4px 16px rgba(230,126,34,0.25);
+        }
+        .btn:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(230,126,34,0.35); background:#cf6f1b; }
+        .btn-secondary { background:#64748b; box-shadow:0 4px 16px rgba(100,116,139,0.2); }
+        .btn-secondary:hover { background:#475569; }
+        .btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .feedback {
+            margin-top:16px;
+            font-weight:600;
+            font-size:1rem;
+            min-height:2rem;
+            text-align:center;
+        }
+        .feedback .correct { color:#10b981; }
+        .feedback .wrong { color:#ef4444; }
+        @media (max-width:480px) {
+            .options { grid-template-columns:1fr; }
+            .container { padding:20px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-question-circle"></i> Quiz</h1>
+    <p class="sub">Testez vos connaissances culinaires</p>
+    <div class="stats">
+        <span>⭐ Score : <span class="score" id="score">0</span></span>
+        <span>📌 Question <span id="qNum">1</span>/<span id="totalQ">6</span></span>
+    </div>
+    <div class="question" id="question">Chargement...</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btn-group">
+        <button class="btn" id="nextBtn" disabled><i class="fas fa-forward"></i> Suivant</button>
+        <a href="javascript:history.back()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour</a>
+    </div>
+</div>
+<script>
+    const questions = [
+        {
+            q: "Quel fromage est utilisé dans la fondue savoyarde ?",
+            options: ["Emmental", "Comté", "Beaufort", "Tomme"],
+            answer: 2
+        },
+        {
+            q: "Quel pays est le plus grand producteur de vin ?",
+            options: ["France", "Italie", "Espagne", "États-Unis"],
+            answer: 1
+        },
+        {
+            q: "Qu'est-ce que le 'umami' ?",
+            options: ["Une épice", "Le goût salé", "Le goût sucré", "Le cinquième goût"],
+            answer: 3
+        },
+        {
+            q: "Quel fruit est le plus consommé dans le monde ?",
+            options: ["Banane", "Pomme", "Orange", "Tomate"],
+            answer: 0
+        },
+        {
+            q: "D'où vient la pizza Margherita ?",
+            options: ["Rome", "Naples", "Milan", "Florence"],
+            answer: 1
+        },
+        {
+            q: "Quelle est la principale épice du curry ?",
+            options: ["Cumin", "Curcuma", "Coriandre", "Gingembre"],
+            answer: 1
+        }
+    ];
+
+    let current = 0, score = 0, answered = false;
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+    const scoreSpan = document.getElementById('score');
+    const qNum = document.getElementById('qNum');
+    const totalQ = document.getElementById('totalQ');
+    const nextBtn = document.getElementById('nextBtn');
+
+    totalQ.textContent = questions.length;
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[current];
+        questionEl.textContent = q.q;
+        qNum.textContent = current + 1;
+        optionsEl.innerHTML = '';
+        feedbackEl.innerHTML = '';
+        nextBtn.disabled = true;
+
+        q.options.forEach((opt, idx) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.textContent = opt;
+            div.dataset.idx = idx;
+            div.addEventListener('click', () => selectOption(idx));
+            optionsEl.appendChild(div);
+        });
+    }
+
+    function selectOption(idx) {
+        if (answered) return;
+        answered = true;
+        const q = questions[current];
+        const options = optionsEl.querySelectorAll('.option');
+        options.forEach((el, i) => {
+            el.classList.add('disabled');
+            if (i === q.answer) el.classList.add('correct');
+            if (i === idx && idx !== q.answer) el.classList.add('wrong');
+        });
+
+        if (idx === q.answer) {
+            score++;
+            scoreSpan.textContent = score;
+            feedbackEl.innerHTML = '<span class="correct">✅ Bonne réponse !</span>';
+            playSound(true);
+        } else {
+            feedbackEl.innerHTML = `<span class="wrong">❌ La bonne réponse était : ${q.options[q.answer]}</span>`;
+            playSound(false);
+        }
+        nextBtn.disabled = false;
+    }
+
+    function playSound(correct) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = correct ? 880 : 440;
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } catch(e){}
+    }
+
+    function nextQuestion() {
+        if (current < questions.length - 1) {
+            current++;
+            loadQuestion();
+        } else {
+            // Fin du quiz
+            questionEl.textContent = "🎉 Quiz terminé !";
+            optionsEl.innerHTML = `<p style="text-align:center;font-size:1.2rem;font-weight:700;color:#10b981;">Votre score : ${score} / ${questions.length}</p>`;
+            feedbackEl.innerHTML = '';
+            nextBtn.disabled = true;
+            // Afficher un message de fin
+            const container = document.querySelector('.container');
+            const btnGroup = document.querySelector('.btn-group');
+            const newBtn = document.createElement('button');
+            newBtn.className = 'btn';
+            newBtn.innerHTML = '<i class="fas fa-redo"></i> Rejouer';
+            newBtn.onclick = () => { current = 0; score = 0; scoreSpan.textContent = '0'; loadQuestion(); };
+            btnGroup.insertBefore(newBtn, btnGroup.firstChild);
+            nextBtn.style.display = 'none';
+        }
+    }
+
+    nextBtn.addEventListener('click', nextQuestion);
+    loadQuestion();
+</script>
+</body>
+</html>

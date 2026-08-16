@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory - SCAN&TCHOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fdf8f4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: #fff;
+            border-radius: 32px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #0b1a2e;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        h1 i {
+            color: #e67e22;
+        }
+        .sub {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .stats .attempts {
+            color: #e67e22;
+        }
+        .stats .matched {
+            color: #10b981;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .card {
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            cursor: pointer;
+            transition: 0.25s ease;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+            user-select: none;
+        }
+        .card.flipped {
+            background: #fef3e8;
+            border-color: #e67e22;
+            transform: scale(0.96);
+        }
+        .card.matched {
+            background: #d1fae5;
+            border-color: #10b981;
+            cursor: default;
+            opacity: 0.7;
+        }
+        .card i {
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .card.flipped i, .card.matched i {
+            opacity: 1;
+        }
+        .card:hover:not(.flipped):not(.matched) {
+            transform: scale(1.02);
+            border-color: #e67e22;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #e67e22;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 24px;
+            text-decoration: none;
+            box-shadow: 0 4px 16px rgba(230,126,34,0.25);
+        }
+        .btn-back:hover {
+            background: #cf6f1b;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(230,126,34,0.35);
+        }
+        .win-message {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #10b981;
+            margin-top: 16px;
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .grid { gap: 8px; }
+            .card { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-brain"></i> Memory</h1>
+    <p class="sub">Retrouvez les paires d'icônes</p>
+    <div class="stats">
+        <span>🔄 Tentatives : <span class="attempts" id="attempts">0</span></span>
+        <span>✅ Paires trouvées : <span class="matched" id="matched">0</span> / 8</span>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="win-message" id="winMessage">🎉 Félicitations ! Vous avez trouvé toutes les paires !</div>
+    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:20px;">
+        <button class="btn-back" onclick="location.reload()"><i class="fas fa-redo"></i> Nouvelle partie</button>
+        <a href="javascript:history.back()" class="btn-back" style="background:#64748b; box-shadow:0 4px 16px rgba(100,116,139,0.25);"><i class="fas fa-arrow-left"></i> Retour</a>
+    </div>
+</div>
+<script>
+    const icons = ['🍕','🍔','🌮','🥗','🍣','🍰','🍩','🥤'];
+    let cards = [];
+    let first = null, second = null, lock = false;
+    let attempts = 0, matched = 0;
+    const grid = document.getElementById('grid');
+    const attemptsSpan = document.getElementById('attempts');
+    const matchedSpan = document.getElementById('matched');
+    const winMsg = document.getElementById('winMessage');
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function initGame() {
+        const deck = shuffle([...icons, ...icons]);
+        cards = deck.map((icon, idx) => ({ id: idx, icon, matched: false, flipped: false }));
+        render();
+    }
+
+    function render() {
+        grid.innerHTML = '';
+        cards.forEach((card, index) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            if (card.flipped) div.classList.add('flipped');
+            if (card.matched) div.classList.add('matched');
+            div.innerHTML = `<i class="fas fa-${card.icon}"></i>`;
+            div.dataset.index = index;
+            div.addEventListener('click', () => flipCard(index));
+            grid.appendChild(div);
+        });
+    }
+
+    function flipCard(index) {
+        if (lock) return;
+        const card = cards[index];
+        if (card.matched || card.flipped) return;
+        card.flipped = true;
+        render();
+        if (!first) {
+            first = index;
+            return;
+        }
+        second = index;
+        lock = true;
+        attempts++;
+        attemptsSpan.textContent = attempts;
+
+        const firstCard = cards[first];
+        const secondCard = cards[second];
+        if (firstCard.icon === secondCard.icon) {
+            firstCard.matched = true;
+            secondCard.matched = true;
+            matched++;
+            matchedSpan.textContent = matched;
+            resetTurn();
+            if (matched === 8) {
+                winMsg.style.display = 'block';
+                if (window.soundEnabled) playSuccessSound();
+            }
+        } else {
+            setTimeout(() => {
+                firstCard.flipped = false;
+                secondCard.flipped = false;
+                render();
+                resetTurn();
+            }, 700);
+        }
+    }
+
+    function resetTurn() {
+        first = null;
+        second = null;
+        lock = false;
+    }
+
+    function playSuccessSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count >= 3) { clearInterval(interval); return; }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = [660, 880, 1100][count];
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+                count++;
+            }, 300);
+        } catch(e){}
+    }
+
+    initGame();
+</script>
+</body>
+</html>
