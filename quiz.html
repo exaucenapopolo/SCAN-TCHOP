@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quiz - SCAN&TCHOP</title>
+    <title>Quiz Pro - Application Interactive</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family:'Inter',sans-serif;
-            background:#fdf8f4;
+            background:linear-gradient(135deg, #fdf8f4 0%, #f1f5f9 100%);
             min-height:100vh;
             display:flex;
             align-items:center;
@@ -18,52 +18,36 @@
             padding:24px;
         }
         .container {
-            max-width:600px;
+            max-width:650px;
             width:100%;
             background:#fff;
             border-radius:32px;
-            padding:32px 28px;
-            box-shadow:0 20px 40px rgba(0,0,0,0.06);
+            padding:36px 30px;
+            box-shadow:0 20px 40px rgba(0,0,0,0.08);
             border:1px solid #e2e8f0;
         }
+        .header-game {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
         h1 {
-            font-family:'Playfair Display',serif;
-            font-weight:700;
-            font-size:2rem;
+            font-size:1.6rem;
+            font-weight:800;
             color:#0b1a2e;
-            text-align:center;
         }
         h1 i { color:#e67e22; }
-        .sub { text-align:center; color:#64748b; margin-bottom:24px; }
-        .question {
-            font-size:1.2rem;
-            font-weight:600;
-            margin-bottom:20px;
-            color:#0b1a2e;
+        .category-badge {
+            background: #fef3e8;
+            color: #e67e22;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .options {
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:12px;
-        }
-        .option {
-            background:#f8fafc;
-            border:2px solid #e2e8f0;
-            border-radius:16px;
-            padding:16px;
-            font-weight:600;
-            cursor:pointer;
-            transition:0.2s;
-            text-align:center;
-        }
-        .option:hover:not(.disabled) {
-            border-color:#e67e22;
-            background:#fef3e8;
-            transform:translateY(-2px);
-        }
-        .option.correct { background:#d1fae5; border-color:#10b981; }
-        .option.wrong { background:#fee2e2; border-color:#ef4444; }
-        .option.disabled { cursor:default; opacity:0.7; }
         .stats {
             display:flex;
             justify-content:space-between;
@@ -72,97 +56,151 @@
             border-radius:16px;
             margin-bottom:24px;
             font-weight:600;
+            font-size: 0.95rem;
+            color: #475569;
         }
         .stats .score { color:#e67e22; }
+        .question {
+            font-size:1.25rem;
+            font-weight:700;
+            margin-bottom:24px;
+            color:#0b1a2e;
+            line-height: 1.4;
+        }
+        .options {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:14px;
+        }
+        .option {
+            background:#f8fafc;
+            border:2px solid #e2e8f0;
+            border-radius:16px;
+            padding:16px;
+            font-weight:600;
+            font-size: 0.95rem;
+            cursor:pointer;
+            transition:all 0.2s ease;
+            text-align:center;
+            color: #1e293b;
+        }
+        .option:hover:not(.disabled) {
+            border-color:#e67e22;
+            background:#fef3e8;
+            transform:translateY(-2px);
+        }
+        .option.correct { background:#d1fae5 !important; border-color:#10b981 !important; color:#065f46 !important; }
+        .option.wrong { background:#fee2e2 !important; border-color:#ef4444 !important; color:#991b1b !important; }
+        .option.disabled { cursor:default; opacity:0.85; }
         .btn-group {
             display:flex;
             justify-content:center;
             gap:12px;
-            margin-top:24px;
-            flex-wrap:wrap;
+            margin-top:28px;
         }
         .btn {
-            padding:12px 28px;
+            padding:14px 32px;
             border-radius:50px;
             font-weight:700;
-            font-size:0.95rem;
+            font-size:1rem;
             border:none;
             cursor:pointer;
-            transition:0.3s;
+            transition:all 0.3s ease;
             background:#e67e22;
             color:#fff;
             box-shadow:0 4px 16px rgba(230,126,34,0.25);
         }
         .btn:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(230,126,34,0.35); background:#cf6f1b; }
-        .btn-secondary { background:#64748b; box-shadow:0 4px 16px rgba(100,116,139,0.2); }
-        .btn-secondary:hover { background:#475569; }
-        .btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow: none; }
         .feedback {
-            margin-top:16px;
+            margin-top:20px;
             font-weight:600;
             font-size:1rem;
-            min-height:2rem;
+            min-height:2.2rem;
             text-align:center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .feedback .correct { color:#10b981; }
-        .feedback .wrong { color:#ef4444; }
         @media (max-width:480px) {
             .options { grid-template-columns:1fr; }
-            .container { padding:20px 16px; }
+            .container { padding:24px 18px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1><i class="fas fa-question-circle"></i> Quiz</h1>
-    <p class="sub">Testez vos connaissances culinaires</p>
+    <div class="header-game">
+        <h1><i class="fas fa-brain"></i> Quiz Pro</h1>
+        <span class="category-badge" id="categoryBadge">Général</span>
+    </div>
     <div class="stats">
         <span>⭐ Score : <span class="score" id="score">0</span></span>
-        <span>📌 Question <span id="qNum">1</span>/<span id="totalQ">6</span></span>
+        <span>📌 Question <span id="qNum">1</span> / <span id="totalQ">10</span></span>
     </div>
-    <div class="question" id="question">Chargement...</div>
+    <div class="question" id="question">Chargement des questions...</div>
     <div class="options" id="options"></div>
     <div class="feedback" id="feedback"></div>
     <div class="btn-group">
         <button class="btn" id="nextBtn" disabled><i class="fas fa-forward"></i> Suivant</button>
-        <a href="javascript:history.back()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
 </div>
+
 <script>
-    const questions = [
-        {
-            q: "Quel fromage est utilisé dans la fondue savoyarde ?",
-            options: ["Emmental", "Comté", "Beaufort", "Tomme"],
-            answer: 2
-        },
-        {
-            q: "Quel pays est le plus grand producteur de vin ?",
-            options: ["France", "Italie", "Espagne", "États-Unis"],
-            answer: 1
-        },
-        {
-            q: "Qu'est-ce que le 'umami' ?",
-            options: ["Une épice", "Le goût salé", "Le goût sucré", "Le cinquième goût"],
-            answer: 3
-        },
-        {
-            q: "Quel fruit est le plus consommé dans le monde ?",
-            options: ["Banane", "Pomme", "Orange", "Tomate"],
-            answer: 0
-        },
-        {
-            q: "D'où vient la pizza Margherita ?",
-            options: ["Rome", "Naples", "Milan", "Florence"],
-            answer: 1
-        },
-        {
-            q: "Quelle est la principale épice du curry ?",
-            options: ["Cumin", "Curcuma", "Coriandre", "Gingembre"],
-            answer: 1
-        }
+    // Base de données riche couvrant divers domaines (Cuisine, Tech, Science, Histoire, Géographie, Sport, Culture Générale)
+    const allQuestions = [
+        // Cuisine
+        { cat: "Cuisine", q: "Quel fromage est utilisé traditionnellement dans la fondue savoyarde ?", options: ["Emmental", "Comté & Beaufort", "Roquefort", "Maroilles"], answer: 1 },
+        { cat: "Cuisine", q: "Quel pays est le plus grand producteur de vin au monde ?", options: ["France", "Italie", "Espagne", "Chili"], answer: 1 },
+        { cat: "Cuisine", q: "Qu'est-ce que le 'umami' ?", options: ["Une épice asiatique", "Le goût salé", "Le cinquième goût de saveur", "Une technique de cuisson"], answer: 2 },
+        { cat: "Cuisine", q: "Quel fruit est botaniquement parlant une 'baisse' géante mais consommé comme un légume (tomate) ?", options: ["La banane", "La tomate", "L'avocat", "Le concombre"], answer: 1 },
+        { cat: "Cuisine", q: "D'où vient originellement la pizza Margherita ?", options: ["Rome", "Milan", "Naples", "Florence"], answer: 2 },
+        { cat: "Cuisine", q: "Quelle épice donne sa couleur jaune au curry ?", options: ["Le cumin", "Le curcuma", "Le paprika", "Le safran"], answer: 1 },
+        { cat: "Cuisine", q: "Quel ingrédient est indispensable pour faire une véritable mayonnaise ?", options: ["Du lait", "De la moutarde", "Du jaune d'œuf", "Du beurre fondu"], answer: 2 },
+        { cat: "Cuisine", q: "Quel est l'alcool de base de la piña colada ?", options: ["La vodka", "Le rhum", "La tequila", "Le gin"], answer: 1 },
+        { cat: "Cuisine", q: "Quel pays produit le chocolat praliné de renommée mondiale ?", options: ["La Belgique", "Le Brésil", "Le Mexique", "Le Japon"], answer: 0 },
+        { cat: "Cuisine", q: "Quelle herbe aromatique entre dans la composition du pesto traditionnel ?", options: ["Le persil", "La coriandre", "Le basilic", "L'estragon"], answer: 2 },
+
+        // Technologie & Numérique
+        { cat: "Technologie", q: "Que signifie l'acronyme HTML en programmation web ?", options: ["HyperText Markup Language", "High Tech Modern Language", "HyperTransfer Machine Language", "Home Tool Markup Language"], answer: 0 },
+        { cat: "Technologie", q: "Quel langage est principalement utilisé pour styliser les pages web ?", options: ["Python", "CSS", "SQL", "Java"], answer: 1 },
+        { cat: "Technologie", q: "En quelle année le réseau Internet (World Wide Web) a-t-il été inventé par Tim Berners-Lee ?", options: ["1975", "1989", "1995", "2000"], answer: 1 },
+        { cat: "Technologie", q: "Quel géant de la tech a été fondé par Steve Jobs et Steve Wozniak dans un garage ?", options: ["Microsoft", "Google", "Apple", "IBM"], answer: 2 },
+        { cat: "Technologie", q: "Que mesure-t-on avec l'unité appelée 'Gigaoctet' (Go) ?", options: ["Une vitesse de connexion", "Un espace de stockage", "Une fréquence processeur", "Une résolution d'écran"], answer: 1 },
+        { cat: "Technologie", q: "Quel protocole sécurisé est indiqué par 'https://' dans une URL ?", options: ["HyperText Transfer Protocol Secure", "High Transmission Private Service", "Host Transfer Secure System", "Hyperlink Technical Secure Protocol"], answer: 0 },
+        { cat: "Technologie", q: "Quel système d'exploitation mobile est développé par Google ?", options: ["iOS", "Windows Phone", "Android", "Symbian"], answer: 2 },
+        { cat: "Technologie", q: "Comment appelle-t-on une erreur informatique dans un programme ?", options: ["Un virus", "Un bug", "Un cache", "Un cookie"], answer: 1 },
+
+        // Science & Espace
+        { cat: "Science", q: "Quel est l'élément chimique dont le symbole est Fe ?", options: ["Le fer", "Le fluor", "Le francium", "Le fermium"], answer: 0 },
+        { cat: "Science", q: "Quelle est la planète la plus proche du Soleil ?", options: ["Vénus", "Mars", "Mercure", "Terre"], answer: 2 },
+        { cat: "Science", q: "Combien de cœurs possède une pieuvre ?", options: ["1", "2", "3", "4"], answer: 2 },
+        { cat: "Science", q: "Quel gaz compose la majeure partie de l'atmosphère de la Terre ?", options: ["L'oxygène", "Le dioxyde de carbone", "L'azote", "L'hydrogène"], answer: 2 },
+        { cat: "Science", q: "Quelle est la vitesse approximative de la lumière dans le vide ?", options: ["300 000 km/s", "150 000 km/s", "1 080 km/h", "3 000 000 km/s"], answer: 0 },
+        { cat: "Science", q: "Quel scientifique a formulé la théorie de la relativité restreinte ?", options: ["Isaac Newton", "Albert Einstein", "Galilée", "Nikola Tesla"], answer: 1 },
+        { cat: "Science", q: "Quel organe du corps humain consomme le plus d'énergie au repos ?", options: ["Le cœur", "Le foie", "Le cerveau", "Les muscles"], answer: 2 },
+
+        // Géographie & Histoire
+        { cat: "Culture Générale", q: "Quelle est la capitale de l'Australie ?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], answer: 2 },
+        { cat: "Culture Générale", q: "Quel est le plus grand océan de la planète ?", options: ["Océan Atlantique", "Océan Indien", "Océan Arctique", "Océan Pacifique"], answer: 3 },
+        { cat: "Culture Générale", q: "Dans quel pays se trouve la célèbre cité antique de Petra ?", options: ["L'Égypte", "La Jordanie", "La Grèce", "La Turquie"], answer: 1 },
+        { cat: "Culture Générale", q: "Quel fleuve traverse la ville de Paris ?", options: ["Le Rhône", "La Loire", "La Seine", "La Garonne"], answer: 2 },
+        { cat: "Culture Générale", q: "Quel pays compte le plus d'habitants au monde aujourd'hui ?", options: ["Les États-Unis", "La Chine", "L'Inde", "La Russie"], answer: 2 },
+        { cat: "Culture Générale", q: "En quelle année a eu lieu la chute du mur de Berlin ?", options: ["1985", "1989", "1991", "1995"], answer: 1 },
+        { cat: "Culture Générale", q: "Quel pays a offert la Statue de la Liberté aux États-Unis ?", options: ["L'Angleterre", "La France", "L'Italie", "L'Espagne"], answer: 1 },
+
+        // Sport & Divertissement
+        { cat: "Divertissement", q: "Combien de joueurs composent une équipe de football sur un terrain ?", options: ["9", "10", "11", "12"], answer: 2 },
+        { cat: "Divertissement", q: "Dans quel pays les Jeux Olympiques modernes sont-ils nés en 1896 ?", options: ["La France", "La Grèce", "L'Italie", "Le Royaume-Uni"], answer: 1 },
+        { cat: "Divertissement", q: "Quel compositeur a écrit la célèbre Neuvième Symphonie malgré sa surdité ?", options: ["Mozart", "Bach", "Beethoven", "Chopin"], answer: 2 },
+        { cat: "Divertissement", q: "Quel acteur incarne l'agent secret James Bond dans le film 'Casino Royale' (2006) ?", options: ["Pierce Brosnan", "Daniel Craig", "Sean Connery", "Roger Moore"], answer: 1 }
     ];
 
+    // Configuration de la session de jeu (ex: 10 questions par partie)
+    const SESSION_LENGTH = 10;
+    let sessionQuestions = [];
     let current = 0, score = 0, answered = false;
+
     const questionEl = document.getElementById('question');
     const optionsEl = document.getElementById('options');
     const feedbackEl = document.getElementById('feedback');
@@ -170,13 +208,52 @@
     const qNum = document.getElementById('qNum');
     const totalQ = document.getElementById('totalQ');
     const nextBtn = document.getElementById('nextBtn');
+    const categoryBadge = document.getElementById('categoryBadge');
 
-    totalQ.textContent = questions.length;
+    function initQuiz() {
+        // Gestion anti-répétition via localStorage
+        let usedIndices = JSON.parse(localStorage.getItem('quiz_used_indices') || '[]');
+        
+        // Si toutes les questions ont déjà été faites, on réinitialise l'historique
+        if (usedIndices.length >= allQuestions.length) {
+            usedIndices = [];
+        }
+
+        // Filtrer les indices disponibles
+        let availableIndices = [];
+        for (let i = 0; i < allQuestions.length; i++) {
+            if (!usedIndices.includes(i)) {
+                availableIndices.push(i);
+            }
+        }
+
+        // Mélanger les indices disponibles
+        availableIndices.sort(() => Math.random() - 0.5);
+
+        // Sélectionner un sous-ensemble pour cette session
+        let selectedIndices = availableIndices.slice(0, SESSION_LENGTH);
+        
+        // Sauvegarder les nouveaux indices utilisés
+        usedIndices.push(...selectedIndices);
+        localStorage.setItem('quiz_used_indices', JSON.stringify(usedIndices));
+
+        // Construire le tableau de questions de la session
+        sessionQuestions = selectedIndices.map(index => allQuestions[index]);
+        
+        current = 0;
+        score = 0;
+        scoreSpan.textContent = '0';
+        totalQ.textContent = sessionQuestions.length;
+        nextBtn.style.display = 'inline-block';
+        
+        loadQuestion();
+    }
 
     function loadQuestion() {
         answered = false;
-        const q = questions[current];
+        const q = sessionQuestions[current];
         questionEl.textContent = q.q;
+        categoryBadge.textContent = q.cat;
         qNum.textContent = current + 1;
         optionsEl.innerHTML = '';
         feedbackEl.innerHTML = '';
@@ -186,7 +263,6 @@
             const div = document.createElement('div');
             div.className = 'option';
             div.textContent = opt;
-            div.dataset.idx = idx;
             div.addEventListener('click', () => selectOption(idx));
             optionsEl.appendChild(div);
         });
@@ -195,8 +271,9 @@
     function selectOption(idx) {
         if (answered) return;
         answered = true;
-        const q = questions[current];
+        const q = sessionQuestions[current];
         const options = optionsEl.querySelectorAll('.option');
+        
         options.forEach((el, i) => {
             el.classList.add('disabled');
             if (i === q.answer) el.classList.add('correct');
@@ -206,10 +283,10 @@
         if (idx === q.answer) {
             score++;
             scoreSpan.textContent = score;
-            feedbackEl.innerHTML = '<span class="correct">✅ Bonne réponse !</span>';
+            feedbackEl.innerHTML = '<span style="color:#10b981; font-weight:700;"><i class="fas fa-check-circle"></i> Bonne réponse !</span>';
             playSound(true);
         } else {
-            feedbackEl.innerHTML = `<span class="wrong">❌ La bonne réponse était : ${q.options[q.answer]}</span>`;
+            feedbackEl.innerHTML = `<span style="color:#ef4444; font-weight:700;"><i class="fas fa-times-circle"></i> Mauvaise réponse. La bonne était : ${q.options[q.answer]}</span>`;
             playSound(false);
         }
         nextBtn.disabled = false;
@@ -222,39 +299,44 @@
             const gain = audioCtx.createGain();
             osc.type = 'sine';
             osc.frequency.value = correct ? 880 : 440;
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
+            osc.stop(audioCtx.currentTime + 0.2);
         } catch(e){}
     }
 
     function nextQuestion() {
-        if (current < questions.length - 1) {
+        if (current < sessionQuestions.length - 1) {
             current++;
             loadQuestion();
         } else {
-            // Fin du quiz
-            questionEl.textContent = "🎉 Quiz terminé !";
-            optionsEl.innerHTML = `<p style="text-align:center;font-size:1.2rem;font-weight:700;color:#10b981;">Votre score : ${score} / ${questions.length}</p>`;
+            questionEl.textContent = "🎉 Partie terminée avec succès !";
+            categoryBadge.textContent = "Score Final";
+            optionsEl.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; font-size:1.4rem; font-weight:800; color:#0b1a2e; padding: 20px;">Votre score : ${score} / ${sessionQuestions.length}</div>`;
             feedbackEl.innerHTML = '';
-            nextBtn.disabled = true;
-            // Afficher un message de fin
-            const container = document.querySelector('.container');
-            const btnGroup = document.querySelector('.btn-group');
-            const newBtn = document.createElement('button');
-            newBtn.className = 'btn';
-            newBtn.innerHTML = '<i class="fas fa-redo"></i> Rejouer';
-            newBtn.onclick = () => { current = 0; score = 0; scoreSpan.textContent = '0'; loadQuestion(); };
-            btnGroup.insertBefore(newBtn, btnGroup.firstChild);
             nextBtn.style.display = 'none';
+
+            const btnGroup = document.querySelector('.btn-group');
+            if (!document.getElementById('restartBtn')) {
+                const restartBtn = document.createElement('button');
+                restartBtn.id = 'restartBtn';
+                restartBtn.className = 'btn';
+                restartBtn.innerHTML = '<i class="fas fa-redo"></i> Rejouer (Nouvelles questions)';
+                restartBtn.onclick = () => {
+                    restartBtn.remove();
+                    initQuiz();
+                };
+                btnGroup.appendChild(restartBtn);
+            }
         }
     }
 
     nextBtn.addEventListener('click', nextQuestion);
-    loadQuestion();
+    initQuiz();
 </script>
 </body>
-</html>
+    </html>
+    
