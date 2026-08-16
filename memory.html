@@ -7,11 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     
-    <!-- Ajout de la bibliothèque pour les confettis -->
+    <!-- Bibliothèque pour les animations de confettis -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* Les styles restent identiques et professionnels */
+        /* Variables de couleurs pour un design cohérent */
         :root {
             --primary: #0f172a;
             --accent: #e67e22;
@@ -39,7 +39,7 @@
             justify-content: center;
             padding: 20px;
             color: var(--text-main);
-            overflow-x: hidden; /* Empêche la page de bouger avec les confettis */
+            overflow-x: hidden; 
         }
 
         .app-container {
@@ -63,6 +63,7 @@
         .stats div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .stats span { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
+        /* Grille du jeu */
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; perspective: 1000px; }
         .card { aspect-ratio: 1; cursor: pointer; position: relative; }
         .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
@@ -78,6 +79,7 @@
         .win-message { text-align: center; background: #d1fae5; color: #065f46; padding: 16px; border-radius: 12px; font-weight: 700; margin-top: 24px; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+        /* Boutons d'action */
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
         .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; }
         .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2); }
@@ -85,6 +87,7 @@
         .btn-secondary { background: #f1f5f9; color: var(--text-main); }
         .btn-secondary:hover { background: #e2e8f0; }
 
+        /* Adaptabilité pour les petits écrans (mobiles) */
         @media (max-width: 480px) {
             .app-container { padding: 24px 16px; border-radius: 20px; }
             .grid { gap: 8px; }
@@ -116,71 +119,89 @@
     </div>
 
     <div class="actions">
-        <button class="btn btn-secondary" onclick="safeGoBack()"><i class="fas fa-arrow-left"></i> Retour</button>
-        <button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-redo"></i> Rejouer</button>
+        <!-- Bouton de retour qui pointe maintenant directement vers ton fichier -->
+        <a href="menu_public.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        <button class="btn btn-primary" onclick="location.reload()">
+            <i class="fas fa-redo"></i> Rejouer
+        </button>
     </div>
 </div>
 
 <script>
     /* =========================================
-       1. SYSTÈME AUDIO ET VIBRATION (NOUVEAU)
+       1. SYSTÈME AUDIO AVANCÉ (MÉLODIES)
        ========================================= */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Fonction pour générer un son de base
-    function playSound(type, frequency, duration, vol = 0.1) {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
+    // Fonction qui joue une note précise à un instant précis
+    // Utiliser "audioCtx.currentTime" est une excellente pratique de code car 
+    // l'horloge audio interne est infiniment plus précise que les setTimeout de JavaScript.
+    function playNote(frequency, startTime, duration, type = 'triangle', vol = 0.1) {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         
-        oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
-        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        oscillator.type = type; 
+        oscillator.frequency.value = frequency;
         
-        gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        // Enveloppe sonore pour éviter les "clics" désagréables en début et fin de note
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(vol, startTime + 0.02); // Montée rapide
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration); // Descente douce
         
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + duration);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
     }
 
-    // Gestionnaire global des effets (Sons + Vibrations)
+    // Gestionnaire des effets sonores et haptiques
     const FX = {
         click: () => {
-            playSound('sine', 600, 0.1, 0.05); // Son doux
-            if('vibrate' in navigator) navigator.vibrate(50); // Petite vibration
-        },
-        success: () => {
-            playSound('sine', 800, 0.1, 0.1);
-            setTimeout(() => playSound('sine', 1200, 0.2, 0.1), 100); // Double note joyeuse
-            if('vibrate' in navigator) navigator.vibrate([100, 50, 100]); // Double vibration
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            playNote(400, audioCtx.currentTime, 0.1, 'sine', 0.05);
+            if('vibrate' in navigator) navigator.vibrate(20); 
         },
         error: () => {
-            playSound('sawtooth', 200, 0.3, 0.05); // Son grave
-            if('vibrate' in navigator) navigator.vibrate(300); // Vibration longue
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            playNote(150, audioCtx.currentTime, 0.3, 'sawtooth', 0.05);
+            if('vibrate' in navigator) navigator.vibrate(150); 
+        },
+        success: () => {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            // Arpège ascendant plus professionnel : Do5 - Mi5 - Sol5
+            playNote(523.25, now, 0.15);         
+            playNote(659.25, now + 0.1, 0.15);   
+            playNote(783.99, now + 0.2, 0.3);    
+            if('vibrate' in navigator) navigator.vibrate([50, 30, 50]); 
         },
         win: () => {
-            // Petite mélodie de victoire
-            [523, 659, 783, 1046].forEach((freq, i) => {
-                setTimeout(() => playSound('sine', freq, 0.2, 0.1), i * 150);
-            });
-            if('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 300]);
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            // Fanfare triomphale de victoire ! (plus longue et satisfaisante)
+            playNote(261.63, now, 0.2);        // Do4
+            playNote(329.63, now + 0.2, 0.2);  // Mi4
+            playNote(392.00, now + 0.4, 0.2);  // Sol4
+            playNote(523.25, now + 0.6, 0.4);  // Do5
+            playNote(392.00, now + 1.0, 0.2);  // Sol4 (descente)
+            playNote(523.25, now + 1.2, 0.8);  // Do5 (note finale longue)
+            
+            if('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
         }
     };
 
     /* =========================================
-       2. SYSTÈME DE CONFETTIS (NOUVEAU)
+       2. SYSTÈME DE CONFETTIS
        ========================================= */
     function triggerConfetti() {
-        var duration = 3000; // Dure 3 secondes
+        var duration = 3000; 
         var end = Date.now() + duration;
 
         (function frame() {
-            // Confettis venant de la gauche
             confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e67e22', '#10b981', '#f1c40f'] });
-            // Confettis venant de la droite
             confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#e67e22', '#10b981', '#f1c40f'] });
 
             if (Date.now() < end) {
@@ -190,7 +211,7 @@
     }
 
     /* =========================================
-       3. LOGIQUE DU JEU (MISE À JOUR)
+       3. LOGIQUE DU JEU
        ========================================= */
     const icons = ['🍕','🍔','🌮','🥗','🍣','🍰','🍩','🥤'];
     let cards = [];
@@ -202,6 +223,7 @@
     const matchedSpan = document.getElementById('matched');
     const winMsg = document.getElementById('winMessage');
 
+    // Algorithme pour mélanger les cartes
     function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -216,6 +238,7 @@
         render();
     }
 
+    // Affichage des cartes
     function render() {
         grid.innerHTML = '';
         cards.forEach((card, index) => {
@@ -235,6 +258,7 @@
         });
     }
 
+    // Comportement au clic d'une carte
     function flipCard(index) {
         if (lock) return; 
         const card = cards[index];
@@ -243,7 +267,6 @@
         card.flipped = true;
         render();
         
-        // Joue le son de clic classique et vibre
         FX.click();
 
         if (first === null) {
@@ -260,28 +283,26 @@
         const secondCard = cards[second];
         
         if (firstCard.icon === secondCard.icon) {
-            // --- SUCCÈS : Paire trouvée ---
+            // L'utilisateur trouve une bonne paire
             firstCard.matched = true;
             secondCard.matched = true;
             matched++;
             matchedSpan.textContent = matched;
             
-            // Joue le son de réussite et vibre
-            FX.success();
+            FX.success(); // Joue l'arpège de réussite
             resetTurn();
             
+            // Vérification de la victoire
             if (matched === 8) {
                 setTimeout(() => {
                     winMsg.style.display = 'block';
-                    // --- VICTOIRE : Musique + Confettis ---
-                    FX.win();
+                    FX.win(); // Joue la longue fanfare
                     triggerConfetti();
                 }, 500);
             }
         } else {
-            // --- ÉCHEC : Mauvaise paire ---
+            // L'utilisateur se trompe
             setTimeout(() => {
-                // Joue le son d'erreur et vibre juste avant que les cartes se retournent
                 FX.error(); 
                 firstCard.flipped = false;
                 secondCard.flipped = false;
@@ -297,15 +318,7 @@
         lock = false;
     }
 
-    function safeGoBack() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.href = '/'; 
-        }
-    }
-
-    // Initialisation au démarrage
+    // Lancer le jeu
     initGame();
 </script>
 </body>
