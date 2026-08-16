@@ -1077,7 +1077,6 @@
             color: #065f46;
         }
 
-        /* ---- NOUVEAU BOUTON JEU ---- */
         .btn-game {
             background: #8b5cf6;
             color: #fff;
@@ -2564,20 +2563,20 @@
             <p style="text-align:center; color:var(--text-muted); margin-bottom:24px;">
                 Choisissez un jeu pour passer le temps en attendant votre commande.
             </p>
-            <div class="game-grid">
-                <a href="memory.html?restaurantId={{restaurantId}}&orderId={{activeOrderId}}" class="game-card" target="_blank">
+            <div class="game-grid" id="gameGrid">
+                <a href="#" class="game-card" target="_blank" data-game="memory">
                     <i class="fas fa-brain"></i>
                     <div class="game-name">Memory</div>
                     <div class="game-desc">Retrouvez les paires</div>
                     <button class="btn-play">Jouer</button>
                 </a>
-                <a href="clicker.html?restaurantId={{restaurantId}}&orderId={{activeOrderId}}" class="game-card" target="_blank">
+                <a href="#" class="game-card" target="_blank" data-game="clicker">
                     <i class="fas fa-hand-pointer"></i>
                     <div class="game-name">Clicker</div>
                     <div class="game-desc">Cliquez le plus vite possible</div>
                     <button class="btn-play">Jouer</button>
                 </a>
-                <a href="quiz.html?restaurantId={{restaurantId}}&orderId={{activeOrderId}}" class="game-card" target="_blank">
+                <a href="#" class="game-card" target="_blank" data-game="quiz">
                     <i class="fas fa-question-circle"></i>
                     <div class="game-name">Quiz</div>
                     <div class="game-desc">Testez vos connaissances</div>
@@ -3964,17 +3963,19 @@
         }
 
         // ============================================
-        // MODALE JEUX
+        // MODALE JEUX - mise à jour dynamique des liens
         // ============================================
         function openGameModal() {
-            // Injecter les paramètres dynamiques dans les liens
+            // Mettre à jour les liens avec les paramètres actuels
             const links = document.querySelectorAll('#modalGames .game-card');
             links.forEach(link => {
-                const href = link.getAttribute('href');
-                // Remplacer les placeholders par les vraies valeurs
-                let newHref = href.replace('{{restaurantId}}', restaurantId);
-                newHref = newHref.replace('{{activeOrderId}}', activeOrderId || '');
-                link.setAttribute('href', newHref);
+                const game = link.dataset.game;
+                let baseUrl = `${game}.html`;
+                const params = new URLSearchParams();
+                if (restaurantId) params.set('restaurantId', restaurantId);
+                if (activeOrderId) params.set('orderId', activeOrderId);
+                if (params.toString()) baseUrl += '?' + params.toString();
+                link.setAttribute('href', baseUrl);
             });
             openModal('modalGames');
         }
@@ -4321,6 +4322,9 @@
                 closeModal('modalOrder');
                 showToast(`Commande enregistrée avec succès ! Référence : ${refNumber}`, 'Succès', 'success');
 
+                // Affichage automatique de la modale "Jeux" après la commande
+                showGameModalAfterOrder(orderId);
+
             } catch (error) {
                 console.error(error);
                 showToast('Une erreur est survenue. Veuillez réessayer.', 'Erreur', 'error');
@@ -4328,6 +4332,34 @@
                 btn.disabled = false;
                 btn.innerHTML = oldText;
             }
+        }
+
+        // ============================================
+        // AFFICHAGE AUTOMATIQUE DE LA MODALE JEUX
+        // ============================================
+        function showGameModalAfterOrder(orderId) {
+            // Vérifier si déjà affichée pour cette commande
+            const sessionKey = `gameModalShown_${orderId}`;
+            if (sessionStorage.getItem(sessionKey) === 'true') return;
+
+            // Marquer comme affichée
+            sessionStorage.setItem(sessionKey, 'true');
+
+            // Attendre un peu pour laisser le suivi s'afficher
+            setTimeout(() => {
+                // Mettre à jour les liens des jeux avec les paramètres actuels
+                const links = document.querySelectorAll('#modalGames .game-card');
+                links.forEach(link => {
+                    const game = link.dataset.game;
+                    let baseUrl = `${game}.html`;
+                    const params = new URLSearchParams();
+                    if (restaurantId) params.set('restaurantId', restaurantId);
+                    if (orderId) params.set('orderId', orderId);
+                    if (params.toString()) baseUrl += '?' + params.toString();
+                    link.setAttribute('href', baseUrl);
+                });
+                openModal('modalGames');
+            }, 2000); // Délai de 2 secondes
         }
 
         // ============================================
@@ -4833,8 +4865,20 @@
             await loadRestaurantData();
             await loadMenuData();
 
-            // Vérifier s'il y a un paiement en attente
+            // Vérifier s'il y a un paiement en attente (au chargement)
             checkPendingPayment();
+
+            // Écouter le retour sur la page (pageshow, visibilitychange)
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    checkPendingPayment();
+                }
+            });
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    checkPendingPayment();
+                }
+            });
 
             const savedOrderId = localStorage.getItem('activeOrderId');
             if (savedOrderId) {
