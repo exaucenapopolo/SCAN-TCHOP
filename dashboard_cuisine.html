@@ -335,7 +335,7 @@
     /* ========== KANBAN ========== */
     .kanban {
       display:grid;
-      grid-template-columns:1fr 1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr 1fr 1fr; /* 5 colonnes */
       gap:20px;
     }
     .kanban-col {
@@ -533,6 +533,18 @@
       box-shadow:0 4px 15px rgba(14,165,233,0.25);
     }
     .btn-payment-confirm:hover { background:#0284c7; transform:translateY(-2px); }
+    .btn-verify-payment {
+      background:#8b5cf6;
+      color:#fff;
+      box-shadow:0 4px 15px rgba(139,92,246,0.25);
+    }
+    .btn-verify-payment:hover { background:#7c3aed; transform:translateY(-2px); }
+    .btn-cancel-order {
+      background:#ef4444;
+      color:#fff;
+      box-shadow:0 4px 15px rgba(239,68,68,0.25);
+    }
+    .btn-cancel-order:hover { background:#dc2626; transform:translateY(-2px); }
 
     .badge {
       padding:4px 12px;
@@ -550,6 +562,8 @@
     .badge-purple { background:#e8daef; color:#6c3483; }
     .badge-payment { background:#fef9e7; color:#7d6608; }
     .badge-paid { background:#d5f5e3; color:#1e8449; }
+    .badge-unpaid { background:#fadbd8; color:#922b21; }
+    .badge-refused { background:#fadbd8; color:#922b21; }
 
     /* ========== FILTRES ========== */
     .filter-group {
@@ -645,7 +659,7 @@
       background:#fff;
       border-radius:28px;
       width:100%;
-      max-width:640px;
+      max-width:720px;
       max-height:90vh;
       display:flex;
       flex-direction:column;
@@ -1043,7 +1057,7 @@
 
     /* ========== RESPONSIVE ========== */
     @media (max-width:1200px) {
-      .kanban { grid-template-columns:1fr 1fr; }
+      .kanban { grid-template-columns:1fr 1fr 1fr; }
     }
     @media (max-width:1024px) {
       .grid-4 { grid-template-columns:repeat(2,1fr); }
@@ -1197,6 +1211,7 @@
               <option value="en préparation">En préparation</option>
               <option value="prêt">Prêt</option>
               <option value="terminé">Terminé</option>
+              <option value="refusée">Refusée</option>
             </select>
           </div>
           <div>
@@ -1228,6 +1243,10 @@
             <div class="kanban-col" data-status="terminé">
               <h4>Terminés <span class="badge" id="countTermine">0</span></h4>
               <div id="col-termine"></div>
+            </div>
+            <div class="kanban-col" data-status="refusée" style="border-left:4px solid var(--danger);">
+              <h4>Refusées <span class="badge badge-danger" id="countRefusee">0</span></h4>
+              <div id="col-refusee"></div>
             </div>
           </div>
         </div>
@@ -1300,7 +1319,6 @@
             <label>Type d'alerte / Voix</label>
             <select id="voiceSelect" class="form-control">
               <option value="sonnerie">🔔 Sonnerie</option>
-              <!-- Les voix seront ajoutées dynamiquement -->
             </select>
           </div>
           <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
@@ -1701,7 +1719,7 @@
 
     function updateStats() {
       const rightNow = new Date().toDateString();
-      let dailyCount = 0, dailyCA = 0, enCours = 0, retards = 0;
+      let dailyCount = 0, dailyCA = 0, enCours = 0, retards = 0, refuses = 0;
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toDateString();
       let yesterdayCount = 0, yesterdayCA = 0, yesterdayEnCours = 0;
@@ -1710,8 +1728,7 @@
 
       toutesLesCommandes.forEach(o => {
         const d = o.dateObj ? o.dateObj.toDateString() : '';
-        // Ne comptabiliser que les commandes payées (Mobile Money ou espèces confirmées)
-        const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé') || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
+        const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé' && o.paymentConfirmed === true) || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
         if (d === rightNow) {
           dailyCount++;
           if (isPaid) {
@@ -1733,6 +1750,7 @@
           const elapsed = (new Date() - start) / 60000;
           if (elapsed > o.tempsEstime) retards++;
         }
+        if (o.status === 'refusée') refuses++;
       });
 
       enCours += menuItemsInPrep;
@@ -1780,7 +1798,7 @@
         let sum = 0;
         toutesLesCommandes.forEach(o => {
           if(o.dateObj && o.dateObj.toDateString() === d.toDateString()) {
-            const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé') || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
+            const isPaid = (o.paymentMode === 'mobile' && o.status !== 'annulé' && o.paymentConfirmed === true) || (o.paymentMode === 'cash' && o.paymentConfirmed === true);
             if (isPaid) sum += parseFloat(o.montant || o.total || 0);
           }
         });
@@ -1895,7 +1913,14 @@
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) return;
       if (order.status === 'en préparation' || order.tempsEstime) return;
-      
+
+      // Vérifier si le paiement est confirmé pour les commandes Mobile Money
+      if (order.paymentMode === 'mobile' && !order.paymentConfirmed) {
+        // Ne pas proposer de démarrer tant que le paiement n'est pas confirmé
+        showToast('⚠️ Paiement Mobile Money non confirmé. Vérifiez le paiement avant de démarrer.', 'warning');
+        return;
+      }
+
       const html = `
         <p><strong>#${order.reference || order.id.substring(0,6).toUpperCase()}</strong> — Table ${order.table || order.tableNumber || '?'}</p>
         <p style="color:var(--text-muted); margin-bottom:16px;">Veuillez estimer le temps de préparation pour cette commande.</p>
@@ -1928,18 +1953,20 @@
       'en attente': 'col-en-attente',
       'en préparation': 'col-en-preparation',
       'prêt': 'col-pret',
-      'terminé': 'col-termine'
+      'terminé': 'col-termine',
+      'refusée': 'col-refusee'
     };
 
     const statusToCountId = {
       'en attente': 'countEnAttente',
       'en préparation': 'countEnPreparation',
       'prêt': 'countPret',
-      'terminé': 'countTermine'
+      'terminé': 'countTermine',
+      'refusée': 'countRefusee'
     };
 
     // ============================================================
-    //  RENDU KANBAN (avec masquage des colonnes vides selon filtre)
+    //  RENDU KANBAN (avec colonne Refusées)
     // ============================================================
     function renderKanban() {
       const filter = document.getElementById('filterCommandes').value;
@@ -1968,7 +1995,8 @@
         'en attente': [],
         'en préparation': [],
         'prêt': [],
-        'terminé': []
+        'terminé': [],
+        'refusée': []
       };
       filtered.forEach(o => {
         if (cols[o.status]) cols[o.status].push(o);
@@ -2049,16 +2077,36 @@
           const phoneInfo = order.phone ? `<span style="font-size:0.75rem;color:var(--text-muted);"><i class="fas fa-phone"></i> ${order.phone}</span>` : '';
           
           let paidBadge = '';
-          if (order.paymentMode === 'cash' && order.paymentConfirmed === true) {
+          if (order.paymentConfirmed) {
             paidBadge = `<span class="badge badge-paid">✅ Payé</span>`;
+          } else if (order.paymentMode === 'mobile' && !order.paymentConfirmed) {
+            paidBadge = `<span class="badge badge-unpaid">⏳ En attente de confirmation</span>`;
+          } else if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+            paidBadge = `<span class="badge badge-unpaid">⏳ Encaissement en attente</span>`;
+          }
+
+          // Affichage du split
+          let splitInfo = '';
+          if (order.isSplit && order.splitCount > 1) {
+            splitInfo = `<span style="font-size:0.75rem;color:var(--text-muted);"><i class="fas fa-users"></i> Partagé (${order.splitCount} pers.)</span>`;
           }
 
           let actionsHtml = '';
           if (order.status === 'en attente') {
-            actionsHtml = `
-              <button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>
-              <button class="btn btn-danger btn-sm" onclick="refuserCommande('${order.id}')"><i class="fas fa-times"></i> Refuser</button>
-            `;
+            // Vérifier si on peut démarrer (pour Mobile Money, il faut paymentConfirmed)
+            let canStart = true;
+            if (order.paymentMode === 'mobile' && !order.paymentConfirmed) {
+              canStart = false;
+              actionsHtml += `<button class="btn btn-verify-payment btn-sm" onclick="verifierPaiementMobile('${order.id}')"><i class="fas fa-search"></i> Vérifier paiement</button>`;
+              actionsHtml += `<button class="btn btn-cancel-order btn-sm" onclick="annulerCommande('${order.id}')"><i class="fas fa-times"></i> Annuler</button>`;
+            } else if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+              canStart = false;
+              actionsHtml += `<span class="badge badge-warning">En attente encaissement</span>`;
+            }
+            if (canStart) {
+              actionsHtml += `<button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>`;
+              actionsHtml += `<button class="btn btn-danger btn-sm" onclick="refuserCommande('${order.id}')"><i class="fas fa-times"></i> Refuser</button>`;
+            }
           } else if (order.status === 'en préparation') {
             actionsHtml = `
               <button class="btn btn-success btn-sm" onclick="readyOrder('${order.id}')"><i class="fas fa-check-double"></i> Prêt</button>
@@ -2083,6 +2131,7 @@
               ${timerHtml}
             </div>
             ${phoneInfo}
+            ${splitInfo}
             <div class="ticket-items">
               <ul>${itemsHtml}</ul>
             </div>
@@ -2102,7 +2151,8 @@
         'en attente': { class: 'badge-warning', label: 'En attente' },
         'en préparation': { class: 'badge-info', label: 'En préparation' },
         'prêt': { class: 'badge-success', label: 'Prêt' },
-        'terminé': { class: 'badge-danger', label: 'Terminé' }
+        'terminé': { class: 'badge-danger', label: 'Terminé' },
+        'refusée': { class: 'badge-refused', label: 'Refusée' }
       };
       return map[status] || { class: 'badge-warning', label: status || 'En attente' };
     }
@@ -2124,6 +2174,93 @@
         badge.style.display = 'none';
       }
     }
+
+    // ============================================================
+    //  VÉRIFICATION PAIEMENT MOBILE MONEY (via Fapshi)
+    // ============================================================
+    window.verifierPaiementMobile = async function(orderId) {
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) { showToast('Commande introuvable', 'error'); return; }
+      if (order.paymentMode !== 'mobile') { showToast('Cette commande n\'est pas en Mobile Money', 'warning'); return; }
+
+      const transId = order.fapshiTransId;
+      if (!transId) {
+        showToast('Aucun identifiant de transaction trouvé. Le paiement n\'a peut-être pas été initié.', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/check-payment-status/${transId}`);
+        const data = await response.json();
+        if (!data.success) {
+          showToast('Erreur lors de la vérification: ' + (data.error || 'inconnue'), 'error');
+          return;
+        }
+        if (data.isSuccessful) {
+          // Paiement confirmé
+          await db.collection('orders').doc(orderId).update({
+            paymentConfirmed: true,
+            paymentStatus: 'PAID'
+          });
+          showToast('✅ Paiement confirmé ! Vous pouvez démarrer la préparation.', 'success');
+          alertUser('Paiement confirmé pour la commande ' + (order.reference || order.id), 'notification');
+          renderKanban();
+        } else {
+          showToast(`❌ Paiement non confirmé. Statut actuel: ${data.status}`, 'error');
+          // Proposer d'annuler la commande
+          if (confirm('Le paiement n\'a pas été confirmé. Souhaitez-vous annuler cette commande ?')) {
+            await annulerCommande(orderId, 'Paiement Mobile Money non confirmé');
+          }
+        }
+      } catch (error) {
+        console.error('Erreur vérification paiement:', error);
+        showToast('Erreur réseau lors de la vérification.', 'error');
+      }
+    };
+
+    // ============================================================
+    //  ANNULER UNE COMMANDE (avec motif)
+    // ============================================================
+    window.annulerCommande = async function(orderId, motif = 'Annulée par la cuisine') {
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) { showToast('Commande introuvable', 'error'); return; }
+      
+      if (!motif) {
+        const html = `
+          <div class="form-group">
+            <label>Motif de l'annulation</label>
+            <input type="text" id="annulationMotif" class="form-control" placeholder="Raison de l'annulation" value="${motif}" />
+          </div>
+        `;
+        openModal('Annuler la commande', html, async () => {
+          const raison = document.getElementById('annulationMotif').value.trim() || 'Annulée par la cuisine';
+          await db.collection('orders').doc(orderId).update({
+            status: 'refusée',
+            refusMotif: raison,
+            refusSuggestion: 'Veuillez contacter le restaurant pour plus d\'informations.',
+            refusPar: currentUser.uid,
+            refusParNom: currentUser.displayName || currentUser.email || 'Cuisinier',
+            refusAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          showToast('Commande annulée', 'info');
+          alertUser('Commande annulée pour motif: ' + raison, 'notification');
+          renderKanban();
+          closeModal();
+        });
+      } else {
+        await db.collection('orders').doc(orderId).update({
+          status: 'refusée',
+          refusMotif: motif,
+          refusSuggestion: 'Veuillez contacter le restaurant pour plus d\'informations.',
+          refusPar: currentUser.uid,
+          refusParNom: currentUser.displayName || currentUser.email || 'Cuisinier',
+          refusAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Commande annulée', 'info');
+        alertUser('Commande annulée pour motif: ' + motif, 'notification');
+        renderKanban();
+      }
+    };
 
     // ============================================================
     //  CONFIRMATION PAIEMENT ESPÈCES
@@ -2189,6 +2326,18 @@
     //  ACTIONS SUR COMMANDES (start, ready, alert, details, prolonger, refuser)
     // ============================================================
     window.startOrder = async function(orderId) {
+      // Vérifier paiement avant de démarrer (sécurité)
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) return;
+      if (order.paymentMode === 'mobile' && !order.paymentConfirmed) {
+        showToast('⚠️ Paiement Mobile Money non confirmé. Vérifiez le paiement avant de démarrer.', 'warning');
+        return;
+      }
+      if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
+        showToast('⚠️ Paiement en espèces non confirmé. Attendez la confirmation du serveur.', 'warning');
+        return;
+      }
+
       const html = `
         <div class="form-group">
           <label>Durée estimée de préparation (minutes)</label>
@@ -2249,7 +2398,6 @@
     // ============================================================
     async function getLeastLoadedServer() {
       try {
-        // Récupérer tous les serveurs du restaurant
         const snapshot = await db.collection('users')
           .where('restaurantId', '==', currentRestaurantId)
           .where('role', '==', 'Serveur')
@@ -2261,7 +2409,6 @@
           serveurs.push({ uid: doc.id, ...doc.data() });
         });
 
-        // Pour chaque serveur, compter les commandes en attente ou prêtes qui lui sont assignées
         const loadPromises = serveurs.map(async (serveur) => {
           const ordersSnapshot = await db.collection('orders')
             .where('restaurantId', '==', currentRestaurantId)
@@ -2275,9 +2422,7 @@
         });
 
         const serveursWithLoad = await Promise.all(loadPromises);
-        // Trier par charge croissante
         serveursWithLoad.sort((a, b) => a.load - b.load);
-        // Retourner le premier (moins chargé)
         return serveursWithLoad[0] || null;
       } catch (error) {
         console.error('Erreur getLeastLoadedServer:', error);
@@ -2286,7 +2431,7 @@
     }
 
     // ============================================================
-    //  ALERTER SERVEUR (assignation intelligente) - Version renforcée
+    //  ALERTER SERVEUR (assignation intelligente)
     // ============================================================
     window.alertServer = async function(orderId) {
       try {
@@ -2309,13 +2454,11 @@
         return;
       }
 
-      // Mettre à jour la commande avec l'assignation
       await db.collection('orders').doc(orderId).update({
         assignedTo: targetServer.uid,
         assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
       });
 
-      // Créer une notification ciblée
       await db.collection('notifications').add({
         restaurantId: currentRestaurantId,
         orderId: orderId,
@@ -2333,7 +2476,7 @@
     }
 
     // ============================================================
-    //  REFUS DE COMMANDE
+    //  REFUS DE COMMANDE (avec modal)
     // ============================================================
     window.refuserCommande = function(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
@@ -2380,7 +2523,6 @@
             refusAt: firebase.firestore.FieldValue.serverTimestamp()
           });
 
-          // Envoyer une notification au serveur (ou à tous les serveurs)
           await db.collection('notifications').add({
             restaurantId: currentRestaurantId,
             orderId: orderId,
@@ -2394,7 +2536,6 @@
           showToast(`Commande refusée : ${motif}`, 'info');
           alertUser(`Commande refusée pour la table ${order.table || order.tableNumber || '?'}`, 'notification');
           closeModal();
-          // La commande disparaîtra du Kanban car elle n'est plus affichée
           renderKanban();
           updateStats();
         } catch(error) {
@@ -2403,7 +2544,6 @@
         }
       });
 
-      // Gestion de l'affichage du champ "Autre"
       setTimeout(() => {
         const select = document.getElementById('refusMotifSelect');
         const autreGroup = document.getElementById('refusAutreGroup');
@@ -2422,15 +2562,35 @@
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) { showToast('Commande introuvable', 'error'); return; }
       
-      const itemsHtml = order.items ? order.items.map(item => `
-        <tr><td>${item.nom || 'Plat'}</td><td>${item.quantite || 1}</td><td>${(item.prix || 0).toLocaleString('fr-FR')} F</td></tr>
-      `).join('') : '<tr><td colspan="3">Aucun détail</td></tr>';
+      // Construction des articles avec compléments
+      let itemsHtml = '';
+      if (order.items && order.items.length > 0) {
+        itemsHtml = order.items.map(item => {
+          let complementsHtml = '';
+          if (item.complements && item.complements.length > 0) {
+            complementsHtml = item.complements.map(c => 
+              `<span class="complement-tag" style="background:#fef3e8;border:1px solid #fbd38d;"><i class="fas fa-plus-circle" style="color:#e67e22;"></i> ${c.nom} +${c.prix} FCFA</span>`
+            ).join(' ');
+          }
+          return `
+            <tr>
+              <td><strong>${item.nom || 'Plat'}</strong></td>
+              <td>${item.quantite || 1}</td>
+              <td>${(item.prix || 0).toLocaleString('fr-FR')} F</td>
+              <td>${complementsHtml || '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        itemsHtml = '<tr><td colspan="4">Aucun détail</td></tr>';
+      }
 
       const compsHtml = order.complements ? order.complements.map(c => `<span class="complement-tag">${c.nom} +${c.prix} F</span>`).join(' ') : 'Aucun';
       const instructions = order.instructions ? `<p><strong>Instructions :</strong> ${order.instructions}</p>` : '';
       const paymentMode = order.paymentMode ? (order.paymentMode === 'mobile' ? 'Mobile Money' : 'Espèces') : 'Non spécifié';
       const phone = order.phone ? order.phone : 'Non renseigné';
-      const paid = order.paymentConfirmed ? '✅ Payé' : '❌ Non payé (espèces)';
+      const paid = order.paymentConfirmed ? '✅ Payé' : '❌ Non payé';
+      const splitInfo = order.isSplit ? `<p><strong>Partage :</strong> ${order.splitCount} personnes</p>` : '';
 
       const html = `
         <div style="margin-bottom:16px;">
@@ -2439,6 +2599,7 @@
           <p><strong>Statut :</strong> <span class="badge ${getStatusBadge(order.status).class}">${getStatusBadge(order.status).label}</span></p>
           <p><strong>Date :</strong> ${order.dateObj ? order.dateObj.toLocaleString('fr-FR') : 'N/A'}</p>
           <p><strong>Paiement :</strong> ${paymentMode} ${order.paymentMode === 'mobile' ? `(Tél: ${phone})` : ''} - ${paid}</p>
+          ${splitInfo}
           ${instructions}
           <p><strong>Compléments :</strong> ${compsHtml}</p>
           <p><strong>Montant :</strong> ${(order.montant || order.total || 0).toLocaleString('fr-FR')} FCFA</p>
@@ -2446,9 +2607,9 @@
         <h4 style="margin-bottom:10px;">Articles commandés</h4>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Nom</th><th>Qté</th><th>Prix unit.</th></tr></thead>
+            <thead><tr><th>Nom</th><th>Qté</th><th>Prix unit.</th><th>Compléments</th></tr></thead>
             <tbody>${itemsHtml}</tbody>
-            <tfoot><tr><td colspan="2" style="text-align:right;font-weight:700;">Total</td><td style="font-weight:700;">${(order.montant || order.total || 0).toLocaleString('fr-FR')} F</td></tr></tfoot>
+            <tfoot><tr><td colspan="3" style="text-align:right;font-weight:700;">Total</td><td style="font-weight:700;">${(order.montant || order.total || 0).toLocaleString('fr-FR')} F</td></tr></tfoot>
           </table>
         </div>
         <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -2458,6 +2619,9 @@
           ` : ''}
           ${order.paymentMode === 'cash' && !order.paymentConfirmed ? `
             <button class="btn btn-payment-confirm btn-sm" onclick="confirmCashPayment('${order.id}'); closeModal();">Confirmer paiement</button>
+          ` : ''}
+          ${order.paymentMode === 'mobile' && !order.paymentConfirmed ? `
+            <button class="btn btn-verify-payment btn-sm" onclick="verifierPaiementMobile('${order.id}'); closeModal();">Vérifier paiement</button>
           ` : ''}
           <button class="btn btn-outline btn-sm" onclick="closeModal();">Fermer</button>
         </div>
