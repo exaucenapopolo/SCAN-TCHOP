@@ -1686,7 +1686,8 @@
         });
         // Trier côté client
         orders.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
-        toutesLesCommandes = orders;
+        // Exclure les commandes refusées
+        toutesLesCommandes = orders.filter(o => o.status !== 'refusée');
         updateStats();
         initChart();
         // Afficher immédiatement les commandes
@@ -1833,6 +1834,8 @@
         let newOrdersCount = 0;
         snapshot.forEach(doc => {
           const data = doc.data();
+          // Ne pas inclure les commandes refusées
+          if (data.status === 'refusée') return;
           const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
           const order = { id: doc.id, ...data, dateObj };
           orders.push(order);
@@ -2055,7 +2058,10 @@
 
           let actionsHtml = '';
           if (order.status === 'en attente') {
-            actionsHtml = `<button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>`;
+            actionsHtml = `
+              <button class="btn btn-success btn-sm" onclick="startOrder('${order.id}')"><i class="fas fa-play"></i> Démarrer</button>
+              <button class="btn btn-danger btn-sm" onclick="refuserCommande('${order.id}')"><i class="fas fa-times"></i> Refuser</button>
+            `;
           } else if (order.status === 'en préparation') {
             actionsHtml = `
               <button class="btn btn-success btn-sm" onclick="readyOrder('${order.id}')"><i class="fas fa-check-double"></i> Prêt</button>
@@ -2183,7 +2189,7 @@
     });
 
     // ============================================================
-    //  ACTIONS SUR COMMANDES (start, ready, alert, details, prolonger)
+    //  ACTIONS SUR COMMANDES (start, ready, alert, details, prolonger, refuser)
     // ============================================================
     window.startOrder = async function(orderId) {
       const html = `
@@ -2230,17 +2236,39 @@
 
         const order = toutesLesCommandes.find(o => o.id === orderId);
         if (order && alertServer) {
-          await db.collection('notifications').add({
-            restaurantId: currentRestaurantId,
-            orderId: orderId,
-            message: `🍽️ Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête`,
-            targetRole: 'serveur',
-            read: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            type: 'order_ready'
-          });
-          showToast('🔔 Alerte envoyée au serveur !', 'info');
-          alertUser('Alerte serveur envoyée', 'notification');
+          // Assignation intelligente au serveur le moins chargé
+          const targetServer = await getLeastLoadedServer();
+          if (targetServer) {
+            await db.collection('orders').doc(orderId).update({
+              assignedTo: targetServer.uid,
+              assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
+            });
+            // Notification ciblée
+            await db.collection('notifications').add({
+              restaurantId: currentRestaurantId,
+              orderId: orderId,
+              message: `🍽️ Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête`,
+              targetRole: 'Serveur',
+              targetUser: targetServer.uid,
+              read: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              type: 'order_ready'
+            });
+            showToast(`🔔 Alerte envoyée au serveur ${targetServer.displayName || targetServer.email}`, 'info');
+            alertUser(`Alerte envoyée au serveur ${targetServer.displayName || targetServer.email}`, 'notification');
+          } else {
+            // Fallback : notification à tous les serveurs
+            await db.collection('notifications').add({
+              restaurantId: currentRestaurantId,
+              orderId: orderId,
+              message: `🍽️ Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête`,
+              targetRole: 'Serveur',
+              read: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              type: 'order_ready'
+            });
+            showToast('Aucun serveur disponible, notification envoyée à tous.', 'info');
+          }
         }
         renderKanban();
         renderPreparations();
@@ -2251,24 +2279,174 @@
       }
     };
 
+    // ============================================================
+    //  FONCTION POUR RÉCUPÉRER LE SERVEUR LE MOINS CHARGÉ
+    // ============================================================
+    async function getLeastLoadedServer() {
+      try {
+        // Récupérer tous les serveurs du restaurant
+        const snapshot = await db.collection('users')
+          .where('restaurantId', '==', currentRestaurantId)
+          .where('role', '==', 'Serveur')
+          .get();
+        if (snapshot.empty) return null;
+
+        const serveurs = [];
+        snapshot.forEach(doc => {
+          serveurs.push({ uid: doc.id, ...doc.data() });
+        });
+
+        // Pour chaque serveur, compter les commandes en attente ou prêtes qui lui sont assignées
+        const loadPromises = serveurs.map(async (serveur) => {
+          const ordersSnapshot = await db.collection('orders')
+            .where('restaurantId', '==', currentRestaurantId)
+            .where('assignedTo', '==', serveur.uid)
+            .where('status', 'in', ['en attente', 'prêt'])
+            .get();
+          return {
+            ...serveur,
+            load: ordersSnapshot.size
+          };
+        });
+
+        const serveursWithLoad = await Promise.all(loadPromises);
+        // Trier par charge croissante
+        serveursWithLoad.sort((a, b) => a.load - b.load);
+        // Retourner le premier (moins chargé)
+        return serveursWithLoad[0] || null;
+      } catch (error) {
+        console.error('Erreur getLeastLoadedServer:', error);
+        return null;
+      }
+    }
+
+    // ============================================================
+    //  ALERTER SERVEUR (version améliorée avec assignation)
+    // ============================================================
     window.alertServer = async function(orderId) {
+      // Cette fonction est appelée depuis le bouton "Alerter serveur" dans les tickets prêts
+      // Elle utilise la logique d'assignation automatique
       try {
         const order = toutesLesCommandes.find(o => o.id === orderId);
         if (!order) { showToast('Commande introuvable', 'error'); return; }
+        
+        const targetServer = await getLeastLoadedServer();
+        if (!targetServer) {
+          showToast('Aucun serveur disponible pour le moment. Veuillez réessayer.', 'warning');
+          return;
+        }
+
+        await db.collection('orders').doc(orderId).update({
+          assignedTo: targetServer.uid,
+          assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
+        });
+
         await db.collection('notifications').add({
           restaurantId: currentRestaurantId,
           orderId: orderId,
-          message: `🔔 Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête (appel cuisine)`,
-          targetRole: 'serveur',
+          message: `🔔 Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête (assignée à ${targetServer.displayName || targetServer.email})`,
+          targetRole: 'Serveur',
+          targetUser: targetServer.uid,
           read: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          type: 'alert_serveur'
+          type: 'order_ready'
         });
-        showToast('Alerte envoyée au serveur 📡', 'info');
-        alertUser('Alerte serveur envoyée', 'notification');
-      } catch(e) { showToast('Erreur', 'error'); }
+
+        showToast(`🔔 Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'info');
+        alertUser(`Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'notification');
+        renderKanban();
+      } catch(e) {
+        showToast('Erreur lors de l\'alerte', 'error');
+        console.error(e);
+      }
     };
 
+    // ============================================================
+    //  REFUS DE COMMANDE
+    // ============================================================
+    window.refuserCommande = function(orderId) {
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) { showToast('Commande introuvable', 'error'); return; }
+
+      const html = `
+        <div class="form-group">
+          <label>Raison du refus <span style="color:var(--danger);">*</span></label>
+          <select id="refusMotifSelect" class="form-control">
+            <option value="Rupture de stock">Rupture de stock</option>
+            <option value="Ingrédient manquant">Ingrédient manquant</option>
+            <option value="Problème de fournisseur">Problème de fournisseur</option>
+            <option value="Problème technique">Problème technique</option>
+            <option value="Autre">Autre (précisez)</option>
+          </select>
+        </div>
+        <div class="form-group" id="refusAutreGroup" style="display:none;">
+          <label>Précisez la raison</label>
+          <input type="text" id="refusAutreInput" class="form-control" placeholder="Votre raison..." />
+        </div>
+        <div class="form-group">
+          <label>Suggestion au client</label>
+          <textarea id="refusSuggestion" class="form-control" placeholder="Que devrait faire le client ? (ex: commander un autre plat, nous contacter...)">Veuillez choisir un autre plat dans le menu.</textarea>
+        </div>
+        <p style="font-size:0.85rem;color:var(--text-muted);"><i class="fas fa-info-circle"></i> Cette information sera envoyée au client.</p>
+      `;
+
+      openModal('Refuser la commande', html, async () => {
+        const motifSelect = document.getElementById('refusMotifSelect');
+        let motif = motifSelect.value;
+        if (motif === 'Autre') {
+          const autreInput = document.getElementById('refusAutreInput');
+          motif = autreInput.value.trim() || 'Raison non spécifiée';
+        }
+        const suggestion = document.getElementById('refusSuggestion').value.trim() || 'Veuillez choisir un autre plat.';
+
+        try {
+          await db.collection('orders').doc(orderId).update({
+            status: 'refusée',
+            refusMotif: motif,
+            refusSuggestion: suggestion,
+            refusPar: currentUser.uid,
+            refusParNom: currentUser.displayName || currentUser.email || 'Cuisinier',
+            refusAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          // Envoyer une notification au serveur (ou à tous les serveurs)
+          await db.collection('notifications').add({
+            restaurantId: currentRestaurantId,
+            orderId: orderId,
+            message: `🚫 Commande #${order.reference || order.id.substring(0,6).toUpperCase()} refusée (Table ${order.table || order.tableNumber || '?'}) - Motif: ${motif}`,
+            targetRole: 'Serveur',
+            read: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            type: 'order_refused'
+          });
+
+          showToast(`Commande refusée : ${motif}`, 'info');
+          alertUser(`Commande refusée pour la table ${order.table || order.tableNumber || '?'}`, 'notification');
+          closeModal();
+          // La commande disparaîtra du Kanban car elle n'est plus affichée
+          renderKanban();
+          updateStats();
+        } catch(error) {
+          showToast('Erreur lors du refus', 'error');
+          console.error(error);
+        }
+      });
+
+      // Gestion de l'affichage du champ "Autre"
+      setTimeout(() => {
+        const select = document.getElementById('refusMotifSelect');
+        const autreGroup = document.getElementById('refusAutreGroup');
+        if (select) {
+          select.addEventListener('change', () => {
+            autreGroup.style.display = select.value === 'Autre' ? 'block' : 'none';
+          });
+        }
+      }, 100);
+    };
+
+    // ============================================================
+    //  AUTRES ACTIONS (viewOrderDetails, updateOrderStatus, prolongerOrder, etc.)
+    // ============================================================
     window.viewOrderDetails = function(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) { showToast('Commande introuvable', 'error'); return; }
@@ -2327,9 +2505,6 @@
       } catch(e) { showToast('Erreur', 'error'); }
     };
 
-    // ============================================================
-    //  PROLONGATION (commande)
-    // ============================================================
     window.prolongerOrder = function(orderId) {
       const order = toutesLesCommandes.find(o => o.id === orderId);
       if (!order) return;

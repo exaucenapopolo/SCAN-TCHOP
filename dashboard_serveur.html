@@ -251,7 +251,12 @@
       <div class="card">
         <div class="card-header">
           <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
-          <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
+            <button class="btn btn-outline-secondary" id="toggleMyOrders" onclick="toggleMyOrdersFilter()">
+              <i class="fas fa-user-check"></i> <span id="filterLabel">Toutes les commandes</span>
+            </button>
+          </div>
         </div>
         <div class="grid-commandes" id="readyOrdersContainer">
           <!-- Injecté par JS -->
@@ -412,6 +417,9 @@
     let alertIntervalId = null;
     let availableVoices = [];
     let isAlerting = false;
+
+    // Filtre "Mes commandes"
+    let showMyOrdersOnly = false;
 
     // ============================================================
     //  UI HELPERS
@@ -735,6 +743,8 @@
           const newServed = [];
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
+            // Ne pas afficher les commandes refusées
+            if (order.status === 'refusée') return;
             const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
             const today = new Date(); today.setHours(0,0,0,0);
             if (orderDate >= today) {
@@ -773,11 +783,25 @@
     }
 
     // ============================================================
+    //  FILTRE MES COMMANDES
+    // ============================================================
+    function toggleMyOrdersFilter() {
+      showMyOrdersOnly = !showMyOrdersOnly;
+      document.getElementById('filterLabel').textContent = showMyOrdersOnly ? 'Mes commandes' : 'Toutes les commandes';
+      renderReadyOrders();
+      renderWaitingOrders();
+    }
+
+    // ============================================================
     //  RENDU DES COMMANDES PRÊTES
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
-      if (readyOrders.length === 0) {
+      let filtered = readyOrders;
+      if (showMyOrdersOnly && currentUser) {
+        filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
+      }
+      if (filtered.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
           <p>Super ! Aucune commande en attente.</p>
@@ -785,7 +809,7 @@
         return;
       }
       container.innerHTML = '';
-      readyOrders.forEach(order => {
+      filtered.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
         const isNew = !acknowledgedOrderIds.has(order.id);
         const itemsHtml = order.items ? order.items.map(item => {
@@ -806,13 +830,22 @@
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
+        // Afficher le serveur assigné
+        let assignedInfo = '';
+        if (order.assignedTo) {
+          const assignedName = order.assignedToName || order.assignedTo;
+          const isMe = currentUser && order.assignedTo === currentUser.uid;
+          assignedInfo = `<span style="font-size:0.8rem;color:var(--text-muted);">${isMe ? '✓ Vous' : '👤 '+assignedName}</span>`;
+        } else {
+          assignedInfo = `<span style="font-size:0.8rem;color:var(--warning);">Non assignée</span>`;
+        }
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
         ticket.dataset.acknowledged = acknowledgedOrderIds.has(order.id) ? 'true' : 'false';
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table">Table ${tableNum}</div>
-            <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
+            <div class="ticket-time"><i class="fas fa-bell"></i> À Servir ${assignedInfo}</div>
           </div>
           ${instructions}
           <ul class="ticket-items">${itemsHtml}</ul>
@@ -836,7 +869,11 @@
     // ============================================================
     function renderWaitingOrders() {
       const container = document.getElementById('waitingOrdersContainer');
-      if (waitingOrders.length === 0) {
+      let filtered = waitingOrders;
+      if (showMyOrdersOnly && currentUser) {
+        filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
+      }
+      if (filtered.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
           <p>Aucune commande en file d'attente.</p>
@@ -844,7 +881,7 @@
         return;
       }
       container.innerHTML = '';
-      waitingOrders.forEach(order => {
+      filtered.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
@@ -889,12 +926,22 @@
           `;
         }
 
+        // Afficher le serveur assigné
+        let assignedInfo = '';
+        if (order.assignedTo) {
+          const assignedName = order.assignedToName || order.assignedTo;
+          const isMe = currentUser && order.assignedTo === currentUser.uid;
+          assignedInfo = `<span style="font-size:0.8rem;color:var(--text-muted);">${isMe ? '✓ Vous' : '👤 '+assignedName}</span>`;
+        } else {
+          assignedInfo = `<span style="font-size:0.8rem;color:var(--warning);">Non assignée</span>`;
+        }
+
         const ticket = document.createElement('div');
         ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table" style="background:#e0f2fe;color:#0369a1;">Table ${tableNum}</div>
-            <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
+            <div class="ticket-time"><i class="fas fa-clock"></i> En attente ${assignedInfo}</div>
           </div>
           ${instructions}
           <ul class="ticket-items">${itemsHtml}</ul>
@@ -918,7 +965,9 @@
       try {
         await db.collection('orders').doc(orderId).update({
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          acknowledgedBy: currentUser.uid
+          acknowledgedBy: currentUser.uid,
+          assignedTo: currentUser.uid,
+          assignedToName: currentUser.displayName || currentUser.email || 'Serveur'
         });
         acknowledgedOrderIds.add(orderId);
         showToast('Commande prise en charge !', 'success');
@@ -942,7 +991,9 @@
       try {
         await db.collection('orders').doc(orderId).update({
           status: 'en_attente',
-          waitingAt: firebase.firestore.FieldValue.serverTimestamp()
+          waitingAt: firebase.firestore.FieldValue.serverTimestamp(),
+          assignedTo: currentUser.uid,
+          assignedToName: currentUser.displayName || currentUser.email || 'Serveur'
         });
         showToast('Commande mise en file d\'attente.', 'info');
         playConfirmation('Commande mise en file d\'attente.');
@@ -1093,6 +1144,7 @@
     // ============================================================
     function listenHelpRequests() {
       if (!currentRestaurantId) return;
+      // On écoute les notifications ciblant spécifiquement ce serveur ou tous les serveurs
       db.collection('notifications')
         .where('restaurantId', '==', currentRestaurantId)
         .where('targetRole', '==', 'Serveur')
@@ -1101,6 +1153,8 @@
           const requests = [];
           snapshot.forEach(doc => {
             const data = doc.data();
+            // Si la notification est ciblée, on la filtre
+            if (data.targetUser && data.targetUser !== currentUser.uid) return;
             if (data.status !== 'resolved') requests.push({ id: doc.id, ...data });
           });
           requests.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
