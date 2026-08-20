@@ -34,7 +34,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-    /* ====== SIDEBAR (identique) ====== */
+    /* ====== SIDEBAR ====== */
     .sidebar-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); backdrop-filter:blur(6px); z-index:90; display:none; opacity:0; transition:opacity 0.3s; }
     .sidebar-overlay.open { display:block; opacity:1; }
     .sidebar { width:280px; background:linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); color:#fff; padding:30px 20px; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.4s; box-shadow:4px 0 30px rgba(0,0,0,0.1); }
@@ -171,7 +171,6 @@
     .filters-row label { font-weight:600; color:var(--text-muted); }
     .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
-    /* Notifications flottantes */
     .notification-banner {
       background: #fff3cd; border-left: 6px solid var(--warning); padding: 12px 18px; border-radius: 12px;
       margin-bottom: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
@@ -397,7 +396,7 @@
     let currentUser = null;
     let currentRestaurantId = null;
 
-    // Listes des commandes (uniquement celles assignées au serveur)
+    // Listes des commandes (uniquement celles assignées au serveur, après filtrage côté client)
     let readyOrders = [];
     let waitingOrders = [];
     let servedOrders = [];
@@ -728,41 +727,43 @@
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (filtrées par assignation)
+    //  ÉCOUTE DES COMMANDES (sans index composite)
     // ============================================================
     function listenOrders() {
       if (!currentRestaurantId || !currentUser) return;
 
-      // Écouter les commandes prêtes et en attente assignées à ce serveur
-      const qReady = db.collection('orders')
-        .where('restaurantId', '==', currentRestaurantId)
-        .where('status', '==', 'prêt')
-        .where('assignedTo', '==', currentUser.uid);
-
-      const qWaiting = db.collection('orders')
-        .where('restaurantId', '==', currentRestaurantId)
-        .where('status', '==', 'en_attente')
-        .where('assignedTo', '==', currentUser.uid);
-
-      // On peut utiliser un seul listener avec une requête composite, mais Firestore ne supporte pas les "OR".
-      // On va donc faire deux listeners et fusionner les résultats.
-      let readyUnsubscribe = null;
-      let waitingUnsubscribe = null;
-
-      readyUnsubscribe = qReady.onSnapshot(snapshot => {
-        readyOrders = [];
+      // On écoute toutes les commandes du restaurant et on filtre côté client
+      const q = db.collection('orders').where('restaurantId', '==', currentRestaurantId);
+      const unsubscribe = q.onSnapshot(snapshot => {
+        const allOrders = [];
         snapshot.forEach(doc => {
           const order = { id: doc.id, ...doc.data() };
-          // Ne pas afficher les commandes refusées
-          if (order.status === 'refusée') return;
-          readyOrders.push(order);
+          if (order.status === 'refusée') return; // ignore refusées
+          allOrders.push(order);
         });
-        // Mettre à jour le badge
+
+        // Filtrer les commandes assignées à ce serveur
+        const myOrders = allOrders.filter(o => o.assignedTo === currentUser.uid);
+
+        // Séparer selon le statut
+        const newReady = myOrders.filter(o => o.status === 'prêt');
+        const newWaiting = myOrders.filter(o => o.status === 'en_attente');
+        const newServed = myOrders.filter(o => o.status === 'terminé');
+
+        // Mettre à jour les listes
+        readyOrders = newReady;
+        waitingOrders = newWaiting;
+        servedOrders = newServed;
+
+        // Badges
         const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         document.getElementById('readyBadge').textContent = pendingReady;
         document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
-        renderReadyOrders();
-        // Vérifier si une nouvelle commande est arrivée (non accusée)
+        document.getElementById('waitingBadge').textContent = waitingOrders.length;
+        document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
+        document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
+
+        // Détection des nouvelles commandes (non accusées)
         const newOrders = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
         if (newOrders.length > 0) {
           const latest = newOrders[0];
@@ -772,22 +773,17 @@
           showToast(`Table ${tableNum} est prête !`, 'warning');
           if (!isAlerting) startAlertRepeat();
         }
-      }, error => console.error('Erreur écoute ready:', error));
 
-      waitingUnsubscribe = qWaiting.onSnapshot(snapshot => {
-        waitingOrders = [];
-        snapshot.forEach(doc => {
-          const order = { id: doc.id, ...doc.data() };
-          if (order.status === 'refusée') return;
-          waitingOrders.push(order);
-        });
-        document.getElementById('waitingBadge').textContent = waitingOrders.length;
-        document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
-        document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
+        // Rendu
+        renderReadyOrders();
         renderWaitingOrders();
-      }, error => console.error('Erreur écoute waiting:', error));
 
-      // Pour l'historique, on utilise un autre listener plus tard (ou on recharge)
+      }, error => {
+        console.error('Erreur écoute commandes:', error);
+        showToast('Erreur de connexion Firestore. Vérifiez votre réseau.', 'error');
+      });
+
+      // Pour l'historique, on recharge avec un autre listener ou on utilise le même
     }
 
     // ============================================================
@@ -798,7 +794,6 @@
       // Écouter les notifications de type 'order_ready' ciblant ce serveur
       db.collection('notifications')
         .where('restaurantId', '==', currentRestaurantId)
-        .where('targetRole', '==', 'Serveur')
         .where('targetUser', '==', currentUser.uid)
         .where('type', '==', 'order_ready')
         .onSnapshot(snapshot => {
@@ -815,7 +810,9 @@
               db.collection('notifications').doc(change.doc.id).update({ read: true });
             }
           });
-        }, error => console.error('Erreur écoute notifications:', error));
+        }, error => {
+          console.error('Erreur écoute notifications:', error);
+        });
     }
 
     // ============================================================
@@ -1311,6 +1308,7 @@
     // ============================================================
     function loadHistory(dateFilter) {
       if (!currentRestaurantId) return;
+      // On utilise une requête simple sur le restaurant et le statut, puis on filtre côté client
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .where('status', '==', 'terminé')
@@ -1318,18 +1316,19 @@
         .then(snapshot => {
           const orders = [];
           snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-          let filtered = orders;
+          // Filtrer par serveur assigné (si présent)
+          let filtered = orders.filter(o => o.assignedTo === currentUser.uid);
           if (dateFilter) {
             const start = new Date(dateFilter + 'T00:00:00');
             const end = new Date(dateFilter + 'T23:59:59');
-            filtered = orders.filter(o => {
+            filtered = filtered.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= start && served <= end;
             });
           } else {
             const today = new Date(); today.setHours(0,0,0,0);
             const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
-            filtered = orders.filter(o => {
+            filtered = filtered.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= today && served < tomorrow;
             });
