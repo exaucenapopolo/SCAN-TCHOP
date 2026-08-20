@@ -649,39 +649,66 @@
     }
 
     // ============================================================
-    //  AUTH
+    //  AUTHENTIFICATION ET CHARGEMENT UTILISATEUR
     // ============================================================
     auth.onAuthStateChanged(async user => {
-      if (!user) { 
+      console.log('auth.onAuthStateChanged user:', user);
+      if (!user) {
+        console.warn('Aucun utilisateur connecté, redirection vers connexion.html');
         window.location.href = 'connexion.html';
         return;
       }
+
       currentUser = user;
       console.log('Utilisateur connecté:', currentUser.email, 'UID:', currentUser.uid);
 
       try {
         const userDoc = await db.collection('users').doc(user.uid).get();
+        console.log('Document utilisateur:', userDoc.exists ? userDoc.data() : 'introuvable');
+
         if (!userDoc.exists) {
-          showToast('Utilisateur non trouvé dans la base de données. Veuillez contacter l\'administrateur.', 'error');
-          auth.signOut();
+          console.error('Document utilisateur introuvable pour uid:', user.uid);
+          showToast('Compte utilisateur introuvable. Veuillez contacter l\'administrateur.', 'error');
+          await auth.signOut();
+          window.location.href = 'connexion.html';
           return;
         }
+
         const userData = userDoc.data();
-        if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') {
+        // Vérifier le rôle (insensible à la casse)
+        const role = userData.role ? userData.role.toLowerCase() : '';
+        if (!['serveur', 'employé', 'admin'].includes(role)) {
+          console.error('Rôle non autorisé:', role);
           showToast('Accès réservé aux serveurs.', 'error');
-          auth.signOut();
+          await auth.signOut();
+          window.location.href = 'connexion.html';
           return;
         }
+
+        if (!userData.restaurantId) {
+          console.error('Aucun restaurantId associé à cet utilisateur.');
+          showToast('Cet utilisateur n\'est rattaché à aucun restaurant.', 'error');
+          await auth.signOut();
+          window.location.href = 'connexion.html';
+          return;
+        }
+
         currentRestaurantId = userData.restaurantId;
+        console.log('RestaurantId:', currentRestaurantId);
+
+        // Charger les infos du restaurant pour afficher le nom
         const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
-        if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
+        if (restoDoc.exists) {
+          document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
+        }
 
         // Afficher les infos du serveur
-        const displayName = userData.displayName || userData.nom || userData.email || 'Serveur';
+        const displayName = userData.nom || userData.displayName || 'Serveur';
         const email = userData.email || '';
         document.getElementById('userDisplayName').textContent = displayName;
         document.getElementById('userEmail').textContent = email;
 
+        // Charger les préférences
         const prefs = userData.preferences || {};
         alertMode = prefs.alertMode || 'sonnerie';
         repeatIntervalSec = prefs.repeatInterval || 8;
@@ -698,9 +725,10 @@
         loadHistory(null);
 
       } catch (error) {
-        console.error('Erreur chargement utilisateur:', error);
-        showToast('Erreur lors du chargement des données utilisateur.', 'error');
-        auth.signOut();
+        console.error('Erreur lors du chargement des données utilisateur:', error);
+        showToast('Erreur de chargement des données. Veuillez vous reconnecter.', 'error');
+        await auth.signOut();
+        window.location.href = 'connexion.html';
       }
     });
 
