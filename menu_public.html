@@ -15,6 +15,8 @@
             --primary-hover: #cf6f1b;
             --primary-light: #fef3e8;
             --primary-dark: #b85f12;
+            --btn-bg: #d35400;           /* couleur par défaut des boutons */
+            --btn-bg-hover: #b85f12;
             --bg-color: #fdf8f4;
             --text-main: #0b1a2e;
             --text-muted: #64748b;
@@ -717,11 +719,12 @@
             text-decoration: line-through;
         }
 
+        /* ===== BOUTON ===== */
         .btn-commander {
             width: 100%;
             padding: 16px;
             margin-top: auto;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             border-radius: 16px;
@@ -733,7 +736,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 4px 16px rgba(230, 126, 34, 0.25);
+            box-shadow: 0 4px 16px rgba(211, 84, 0, 0.25);
             letter-spacing: 0.3px;
             position: relative;
             overflow: hidden;
@@ -754,7 +757,8 @@
 
         .btn-commander:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(230, 126, 34, 0.35);
+            box-shadow: 0 8px 28px rgba(211, 84, 0, 0.35);
+            background: var(--btn-bg-hover);
         }
 
         .btn-commander:active {
@@ -802,7 +806,7 @@
         }
 
         .btn-avis-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             padding: 12px 28px;
@@ -814,12 +818,13 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 16px rgba(230, 126, 34, 0.2);
+            box-shadow: 0 4px 16px rgba(211, 84, 0, 0.2);
         }
 
         .btn-avis-header:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(230, 126, 34, 0.3);
+            box-shadow: 0 8px 28px rgba(211, 84, 0, 0.3);
+            background: var(--btn-bg-hover);
         }
 
         .reviews-grid {
@@ -1078,7 +1083,7 @@
         }
 
         .btn-game {
-            background: #8b5cf6;
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             border-radius: 50px;
@@ -1090,13 +1095,13 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 4px 16px rgba(211, 84, 0, 0.25);
         }
 
         .btn-game:hover {
-            background: #7c3aed;
+            background: var(--btn-bg-hover);
             transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.35);
+            box-shadow: 0 8px 28px rgba(211, 84, 0, 0.35);
         }
 
         /* ============================================
@@ -1235,7 +1240,7 @@
         }
 
         .game-card .btn-play {
-            background: var(--primary);
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             padding: 8px 20px;
@@ -1248,7 +1253,7 @@
         }
 
         .game-card .btn-play:hover {
-            background: var(--primary-hover);
+            background: var(--btn-bg-hover);
             transform: scale(1.05);
         }
 
@@ -1810,7 +1815,7 @@
         }
 
         .btn-action {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             padding: 12px 24px;
@@ -1822,12 +1827,13 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 16px rgba(230, 126, 34, 0.2);
+            box-shadow: 0 4px 16px rgba(211, 84, 0, 0.2);
         }
 
         .btn-action:hover {
+            background: var(--btn-bg-hover);
             transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(230, 126, 34, 0.3);
+            box-shadow: 0 8px 28px rgba(211, 84, 0, 0.3);
         }
 
         .btn-action-secondary {
@@ -1917,7 +1923,7 @@
         }
 
         .favorite-item .btn-order-fav {
-            background: var(--primary);
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             border-radius: 50px;
@@ -1933,7 +1939,7 @@
         }
 
         .favorite-item .btn-order-fav:hover {
-            background: var(--primary-hover);
+            background: var(--btn-bg-hover);
             transform: scale(1.05);
         }
 
@@ -1996,7 +2002,7 @@
         }
 
         .btn-track-order {
-            background: var(--primary);
+            background: var(--btn-bg);
             color: #fff;
             border: none;
             padding: 4px 14px;
@@ -2008,7 +2014,7 @@
         }
 
         .btn-track-order:hover {
-            background: var(--primary-hover);
+            background: var(--btn-bg-hover);
             transform: scale(1.05);
         }
 
@@ -2248,14 +2254,15 @@
         }
 
         .btn-footer.btn-primary-footer {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--btn-bg);
             color: #fff;
-            box-shadow: 0 4px 16px rgba(230, 126, 34, 0.3);
+            box-shadow: 0 4px 16px rgba(211, 84, 0, 0.3);
         }
 
         .btn-footer.btn-primary-footer:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(230, 126, 34, 0.4);
+            box-shadow: 0 8px 28px rgba(211, 84, 0, 0.4);
+            background: var(--btn-bg-hover);
         }
 
         .btn-footer.btn-outline-footer {
@@ -2489,12 +2496,11 @@
             </div>
             <div class="track-actions">
                 <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
-                <button class="btn-avis-header" onclick="openModal('modalAvis')" style="background:var(--primary);"><i class="fas fa-star"></i> Laisser un avis</button>
+                <button class="btn-avis-header" onclick="openModal('modalAvis')"><i class="fas fa-star"></i> Laisser un avis</button>
                 <button class="btn-sound-toggle" id="btnSoundToggle" onclick="toggleSoundAlert()">
                     <i class="fas fa-volume-up" id="soundIcon"></i>
                     <span id="soundLabel">Activer l'alerte sonore</span>
                 </button>
-                <!-- NOUVEAU BOUTON JEUX -->
                 <button class="btn-game" onclick="openGameModal()">
                     <i class="fas fa-gamepad"></i> Jouer à un jeu
                 </button>
@@ -2933,9 +2939,6 @@
         // ============================================
         const API_BASE_URL = ''; // À remplacer par l'URL réelle
 
-        /**
-         * Initie un paiement pour une commande
-         */
         async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount) {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/create-order-checkout`, {
@@ -2964,9 +2967,6 @@
             }
         }
 
-        /**
-         * Initie un paiement pour un pourboire
-         */
         async function initierPaiementPourboire(restoId, orderId, amount, phone, redirectUrl) {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/create-tip-checkout`, {
@@ -3579,38 +3579,35 @@
         // APPLICATION DES COULEURS DU RESTAURANT
         // ============================================
         function applyColors(colors) {
-            // colors : { couleurPrincipale, couleurBoutons }
-            const root = document.documentElement;
+            // Couleur principale (pour les titres, prix, icônes, bordures...)
             if (colors.couleurPrincipale) {
+                const root = document.documentElement;
                 root.style.setProperty('--primary', colors.couleurPrincipale);
-                // Ajuster la couleur primaire foncée (moins saturée) pour le survol
                 const darker = darkenColor(colors.couleurPrincipale, 0.15);
                 root.style.setProperty('--primary-hover', darker);
                 root.style.setProperty('--primary-dark', darkenColor(colors.couleurPrincipale, 0.25));
-                // Couleur primaire claire pour les fonds
                 const lighter = lightenColor(colors.couleurPrincipale, 0.85);
                 root.style.setProperty('--primary-light', lighter);
             }
+            // Couleur des boutons
             if (colors.couleurBoutons) {
-                // On l'applique directement aux boutons qui ne sont pas en dégradé
-                root.style.setProperty('--couleur-boutons', colors.couleurBoutons);
-                // Pour les boutons avec dégradé, on peut aussi modifier la valeur.
-                // Ici on va modifier les styles des boutons .btn-commander, .btn-avis-header, .btn-action, .btn-game, etc.
-                // Mais on le fait via JS pour être plus souple
-                document.querySelectorAll('.btn-commander, .btn-avis-header, .btn-action, .btn-game, .btn-play, .btn-primary-footer, .btn-track-order, .btn-order-fav, .btn-commander, .btn-commander:not(:disabled)').forEach(el => {
-                    if (el.closest('.track-actions') && el.classList.contains('btn-avis-header')) {
-                        // conserver le fond personnalisé déjà défini en inline
-                    } else {
-                        el.style.background = `linear-gradient(135deg, ${colors.couleurBoutons}, ${darkenColor(colors.couleurBoutons, 0.1)})`;
-                        el.style.boxShadow = `0 4px 16px ${hexToRgba(colors.couleurBoutons, 0.25)}`;
-                    }
+                const root = document.documentElement;
+                root.style.setProperty('--btn-bg', colors.couleurBoutons);
+                root.style.setProperty('--btn-bg-hover', darkenColor(colors.couleurBoutons, 0.1));
+                // Appliquer aux boutons via des classes CSS dédiées
+                document.querySelectorAll('.btn-commander, .btn-avis-header, .btn-action, .btn-game, .btn-play, .btn-primary-footer, .btn-track-order, .btn-order-fav, .btn-commander:not(:disabled)').forEach(el => {
+                    el.style.background = colors.couleurBoutons;
+                    el.style.boxShadow = `0 4px 16px ${hexToRgba(colors.couleurBoutons, 0.25)}`;
+                    el.addEventListener('mouseenter', function() {
+                        this.style.background = darkenColor(colors.couleurBoutons, 0.1);
+                    });
+                    el.addEventListener('mouseleave', function() {
+                        this.style.background = colors.couleurBoutons;
+                    });
                 });
-                // Les boutons de type .btn-action-secondary et .btn-outline-footer ont un fond transparent
-                // On ne les modifie pas
             }
         }
 
-        // Fonctions utilitaires de couleur
         function hexToRgba(hex, alpha) {
             const r = parseInt(hex.slice(1, 3), 16);
             const g = parseInt(hex.slice(3, 5), 16);
@@ -3660,7 +3657,7 @@
                     logo.style.display = 'none';
                 }
 
-                // Appliquer les couleurs du restaurant
+                // Appliquer les couleurs
                 if (resto.couleurPrincipale || resto.couleurBoutons) {
                     applyColors({
                         couleurPrincipale: resto.couleurPrincipale || '#e67e22',
@@ -4041,7 +4038,6 @@
         // MODALE JEUX - mise à jour dynamique des liens
         // ============================================
         function openGameModal() {
-            // Mettre à jour les liens avec les paramètres actuels
             const links = document.querySelectorAll('#modalGames .game-card');
             links.forEach(link => {
                 const game = link.dataset.game;
@@ -4257,7 +4253,7 @@
         }
 
         // ============================================
-        // GENERATE ORDER REFERENCE (SIMPLE & ROBUSTE)
+        // GENERATE ORDER REFERENCE
         // ============================================
         async function generateOrderReference() {
             try {
@@ -4280,7 +4276,7 @@
         }
 
         // ============================================
-        // VALIDATE ORDER (avec paiement Mobile Money)
+        // VALIDATE ORDER
         // ============================================
         async function validerCommande() {
             const table = document.getElementById('orderTable').value.trim();
@@ -4453,9 +4449,6 @@
             }
         }
 
-        // ============================================
-        // AFFICHAGE AUTOMATIQUE DE LA MODALE JEUX
-        // ============================================
         function showGameModalAfterOrder(orderId) {
             const sessionKey = `gameModalShown_${orderId}`;
             if (sessionStorage.getItem(sessionKey) === 'true') return;
@@ -4477,7 +4470,7 @@
         }
 
         // ============================================
-        // GESTION DU RETOUR APRÈS PAIEMENT (COMMANDE)
+        // PENDING PAYMENT
         // ============================================
         function checkPendingPayment() {
             const pendingRaw = localStorage.getItem('pendingPayment');
@@ -4542,7 +4535,7 @@
         }
 
         // ============================================
-        // POURBOIRE : INITIATION ET CONFIRMATION
+        // TIP
         // ============================================
         function submitTipAndReview() {
             const commentaire = document.getElementById('tipCommentaire').value.trim();
@@ -4809,7 +4802,7 @@
         }
 
         // ============================================
-        // TIP & REVIEW MODAL (après service) - mise à jour
+        // TIP & REVIEW MODAL (après service)
         // ============================================
         let tipOrderId = null;
         let tipRating = 0;
