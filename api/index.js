@@ -158,10 +158,10 @@ app.post('/api/fapshi-subscription-webhook', async (req, res) => {
 // 4. ROUTE : INITIALISATION DU PAIEMENT (COMMANDE DE PLAT)
 // ==========================================
 app.post('/api/create-order-checkout', async (req, res) => {
-  const { restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount } = req.body;
+  const { restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount, orderId } = req.body;
 
-  if (!restoId || !platId || !amount || !redirectUrl) {
-    return res.status(400).json({ success: false, error: 'Données de commande manquantes.' });
+  if (!restoId || !platId || !amount || !redirectUrl || !orderId) {
+    return res.status(400).json({ success: false, error: 'Données de commande manquantes (orderId requis).' });
   }
 
   const API_USER = process.env.FAPSHI_API_USER;
@@ -211,6 +211,7 @@ app.post('/api/create-order-checkout', async (req, res) => {
     const transDocId = fapshiTransId || db.collection('orderTransactions').doc().id;
     await db.collection('orderTransactions').doc(transDocId).set({
       fapshiTransId: fapshiTransId,
+      orderId: orderId, // lien vers la commande
       restoId: restoId,
       platId: platId,
       nomPlat: nomPlat,
@@ -236,7 +237,11 @@ app.post('/api/create-order-checkout', async (req, res) => {
 app.post('/api/fapshi-order-webhook', async (req, res) => {
   const { status, transId } = req.body;
 
-  if (status !== 'SUCCESSFUL') return res.status(200).json({ message: 'Statut ignoré.' });
+  if (status !== 'SUCCESSFUL') {
+    // Si le statut n'est pas SUCCESSFUL, on pourrait mettre à jour la transaction en échec
+    // mais on ne fait rien pour l'instant
+    return res.status(200).json({ message: 'Statut ignoré.' });
+  }
   if (!transId) return res.status(400).json({ error: 'Données invalides.' });
 
   const transRef = db.collection('orderTransactions').doc(transId);
@@ -251,12 +256,23 @@ app.post('/api/fapshi-order-webhook', async (req, res) => {
       return res.status(200).json({ message: 'Commande déjà confirmée.' });
     }
 
+    // Mettre à jour la transaction
     await transRef.update({
       status: 'CONFIRMED',
       dateConfirmed: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Enregistrer la commande officielle dans la collection "commandes"
+    // Mettre à jour la commande dans la collection 'orders'
+    const orderId = transData.orderId;
+    if (orderId) {
+      await db.collection('orders').doc(orderId).update({
+        paymentConfirmed: true,
+        fapshiTransId: transId,
+        paymentStatus: 'PAID'
+      });
+    }
+
+    // Optionnel : enregistrer dans 'commandes' pour historique
     await db.collection('commandes').add({
       restoId: transData.restoId,
       platId: transData.platId,
@@ -267,7 +283,7 @@ app.post('/api/fapshi-order-webhook', async (req, res) => {
       nombrePersonnes: transData.splitCount,
       dateCommande: admin.firestore.FieldValue.serverTimestamp(),
       fapshiTransId: transId,
-      statut: 'Nouvelle'
+      statut: 'Payée'
     });
 
     return res.status(200).json({ message: 'Commande validée avec succès.' });
@@ -385,6 +401,54 @@ app.post('/api/fapshi-tip-webhook', async (req, res) => {
   } catch (err) {
     console.error('Erreur Webhook pourboire:', err);
     return res.status(500).json({ error: 'Erreur webhook.' });
+  }
+});
+
+// ==========================================
+// 8. NOUVELLE ROUTE : VÉRIFIER LE STATUT D'UNE TRANSACTION FAPSHI
+// ==========================================
+app.get('/api/check-payment-status/:transId', async (req, res) => {
+  const { transId } = req.params;
+
+  if (!transId) {
+    return res.status(400).json({ success: false, error: 'transId requis.' });
+  }
+
+  const API_USER = process.env.FAPSHI_API_USER;
+  const API_KEY = process.env.FAPSHI_API_KEY;
+
+  if (!API_USER || !API_KEY) {
+    return res.status(500).json({ success: false, error: 'Configuration Fapshi incomplète.' });
+  }
+
+  try {
+    // Appel à l'API Fapshi pour obtenir le statut de la transaction
+    const fapshiRes = await fetch(`https://live.fapshi.com/transaction-status/${transId}`, {
+      method: 'GET',
+      headers: {
+        'apiuser': API_USER,
+        'apikey': API_KEY
+      }
+    });
+
+    if (!fapshiRes.ok) {
+      const errorText = await fapshiRes.text();
+      return res.status(fapshiRes.status).json({ success: false, error: errorText });
+    }
+
+    const data = await fapshiRes.json();
+    // On s'attend à ce que Fapshi renvoie un champ 'status' ou 'transactionStatus'
+    const status = data.status || data.transactionStatus || data.state || 'UNKNOWN';
+    
+    // Normaliser le statut
+    const isSuccessful = ['SUCCESSFUL', 'SUCCESS', 'COMPLETED', 'TERMINE', 'EFFECTUE', 'PAID', 'CONFIRMED'].some(s => 
+      status.toUpperCase().includes(s)
+    );
+
+    return res.json({ success: true, status, isSuccessful });
+  } catch (error) {
+    console.error('Erreur vérification statut Fapshi:', error);
+    return res.status(500).json({ success: false, error: 'Erreur serveur interne.' });
   }
 });
 
