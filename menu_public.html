@@ -3005,9 +3005,9 @@
         }
 
         // ============================================
-        // BACKEND API POUR MOBILE MONEY
+        // BACKEND API POUR MOBILE MONEY (Fapshi)
         // ============================================
-        const API_BASE_URL = ''; // À remplacer par l'URL réelle
+        const API_BASE_URL = ''; // À remplacer par l'URL réelle de votre backend
 
         async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount) {
             try {
@@ -3037,6 +3037,7 @@
             }
         }
 
+        // Nouvelle fonction pour initier le paiement du pourboire
         async function initierPaiementPourboire(restoId, orderId, amount, phone, redirectUrl) {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/create-tip-checkout`, {
@@ -4540,7 +4541,7 @@
         }
 
         // ============================================
-        // PENDING PAYMENT
+        // PENDING PAYMENT (pour les confirmations après paiement)
         // ============================================
         function checkPendingPayment() {
             const pendingRaw = localStorage.getItem('pendingPayment');
@@ -4605,32 +4606,13 @@
         }
 
         // ============================================
-        // TIP & REVIEW (avec attribution au serveur)
+        // TIP & REVIEW (pourboire au restaurant)
         // ============================================
-        async function getServerUidForOrder(orderId) {
-            try {
-                const doc = await db.collection('orders').doc(orderId).get();
-                if (!doc.exists) return null;
-                const data = doc.data();
-                if (data.assignedToUid) return data.assignedToUid;
-                if (data.assignedTo) {
-                    const email = data.assignedTo;
-                    const usersSnap = await db.collection('users').where('email', '==', email).get();
-                    if (!usersSnap.empty) {
-                        return usersSnap.docs[0].id;
-                    }
-                }
-                return null;
-            } catch (e) {
-                console.warn('Erreur récupération serveur:', e);
-                return null;
-            }
-        }
-
         function submitTipAndReview() {
             const commentaire = document.getElementById('tipCommentaire').value.trim();
             const phone = document.getElementById('tipPhone').value.trim();
 
+            // Enregistrer l'avis s'il y a une note
             if (tipRating > 0) {
                 db.collection('avis').add({
                     restaurantId,
@@ -4645,56 +4627,57 @@
                 }).catch(e => console.error(e));
             }
 
+            // Gérer le pourboire
             if (tipAmount > 0) {
                 if (!phone) {
                     showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis', 'warning');
                     return;
                 }
 
-                getServerUidForOrder(tipOrderId).then(serverUid => {
-                    if (!serverUid) {
-                        showToast('Aucun serveur assigné à cette commande. Contactez le restaurant.', 'Erreur', 'error');
-                        return;
-                    }
-                    initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
-                        .then(result => {
-                            if (result.success && result.checkoutUrl) {
-                                const pendingData = {
-                                    type: 'tip',
-                                    restoId: restaurantId,
-                                    orderId: tipOrderId,
-                                    amount: tipAmount,
-                                    phone: phone,
-                                    commentaire: commentaire,
-                                    rating: tipRating,
-                                    timestamp: Date.now(),
-                                    serverUid: serverUid
-                                };
-                                localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
-                                window.location.href = result.checkoutUrl;
-                            } else {
-                                showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
-                        });
-                });
+                // Appeler l'API pour initier le paiement Mobile Money
+                initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
+                    .then(result => {
+                        if (result.success && result.checkoutUrl) {
+                            // Stocker les infos en attente de confirmation
+                            const pendingData = {
+                                type: 'tip',
+                                restoId: restaurantId,
+                                orderId: tipOrderId,
+                                amountBrut: tipAmount,
+                                phone: phone,
+                                commentaire: commentaire,
+                                rating: tipRating,
+                                timestamp: Date.now()
+                            };
+                            localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
+                            window.location.href = result.checkoutUrl;
+                        } else {
+                            showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+                    });
             } else {
+                // Pas de pourboire, on ferme la modale
                 closeModal('modalTipReview');
                 showToast('Merci pour votre retour !', 'À bientôt', 'success');
             }
         }
 
+        // Affichage de la modale de confirmation pour le pourboire
         function showConfirmTipModal(pending) {
             const recap = document.getElementById('confirmTipRecap');
+            // Calcul du montant net (brut - 5%)
+            const netAmount = Math.round(pending.amountBrut * 0.95);
             recap.innerHTML = `
-                        <p><strong>Pourboire :</strong> ${pending.amount} FCFA</p>
+                        <p><strong>Pourboire brut :</strong> ${pending.amountBrut} FCFA</p>
+                        <p><strong>Frais (5%) :</strong> ${pending.amountBrut - netAmount} FCFA</p>
+                        <p><strong>Montant net reversé au restaurant :</strong> ${netAmount} FCFA</p>
                         <p><strong>Commande :</strong> ${pending.orderId}</p>
                         <p><strong>Téléphone :</strong> ${pending.phone}</p>
                         ${pending.rating > 0 ? `<p><strong>Note :</strong> ${pending.rating} étoiles</p>` : ''}
                         ${pending.commentaire ? `<p><strong>Commentaire :</strong> ${pending.commentaire}</p>` : ''}
-                        <p><strong>Serveur attribué :</strong> ${pending.serverUid ? 'UID: '+pending.serverUid : 'Non attribué'}</p>
                     `;
             window._pendingTipData = pending;
             document.getElementById('confirmTipCheck').checked = false;
@@ -4707,22 +4690,26 @@
             document.getElementById('btnFinalizeTip').disabled = !checked;
         }
 
+        // Finalisation du pourboire après confirmation du paiement
         async function finalizeTip() {
             const pending = window._pendingTipData;
             if (!pending) return;
             try {
+                // Calcul du montant net
+                const netAmount = Math.round(pending.amountBrut * 0.95);
+                // Enregistrer dans la collection "tips"
                 await db.collection('tips').add({
                     restoId: pending.restoId,
                     orderId: pending.orderId,
-                    amount: pending.amount,
+                    amountBrut: pending.amountBrut,
+                    netAmount: netAmount,
                     phone: pending.phone,
                     statut: 'payé',
                     date: firebase.firestore.FieldValue.serverTimestamp(),
-                    userId: pending.serverUid || null,
                     restaurantId: pending.restoId,
                     clientName: currentUser?.displayName || 'Anonyme'
                 });
-                showToast(`Pourboire de ${pending.amount} FCFA enregistré !`, 'Merci', 'success');
+                showToast(`Pourboire de ${netAmount} FCFA enregistré pour le restaurant !`, 'Merci', 'success');
                 localStorage.removeItem('pendingPayment');
                 window._pendingTipData = null;
                 closeModal('modalConfirmTip');
@@ -4794,7 +4781,7 @@
                     return;
                 }
 
-                // --- Si la commande est servie ou terminée, on arrête tout et on affiche le bon statut ---
+                // --- Si la commande est servie ou terminée, on arrête tout ---
                 if (status === 'servi' || status === 'terminé') {
                     timerContainer.style.display = 'flex';
                     delayContainer.style.display = 'none';
@@ -4837,18 +4824,14 @@
                     const secs = remainingSec % 60;
                     const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 
-                    // Afficher le conteneur de report
                     delayContainer.style.display = 'flex';
                     document.getElementById('trackDelayCountdown').textContent = timeStr;
-                    // Cacher le timer de préparation
                     timerContainer.style.display = 'none';
-                    // Mettre à jour le statut
                     document.getElementById('trackStatusBadge').className = 'badge badge-delay';
                     document.getElementById('trackStatusBadge').textContent = 'Reporté';
                     document.getElementById('trackTime').textContent = `Servi dans ${mins} min ${secs} sec`;
                     trackingDiv.classList.remove('ready');
 
-                    // Lancer le compte à rebours du report
                     if (delayCountdownInterval) clearInterval(delayCountdownInterval);
                     delayCountdownInterval = setInterval(() => {
                         const now2 = new Date();
