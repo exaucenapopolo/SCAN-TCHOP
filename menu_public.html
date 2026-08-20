@@ -1056,6 +1056,14 @@
             font-size: 1.2rem;
             min-width: 70px;
         }
+        #trackDelayContainer .delay-expired {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
 
         .track-actions {
             margin-top: 18px;
@@ -2040,8 +2048,8 @@
             background: var(--btn-bg);
             color: #fff;
             border: none;
-            padding: 4px 14px;
             border-radius: 50px;
+            padding: 4px 14px;
             font-weight: 600;
             font-size: 0.75rem;
             cursor: pointer;
@@ -2529,7 +2537,7 @@
                 </div>
                 <span id="trackPercent" style="font-weight:600; min-width:40px;">0%</span>
             </div>
-            <!-- NOUVEAU : zone pour le report -->
+            <!-- ZONE DÉDIÉE AU REPORT (délai) -->
             <div id="trackDelayContainer">
                 <span class="delay-label"><i class="fas fa-hourglass-half"></i> Votre plat sera servi dans :</span>
                 <span class="delay-countdown" id="trackDelayCountdown">--:--</span>
@@ -4599,16 +4607,13 @@
         // ============================================
         // TIP & REVIEW (avec attribution au serveur)
         // ============================================
-        // Fonction pour récupérer l'UID du serveur assigné à une commande
         async function getServerUidForOrder(orderId) {
             try {
                 const doc = await db.collection('orders').doc(orderId).get();
                 if (!doc.exists) return null;
                 const data = doc.data();
-                // Priorité à assignedToUid, puis assignedTo (email)
                 if (data.assignedToUid) return data.assignedToUid;
                 if (data.assignedTo) {
-                    // Chercher l'utilisateur par email
                     const email = data.assignedTo;
                     const usersSnap = await db.collection('users').where('email', '==', email).get();
                     if (!usersSnap.empty) {
@@ -4626,7 +4631,6 @@
             const commentaire = document.getElementById('tipCommentaire').value.trim();
             const phone = document.getElementById('tipPhone').value.trim();
 
-            // Avis (déjà fait)
             if (tipRating > 0) {
                 db.collection('avis').add({
                     restaurantId,
@@ -4647,8 +4651,11 @@
                     return;
                 }
 
-                // Récupérer l'UID du serveur assigné
                 getServerUidForOrder(tipOrderId).then(serverUid => {
+                    if (!serverUid) {
+                        showToast('Aucun serveur assigné à cette commande. Contactez le restaurant.', 'Erreur', 'error');
+                        return;
+                    }
                     initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
                         .then(result => {
                             if (result.success && result.checkoutUrl) {
@@ -4770,7 +4777,7 @@
                 const timerContainer = document.getElementById('trackTimerContainer');
                 const delayContainer = document.getElementById('trackDelayContainer');
 
-                // --- Gestion du statut "refusée" ---
+                // --- Si la commande est refusée ---
                 if (status === 'refusée') {
                     timerContainer.style.display = 'none';
                     delayContainer.style.display = 'none';
@@ -4787,7 +4794,40 @@
                     return;
                 }
 
-                // --- Traitement du report (delayUntil) ---
+                // --- Si la commande est servie ou terminée, on arrête tout et on affiche le bon statut ---
+                if (status === 'servi' || status === 'terminé') {
+                    timerContainer.style.display = 'flex';
+                    delayContainer.style.display = 'none';
+                    trackingDiv.classList.remove('ready');
+                    document.getElementById('trackStatusBadge').className = 'badge badge-success';
+                    document.getElementById('trackStatusBadge').textContent = status === 'servi' ? 'Servi' : 'Terminé';
+                    document.getElementById('trackTime').textContent = status === 'servi' ? 'Bon appétit !' : 'Commande terminée. Merci !';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    if (delayCountdownInterval) clearInterval(delayCountdownInterval);
+                    document.getElementById('trackCountdown').textContent = '00:00';
+                    document.getElementById('trackProgressBar').style.width = '100%';
+                    document.getElementById('trackPercent').textContent = '100%';
+                    // Afficher la modale de pourboire/avis si ce n'est pas déjà fait
+                    if (!tipReviewShown && (status === 'servi' || status === 'terminé')) {
+                        tipReviewShown = true;
+                        openTipReviewModal(orderId);
+                    }
+                    return;
+                }
+
+                // --- Si la commande est en préparation ---
+                if (status === 'en préparation' && data.tempsEstime && data.startTime) {
+                    timerContainer.style.display = 'flex';
+                    delayContainer.style.display = 'none';
+                    trackingDiv.classList.remove('ready');
+                    document.getElementById('trackStatusBadge').className = 'badge badge-info';
+                    document.getElementById('trackStatusBadge').textContent = 'En préparation';
+                    document.getElementById('trackTime').textContent = `~${data.tempsEstime} min`;
+                    startCountdown(data.startTime, data.tempsEstime);
+                    return;
+                }
+
+                // --- Si la commande est prête AVEC un délai (report) ---
                 if (status === 'prêt' && data.delayUntil) {
                     const delayUntil = data.delayUntil.toDate ? data.delayUntil.toDate() : new Date(data.delayUntil);
                     const now = new Date();
@@ -4796,14 +4836,12 @@
                     const mins = Math.floor(remainingSec / 60);
                     const secs = remainingSec % 60;
                     const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-                    
+
                     // Afficher le conteneur de report
                     delayContainer.style.display = 'flex';
                     document.getElementById('trackDelayCountdown').textContent = timeStr;
-                    
                     // Cacher le timer de préparation
                     timerContainer.style.display = 'none';
-                    
                     // Mettre à jour le statut
                     document.getElementById('trackStatusBadge').className = 'badge badge-delay';
                     document.getElementById('trackStatusBadge').textContent = 'Reporté';
@@ -4818,7 +4856,8 @@
                         if (diff2 <= 0) {
                             clearInterval(delayCountdownInterval);
                             document.getElementById('trackDelayCountdown').textContent = '00:00';
-                            // Optionnel : on peut notifier le client que le délai est écoulé
+                            document.getElementById('trackDelayContainer').innerHTML +=
+                                `<span class="delay-expired"><i class="fas fa-exclamation-circle"></i> Délai écoulé, le serveur devrait arriver.</span>`;
                             showToast('Le délai est écoulé, votre plat devrait être servi maintenant.', 'Info', 'info');
                             return;
                         }
@@ -4827,24 +4866,13 @@
                         document.getElementById('trackDelayCountdown').textContent = `${String(mins2).padStart(2,'0')}:${String(secs2).padStart(2,'0')}`;
                         document.getElementById('trackTime').textContent = `Servi dans ${mins2} min ${secs2} sec`;
                     }, 1000);
-                    
                     return;
                 }
 
-                // Si pas de report, cacher le conteneur
-                delayContainer.style.display = 'none';
-
-                // --- Traitement des autres statuts ---
-                if (status === 'en préparation' && data.tempsEstime && data.startTime) {
+                // --- Si la commande est prête SANS délai ---
+                if (status === 'prêt') {
                     timerContainer.style.display = 'flex';
-                    trackingDiv.classList.remove('ready');
-                    document.getElementById('trackStatusBadge').className = 'badge badge-info';
-                    document.getElementById('trackStatusBadge').textContent = 'En préparation';
-                    document.getElementById('trackTime').textContent = `~${data.tempsEstime} min`;
-                    startCountdown(data.startTime, data.tempsEstime);
-
-                } else if (status === 'prêt') {
-                    timerContainer.style.display = 'flex';
+                    delayContainer.style.display = 'none';
                     trackingDiv.classList.add('ready');
                     document.getElementById('trackStatusBadge').className = 'badge badge-success';
                     document.getElementById('trackStatusBadge').textContent = 'Prêt';
@@ -4853,49 +4881,20 @@
                     document.getElementById('trackCountdown').textContent = '00:00';
                     document.getElementById('trackProgressBar').style.width = '100%';
                     document.getElementById('trackPercent').textContent = '100%';
-
                     if (soundEnabled) {
                         playSuccessSound();
                         showToast('Votre plat est prêt !', 'Prêt à servir', 'success');
                     }
-
-                } else if (status === 'servi') {
-                    timerContainer.style.display = 'flex';
-                    trackingDiv.classList.remove('ready');
-                    document.getElementById('trackStatusBadge').className = 'badge badge-success';
-                    document.getElementById('trackStatusBadge').textContent = 'Servi';
-                    document.getElementById('trackTime').textContent = 'Bon appétit !';
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    document.getElementById('trackCountdown').textContent = '00:00';
-                    document.getElementById('trackProgressBar').style.width = '100%';
-                    document.getElementById('trackPercent').textContent = '100%';
-
-                    if (!tipReviewShown) {
-                        tipReviewShown = true;
-                        openTipReviewModal(orderId);
-                    }
-
-                } else if (status === 'terminé') {
-                    timerContainer.style.display = 'flex';
-                    trackingDiv.classList.remove('ready');
-                    document.getElementById('trackStatusBadge').className = 'badge badge-success';
-                    document.getElementById('trackStatusBadge').textContent = 'Terminé';
-                    document.getElementById('trackTime').textContent = 'Commande terminée. Merci !';
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    document.getElementById('trackCountdown').textContent = '00:00';
-                    document.getElementById('trackProgressBar').style.width = '100%';
-                    document.getElementById('trackPercent').textContent = '100%';
-                    if (!tipReviewShown) {
-                        tipReviewShown = true;
-                        openTipReviewModal(orderId);
-                    }
-                } else {
-                    timerContainer.style.display = 'none';
-                    trackingDiv.classList.remove('ready');
-                    document.getElementById('trackStatusBadge').className = 'badge badge-warning';
-                    document.getElementById('trackStatusBadge').textContent = 'En attente';
-                    document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
+                    return;
                 }
+
+                // --- Sinon, statut par défaut (en attente) ---
+                timerContainer.style.display = 'none';
+                delayContainer.style.display = 'none';
+                trackingDiv.classList.remove('ready');
+                document.getElementById('trackStatusBadge').className = 'badge badge-warning';
+                document.getElementById('trackStatusBadge').textContent = 'En attente';
+                document.getElementById('trackTime').textContent = 'En cours d\'estimation...';
             }, error => {
                 console.error('Erreur écoute commande:', error);
             });
