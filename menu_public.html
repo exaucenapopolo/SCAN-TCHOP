@@ -2591,6 +2591,7 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal('modalOrder')"><i class="fas fa-times"></i></button>
             <h2 id="orderPlatNom">Nom du plat</h2>
+            <div id="orderPlatDescription" style="color:var(--text-muted); margin-bottom:16px; font-size:0.95rem;"></div>
 
             <div class="order-section">
                 <h4>Quantité</h4>
@@ -2602,7 +2603,7 @@
             </div>
 
             <div class="order-section" id="complementsContainer" style="display:none;">
-                <h4>Compléments</h4>
+                <h4>Compléments & Boissons</h4>
                 <div id="complementsCheckboxes"></div>
             </div>
 
@@ -3575,6 +3576,69 @@
         }
 
         // ============================================
+        // APPLICATION DES COULEURS DU RESTAURANT
+        // ============================================
+        function applyColors(colors) {
+            // colors : { couleurPrincipale, couleurBoutons }
+            const root = document.documentElement;
+            if (colors.couleurPrincipale) {
+                root.style.setProperty('--primary', colors.couleurPrincipale);
+                // Ajuster la couleur primaire foncée (moins saturée) pour le survol
+                const darker = darkenColor(colors.couleurPrincipale, 0.15);
+                root.style.setProperty('--primary-hover', darker);
+                root.style.setProperty('--primary-dark', darkenColor(colors.couleurPrincipale, 0.25));
+                // Couleur primaire claire pour les fonds
+                const lighter = lightenColor(colors.couleurPrincipale, 0.85);
+                root.style.setProperty('--primary-light', lighter);
+            }
+            if (colors.couleurBoutons) {
+                // On l'applique directement aux boutons qui ne sont pas en dégradé
+                root.style.setProperty('--couleur-boutons', colors.couleurBoutons);
+                // Pour les boutons avec dégradé, on peut aussi modifier la valeur.
+                // Ici on va modifier les styles des boutons .btn-commander, .btn-avis-header, .btn-action, .btn-game, etc.
+                // Mais on le fait via JS pour être plus souple
+                document.querySelectorAll('.btn-commander, .btn-avis-header, .btn-action, .btn-game, .btn-play, .btn-primary-footer, .btn-track-order, .btn-order-fav, .btn-commander, .btn-commander:not(:disabled)').forEach(el => {
+                    if (el.closest('.track-actions') && el.classList.contains('btn-avis-header')) {
+                        // conserver le fond personnalisé déjà défini en inline
+                    } else {
+                        el.style.background = `linear-gradient(135deg, ${colors.couleurBoutons}, ${darkenColor(colors.couleurBoutons, 0.1)})`;
+                        el.style.boxShadow = `0 4px 16px ${hexToRgba(colors.couleurBoutons, 0.25)}`;
+                    }
+                });
+                // Les boutons de type .btn-action-secondary et .btn-outline-footer ont un fond transparent
+                // On ne les modifie pas
+            }
+        }
+
+        // Fonctions utilitaires de couleur
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function darkenColor(hex, amount) {
+            let r = parseInt(hex.slice(1, 3), 16);
+            let g = parseInt(hex.slice(3, 5), 16);
+            let b = parseInt(hex.slice(5, 7), 16);
+            r = Math.max(0, r - Math.round(r * amount));
+            g = Math.max(0, g - Math.round(g * amount));
+            b = Math.max(0, b - Math.round(b * amount));
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        function lightenColor(hex, amount) {
+            let r = parseInt(hex.slice(1, 3), 16);
+            let g = parseInt(hex.slice(3, 5), 16);
+            let b = parseInt(hex.slice(5, 7), 16);
+            r = Math.min(255, r + Math.round((255 - r) * amount));
+            g = Math.min(255, g + Math.round((255 - g) * amount));
+            b = Math.min(255, b + Math.round((255 - b) * amount));
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        // ============================================
         // RESTAURANT HEADER & REVIEWS
         // ============================================
         async function loadRestaurantData() {
@@ -3594,6 +3658,14 @@
                     logo.style.display = 'block';
                 } else {
                     logo.style.display = 'none';
+                }
+
+                // Appliquer les couleurs du restaurant
+                if (resto.couleurPrincipale || resto.couleurBoutons) {
+                    applyColors({
+                        couleurPrincipale: resto.couleurPrincipale || '#e67e22',
+                        couleurBoutons: resto.couleurBoutons || '#d35400'
+                    });
                 }
 
                 const avisSnapshot = await db.collection('avis').where('restaurantId', '==', restaurantId).get();
@@ -3799,12 +3871,15 @@
                     `<span class="badge-promo">Promo</span>` : '';
                 const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
 
+                // Affichage des compléments/boissons sur la carte (version simplifiée)
                 let complementsHtml = '';
                 if (plat.complements && plat.complements.length > 0) {
                     complementsHtml = `<div class="complements-list">` +
-                        plat.complements.map(c =>
+                        plat.complements.slice(0, 3).map(c =>
                             `<span class="complement-tag">${c.nom} <span class="price">+${c.prix} FCFA</span></span>`
                         ).join('') +
+                        (plat.complements.length > 3 ? `<span class="complement-tag">+${plat.complements.length-3}</span>` :
+                            '') +
                         `</div>`;
                 }
 
@@ -4004,6 +4079,7 @@
             };
 
             document.getElementById('orderPlatNom').innerText = plat.nom;
+            document.getElementById('orderPlatDescription').innerHTML = plat.description || '';
             document.getElementById('orderQty').innerText = 1;
             document.getElementById('splitCount').value = '';
             document.getElementById('orderTable').value = '';
@@ -4025,15 +4101,21 @@
                 compContainer.style.display = 'block';
                 compCheckboxes.innerHTML = '';
                 plat.complements.forEach((comp, idx) => {
-                    const label = document.createElement('label');
-                    label.style.display = 'flex';
-                    label.style.alignItems = 'center';
-                    label.style.gap = '8px';
-                    label.style.marginBottom = '8px';
-                    label.style.fontWeight = '500';
+                    const wrapper = document.createElement('div');
+                    wrapper.style.display = 'flex';
+                    wrapper.style.alignItems = 'center';
+                    wrapper.style.gap = '10px';
+                    wrapper.style.marginBottom = '10px';
+                    wrapper.style.padding = '8px';
+                    wrapper.style.background = '#f8fafc';
+                    wrapper.style.borderRadius = 'var(--radius-sm)';
+                    wrapper.style.border = '1px solid var(--border-color)';
+                    wrapper.style.transition = 'var(--transition)';
+                    wrapper.style.flexWrap = 'wrap';
+
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
-                    cb.value = idx;
+                    cb.checked = false;
                     cb.onchange = function() {
                         if (this.checked) {
                             currentOrder.complements.push(comp);
@@ -4042,9 +4124,53 @@
                         }
                         calculateTotal();
                     };
-                    label.appendChild(cb);
-                    label.appendChild(document.createTextNode(`${comp.nom} (+${comp.prix} FCFA)`));
-                    compCheckboxes.appendChild(label);
+
+                    const img = document.createElement('img');
+                    img.src = comp.image || '';
+                    img.alt = comp.nom || 'complément';
+                    img.style.width = '50px';
+                    img.style.height = '50px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    img.style.border = '1px solid var(--border-color)';
+                    img.style.display = comp.image ? 'block' : 'none';
+                    img.onerror = function() { this.style.display = 'none'; };
+
+                    const info = document.createElement('div');
+                    info.style.flex = '1';
+                    info.style.display = 'flex';
+                    info.style.flexDirection = 'column';
+                    info.style.gap = '2px';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.style.fontWeight = '600';
+                    nameSpan.textContent = comp.nom;
+                    const priceSpan = document.createElement('span');
+                    priceSpan.style.fontSize = '0.85rem';
+                    priceSpan.style.color = 'var(--text-muted)';
+                    priceSpan.textContent = `+${comp.prix} FCFA`;
+                    const descSpan = document.createElement('span');
+                    if (comp.description) {
+                        descSpan.style.fontSize = '0.8rem';
+                        descSpan.style.color = 'var(--text-muted)';
+                        descSpan.textContent = comp.description;
+                    }
+                    info.appendChild(nameSpan);
+                    info.appendChild(priceSpan);
+                    if (comp.description) info.appendChild(descSpan);
+
+                    const typeTag = document.createElement('span');
+                    typeTag.style.fontSize = '0.7rem';
+                    typeTag.style.padding = '2px 10px';
+                    typeTag.style.borderRadius = '50px';
+                    typeTag.style.background = 'var(--primary-light)';
+                    typeTag.style.color = 'var(--primary)';
+                    typeTag.textContent = comp.type || 'complément';
+
+                    wrapper.appendChild(cb);
+                    if (comp.image) wrapper.appendChild(img);
+                    wrapper.appendChild(info);
+                    wrapper.appendChild(typeTag);
+                    compCheckboxes.appendChild(wrapper);
                 });
             } else {
                 compContainer.style.display = 'none';
@@ -4135,7 +4261,6 @@
         // ============================================
         async function generateOrderReference() {
             try {
-                // Utiliser un compteur Firestore avec transaction
                 const counterRef = db.collection('counters').doc('orderCounter');
                 return await db.runTransaction(async (transaction) => {
                     const doc = await transaction.get(counterRef);
@@ -4148,7 +4273,6 @@
                 });
             } catch (error) {
                 console.warn('Erreur transaction reference, fallback timestamp:', error);
-                // Fallback: référence basée sur timestamp + aléatoire
                 const timestamp = Date.now().toString(36).toUpperCase();
                 const random = Math.random().toString(36).substring(2, 6).toUpperCase();
                 return `ST-${timestamp}-${random}`;
@@ -4216,7 +4340,6 @@
                 return;
             }
 
-            // Si paiement Mobile Money, on initie le paiement via le backend
             if (currentOrder.paymentMode === 'mobile') {
                 try {
                     const result = await initierPaiementCommande(
@@ -4232,7 +4355,6 @@
                     );
 
                     if (result.success && result.checkoutUrl) {
-                        // Stocker les données en attente dans localStorage
                         const pendingData = {
                             type: 'order',
                             restoId: restaurantId,
@@ -4253,7 +4375,6 @@
                             timestamp: Date.now()
                         };
                         localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
-                        // Rediriger vers la page de paiement
                         window.location.href = result.checkoutUrl;
                         return;
                     } else {
@@ -4266,7 +4387,6 @@
                 }
             }
 
-            // Paiement en espèces : on enregistre directement
             await enregistrerCommande(user, refNumber, finalAmount);
         }
 
@@ -4322,7 +4442,6 @@
                 closeModal('modalOrder');
                 showToast(`Commande enregistrée avec succès ! Référence : ${refNumber}`, 'Succès', 'success');
 
-                // Affichage automatique de la modale "Jeux" après la commande
                 showGameModalAfterOrder(orderId);
 
             } catch (error) {
@@ -4338,16 +4457,11 @@
         // AFFICHAGE AUTOMATIQUE DE LA MODALE JEUX
         // ============================================
         function showGameModalAfterOrder(orderId) {
-            // Vérifier si déjà affichée pour cette commande
             const sessionKey = `gameModalShown_${orderId}`;
             if (sessionStorage.getItem(sessionKey) === 'true') return;
-
-            // Marquer comme affichée
             sessionStorage.setItem(sessionKey, 'true');
 
-            // Attendre un peu pour laisser le suivi s'afficher
             setTimeout(() => {
-                // Mettre à jour les liens des jeux avec les paramètres actuels
                 const links = document.querySelectorAll('#modalGames .game-card');
                 links.forEach(link => {
                     const game = link.dataset.game;
@@ -4359,7 +4473,7 @@
                     link.setAttribute('href', baseUrl);
                 });
                 openModal('modalGames');
-            }, 2000); // Délai de 2 secondes
+            }, 2000);
         }
 
         // ============================================
@@ -4370,12 +4484,10 @@
             if (!pendingRaw) return;
             try {
                 const pending = JSON.parse(pendingRaw);
-                // Vérifier si la transaction est récente (moins de 1h)
                 if (Date.now() - pending.timestamp > 3600000) {
                     localStorage.removeItem('pendingPayment');
                     return;
                 }
-                // Afficher la modale de confirmation
                 if (pending.type === 'order') {
                     showConfirmOrderModal(pending);
                 } else if (pending.type === 'tip') {
@@ -4397,7 +4509,6 @@
                         <p><strong>Email :</strong> ${pending.email}</p>
                         <p><strong>Téléphone :</strong> ${pending.phone}</p>
                     `;
-            // Stocker les données en global pour finalisation
             window._pendingOrderData = pending;
             document.getElementById('confirmOrderCheck').checked = false;
             document.getElementById('btnFinalizeOrder').disabled = true;
@@ -4412,7 +4523,6 @@
         async function finalizeOrder() {
             const pending = window._pendingOrderData;
             if (!pending) return;
-            // Réutiliser les données pour enregistrer la commande
             currentOrder.id = pending.platId;
             currentOrder.nom = pending.nomPlat;
             currentOrder.qty = pending.qty;
@@ -4426,7 +4536,6 @@
             currentOrder.complements = pending.complements || [];
 
             await enregistrerCommande(pending.user, pending.refNumber, pending.finalAmount);
-            // Nettoyer
             localStorage.removeItem('pendingPayment');
             window._pendingOrderData = null;
             closeModal('modalConfirmOrder');
@@ -4439,7 +4548,6 @@
             const commentaire = document.getElementById('tipCommentaire').value.trim();
             const phone = document.getElementById('tipPhone').value.trim();
 
-            // Sauvegarder l'avis si note donnée
             if (tipRating > 0) {
                 db.collection('avis').add({
                     restaurantId,
@@ -4454,7 +4562,6 @@
                 }).catch(e => console.error(e));
             }
 
-            // Si pourboire > 0, initier paiement
             if (tipAmount > 0) {
                 if (!phone) {
                     showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis',
@@ -4462,11 +4569,9 @@
                     return;
                 }
 
-                // Initier le paiement
                 initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
                     .then(result => {
                         if (result.success && result.checkoutUrl) {
-                            // Stocker en attente
                             const pendingData = {
                                 type: 'tip',
                                 restoId: restaurantId,
@@ -4515,7 +4620,6 @@
         async function finalizeTip() {
             const pending = window._pendingTipData;
             if (!pending) return;
-            // Enregistrer le pourboire dans Firestore
             try {
                 await db.collection('tips').add({
                     restoId: pending.restoId,
@@ -4763,6 +4867,11 @@
             }
         });
 
+        function skipTipReview() {
+            closeModal('modalTipReview');
+            showToast('Merci pour votre commande !', 'À bientôt', 'success');
+        }
+
         // ============================================
         // REVIEWS (classique)
         // ============================================
@@ -4865,10 +4974,8 @@
             await loadRestaurantData();
             await loadMenuData();
 
-            // Vérifier s'il y a un paiement en attente (au chargement)
             checkPendingPayment();
 
-            // Écouter le retour sur la page (pageshow, visibilitychange)
             window.addEventListener('pageshow', function(e) {
                 if (e.persisted) {
                     checkPendingPayment();
