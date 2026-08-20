@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       STYLES (inchangés pour l'interface graphique)
+       STYLES DE L'INTERFACE
     ============================================ */
     :root {
       --primary: #3498db;
@@ -85,7 +85,6 @@
     .ticket.delayed.old { border-top-color: var(--warning); }
     .ticket.delayed.very-old { border-top-color: var(--danger); }
     
-    /* Style spécifique pour les commandes des AUTRES serveurs */
     .ticket.read-only { opacity: 0.75; border-top-color: #bdc3c7; background-color: #fcfcfc; }
     .ticket.read-only:hover { transform: none; box-shadow: var(--shadow-sm); }
     
@@ -268,8 +267,7 @@
             </button>
           </div>
         </div>
-        <div class="grid-commandes" id="readyOrdersContainer">
-        </div>
+        <div class="grid-commandes" id="readyOrdersContainer"></div>
       </div>
     </div>
 
@@ -280,8 +278,7 @@
           <h3><i class="fas fa-clock"></i> Commandes reportées</h3>
           <span class="badge badge-pending" id="delayedCount">0 reportées</span>
         </div>
-        <div class="grid-commandes" id="delayedOrdersContainer">
-        </div>
+        <div class="grid-commandes" id="delayedOrdersContainer"></div>
       </div>
     </div>
 
@@ -292,8 +289,7 @@
           <h3><i class="fas fa-life-ring"></i> Demandes d'aide des clients</h3>
           <span class="badge badge-pending" id="helpPendingCount">0 en attente</span>
         </div>
-        <div id="helpRequestsContainer">
-        </div>
+        <div id="helpRequestsContainer"></div>
       </div>
     </div>
 
@@ -309,8 +305,7 @@
           <button class="btn btn-primary" onclick="applyHistoryFilter()"><i class="fas fa-filter"></i> Appliquer</button>
           <button class="btn btn-outline-secondary" onclick="resetHistoryFilter()"><i class="fas fa-undo"></i> Réinitialiser</button>
         </div>
-        <div class="grid-commandes" id="historyOrdersContainer">
-        </div>
+        <div class="grid-commandes" id="historyOrdersContainer"></div>
       </div>
     </div>
 
@@ -325,8 +320,7 @@
           <div class="tip-total" id="tipTotalBig">0 FCFA</div>
           <p style="color:var(--text-muted); font-size:0.9rem;">Pourboires reçus automatiquement via les commandes.</p>
         </div>
-        <div class="tip-history" id="tipHistoryContainer">
-        </div>
+        <div class="tip-history" id="tipHistoryContainer"></div>
       </div>
     </div>
 
@@ -387,7 +381,7 @@
     const db = firebase.firestore();
 
     // ============================================================
-    //  GLOBAL STATE
+    //  ÉTAT GLOBAL
     // ============================================================
     let currentUser = null;
     let currentRestaurantId = null;
@@ -411,11 +405,10 @@
     let availableVoices = [];
     let isAlerting = false;
 
-    // MODIFICATION : Par défaut on montre TOUTES les commandes (false)
     let showOnlyMine = false; 
 
     // ============================================================
-    //  UI HELPERS
+    //  ASSISTANTS UI
     // ============================================================
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
@@ -584,13 +577,9 @@
         }
       }, repeatIntervalSec * 1000);
     }
-    function onNewNotification(message) {
-      if (message) triggerAlert(message);
-      if (!isAlerting) startAlertRepeat();
-    }
 
     // ============================================================
-    //  VOIX
+    //  VOIX SYNTHÈSE
     // ============================================================
     function populateVoiceSelect() {
       const select = document.getElementById('voiceSelect');
@@ -613,7 +602,7 @@
     if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = populateVoiceSelect; setTimeout(populateVoiceSelect, 500); }
 
     // ============================================================
-    //  AUTH
+    //  AUTHENTIFICATION & INITIALISATION
     // ============================================================
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'connexion.html'; return; }
@@ -658,7 +647,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
     // ============================================================
-    //  PARAMÈTRES
+    //  PARAMÈTRES ENREGISTREMENT
     // ============================================================
     document.getElementById('settingsForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -683,24 +672,19 @@
     });
 
     // ============================================================
-    //  MODIFICATION : FONCTION ASSIGNATION BLINDÉE
+    //  VERIFICATION D'ASSIGNATION
     // ============================================================
     function isAssignedToMe(order) {
       if (!order) return false;
-      
-      // 1. Vérification par UID (le plus sûr)
       if (order.assignedToUid && currentUserUid && order.assignedToUid === currentUserUid) return true;
-      if (order.serveurId && currentUserUid && order.serveurId === currentUserUid) return true; // Si la cuisine utilise 'serveurId'
-
-      // 2. Vérification par Email (insensible à la casse)
+      if (order.serveurId && currentUserUid && order.serveurId === currentUserUid) return true;
       if (order.assignedTo && currentUserEmail && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase()) return true;
       if (order.serveurEmail && currentUserEmail && order.serveurEmail.toLowerCase() === currentUserEmail.toLowerCase()) return true;
-
       return false;
     }
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES
+    //  ÉCOUTE DES COMMANDES FIRESTORE
     // ============================================================
     function listenOrders() {
       if (!currentRestaurantId) return;
@@ -718,23 +702,19 @@
             }
           });
 
-          // Filtrer les commandes du serveur connecté
           const myOrders = allOrders.filter(o => isAssignedToMe(o));
           myReadyOrders = myOrders.filter(o => o.status === 'prêt' && !o.delayUntil);
           myDelayedOrders = myOrders.filter(o => o.status === 'prêt' && o.delayUntil);
 
-          // Toutes les commandes prêtes du resto
           allReadyOrders = allOrders.filter(o => o.status === 'prêt' && !o.delayUntil);
           allDelayedOrders = allOrders.filter(o => o.status === 'prêt' && o.delayUntil);
 
-          // Les badges ne concernent QUE mes commandes
           document.getElementById('readyBadge').textContent = myReadyOrders.length;
           document.getElementById('readyBadge').classList.toggle('show', myReadyOrders.length > 0);
           document.getElementById('delayedBadge').textContent = myDelayedOrders.length;
           document.getElementById('delayedBadge').classList.toggle('show', myDelayedOrders.length > 0);
           document.getElementById('delayedCount').textContent = `${myDelayedOrders.length} reportées`;
 
-          // Alerte sonore uniquement pour mes nouvelles commandes
           const newReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
           if (newReady.length > 0) {
             const order = newReady[0];
@@ -751,9 +731,6 @@
         }, error => console.error('Erreur écoute orders:', error));
     }
 
-    // ============================================================
-    //  FILTRE
-    // ============================================================
     function toggleFilter() {
       showOnlyMine = !showOnlyMine;
       document.getElementById('filterLabel').textContent = showOnlyMine ? 'Mes commandes uniquement' : 'Toutes les commandes';
@@ -762,7 +739,7 @@
     }
 
     // ============================================================
-    //  RENDU DES COMMANDES PRÊTES (MODIFIÉ)
+    //  RENDU DES COMMANDES PRÊTES
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
@@ -777,13 +754,12 @@
       }
       container.innerHTML = '';
 
-      // MODIFICATION : On trie pour que MES commandes soient toujours en haut
       orders.sort((a, b) => {
         const aIsMine = isAssignedToMe(a);
         const bIsMine = isAssignedToMe(b);
-        if (aIsMine && !bIsMine) return -1; // "a" remonte
-        if (!aIsMine && bIsMine) return 1;  // "b" remonte
-        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0); // Tri par date
+        if (aIsMine && !bIsMine) return -1;
+        if (!aIsMine && bIsMine) return 1;
+        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
       });
 
       orders.forEach(order => {
@@ -801,14 +777,12 @@
         let paymentStatusHtml = '';
         let confirmBtnHtml = '';
         
-        // MODIFICATION : Logique de verrouillage de l'affichage[cite: 1]
         if (order.paymentMode === 'cash') {
           if (order.paymentConfirmed) {
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
           } else {
             paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
             if (isMine) {
-              // Bouton visible UNIQUEMENT si c'est MA commande
               confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
             }
           }
@@ -826,7 +800,6 @@
             </div>
           `;
         } else {
-          // VERROUILLAGE : La commande appartient à quelqu'un d'autre
           const assigneA = order.assignedToName || order.assignedTo || 'Un autre serveur';
           actionButtons = `
             <div style="background-color: #ecf0f1; border-radius: 8px; padding: 10px; text-align: center; color: var(--text-muted); width: 100%; font-weight: 600;">
@@ -836,7 +809,6 @@
         }
 
         const ticket = document.createElement('div');
-        // Si ce n'est pas ma commande, on applique la classe 'read-only' pour la griser légèrement
         ticket.className = `ticket ${isNew && isMine ? 'new-ready' : ''} ${!isMine ? 'read-only' : ''}`;
         ticket.innerHTML = `
           <div class="ticket-header">
@@ -859,7 +831,7 @@
     }
 
     // ============================================================
-    //  RENDU DES COMMANDES REPORTÉES (MODIFIÉ DE LA MÊME FAÇON)
+    //  RENDU DES COMMANDES REPORTÉES
     // ============================================================
     function renderDelayedOrders() {
       const container = document.getElementById('delayedOrdersContainer');
@@ -874,7 +846,6 @@
       }
       container.innerHTML = '';
       
-      // Tri temporel puis on met les nôtres en haut
       orders.sort((a,b) => (a.delayUntil?.toDate?.() || 0) - (b.delayUntil?.toDate?.() || 0));
       orders.sort((a, b) => {
         const aIsMine = isAssignedToMe(a);
@@ -970,7 +941,7 @@
     }
 
     // ============================================================
-    //  ACTIONS SUR COMMANDES (inchangé)
+    //  ACTIONS DES COMMANDES
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
@@ -1056,9 +1027,6 @@
       }
     };
 
-    // ============================================================
-    //  MODALE POUR COMMANDE PRÊTE (inchangé)
-    // ============================================================
     function showReadyOrderModal(order) {
       const tableNum = order.table || order.tableNumber || '?';
       const itemsHtml = order.items ? order.items.map(item => {
@@ -1092,25 +1060,270 @@
       openModal('🍽️ Commande prête !', bodyHTML, actionsHTML);
     }
 
-    // (Le reste des fonctions Demandes d'Aide, Historique, Pourboires restent strictement identiques au tien pour ne rien casser)
-    // ... [Code abrégé pour lisibilité, le reste du JS fourni initialement est préservé]
+    // ============================================================
+    //  DEMANDES D'AIDE DES CLIENTS
+    // ============================================================
+    function listenHelpRequests() {
+      if (!currentRestaurantId) return;
+      db.collection('helpRequests')
+        .where('restaurantId', '==', currentRestaurantId)
+        .onSnapshot(snapshot => {
+          const requests = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'resolved') {
+              requests.push({ id: doc.id, ...data });
+            }
+          });
+          
+          const pendingCount = requests.filter(r => r.status === 'pending').length;
+          document.getElementById('helpBadge').textContent = pendingCount;
+          document.getElementById('helpBadge').classList.toggle('show', pendingCount > 0);
+          document.getElementById('helpPendingCount').textContent = `${pendingCount} en attente`;
+
+          requests.forEach(req => {
+            if (req.status === 'pending' && !knownHelpRequests.includes(req.id)) {
+              knownHelpRequests.push(req.id);
+              showHelpModal(req);
+              triggerAlert(`Demande d'aide table ${req.table || req.tableNumber || 'inconnue'}`);
+            }
+          });
+
+          renderHelpRequests(requests);
+        }, error => console.error('Erreur écoute helpRequests:', error));
+    }
+
+    function renderHelpRequests(requests) {
+      const container = document.getElementById('helpRequestsContainer');
+      if (!container) return;
+      if (requests.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);">
+          <i class="fas fa-check-circle fa-2x" style="opacity:0.3;margin-bottom:10px;"></i>
+          <p>Aucune demande d'aide en attente.</p>
+        </div>`;
+        return;
+      }
+      container.innerHTML = '';
+      requests.forEach(req => {
+        const isAccepted = req.status === 'accepted';
+        const card = document.createElement('div');
+        card.className = `help-request-card ${isAccepted ? 'accepted' : ''}`;
+        const tableNum = req.table || req.tableNumber || '?';
+        const message = req.message || 'Le client demande de l\'assistance à sa table.';
+        
+        let actions = '';
+        if (!isAccepted) {
+          actions = `<button class="btn btn-sm btn-primary" onclick="takeHelpCharge('${req.id}')"><i class="fas fa-hand-paper"></i> Prise en charge</button>`;
+        } else {
+          actions = `<span class="badge badge-accepted">Pris en charge par ${req.acceptedByName || 'un serveur'}</span>
+                     <button class="btn btn-sm btn-success" onclick="resolveHelp('${req.id}')"><i class="fas fa-check"></i> Terminer</button>`;
+        }
+
+        card.innerHTML = `
+          <div class="help-header">
+            <span class="help-table">Table ${tableNum}</span>
+            <span class="badge ${isAccepted ? 'badge-accepted' : 'badge-pending'}">${isAccepted ? 'En cours' : 'En attente'}</span>
+          </div>
+          <div class="help-message">${message}</div>
+          <div class="help-actions">${actions}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.takeHelpCharge = async function(notifId) {
+      try {
+        await db.collection('helpRequests').doc(notifId).update({
+          status: 'accepted',
+          acceptedBy: currentUserUid,
+          acceptedByName: currentUserDisplayName,
+          acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Demande prise en charge', 'success');
+        playConfirmation('Demande d\'aide prise en charge.');
+      } catch(err) {
+        showToast('Erreur lors de la prise en charge', 'error');
+      }
+    };
+
+    window.resolveHelp = async function(notifId) {
+      try {
+        await db.collection('helpRequests').doc(notifId).update({
+          status: 'resolved',
+          resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Demande résolue', 'success');
+        playConfirmation('Demande d\'aide résolue.');
+      } catch(err) {
+        showToast('Erreur lors de la résolution', 'error');
+      }
+    };
+
+    function showHelpModal(request) {
+      const tableNum = request.table || request.tableNumber || '?';
+      const bodyHTML = `<p><strong>Table ${tableNum}</strong> demande de l'aide !</p><p style="margin-top:10px;color:var(--text-muted);">${request.message || 'Assistance demandée à la table.'}</p>`;
+      const actionsHTML = `
+        <button class="btn btn-primary" onclick="takeHelpCharge('${request.id}'); closeModal();"><i class="fas fa-check"></i> Prendre en charge</button>
+        <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
+      `;
+      openModal('🆘 Demande d\'aide client !', bodyHTML, actionsHTML);
+    }
+
+    // ============================================================
+    //  NOTIFICATIONS ET BANNIÈRE
+    // ============================================================
+    function listenNotifications() {
+      if (!currentRestaurantId) return;
+      db.collection('notifications')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('targetRole', 'in', ['all', 'Serveur'])
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .onSnapshot(snapshot => {
+          snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+              const notif = change.doc.data();
+              if (notif.message) {
+                showNotificationBanner(notif.message, notif.type || 'info');
+              }
+            }
+          });
+        }, err => {});
+    }
+
+    function showNotificationBanner(message, type = 'info') {
+      const banner = document.getElementById('notificationBanner');
+      if (!banner) return;
+      banner.className = `notification-banner ${type === 'success' ? 'success' : ''}`;
+      banner.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+        <button class="dismiss" onclick="document.getElementById('notificationBanner').style.display='none'">&times;</button>
+      `;
+      banner.style.display = 'flex';
+    }
+
+    // ============================================================
+    //  HISTORIQUE DES SERVICES
+    // ============================================================
+    function loadHistory(dateFilter) {
+      if (!currentRestaurantId) return;
+      let query = db.collection('orders')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('status', '==', 'terminé');
+
+      query.get().then(snapshot => {
+        let orders = [];
+        snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+
+        orders = orders.filter(o => isAssignedToMe(o));
+
+        if (dateFilter) {
+          orders = orders.filter(o => {
+            if (!o.servedAt) return false;
+            const d = o.servedAt.toDate();
+            const dateStr = d.toISOString().split('T')[0];
+            return dateStr === dateFilter;
+          });
+        }
+
+        orders.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
+        renderHistory(orders);
+      }).catch(err => console.error('Erreur chargement historique:', err));
+    }
+
+    function renderHistory(orders) {
+      const container = document.getElementById('historyOrdersContainer');
+      if (!container) return;
+      if (orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
+          <i class="fas fa-history fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
+          <p>Aucun historique de commande terminé pour ce filtre.</p>
+        </div>`;
+        return;
+      }
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const tableNum = order.table || order.tableNumber || '?';
+        const servedTime = order.servedAt ? new Date(order.servedAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Heure inconnue';
+        const itemsCount = order.items ? order.items.reduce((acc, i) => acc + (i.quantite || 1), 0) : 0;
+        
+        const card = document.createElement('div');
+        card.className = 'ticket';
+        card.style.borderTopColor = 'var(--success)';
+        card.innerHTML = `
+          <div class="ticket-header">
+            <div class="ticket-table">Table ${tableNum}</div>
+            <span class="badge badge-resolved"><i class="fas fa-check"></i> Servi à ${servedTime}</span>
+          </div>
+          <p style="font-weight:600;margin:10px 0;">Total articles : ${itemsCount}</p>
+          <div style="font-size:0.85rem;color:var(--text-muted);">
+            Total: <strong>${order.total || 0} FCFA</strong> | ${order.paymentMode === 'cash' ? 'Espèces' : 'En ligne'}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function applyHistoryFilter() {
+      const dateVal = document.getElementById('historyDateFilter').value;
+      loadHistory(dateVal);
+    }
+
+    function resetHistoryFilter() {
+      document.getElementById('historyDateFilter').value = '';
+      loadHistory(null);
+    }
+
+    // ============================================================
+    //  POURBOIRES
+    // ============================================================
+    function listenTips() {
+      if (!currentRestaurantId) return;
+      db.collection('tips')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('serverId', '==', currentUserUid)
+        .onSnapshot(snapshot => {
+          const tips = [];
+          snapshot.forEach(doc => tips.push({ id: doc.id, ...doc.data() }));
+          tips.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+          renderTips(tips);
+        }, err => console.error('Erreur écoute tips:', err));
+    }
+
+    function renderTips(tips) {
+      const total = tips.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      document.getElementById('tipTotalDisplay').textContent = `Total : ${total} FCFA`;
+      document.getElementById('tipTotalBig').textContent = `${total} FCFA`;
+
+      const container = document.getElementById('tipHistoryContainer');
+      if (!container) return;
+      if (tips.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:20px;">Aucun pourboire enregistré pour le moment.</p>`;
+        return;
+      }
+      container.innerHTML = '';
+      tips.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'tip-item';
+        const dateStr = t.createdAt ? new Date(t.createdAt.seconds * 1000).toLocaleDateString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '';
+        item.innerHTML = `
+          <span><i class="fas fa-coins" style="color:var(--warning);"></i> Table ${t.table || '?'} (${dateStr})</span>
+          <strong>+${t.amount || 0} FCFA</strong>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // ============================================================
+    //  BOUTON DE TEST
+    // ============================================================
+    window.playTestSound = function() {
+      triggerAlert("Ceci est un test d'alerte sonore et vocale.");
+      showToast('Alerte de test déclenchée !', 'info');
+    };
     
-    function listenHelpRequests() { /* inchangé */ }
-    function renderHelpRequests(requests) { /* inchangé */ }
-    window.takeHelpCharge = async function(notifId) { /* inchangé */ };
-    window.resolveHelp = async function(notifId) { /* inchangé */ };
-    function showHelpModal(request) { /* inchangé */ }
-    function listenNotifications() { /* inchangé */ }
-    function showNotificationBanner(message, type = 'info') { /* inchangé */ }
-    function loadHistory(dateFilter) { /* inchangé */ }
-    function renderHistory(orders) { /* inchangé */ }
-    function applyHistoryFilter() { /* inchangé */ }
-    function resetHistoryFilter() { /* inchangé */ }
-    function listenTips() { /* inchangé */ }
-    function renderTips(tips) { /* inchangé */ }
-    window.playTestSound = function() { /* inchangé */ };
-    
-    console.log('SCAN&TCHOP Serveur prêt (Affichage complet, permissions verrouillées) !');
+    console.log('SCAN&TCHOP Serveur prêt (Complet & entièrement fonctionnel) !');
   </script>
 </body>
 </html>
