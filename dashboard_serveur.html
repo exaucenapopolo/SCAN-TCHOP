@@ -384,7 +384,7 @@
 
   <script>
     // ============================================================
-    //  CONFIGURATION FIREBASE
+    //  CONFIGURATION FIREBASE (ALIGNÉE SUR connexion.html)
     // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
@@ -392,7 +392,8 @@
       projectId: "cinexau-903a6",
       storageBucket: "cinexau-903a6.firebasestorage.app",
       messagingSenderId: "247230931008",
-      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+      appId: "1:247230931008:web:44961cc4857a567a31ffa5",
+      measurementId: "G-SV1HQY5MW6"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     
@@ -651,40 +652,56 @@
     //  AUTH
     // ============================================================
     auth.onAuthStateChanged(async user => {
-      if (!user) { window.location.href = 'connexion.html'; return; }
-      currentUser = user;
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      if (!userDoc.exists) { auth.signOut(); return; }
-      const userData = userDoc.data();
-      if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') {
-        showToast('Accès réservé aux serveurs.', 'error');
-        auth.signOut();
+      if (!user) { 
+        window.location.href = 'connexion.html';
         return;
       }
-      currentRestaurantId = userData.restaurantId;
-      const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
-      if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
+      currentUser = user;
+      console.log('Utilisateur connecté:', currentUser.email, 'UID:', currentUser.uid);
 
-      // Afficher les infos du serveur
-      const displayName = userData.displayName || userData.nom || userData.email || 'Serveur';
-      const email = userData.email || '';
-      document.getElementById('userDisplayName').textContent = displayName;
-      document.getElementById('userEmail').textContent = email;
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          showToast('Utilisateur non trouvé dans la base de données. Veuillez contacter l\'administrateur.', 'error');
+          auth.signOut();
+          return;
+        }
+        const userData = userDoc.data();
+        if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') {
+          showToast('Accès réservé aux serveurs.', 'error');
+          auth.signOut();
+          return;
+        }
+        currentRestaurantId = userData.restaurantId;
+        const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
+        if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
 
-      const prefs = userData.preferences || {};
-      alertMode = prefs.alertMode || 'sonnerie';
-      repeatIntervalSec = prefs.repeatInterval || 8;
-      selectedVoiceName = prefs.voiceName || 'sonnerie';
-      document.getElementById('alertMode').value = alertMode;
-      document.getElementById('repeatInterval').value = repeatIntervalSec;
-      setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
+        // Afficher les infos du serveur
+        const displayName = userData.displayName || userData.nom || userData.email || 'Serveur';
+        const email = userData.email || '';
+        document.getElementById('userDisplayName').textContent = displayName;
+        document.getElementById('userEmail').textContent = email;
 
-      // Lancer les écouteurs
-      listenOrders();
-      listenHelpRequests();
-      listenTips();
-      listenNotifications();
-      loadHistory(null);
+        const prefs = userData.preferences || {};
+        alertMode = prefs.alertMode || 'sonnerie';
+        repeatIntervalSec = prefs.repeatInterval || 8;
+        selectedVoiceName = prefs.voiceName || 'sonnerie';
+        document.getElementById('alertMode').value = alertMode;
+        document.getElementById('repeatInterval').value = repeatIntervalSec;
+        setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
+
+        // Lancer les écouteurs
+        listenOrders();
+        listenHelpRequests();
+        listenTips();
+        listenNotifications();
+        loadHistory(null);
+
+      } catch (error) {
+        console.error('Erreur chargement utilisateur:', error);
+        showToast('Erreur lors du chargement des données utilisateur.', 'error');
+        auth.signOut();
+      }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
