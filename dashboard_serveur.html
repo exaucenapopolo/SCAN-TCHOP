@@ -62,9 +62,6 @@
     .header h1 { font-size:2rem; font-weight:800; color:var(--text-dark); font-family:'Playfair Display',serif; }
     .user-badge { background:#fff; padding:10px 24px; border-radius:50px; box-shadow:var(--shadow-sm); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:10px; border:1px solid #e0e0e0; }
     .user-badge i { color:var(--primary); font-size:1.2rem; }
-    .user-badge .user-info { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
-    .user-badge .user-info .name { font-weight:700; color:var(--text-dark); }
-    .user-badge .user-info .email { font-size:0.75rem; color:var(--text-muted); font-weight:400; }
     .hamburger { display:none; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:10px 16px; font-size:1.5rem; cursor:pointer; }
 
     .section { display:none; animation:fadeIn 0.5s ease; }
@@ -241,12 +238,8 @@
         <h1 id="pageTitle">Commandes à Servir</h1>
       </div>
       <div class="header-right">
-        <div class="user-badge" title="Serveur" id="userBadge">
-          <i class="fas fa-user-tie"></i>
-          <div class="user-info">
-            <span class="name" id="userDisplayName">Chargement...</span>
-            <span class="email" id="userEmail">email@exemple.com</span>
-          </div>
+        <div class="user-badge" title="Serveur">
+          <i class="fas fa-user-tie"></i> <span id="headerRestoName">Chargement...</span>
         </div>
       </div>
     </div>
@@ -384,7 +377,7 @@
 
   <script>
     // ============================================================
-    //  CONFIGURATION FIREBASE (ALIGNÉE SUR connexion.html)
+    //  CONFIGURATION FIREBASE
     // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
@@ -392,8 +385,7 @@
       projectId: "cinexau-903a6",
       storageBucket: "cinexau-903a6.firebasestorage.app",
       messagingSenderId: "247230931008",
-      appId: "1:247230931008:web:44961cc4857a567a31ffa5",
-      measurementId: "G-SV1HQY5MW6"
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     
@@ -410,7 +402,6 @@
     let myReadyOrders = [];
     let myWaitingOrders = [];
     let allReadyOrders = [];   // toutes les commandes prêtes (pour le filtre "Toutes")
-    let allWaitingOrders = [];
 
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
@@ -578,7 +569,7 @@
       isAlerting = true;
       alertIntervalId = setInterval(() => {
         const readyTables = myReadyOrders
-          .filter(o => !acknowledgedOrderIds.has(o.id) && !o.repousse)
+          .filter(o => !acknowledgedOrderIds.has(o.id))
           .map(o => o.table || o.tableNumber || '?')
           .filter(t => t !== '?');
         const helpElements = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
@@ -609,7 +600,7 @@
         if (expiredTables.length > 0) msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
         if (msg) triggerAlert(msg);
         else {
-          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id) && !o.repousse).length;
+          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
           const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
           if (pendingReady === 0 && pendingHelp === 0) stopAlert();
         }
@@ -649,87 +640,35 @@
     }
 
     // ============================================================
-    //  AUTHENTIFICATION ET CHARGEMENT UTILISATEUR
+    //  AUTH
     // ============================================================
     auth.onAuthStateChanged(async user => {
-      console.log('auth.onAuthStateChanged user:', user);
-      if (!user) {
-        console.warn('Aucun utilisateur connecté, redirection vers connexion.html');
-        window.location.href = 'connexion.html';
+      if (!user) { window.location.href = 'connexion.html'; return; }
+      currentUser = user;
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) { auth.signOut(); return; }
+      const userData = userDoc.data();
+      if (userData.role !== 'Serveur' && userData.role !== 'employé' && userData.role !== 'admin') {
+        showToast('Accès réservé aux serveurs.', 'error');
+        auth.signOut();
         return;
       }
-
-      currentUser = user;
-      console.log('Utilisateur connecté:', currentUser.email, 'UID:', currentUser.uid);
-
-      try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        console.log('Document utilisateur:', userDoc.exists ? userDoc.data() : 'introuvable');
-
-        if (!userDoc.exists) {
-          console.error('Document utilisateur introuvable pour uid:', user.uid);
-          showToast('Compte utilisateur introuvable. Veuillez contacter l\'administrateur.', 'error');
-          await auth.signOut();
-          window.location.href = 'connexion.html';
-          return;
-        }
-
-        const userData = userDoc.data();
-        // Vérifier le rôle (insensible à la casse)
-        const role = userData.role ? userData.role.toLowerCase() : '';
-        if (!['serveur', 'employé', 'admin'].includes(role)) {
-          console.error('Rôle non autorisé:', role);
-          showToast('Accès réservé aux serveurs.', 'error');
-          await auth.signOut();
-          window.location.href = 'connexion.html';
-          return;
-        }
-
-        if (!userData.restaurantId) {
-          console.error('Aucun restaurantId associé à cet utilisateur.');
-          showToast('Cet utilisateur n\'est rattaché à aucun restaurant.', 'error');
-          await auth.signOut();
-          window.location.href = 'connexion.html';
-          return;
-        }
-
-        currentRestaurantId = userData.restaurantId;
-        console.log('RestaurantId:', currentRestaurantId);
-
-        // Charger les infos du restaurant pour afficher le nom
-        const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
-        if (restoDoc.exists) {
-          document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
-        }
-
-        // Afficher les infos du serveur
-        const displayName = userData.nom || userData.displayName || 'Serveur';
-        const email = userData.email || '';
-        document.getElementById('userDisplayName').textContent = displayName;
-        document.getElementById('userEmail').textContent = email;
-
-        // Charger les préférences
-        const prefs = userData.preferences || {};
-        alertMode = prefs.alertMode || 'sonnerie';
-        repeatIntervalSec = prefs.repeatInterval || 8;
-        selectedVoiceName = prefs.voiceName || 'sonnerie';
-        document.getElementById('alertMode').value = alertMode;
-        document.getElementById('repeatInterval').value = repeatIntervalSec;
-        setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
-
-        // Lancer les écouteurs
-        listenOrders();
-        listenHelpRequests();
-        listenTips();
-        listenNotifications();
-        loadHistory(null);
-
-      } catch (error) {
-        console.error('Erreur lors du chargement des données utilisateur:', error);
-        showToast('Erreur de chargement des données. Veuillez vous reconnecter.', 'error');
-        await auth.signOut();
-        window.location.href = 'connexion.html';
-      }
+      currentRestaurantId = userData.restaurantId;
+      const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
+      if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
+      const prefs = userData.preferences || {};
+      alertMode = prefs.alertMode || 'sonnerie';
+      repeatIntervalSec = prefs.repeatInterval || 8;
+      selectedVoiceName = prefs.voiceName || 'sonnerie';
+      document.getElementById('alertMode').value = alertMode;
+      document.getElementById('repeatInterval').value = repeatIntervalSec;
+      setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
+      // Lancer les écouteurs
+      listenOrders();
+      listenHelpRequests();
+      listenTips();
+      listenNotifications();
+      loadHistory(null);
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
@@ -767,6 +706,7 @@
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .onSnapshot(snapshot => {
+          // Réinitialiser les listes
           const allOrders = [];
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
@@ -778,24 +718,22 @@
             }
           });
 
-          // Filtrer les commandes assignées à ce serveur (uid)
+          // Filtrer les commandes assignées à ce serveur
           const myOrders = allOrders.filter(o => o.assignedTo === currentUser.uid);
-          myReadyOrders = myOrders.filter(o => o.status === 'prêt' && !o.repousse);
+          myReadyOrders = myOrders.filter(o => o.status === 'prêt');
           myWaitingOrders = myOrders.filter(o => o.status === 'en_attente');
 
-          // Toutes les commandes prêtes (pour le filtre "Toutes")
+          // Garder aussi toutes les commandes prêtes pour le filtre "Toutes"
           allReadyOrders = allOrders.filter(o => o.status === 'prêt');
-          allWaitingOrders = allOrders.filter(o => o.status === 'en_attente');
 
-          // Mettre à jour les badges (uniquement celles du serveur, non repoussées)
-          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-          document.getElementById('readyBadge').textContent = pendingReady;
-          document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
+          // Mettre à jour les badges (uniquement celles du serveur)
+          document.getElementById('readyBadge').textContent = myReadyOrders.length;
+          document.getElementById('readyBadge').classList.toggle('show', myReadyOrders.length > 0);
           document.getElementById('waitingBadge').textContent = myWaitingOrders.length;
           document.getElementById('waitingBadge').classList.toggle('show', myWaitingOrders.length > 0);
           document.getElementById('waitingCount').textContent = `${myWaitingOrders.length} en attente`;
 
-          // Détection de nouvelles commandes prêtes pour ce serveur (non repoussées)
+          // Détection de nouvelles commandes prêtes pour ce serveur
           const newReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
           if (newReady.length > 0) {
             const order = newReady[0];
@@ -828,7 +766,8 @@
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
       let orders = showOnlyMine ? myReadyOrders : allReadyOrders;
-
+      // Si "Toutes", on peut aussi afficher les commandes non assignées pour l'admin, mais on garde cette logique.
+      
       if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
@@ -838,12 +777,8 @@
       }
       container.innerHTML = '';
       orders.forEach(order => {
-        const isMine = order.assignedTo === currentUser.uid;
-        // Si on est en mode "Toutes", on n'affiche pas les commandes repoussées par le serveur (on les ignore)
-        if (!showOnlyMine && order.repousse) return;
-
         const tableNum = order.table || order.tableNumber || '?';
-        const isNew = isMine && !acknowledgedOrderIds.has(order.id);
+        const isNew = !acknowledgedOrderIds.has(order.id);
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
           return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
@@ -863,18 +798,11 @@
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
 
-        // Boutons disponibles
-        let serveBtn = '';
-        let repousserBtn = '';
-        if (isMine) {
-          serveBtn = `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>`;
-          // Bouton repousser (uniquement si la commande n'est pas déjà repoussée)
-          if (!order.repousse) {
-            repousserBtn = `<button class="btn btn-warning" onclick="repousserCommande('${order.id}')"><i class="fas fa-clock"></i> Repousser</button>`;
-          }
-        } else {
-          serveBtn = `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
-        }
+        // Déterminer si la commande est assignée à ce serveur (pour afficher un bouton "Commencer à servir")
+        const isMine = order.assignedTo === currentUser.uid;
+        const serveBtn = isMine ? 
+          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>` :
+          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
 
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
@@ -892,7 +820,7 @@
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
             ${serveBtn}
-            ${repousserBtn}
+            ${!isMine ? '' : `<button class="btn btn-warning" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>`}
           </div>
         `;
         container.appendChild(ticket);
@@ -904,10 +832,8 @@
     // ============================================================
     function renderWaitingOrders() {
       const container = document.getElementById('waitingOrdersContainer');
-      let orders = showOnlyMine ? myWaitingOrders : allWaitingOrders;
-      // Si "Toutes", on enlève les commandes repoussées par le serveur
-      if (!showOnlyMine) orders = orders.filter(o => !o.repousse);
-
+      let orders = showOnlyMine ? myWaitingOrders : allOrders.filter(o => o.status === 'en_attente');
+      
       if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
@@ -917,8 +843,8 @@
       }
       container.innerHTML = '';
       orders.forEach(order => {
-        const isMine = order.assignedTo === currentUser.uid;
-        if (!showOnlyMine && order.repousse) return;
+        // On n'affiche que les commandes assignées à ce serveur si showOnlyMine
+        if (showOnlyMine && order.assignedTo !== currentUser.uid) return;
 
         const tableNum = order.table || order.tableNumber || '?';
         const itemsHtml = order.items ? order.items.map(item => {
@@ -962,12 +888,10 @@
           `;
         }
 
-        let serveBtn = '';
-        if (isMine) {
-          serveBtn = `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>`;
-        } else {
-          serveBtn = `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
-        }
+        const isMine = order.assignedTo === currentUser.uid;
+        const serveBtn = isMine ? 
+          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>` :
+          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
 
         const ticket = document.createElement('div');
         ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
@@ -996,6 +920,7 @@
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
+        // Assigner la commande au serveur
         await db.collection('orders').doc(orderId).update({
           assignedTo: currentUser.uid,
           assignedToName: currentUser.displayName || currentUser.email || 'Serveur',
@@ -1013,17 +938,22 @@
       }
     };
 
-    window.repousserCommande = async function(orderId) {
+    window.mettreEnFileAttente = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
-          repousse: true,
-          repousseAt: firebase.firestore.FieldValue.serverTimestamp()
+          status: 'en_attente',
+          waitingAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        showToast('Commande repoussée. Elle sera masquée de votre vue.', 'info');
-        playConfirmation('Commande repoussée.');
-        // La commande disparaît de la vue
+        showToast('Commande mise en file d\'attente.', 'info');
+        playConfirmation('Commande mise en file d\'attente.');
+        acknowledgedOrderIds.delete(orderId);
+        if (waitingTimers.has(orderId)) {
+          clearInterval(waitingTimers.get(orderId).intervalId);
+          waitingTimers.delete(orderId);
+        }
+        closeModal();
       } catch (error) {
-        showToast('Erreur lors du repoussage', 'error');
+        showToast('Erreur lors de la mise en file d\'attente', 'error');
         console.error(error);
       }
     };
@@ -1148,7 +1078,7 @@
       `;
       const actionsHTML = `
         <button class="btn btn-success" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-        <button class="btn btn-warning" onclick="repousserCommande('${order.id}')"><i class="fas fa-clock"></i> Repousser</button>
+        <button class="btn btn-warning" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
         <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
       `;
       openModal('🍽️ Commande prête !', bodyHTML, actionsHTML);
@@ -1339,23 +1269,25 @@
         .then(snapshot => {
           const orders = [];
           snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-          // Filtrer par assignation (uid)
-          let filtered = orders.filter(o => o.assignedTo === currentUser.uid);
+          // Filtrer côté client
+          let filtered = orders;
           if (dateFilter) {
             const start = new Date(dateFilter + 'T00:00:00');
             const end = new Date(dateFilter + 'T23:59:59');
-            filtered = filtered.filter(o => {
+            filtered = orders.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= start && served <= end;
             });
           } else {
             const today = new Date(); today.setHours(0,0,0,0);
             const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
-            filtered = filtered.filter(o => {
+            filtered = orders.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= today && served < tomorrow;
             });
           }
+          // Filtrer par assignation (si on veut)
+          if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
           filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
           renderHistory(filtered);
         })
