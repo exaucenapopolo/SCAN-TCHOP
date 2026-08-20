@@ -3009,8 +3009,8 @@
         // ============================================
         const API_BASE_URL = ''; // À remplacer par l'URL réelle de votre backend
 
-        // --- Modifications pour ajouter les frais de 3.5% ---
-        async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount) {
+        // --- Modifications pour ajouter les frais de 3.5% et l'orderId ---
+        async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount, orderId) {
             try {
                 // Ajout des frais de 3.5% pour les paiements Mobile Money
                 const feeRate = 0.035;
@@ -3028,7 +3028,8 @@
                         redirectUrl,
                         qty,
                         isSplit,
-                        splitCount
+                        splitCount,
+                        orderId // on passe l'orderId pour le webhook
                     })
                 });
                 if (!response.ok) {
@@ -4355,7 +4356,37 @@
         }
 
         // ============================================
-        // VALIDATE ORDER
+        // NOUVELLE FONCTION : créer la commande en base avant paiement
+        // ============================================
+        async function creerCommande(user, refNumber, finalAmount) {
+            const orderData = {
+                restaurantId,
+                userId: user.userId,
+                userEmail: user.email,
+                platId: currentOrder.id,
+                platNom: currentOrder.nom,
+                quantite: currentOrder.qty,
+                complements: currentOrder.complements,
+                table: currentOrder.table,
+                instructions: currentOrder.instructions,
+                paymentMode: currentOrder.paymentMode,
+                phone: currentOrder.phone || '',
+                montant: finalAmount,
+                status: 'en attente',
+                reference: refNumber,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                tempsEstime: null,
+                startTime: null,
+                paymentConfirmed: false, // sera mis à true par le webhook ou finalizeOrder
+                isSplit: currentOrder.isSplit || false,
+                splitCount: currentOrder.splitCount || 1
+            };
+            const docRef = await db.collection('orders').add(orderData);
+            return docRef.id;
+        }
+
+        // ============================================
+        // VALIDATE ORDER (modifié pour créer la commande AVANT paiement)
         // ============================================
         async function validerCommande() {
             const table = document.getElementById('orderTable').value.trim();
@@ -4415,6 +4446,12 @@
                 return;
             }
 
+            // 1. Créer la commande dans Firestore (statut "en attente")
+            const orderId = await creerCommande(user, refNumber, finalAmount);
+            activeOrderId = orderId;
+            localStorage.setItem('activeOrderId', orderId);
+
+            // 2. Si paiement Mobile Money, initier le paiement avec l'orderId
             if (currentOrder.paymentMode === 'mobile') {
                 try {
                     const result = await initierPaiementCommande(
@@ -4426,7 +4463,8 @@
                         window.location.href,
                         currentOrder.qty,
                         currentOrder.isSplit,
-                        currentOrder.splitCount
+                        currentOrder.splitCount,
+                        orderId // <-- on passe l'orderId
                     );
 
                     if (result.success && result.checkoutUrl) {
@@ -4447,6 +4485,7 @@
                             refNumber: refNumber,
                             finalAmount: finalAmount,
                             complements: currentOrder.complements,
+                            orderId: orderId,
                             timestamp: Date.now()
                         };
                         localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
@@ -4460,49 +4499,12 @@
                     showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
                     return;
                 }
-            }
-
-            await enregistrerCommande(user, refNumber, finalAmount);
-        }
-
-        async function enregistrerCommande(user, refNumber, finalAmount) {
-            const orderData = {
-                restaurantId,
-                userId: user.userId,
-                userEmail: user.email,
-                platId: currentOrder.id,
-                platNom: currentOrder.nom,
-                quantite: currentOrder.qty,
-                complements: currentOrder.complements,
-                table: currentOrder.table,
-                instructions: currentOrder.instructions,
-                paymentMode: currentOrder.paymentMode,
-                phone: currentOrder.phone || '',
-                montant: finalAmount,
-                status: 'en attente',
-                reference: refNumber,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                tempsEstime: null,
-                startTime: null
-            };
-
-            const btn = document.querySelector('#modalOrder .btn-commander');
-            const oldText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
-
-            try {
-                const docRef = await db.collection('orders').add(orderData);
-                const orderId = docRef.id;
-                activeOrderId = orderId;
-                localStorage.setItem('pendingOrder', JSON.stringify({
-                    restaurantId,
-                    orderId,
-                    userId: user.userId,
-                    timestamp: Date.now()
-                }));
-                localStorage.setItem('activeOrderId', orderId);
-
+            } else {
+                // Paiement en espèces : on enregistre la commande telle quelle
+                showToast('Commande enregistrée ! Vous serez servi prochainement.', 'Succès', 'success');
+                showTracking(orderId);
+                closeModal('modalOrder');
+                // Notification à la cuisine
                 await db.collection('notifications').add({
                     restaurantId,
                     orderId,
@@ -4512,21 +4514,13 @@
                     type: 'new_order',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                showTracking(orderId);
-                closeModal('modalOrder');
-                showToast(`Commande enregistrée avec succès ! Référence : ${refNumber}`, 'Succès', 'success');
-
                 showGameModalAfterOrder(orderId);
-
-            } catch (error) {
-                console.error(error);
-                showToast('Une erreur est survenue. Veuillez réessayer.', 'Erreur', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = oldText;
             }
         }
+
+        // ============================================
+        // (fonction enregistrerCommande supprimée car remplacée par creerCommande)
+        // ============================================
 
         function showGameModalAfterOrder(orderId) {
             const sessionKey = `gameModalShown_${orderId}`;
@@ -4595,19 +4589,21 @@
         async function finalizeOrder() {
             const pending = window._pendingOrderData;
             if (!pending) return;
-            currentOrder.id = pending.platId;
-            currentOrder.nom = pending.nomPlat;
-            currentOrder.qty = pending.qty;
-            currentOrder.isSplit = pending.isSplit;
-            currentOrder.splitCount = pending.splitCount;
-            currentOrder.table = pending.table;
-            currentOrder.instructions = pending.instructions;
-            currentOrder.paymentMode = pending.paymentMode;
-            currentOrder.phone = pending.phone;
-            currentOrder.email = pending.email;
-            currentOrder.complements = pending.complements || [];
-
-            await enregistrerCommande(pending.user, pending.refNumber, pending.finalAmount);
+            const orderId = pending.orderId;
+            if (orderId) {
+                // Mettre à jour la commande avec le paiement confirmé
+                await db.collection('orders').doc(orderId).update({
+                    paymentConfirmed: true,
+                    paymentStatus: 'PAID'
+                });
+                activeOrderId = orderId;
+                localStorage.setItem('activeOrderId', orderId);
+                showTracking(orderId);
+                showToast(`Commande confirmée ! Référence : ${pending.refNumber}`, 'Succès', 'success');
+                showGameModalAfterOrder(orderId);
+            } else {
+                showToast('Erreur : commande non trouvée.', 'Erreur', 'error');
+            }
             localStorage.removeItem('pendingPayment');
             window._pendingOrderData = null;
             closeModal('modalConfirmOrder');
@@ -4677,7 +4673,6 @@
         function showConfirmTipModal(pending) {
             const recap = document.getElementById('confirmTipRecap');
             // On affiche uniquement le montant payé (brut), le téléphone, la note et le commentaire
-            // Pas de frais, pas de montant net, pas de numéro de commande
             recap.innerHTML = `
                         <p><strong>Montant payé :</strong> ${pending.amountBrut} FCFA</p>
                         <p><strong>Téléphone :</strong> ${pending.phone}</p>
