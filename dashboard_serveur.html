@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       STYLES (inchangés)
+       STYLES (inchangés, repris de l'original)
     ============================================ */
     :root {
       --primary: #3498db;
@@ -173,7 +173,6 @@
     .filters-row label { font-weight:600; color:var(--text-muted); }
     .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
-    /* Bannière de notification */
     .notification-banner {
       background: #fff3cd; border-left: 6px solid var(--warning); padding: 12px 18px; border-radius: 12px;
       margin-bottom: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
@@ -399,11 +398,10 @@
     let currentUser = null;
     let currentRestaurantId = null;
 
-    // Listes complètes des commandes (objets avec id)
-    let allOrders = [];         // toutes les commandes du jour
-    let readyOrders = [];       // status === 'prêt'
-    let waitingOrders = [];     // status === 'en_attente'
-    let servedOrders = [];      // status === 'terminé' (pour historique)
+    // Commandes du serveur (uniquement celles assignées à lui)
+    let myReadyOrders = [];
+    let myWaitingOrders = [];
+    let allReadyOrders = [];   // toutes les commandes prêtes (pour le filtre "Toutes")
 
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
@@ -570,7 +568,7 @@
       if (alertIntervalId) return;
       isAlerting = true;
       alertIntervalId = setInterval(() => {
-        const readyTables = readyOrders
+        const readyTables = myReadyOrders
           .filter(o => !acknowledgedOrderIds.has(o.id))
           .map(o => o.table || o.tableNumber || '?')
           .filter(t => t !== '?');
@@ -602,7 +600,7 @@
         if (expiredTables.length > 0) msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
         if (msg) triggerAlert(msg);
         else {
-          const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
           const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
           if (pendingReady === 0 && pendingHelp === 0) stopAlert();
         }
@@ -696,19 +694,20 @@
         const confirmMsg = 'Paramètres mis à jour.';
         if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
         if (alertMode === 'voix' || alertMode === 'lesdeux') speak(confirmMsg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
-        if (isAlerting) { stopAlert(); if (readyOrders.length > 0 || waitingOrders.length > 0) startAlertRepeat(); }
+        if (isAlerting) { stopAlert(); if (myReadyOrders.length > 0 || myWaitingOrders.length > 0) startAlertRepeat(); }
       } catch(err) { showToast('Erreur de sauvegarde', 'error'); }
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (toutes, puis filtre client)
+    //  ÉCOUTE DES COMMANDES (filtrées côté client)
     // ============================================================
     function listenOrders() {
       if (!currentRestaurantId) return;
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .onSnapshot(snapshot => {
-          allOrders = [];
+          // Réinitialiser les listes
+          const allOrders = [];
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
             if (order.status === 'refusée') return;
@@ -719,23 +718,23 @@
             }
           });
 
-          // Filtrer par statut
-          readyOrders = allOrders.filter(o => o.status === 'prêt');
-          waitingOrders = allOrders.filter(o => o.status === 'en_attente');
+          // Filtrer les commandes assignées à ce serveur
+          const myOrders = allOrders.filter(o => o.assignedTo === currentUser.uid);
+          myReadyOrders = myOrders.filter(o => o.status === 'prêt');
+          myWaitingOrders = myOrders.filter(o => o.status === 'en_attente');
 
-          // Mettre à jour les badges
-          const myReady = readyOrders.filter(o => o.assignedTo === currentUser.uid);
-          const myWaiting = waitingOrders.filter(o => o.assignedTo === currentUser.uid);
-          document.getElementById('readyBadge').textContent = myReady.length;
-          document.getElementById('readyBadge').classList.toggle('show', myReady.length > 0);
-          document.getElementById('waitingBadge').textContent = myWaiting.length;
-          document.getElementById('waitingBadge').classList.toggle('show', myWaiting.length > 0);
-          document.getElementById('waitingCount').textContent = `${myWaiting.length} en attente`;
+          // Garder aussi toutes les commandes prêtes pour le filtre "Toutes"
+          allReadyOrders = allOrders.filter(o => o.status === 'prêt');
+
+          // Mettre à jour les badges (uniquement celles du serveur)
+          document.getElementById('readyBadge').textContent = myReadyOrders.length;
+          document.getElementById('readyBadge').classList.toggle('show', myReadyOrders.length > 0);
+          document.getElementById('waitingBadge').textContent = myWaitingOrders.length;
+          document.getElementById('waitingBadge').classList.toggle('show', myWaitingOrders.length > 0);
+          document.getElementById('waitingCount').textContent = `${myWaitingOrders.length} en attente`;
 
           // Détection de nouvelles commandes prêtes pour ce serveur
-          const newReady = readyOrders.filter(o => 
-            o.assignedTo === currentUser.uid && !acknowledgedOrderIds.has(o.id)
-          );
+          const newReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
           if (newReady.length > 0) {
             const order = newReady[0];
             showReadyOrderModal(order);
@@ -766,10 +765,10 @@
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
-      let filtered = readyOrders;
-      if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
+      let orders = showOnlyMine ? myReadyOrders : allReadyOrders;
+      // Si "Toutes", on peut aussi afficher les commandes non assignées pour l'admin, mais on garde cette logique.
       
-      if (filtered.length === 0) {
+      if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
           <p>Super ! Aucune commande en attente.</p>
@@ -777,7 +776,7 @@
         return;
       }
       container.innerHTML = '';
-      filtered.forEach(order => {
+      orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
         const isNew = !acknowledgedOrderIds.has(order.id);
         const itemsHtml = order.items ? order.items.map(item => {
@@ -798,6 +797,13 @@
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
+
+        // Déterminer si la commande est assignée à ce serveur (pour afficher un bouton "Commencer à servir")
+        const isMine = order.assignedTo === currentUser.uid;
+        const serveBtn = isMine ? 
+          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>` :
+          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
+
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
         ticket.innerHTML = `
@@ -813,9 +819,8 @@
           </div>
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
-            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
-            <button class="btn btn-warning" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-            <button class="btn btn-outline-secondary" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>
+            ${serveBtn}
+            ${!isMine ? '' : `<button class="btn btn-warning" onclick="mettreEnFileAttente('${order.id}')"><i class="fas fa-clock"></i> File d'attente</button>`}
           </div>
         `;
         container.appendChild(ticket);
@@ -827,10 +832,9 @@
     // ============================================================
     function renderWaitingOrders() {
       const container = document.getElementById('waitingOrdersContainer');
-      let filtered = waitingOrders;
-      if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
-
-      if (filtered.length === 0) {
+      let orders = showOnlyMine ? myWaitingOrders : allOrders.filter(o => o.status === 'en_attente');
+      
+      if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
           <p>Aucune commande en file d'attente.</p>
@@ -838,7 +842,10 @@
         return;
       }
       container.innerHTML = '';
-      filtered.forEach(order => {
+      orders.forEach(order => {
+        // On n'affiche que les commandes assignées à ce serveur si showOnlyMine
+        if (showOnlyMine && order.assignedTo !== currentUser.uid) return;
+
         const tableNum = order.table || order.tableNumber || '?';
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
@@ -881,6 +888,11 @@
           `;
         }
 
+        const isMine = order.assignedTo === currentUser.uid;
+        const serveBtn = isMine ? 
+          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>` :
+          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
+
         const ticket = document.createElement('div');
         ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
         ticket.innerHTML = `
@@ -895,8 +907,8 @@
           </div>
           <div style="margin-top:10px;">${delayHtml}</div>
           <div class="ticket-footer" style="margin-top:15px;">
-            <button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
+            ${serveBtn}
+            ${isMine ? `<button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>` : ''}
           </div>
         `;
         container.appendChild(ticket);
@@ -908,7 +920,10 @@
     // ============================================================
     window.prendreEnCharge = async function(orderId) {
       try {
+        // Assigner la commande au serveur
         await db.collection('orders').doc(orderId).update({
+          assignedTo: currentUser.uid,
+          assignedToName: currentUser.displayName || currentUser.email || 'Serveur',
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
           acknowledgedBy: currentUser.uid
         });
@@ -916,11 +931,7 @@
         showToast('Commande prise en charge !', 'success');
         playConfirmation('Commande prise en charge.');
         closeModal();
-        renderReadyOrders();
-        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-        const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
-        if (pendingReady === 0 && pendingHelp === 0) stopAlert();
-        else if (!isAlerting) startAlertRepeat();
+        // Le snapshot se chargera de mettre à jour les listes
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -1009,7 +1020,7 @@
         if (remaining <= 0) {
           clearInterval(timerObj.intervalId);
           timerObj.remainingSeconds = 0;
-          const order = waitingOrders.find(o => o.id === orderId);
+          const order = myWaitingOrders.find(o => o.id === orderId);
           const table = order ? (order.table || order.tableNumber || '?') : '?';
           const msg = `Délai écoulé pour la table ${table}`;
           triggerAlert(msg);
@@ -1159,7 +1170,7 @@
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
         closeModal();
-        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
         if (pendingReady === 0 && pendingHelp === 0) stopAlert();
       } catch (error) {
@@ -1179,7 +1190,7 @@
         const idx = knownHelpRequests.indexOf(notifId);
         if (idx !== -1) knownHelpRequests.splice(idx, 1);
         closeModal();
-        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
         if (pendingReady === 0 && pendingHelp === 0) stopAlert();
       } catch (error) {
