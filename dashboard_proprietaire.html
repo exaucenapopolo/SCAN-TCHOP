@@ -572,7 +572,7 @@
         </div>
         <div id="employesTableContainer">
           <div class="table-wrap">
-            <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Poste</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
+            <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Poste</th><th>UID</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
           </div>
         </div>
       </div>
@@ -979,7 +979,7 @@
       }
       
       document.getElementById('lastOrders').innerHTML = renderSkeletonRows(4, 2);
-      document.getElementById('employesList').innerHTML = renderSkeletonRows(7, 2);
+      document.getElementById('employesList').innerHTML = renderSkeletonRows(8, 2);
       document.getElementById('menuList').innerHTML = renderSkeletonRows(7, 2);
       document.getElementById('allOrders').innerHTML = renderSkeletonRows(4, 3);
       document.getElementById('retraitsList').innerHTML = renderSkeletonRows(3, 2);
@@ -1448,9 +1448,13 @@
         const tr = document.createElement('tr');
         tr.style.animation = 'fadeIn 0.3s ease';
         tr.innerHTML = `
-          <td>${photo}</td><td style="font-weight:600;">${data.nom || 'Sans nom'}</td><td>${data.email}</td>
-          <td><code>${data.motDePasse || '******'}</code></td><td><span class="badge badge-info">${data.role}</span></td>
+          <td>${photo}</td>
+          <td style="font-weight:600;">${data.nom || 'Sans nom'}</td>
+          <td>${data.email}</td>
+          <td><code>${data.motDePasse || '******'}</code></td>
+          <td><span class="badge badge-info">${data.role}</span></td>
           <td>${data.poste || ''}</td>
+          <td><code style="color:var(--primary); font-weight:bold;">${data.uid || 'N/A'}</code></td>
           <td><code style="color:var(--primary); font-weight:bold;">${data.codeRestaurant || 'N/A'}</code></td>
           <td>
             <button class="btn btn-outline btn-sm" onclick="copyEmployeInfo('${doc.id}')"><i class="fas fa-copy"></i></button>
@@ -1509,6 +1513,7 @@
         Mot de passe : ${data.motDePasse || 'Non défini'}
         Rôle : ${data.role || 'Non défini'}
         Poste : ${data.poste || 'Non défini'}
+        UID : ${data.uid || 'Non défini'}
         Code restaurant : ${data.codeRestaurant || 'Non défini'}
         Restaurant : ${restaurantData.nom || 'Non défini'}
         `;
@@ -1521,6 +1526,8 @@
 
     document.getElementById('openAddEmploye').addEventListener('click', () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+      // Génération d'un identifiant unique pour l'employé (UID)
+      const uid = 'EMP-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
       let uploadedPhotoUrl = '';
       
       // Construction du HTML de la modale avec sélecteur de rôle + bouton ajout
@@ -1556,9 +1563,10 @@
           <small class="hint-text"><i class="fas fa-info-circle"></i> Permet de différencier plusieurs employés ayant le même rôle.</small>
         </div>
         <div class="grid-2">
+          <div class="form-group"><label>Identifiant unique (UID)</label><input type="text" id="empUid" class="form-control" value="${uid}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
           <div class="form-group"><label>Code restaurant</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
-          <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
         </div>
+        <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
       `;
       
       openModal('Créer un profil employé', html, async () => {
@@ -1583,6 +1591,7 @@
           const nom = document.getElementById('empNom').value;
           const codeRestaurant = document.getElementById('empCode').value;
           const poste = document.getElementById('empPoste').value.trim();
+          const empUid = document.getElementById('empUid').value; // non modifiable
 
           // Création du compte Firebase Auth pour l'employé
           const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
@@ -1596,6 +1605,7 @@
             motDePasse: password,
             photo: uploadedPhotoUrl,
             poste: poste,
+            uid: empUid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await secondaryAuth.signOut();
@@ -1677,7 +1687,8 @@
           </select>
         </div>
         <div class="form-group"><label>Détail du poste</label><input type="text" id="editEmpPoste" class="form-control" value="${data.poste || ''}" /></div>
-        <div class="form-group"><label>Code restaurant (non modifiable)</label><input type="text" class="form-control" value="${data.codeRestaurant || ''}" disabled /></div>
+        <div class="form-group"><label>Identifiant unique (UID) - non modifiable</label><input type="text" class="form-control" value="${data.uid || 'N/A'}" disabled /></div>
+        <div class="form-group"><label>Code restaurant - non modifiable</label><input type="text" class="form-control" value="${data.codeRestaurant || 'N/A'}" disabled /></div>
         <div class="form-group"><label>Mot de passe (ne peut pas être modifié ici)</label><input type="text" class="form-control" value="${data.motDePasse || '******'}" disabled /></div>
       `;
       
@@ -1758,7 +1769,7 @@
       let categoriesOptions = (restaurantData.categories || []).map(c => `<option value="${c}">${c}</option>`).join('');
       const html = `
         <div class="form-group">
-          <label>Image du Plat / Boisson</label>
+          <label>Image du Plat / Boisson (obligatoire pour le plat principal)</label>
           <div class="upload-preview">
             <img id="platPhotoPreview" src="${uploadedPlatUrl}" style="display:block; width:70px; height:70px; object-fit:cover; border-radius:16px;" />
             <label class="upload-btn">
@@ -1789,7 +1800,7 @@
         </div>
         <div class="form-group" id="platPrixOriginalGroup" style="display:none;"><label>Prix avant promotion (FCFA)</label><input type="number" id="platPrixOriginal" class="form-control" /></div>
         
-        <!-- Compléments avec Type (Complément / Boisson) -->
+        <!-- Compléments avec Type, Photo, Description -->
         <div class="form-group">
           <label>Compléments & Boissons</label>
           <div id="complementsContainer">
@@ -1800,11 +1811,18 @@
                 <option value="complément">Complément</option>
                 <option value="boisson">Boisson</option>
               </select>
+              <label class="upload-btn" style="padding:6px 12px; font-size:0.8rem;">
+                <i class="fas fa-image"></i> Photo
+                <input type="file" class="compPhotoInput" accept="image/*" />
+              </label>
               <button type="button" class="btn btn-success btn-sm" id="addComplementBtn"><i class="fas fa-plus"></i></button>
             </div>
             <div id="complementsList" style="margin-top:8px;"></div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <input type="text" id="compDesc" class="form-control" placeholder="Description (optionnelle)" style="flex:1; min-width:150px;" />
+            </div>
           </div>
-          <small class="hint-text"><i class="fas fa-info-circle"></i> Vous pouvez ajouter des compléments (ingrédients supplémentaires) et des boissons. Le client choisira ses options lors de la commande.</small>
+          <small class="hint-text"><i class="fas fa-info-circle"></i> Vous pouvez ajouter des compléments (ingrédients supplémentaires) et des boissons. Chaque option peut avoir une photo et une description. Le client choisira ses options lors de la commande.</small>
         </div>
       `;
       
@@ -1824,15 +1842,23 @@
           }
         }
 
-        // Récupération des compléments avec leur type
+        // Récupération des compléments avec leur type, image, description
         const compItems = [];
         document.querySelectorAll('#complementsList .complement-tag').forEach(el => {
           const nom = el.dataset.nom || '';
           const prix = parseFloat(el.dataset.prix) || 0;
           const type = el.dataset.type || 'complément';
-          if (nom) compItems.push({ nom, prix, type });
+          const image = el.dataset.image || '';
+          const description = el.dataset.description || '';
+          if (nom) compItems.push({ nom, prix, type, image, description });
         });
         
+        // L'image du plat est obligatoire
+        if (!uploadedPlatUrl || uploadedPlatUrl === 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop') {
+          showToast('Veuillez charger une image pour le plat principal.', 'warning');
+          return;
+        }
+
         await db.collection('menus').add({
           restaurantId: currentRestaurantId,
           nom: document.getElementById('platNom').value,
@@ -1900,26 +1926,61 @@
         }
       }, 100);
 
-      // Gestion de l'ajout de complément (avec type)
+      // Gestion de l'ajout de complément (avec type, photo, description)
       document.getElementById('addComplementBtn').addEventListener('click', function() {
         const nomInput = document.getElementById('compNom');
         const prixInput = document.getElementById('compPrix');
         const typeSelect = document.getElementById('compType');
+        const descInput = document.getElementById('compDesc');
+        const photoInput = document.querySelector('.compPhotoInput');
+        
         const nom = nomInput.value.trim();
         const prix = parseFloat(prixInput.value);
         const type = typeSelect.value;
-        if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
-        const list = document.getElementById('complementsList');
-        const tag = document.createElement('span');
-        tag.className = 'complement-tag';
-        tag.dataset.nom = nom;
-        tag.dataset.prix = prix;
-        tag.dataset.type = type;
-        tag.innerHTML = `${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
-        list.appendChild(tag);
-        nomInput.value = '';
-        prixInput.value = '';
-        typeSelect.value = 'complément';
+        const description = descInput.value.trim() || '';
+        let photoUrl = '';
+        
+        if (photoInput.files && photoInput.files[0]) {
+          // Upload de la photo du complément
+          const file = photoInput.files[0];
+          const progressDiv = document.createElement('div');
+          progressDiv.className = 'upload-progress';
+          progressDiv.style.display = 'block';
+          const progressBar = document.createElement('div');
+          progressBar.className = 'upload-progress-bar';
+          progressBar.style.width = '0%';
+          progressDiv.appendChild(progressBar);
+          document.getElementById('complementsContainer').appendChild(progressDiv);
+          
+          uploadImage(file, p => progressBar.style.width = p+'%', (err, url) => {
+            progressDiv.style.display = 'none';
+            if(err) { showToast('Erreur upload image complément', 'error'); return; }
+            photoUrl = url;
+            addComplementTag(nom, prix, type, photoUrl, description);
+          });
+        } else {
+          addComplementTag(nom, prix, type, '', description);
+        }
+        
+        function addComplementTag(nom, prix, type, photoUrl, description) {
+          if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
+          const list = document.getElementById('complementsList');
+          const tag = document.createElement('span');
+          tag.className = 'complement-tag';
+          tag.dataset.nom = nom;
+          tag.dataset.prix = prix;
+          tag.dataset.type = type;
+          tag.dataset.image = photoUrl;
+          tag.dataset.description = description;
+          let imgHtml = photoUrl ? `<img src="${photoUrl}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;margin-right:4px;" />` : '';
+          tag.innerHTML = `${imgHtml}${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> ${description ? `<span style="font-size:0.6rem;color:var(--text-muted);">"${description}"</span>` : ''} <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
+          list.appendChild(tag);
+          nomInput.value = '';
+          prixInput.value = '';
+          typeSelect.value = 'complément';
+          descInput.value = '';
+          photoInput.value = '';
+        }
       });
     });
 
@@ -1933,8 +1994,9 @@
       if (data.complements && data.complements.length > 0) {
         data.complements.forEach(c => {
           const type = c.type || 'complément';
-          complementsHtml += `<span class="complement-tag" data-nom="${c.nom}" data-prix="${c.prix}" data-type="${type}">
-            ${c.nom} <span class="price">+${c.prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span>
+          let imgHtml = c.image ? `<img src="${c.image}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;margin-right:4px;" />` : '';
+          complementsHtml += `<span class="complement-tag" data-nom="${c.nom}" data-prix="${c.prix}" data-type="${type}" data-image="${c.image || ''}" data-description="${c.description || ''}">
+            ${imgHtml}${c.nom} <span class="price">+${c.prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> ${c.description ? `<span style="font-size:0.6rem;color:var(--text-muted);">"${c.description}"</span>` : ''}
             <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>
           </span>`;
         });
@@ -1942,7 +2004,7 @@
 
       const html = `
         <div class="form-group">
-          <label>Image du Plat</label>
+          <label>Image du Plat (obligatoire)</label>
           <div class="upload-preview">
             <img id="platEditPreview" src="${currentImgUrl || 'https://via.placeholder.com/150'}" style="display:block; width:70px; height:70px; object-fit:cover; border-radius:16px;" />
             <label class="upload-btn"><i class="fas fa-sync"></i> Remplacer<input type="file" id="platEditInput" accept="image/*" /></label>
@@ -1965,7 +2027,7 @@
         </div>
         <div class="form-group" id="editPlatPrixOriginalGroup" style="${data.promotion ? 'display:block;' : 'display:none;'}"><label>Prix avant promotion (FCFA)</label><input type="number" id="editPlatPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
         
-        <!-- Compléments avec Type -->
+        <!-- Compléments avec Type, Photo, Description -->
         <div class="form-group">
           <label>Compléments & Boissons</label>
           <div id="editComplementsContainer">
@@ -1976,9 +2038,16 @@
                 <option value="complément">Complément</option>
                 <option value="boisson">Boisson</option>
               </select>
+              <label class="upload-btn" style="padding:6px 12px; font-size:0.8rem;">
+                <i class="fas fa-image"></i> Photo
+                <input type="file" class="editCompPhotoInput" accept="image/*" />
+              </label>
               <button type="button" class="btn btn-success btn-sm" id="editAddComplementBtn"><i class="fas fa-plus"></i></button>
             </div>
             <div id="editComplementsList" style="margin-top:8px;">${complementsHtml}</div>
+            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+              <input type="text" id="editCompDesc" class="form-control" placeholder="Description (optionnelle)" style="flex:1; min-width:150px;" />
+            </div>
           </div>
         </div>
       `;
@@ -1992,8 +2061,16 @@
           const nom = el.dataset.nom || '';
           const prix = parseFloat(el.dataset.prix) || 0;
           const type = el.dataset.type || 'complément';
-          if (nom) compItems.push({ nom, prix, type });
+          const image = el.dataset.image || '';
+          const description = el.dataset.description || '';
+          if (nom) compItems.push({ nom, prix, type, image, description });
         });
+
+        // Vérifier que l'image du plat est définie
+        if (!currentImgUrl) {
+          showToast('Veuillez choisir une image pour le plat.', 'warning');
+          return;
+        }
 
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('editPlatNom').value,
@@ -2031,21 +2108,55 @@
         const nomInput = document.getElementById('editCompNom');
         const prixInput = document.getElementById('editCompPrix');
         const typeSelect = document.getElementById('editCompType');
+        const descInput = document.getElementById('editCompDesc');
+        const photoInput = document.querySelector('.editCompPhotoInput');
+        
         const nom = nomInput.value.trim();
         const prix = parseFloat(prixInput.value);
         const type = typeSelect.value;
-        if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
-        const list = document.getElementById('editComplementsList');
-        const tag = document.createElement('span');
-        tag.className = 'complement-tag';
-        tag.dataset.nom = nom;
-        tag.dataset.prix = prix;
-        tag.dataset.type = type;
-        tag.innerHTML = `${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
-        list.appendChild(tag);
-        nomInput.value = '';
-        prixInput.value = '';
-        typeSelect.value = 'complément';
+        const description = descInput.value.trim() || '';
+        let photoUrl = '';
+        
+        if (photoInput.files && photoInput.files[0]) {
+          const file = photoInput.files[0];
+          const progressDiv = document.createElement('div');
+          progressDiv.className = 'upload-progress';
+          progressDiv.style.display = 'block';
+          const progressBar = document.createElement('div');
+          progressBar.className = 'upload-progress-bar';
+          progressBar.style.width = '0%';
+          progressDiv.appendChild(progressBar);
+          document.getElementById('editComplementsContainer').appendChild(progressDiv);
+          
+          uploadImage(file, p => progressBar.style.width = p+'%', (err, url) => {
+            progressDiv.style.display = 'none';
+            if(err) { showToast('Erreur upload image complément', 'error'); return; }
+            photoUrl = url;
+            addComplementTag(nom, prix, type, photoUrl, description);
+          });
+        } else {
+          addComplementTag(nom, prix, type, '', description);
+        }
+        
+        function addComplementTag(nom, prix, type, photoUrl, description) {
+          if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
+          const list = document.getElementById('editComplementsList');
+          const tag = document.createElement('span');
+          tag.className = 'complement-tag';
+          tag.dataset.nom = nom;
+          tag.dataset.prix = prix;
+          tag.dataset.type = type;
+          tag.dataset.image = photoUrl;
+          tag.dataset.description = description;
+          let imgHtml = photoUrl ? `<img src="${photoUrl}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;margin-right:4px;" />` : '';
+          tag.innerHTML = `${imgHtml}${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> ${description ? `<span style="font-size:0.6rem;color:var(--text-muted);">"${description}"</span>` : ''} <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
+          list.appendChild(tag);
+          nomInput.value = '';
+          prixInput.value = '';
+          typeSelect.value = 'complément';
+          descInput.value = '';
+          photoInput.value = '';
+        }
       });
     };
 
