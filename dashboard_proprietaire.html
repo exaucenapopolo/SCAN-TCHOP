@@ -183,7 +183,7 @@
     .step-wizard { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
     .step-wizard::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background: #e2e8f0; z-index: 1; }
     .step-wizard-progress { position: absolute; top: 20px; left: 0; width: 0%; height: 3px; background: var(--primary); z-index: 2; transition: width 0.4s ease; }
-    .wizard-step { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; width: 33%; cursor: pointer; }
+    .wizard-step { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; width: 25%; cursor: pointer; }
     .wizard-dot { width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 3px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748b; transition: var(--transition); }
     .wizard-step.active .wizard-dot { border-color: var(--primary); background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(230,126,34,0.2); }
     .wizard-step.completed .wizard-dot { border-color: var(--success); background: var(--success); color: #fff; }
@@ -473,6 +473,17 @@
       display: inline-block;
       margin-bottom: 10px;
       text-transform: uppercase;
+    }
+
+    /* Pastilles couleurs dans le résumé */
+    .color-preview {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #e2e8f0;
+      margin-right: 8px;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -1014,6 +1025,8 @@
         solde: 0, abonnement: 'Aucun', menuUrl: '',
         roles: ['Serveur', 'Cuisine', 'Manager', 'Comptable'],
         categories: ['Plats locaux', 'Plats occidentaux', 'Nourriture', 'Boissons', 'Entrées', 'Frites', 'Compléments', 'Desserts', 'Amuse-gueules', 'Friandises', 'Autre'],
+        couleurPrincipale: '#e67e22',
+        couleurBoutons: '#d35400',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       const docRef = await db.collection('restaurants').add(newResto);
@@ -1109,11 +1122,50 @@
                 </div>
               </div>
 
+              <!-- BLOC COULEURS -->
+              <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); position: relative; box-shadow: var(--shadow-sm);">
+                <button class="edit-icon-btn" onclick="editRestaurantSection(4)" title="Modifier les couleurs"><i class="fas fa-pencil-alt"></i></button>
+                <h4 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--text-main); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;"><i class="fas fa-palette" style="color: var(--primary); margin-right: 8px;"></i> 4. Charte graphique</h4>
+                <div class="grid-2">
+                  <div class="profile-info-item">
+                    <i class="fas fa-circle" style="color: var(--primary);"></i>
+                    <div>
+                      <div class="profile-info-label">Couleur principale</div>
+                      <div class="profile-info-value">
+                        <span class="color-preview" style="background:${restaurantData.couleurPrincipale || '#e67e22'};"></span>
+                        ${restaurantData.couleurPrincipale || '#e67e22'}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="profile-info-item">
+                    <i class="fas fa-circle" style="color: var(--primary);"></i>
+                    <div>
+                      <div class="profile-info-label">Couleur des boutons</div>
+                      <div class="profile-info-value">
+                        <span class="color-preview" style="background:${restaurantData.couleurBoutons || '#d35400'};"></span>
+                        ${restaurantData.couleurBoutons || '#d35400'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         `;
       } else {
         // MODE FORMULAIRE D'ÉDITION (ÉTAPE PAR ÉTAPE)
+        const steps = 4; // 4 étapes maintenant
+        let wizardDots = '';
+        let wizardLabels = ['Identité', 'Coordonnées', 'Visuel & Logo', 'Couleurs'];
+        for (let i = 1; i <= steps; i++) {
+          wizardDots += `
+            <div class="wizard-step ${i === currentWizardStep ? 'active' : ''}" data-target-step="${i}">
+              <div class="wizard-dot">${i}</div><div class="wizard-label">${wizardLabels[i-1]}</div>
+            </div>
+          `;
+        }
+
         container.innerHTML = `
           <div class="card">
             <h3 class="premium-title"><i class="fas fa-magic"></i> Configuration de votre Établissement</h3>
@@ -1121,27 +1173,19 @@
             
             <div class="step-wizard">
               <div class="step-wizard-progress" id="wizardProgress"></div>
-              <div class="wizard-step active" data-target-step="1">
-                <div class="wizard-dot">1</div><div class="wizard-label">Identité</div>
-              </div>
-              <div class="wizard-step" data-target-step="2">
-                <div class="wizard-dot">2</div><div class="wizard-label">Coordonnées</div>
-              </div>
-              <div class="wizard-step" data-target-step="3">
-                <div class="wizard-dot">3</div><div class="wizard-label">Visuel & Logo</div>
-              </div>
+              ${wizardDots}
             </div>
 
             <form id="restaurantForm">
               <!-- PANNEAU 1 : IDENTITÉ -->
-              <div class="form-step-panel active" data-step-panel="1">
+              <div class="form-step-panel ${currentWizardStep === 1 ? 'active' : ''}" data-step-panel="1">
                 <div class="form-group"><label>Nom du restaurant</label><input type="text" id="restoNom" class="form-control" placeholder="Ex: Le Petit Chef" value="${restaurantData.nom || ''}" required /></div>
                 <div class="form-group"><label>Nom du propriétaire</label><input type="text" id="restoProprio" class="form-control" placeholder="Ex: Jean Dupont" value="${restaurantData.proprietaireNom || ''}" /></div>
                 <div class="form-group"><label>Description / Slogan</label><textarea id="restoDescription" class="form-control" placeholder="Décrivez l'univers culinaire de votre établissement..." required>${restaurantData.description || ''}</textarea></div>
               </div>
 
               <!-- PANNEAU 2 : COORDONNÉES -->
-              <div class="form-step-panel" data-step-panel="2">
+              <div class="form-step-panel ${currentWizardStep === 2 ? 'active' : ''}" data-step-panel="2">
                 <div class="grid-2">
                   <div class="form-group"><label>Email public</label><input type="email" id="restoEmail" class="form-control" value="${restaurantData.email || ''}" required /></div>
                   <div class="form-group"><label>Téléphone (Appels)</label><input type="text" id="restoTel" class="form-control" placeholder="Ex: +237..." value="${restaurantData.telephone || ''}" required /></div>
@@ -1153,7 +1197,7 @@
               </div>
 
               <!-- PANNEAU 3 : CHARGEMENT LOGO -->
-              <div class="form-step-panel" data-step-panel="3">
+              <div class="form-step-panel ${currentWizardStep === 3 ? 'active' : ''}" data-step-panel="3">
                 <div class="form-group">
                   <label>Logo officiel de la marque</label>
                   <div class="upload-preview">
@@ -1166,6 +1210,22 @@
                   </div>
                   <small class="hint-text"><i class="fas fa-info-circle"></i> <strong>Recommandation premium :</strong> Privilégiez une image au format <strong>PNG avec fond transparent</strong>. Cela garantit une intégration esthétique sur l'affiche QR code imprimable ainsi que sur le menu digital.</small>
                   <div class="upload-progress" id="restoLogoProgress"><div class="upload-progress-bar" id="restoLogoProgressBar"></div></div>
+                </div>
+              </div>
+
+              <!-- PANNEAU 4 : COULEURS -->
+              <div class="form-step-panel ${currentWizardStep === 4 ? 'active' : ''}" data-step-panel="4">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label>Couleur principale du restaurant</label>
+                    <input type="color" id="restoCouleurPrincipale" class="form-control" value="${restaurantData.couleurPrincipale || '#e67e22'}" style="padding: 4px; height: 56px;" />
+                    <small class="hint-text"><i class="fas fa-info-circle"></i> Cette couleur sera utilisée pour les titres et les éléments importants du menu public.</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Couleur des boutons</label>
+                    <input type="color" id="restoCouleurBoutons" class="form-control" value="${restaurantData.couleurBoutons || '#d35400'}" style="padding: 4px; height: 56px;" />
+                    <small class="hint-text"><i class="fas fa-info-circle"></i> Cette couleur sera appliquée aux boutons d'action du menu public.</small>
+                  </div>
                 </div>
               </div>
 
@@ -1208,14 +1268,14 @@
         }
 
         prevBtn.style.visibility = currentWizardStep === 1 ? 'hidden' : 'visible';
-        if (currentWizardStep === 3) {
+        if (currentWizardStep === 4) {
           nextBtn.style.display = 'none';
           saveBtn.style.display = 'inline-flex';
         } else {
           nextBtn.style.display = 'inline-flex';
           saveBtn.style.display = 'none';
         }
-        if(progress) progress.style.width = ((currentWizardStep - 1) / 2) * 100 + '%';
+        if(progress) progress.style.width = ((currentWizardStep - 1) / 3) * 100 + '%';
       }
 
       // Initialiser la vue
@@ -1234,7 +1294,7 @@
           });
           if (!isValid) return;
         }
-        if(currentWizardStep < 3) { 
+        if(currentWizardStep < 4) { 
           currentWizardStep++; 
           updateWizardUI(); 
         } 
@@ -1280,7 +1340,9 @@
           adresse: document.getElementById('restoAdresse').value,
           ville: document.getElementById('restoVille').value,
           map: document.getElementById('restoMap').value,
-          logo: restaurantData.logo || ''
+          logo: restaurantData.logo || '',
+          couleurPrincipale: document.getElementById('restoCouleurPrincipale').value || '#e67e22',
+          couleurBoutons: document.getElementById('restoCouleurBoutons').value || '#d35400'
         };
 
         await db.collection('restaurants').doc(currentRestaurantId).update(updatedFields);
