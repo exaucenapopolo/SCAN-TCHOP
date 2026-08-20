@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       VARIABLES & RESET (inchangé)
+       VARIABLES & RESET
     ============================================ */
     :root {
       --primary: #e67e22;
@@ -1686,8 +1686,7 @@
         });
         // Trier côté client
         orders.sort((a,b) => (a.dateObj?.getTime() || 0) - (b.dateObj?.getTime() || 0));
-        // Exclure les commandes refusées
-        toutesLesCommandes = orders.filter(o => o.status !== 'refusée');
+        toutesLesCommandes = orders;
         updateStats();
         initChart();
         // Afficher immédiatement les commandes
@@ -1834,8 +1833,6 @@
         let newOrdersCount = 0;
         snapshot.forEach(doc => {
           const data = doc.data();
-          // Ne pas inclure les commandes refusées
-          if (data.status === 'refusée') return;
           const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
           const order = { id: doc.id, ...data, dateObj };
           orders.push(order);
@@ -2236,39 +2233,7 @@
 
         const order = toutesLesCommandes.find(o => o.id === orderId);
         if (order && alertServer) {
-          // Assignation intelligente au serveur le moins chargé
-          const targetServer = await getLeastLoadedServer();
-          if (targetServer) {
-            await db.collection('orders').doc(orderId).update({
-              assignedTo: targetServer.uid,
-              assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
-            });
-            // Notification ciblée
-            await db.collection('notifications').add({
-              restaurantId: currentRestaurantId,
-              orderId: orderId,
-              message: `🍽️ Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête`,
-              targetRole: 'Serveur',
-              targetUser: targetServer.uid,
-              read: false,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              type: 'order_ready'
-            });
-            showToast(`🔔 Alerte envoyée au serveur ${targetServer.displayName || targetServer.email}`, 'info');
-            alertUser(`Alerte envoyée au serveur ${targetServer.displayName || targetServer.email}`, 'notification');
-          } else {
-            // Fallback : notification à tous les serveurs
-            await db.collection('notifications').add({
-              restaurantId: currentRestaurantId,
-              orderId: orderId,
-              message: `🍽️ Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête`,
-              targetRole: 'Serveur',
-              read: false,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              type: 'order_ready'
-            });
-            showToast('Aucun serveur disponible, notification envoyée à tous.', 'info');
-          }
+          await alertServerOrder(orderId);
         }
         renderKanban();
         renderPreparations();
@@ -2321,45 +2286,51 @@
     }
 
     // ============================================================
-    //  ALERTER SERVEUR (version améliorée avec assignation)
+    //  ALERTER SERVEUR (assignation intelligente) - Version renforcée
     // ============================================================
     window.alertServer = async function(orderId) {
-      // Cette fonction est appelée depuis le bouton "Alerter serveur" dans les tickets prêts
-      // Elle utilise la logique d'assignation automatique
       try {
         const order = toutesLesCommandes.find(o => o.id === orderId);
         if (!order) { showToast('Commande introuvable', 'error'); return; }
-        
-        const targetServer = await getLeastLoadedServer();
-        if (!targetServer) {
-          showToast('Aucun serveur disponible pour le moment. Veuillez réessayer.', 'warning');
-          return;
-        }
-
-        await db.collection('orders').doc(orderId).update({
-          assignedTo: targetServer.uid,
-          assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
-        });
-
-        await db.collection('notifications').add({
-          restaurantId: currentRestaurantId,
-          orderId: orderId,
-          message: `🔔 Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête (assignée à ${targetServer.displayName || targetServer.email})`,
-          targetRole: 'Serveur',
-          targetUser: targetServer.uid,
-          read: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          type: 'order_ready'
-        });
-
-        showToast(`🔔 Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'info');
-        alertUser(`Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'notification');
-        renderKanban();
+        await alertServerOrder(orderId);
       } catch(e) {
         showToast('Erreur lors de l\'alerte', 'error');
         console.error(e);
       }
     };
+
+    async function alertServerOrder(orderId) {
+      const order = toutesLesCommandes.find(o => o.id === orderId);
+      if (!order) { showToast('Commande introuvable', 'error'); return; }
+
+      const targetServer = await getLeastLoadedServer();
+      if (!targetServer) {
+        showToast('Aucun serveur disponible pour le moment. Veuillez réessayer.', 'warning');
+        return;
+      }
+
+      // Mettre à jour la commande avec l'assignation
+      await db.collection('orders').doc(orderId).update({
+        assignedTo: targetServer.uid,
+        assignedToName: targetServer.displayName || targetServer.email || 'Serveur'
+      });
+
+      // Créer une notification ciblée
+      await db.collection('notifications').add({
+        restaurantId: currentRestaurantId,
+        orderId: orderId,
+        message: `🔔 Table ${order.table || order.tableNumber || '?'} : commande #${order.reference || order.id.substring(0,6).toUpperCase()} prête (assignée à ${targetServer.displayName || targetServer.email})`,
+        targetRole: 'Serveur',
+        targetUser: targetServer.uid,
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        type: 'order_ready'
+      });
+
+      showToast(`🔔 Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'info');
+      alertUser(`Commande assignée au serveur ${targetServer.displayName || targetServer.email}`, 'notification');
+      renderKanban();
+    }
 
     // ============================================================
     //  REFUS DE COMMANDE
