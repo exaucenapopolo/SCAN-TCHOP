@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-  <title>SCAN&TCHOP – Serveur</title>
+  <title>SCAN&TCHOP – Serveur Pro</title>
 
   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
@@ -11,7 +11,7 @@
 
   <style>
     /* ============================================
-       VARIABLES & RESET
+       STYLES (inchangés, repris de l'original)
     ============================================ */
     :root {
       --primary: #3498db;
@@ -36,7 +36,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-    /* ========== SIDEBAR ========== */
+    /* --- SIDEBAR --- */
     .sidebar-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); backdrop-filter:blur(6px); z-index:90; display:none; opacity:0; transition:opacity 0.3s; }
     .sidebar-overlay.open { display:block; opacity:1; }
     .sidebar { width:280px; background:linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); color:#fff; padding:30px 20px; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.4s; box-shadow:4px 0 30px rgba(0,0,0,0.1); }
@@ -56,22 +56,21 @@
     .badge-notif.show { display:inline-block; animation: pop 0.3s ease; }
     @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
 
-    /* ========== MAIN CONTENT ========== */
+    /* --- MAIN --- */
     .main { margin-left:280px; flex:1; padding:30px 40px; min-height:100vh; width:calc(100vw - 280px); }
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:15px; }
     .header h1 { font-size:2rem; font-weight:800; color:var(--text-dark); font-family:'Playfair Display',serif; }
     .user-badge { background:#fff; padding:10px 24px; border-radius:50px; box-shadow:var(--shadow-sm); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:10px; border:1px solid #e0e0e0; }
     .user-badge i { color:var(--primary); font-size:1.2rem; }
-    .user-badge .user-details { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
-    .user-badge .user-details .name { font-weight:700; color:var(--text-dark); }
-    .user-badge .user-details .email { font-size:0.75rem; color:var(--text-muted); font-weight:400; }
+    .user-badge .user-info { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
+    .user-badge .user-info .name { font-weight:700; color:var(--text-dark); }
+    .user-badge .user-info .email { font-size:0.75rem; color:var(--text-muted); font-weight:400; }
     .hamburger { display:none; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:10px 16px; font-size:1.5rem; cursor:pointer; }
 
     .section { display:none; animation:fadeIn 0.5s ease; }
     .section.active { display:block; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ========== CARDS & TICKETS ========== */
     .card { background:var(--card-bg); border-radius:var(--radius); border:1px solid rgba(255,255,255,0.6); box-shadow:var(--shadow-md); padding:28px 30px; margin-bottom:30px; }
     .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:15px; }
     .card-header h3 { font-size:1.4rem; font-weight:700; display:flex; align-items:center; gap:12px; font-family:'Playfair Display',serif; }
@@ -82,6 +81,9 @@
     .ticket { background: #fff; border-radius: 16px; padding: 20px; border-top: 6px solid var(--primary); box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
     .ticket:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
     .ticket.new-ready { animation: flashAlert 1.5s ease infinite alternate; border-top-color: var(--warning); }
+    .ticket.waiting { border-top-color: var(--info); }
+    .ticket.waiting.old { border-top-color: var(--warning); }
+    .ticket.waiting.very-old { border-top-color: var(--danger); }
     
     @keyframes flashAlert { from { box-shadow: 0 0 10px rgba(241, 196, 15, 0.2); } to { box-shadow: 0 0 25px rgba(241, 196, 15, 0.8); } }
 
@@ -98,7 +100,17 @@
     .ticket-footer { display: flex; flex-direction: column; gap: 10px; }
     .payment-status { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 600; padding: 10px; border-radius: 8px; background: #f8f9fa; }
 
-    /* ========== DEMANDES D'AIDE ========== */
+    .waiting-timer { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .waiting-timer .time-badge { padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; }
+    .waiting-timer .time-badge.green { background: #d5f5e3; color: #1e8449; }
+    .waiting-timer .time-badge.yellow { background: #fef9e7; color: #b7950b; }
+    .waiting-timer .time-badge.orange { background: #fdebd0; color: #a04000; }
+    .waiting-timer .time-badge.red { background: #fadbd8; color: #922b21; }
+
+    .delay-control { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .delay-control input { width: 80px; padding: 6px 10px; border: 1.5px solid #d5d8dc; border-radius: 8px; font-size: 0.9rem; }
+    .delay-control .countdown { font-weight: 700; font-size: 1.1rem; color: var(--danger); }
+
     .help-request-card {
       background: #fff; border-radius: 16px; padding: 18px; border-left: 6px solid var(--danger);
       box-shadow: var(--shadow-sm); margin-bottom: 16px; transition: var(--transition);
@@ -109,13 +121,11 @@
     .help-request-card .help-message { margin:12px 0; color:var(--text-dark); }
     .help-request-card .help-actions { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
 
-    /* ========== POURBOIRES ========== */
     .tip-box { background:#f8f9fa; border-radius:16px; padding:20px; margin-bottom:20px; }
     .tip-box .tip-total { font-size:2rem; font-weight:800; color:var(--primary-dark); }
     .tip-history { max-height:300px; overflow-y:auto; }
     .tip-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #ecf0f1; font-size:0.95rem; }
 
-    /* ========== BOUTONS & BADGES ========== */
     .btn { padding:10px 20px; border:none; border-radius:12px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; }
     .btn:active { transform:scale(0.96); }
     .btn-primary { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(52, 152, 219, 0.25); }
@@ -134,8 +144,8 @@
     .badge-pending { background:#fef3c7; color:#b45309; }
     .badge-accepted { background:#dbeafe; color:#1e40af; }
     .badge-resolved { background:#d1fae5; color:#065f46; }
+    .badge-serving { background:#e0f2fe; color:#0369a1; }
 
-    /* ========== FORMULAIRES ========== */
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
     .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid #d5d8dc; border-radius: 12px; font-family: inherit; font-size: 0.95rem; }
@@ -166,7 +176,6 @@
     .filters-row label { font-weight:600; color:var(--text-muted); }
     .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
-    /* Bannière de notification */
     .notification-banner {
       background: #fff3cd; border-left: 6px solid var(--warning); padding: 12px 18px; border-radius: 12px;
       margin-bottom: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
@@ -209,6 +218,9 @@
       <a class="active" data-section="a-servir" id="navServir">
         <i class="fas fa-bell"></i> À Servir <span class="badge-notif" id="readyBadge">0</span>
       </a>
+      <a data-section="file-attente">
+        <i class="fas fa-clock"></i> En attente <span class="badge-notif" id="waitingBadge">0</span>
+      </a>
       <a data-section="demandes-aide">
         <i class="fas fa-life-ring"></i> Demandes d'aide <span class="badge-notif" id="helpBadge">0</span>
       </a>
@@ -231,7 +243,7 @@
       <div class="header-right">
         <div class="user-badge" title="Serveur" id="userBadge">
           <i class="fas fa-user-tie"></i>
-          <div class="user-details">
+          <div class="user-info">
             <span class="name" id="userDisplayName">Chargement...</span>
             <span class="email" id="userEmail">email@exemple.com</span>
           </div>
@@ -247,13 +259,35 @@
       <div class="card">
         <div class="card-header">
           <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
-          <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
+            <button class="btn btn-outline-secondary" id="toggleFilterBtn" onclick="toggleFilter()">
+              <i class="fas fa-filter"></i> <span id="filterLabel">Mes commandes</span>
+            </button>
+          </div>
         </div>
         <div class="grid-commandes" id="readyOrdersContainer">
           <!-- Injecté par JS -->
           <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
-            <i class="fas fa-check-circle fa-3x" style="opacity:0.2; margin-bottom:15px; color:var(--success);"></i>
-            <p>Aucune commande prête pour vous.</p>
+            <i class="fas fa-coffee fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+            <p>Aucune commande en attente de service pour le moment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECTION: FILE D'ATTENTE ===== -->
+    <div id="section-file-attente" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-clock"></i> Commandes en attente</h3>
+          <span class="badge badge-pending" id="waitingCount">0 en attente</span>
+        </div>
+        <div class="grid-commandes" id="waitingOrdersContainer">
+          <!-- Injecté par JS -->
+          <div style="text-align:center; padding: 40px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+            <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2; margin-bottom:15px;"></i>
+            <p>Aucune commande en file d'attente.</p>
           </div>
         </div>
       </div>
@@ -371,11 +405,15 @@
     let currentUser = null;
     let currentRestaurantId = null;
 
-    let myReadyOrders = [];        // commandes prêt assignées à ce serveur
-    let servedOrders = [];         // commandes terminées (pour historique)
+    // Commandes du serveur (uniquement celles assignées à lui)
+    let myReadyOrders = [];
+    let myWaitingOrders = [];
+    let allReadyOrders = [];   // toutes les commandes prêtes (pour le filtre "Toutes")
+    let allWaitingOrders = [];
 
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
+    let waitingTimers = new Map();
 
     let audioCtx = null;
     let selectedVoiceName = 'sonnerie';
@@ -384,6 +422,8 @@
     let alertIntervalId = null;
     let availableVoices = [];
     let isAlerting = false;
+
+    let showOnlyMine = true;  // par défaut, on filtre sur ses commandes
 
     // ============================================================
     //  UI HELPERS
@@ -414,6 +454,7 @@
       
       const map = {
         'a-servir': 'Commandes à Servir',
+        'file-attente': 'File d\'attente',
         'demandes-aide': 'Demandes d\'aide',
         'historique': 'Historique des services',
         'pourboires': 'Mes Pourboires',
@@ -536,7 +577,7 @@
       isAlerting = true;
       alertIntervalId = setInterval(() => {
         const readyTables = myReadyOrders
-          .filter(o => !acknowledgedOrderIds.has(o.id))
+          .filter(o => !acknowledgedOrderIds.has(o.id) && !o.repousse)
           .map(o => o.table || o.tableNumber || '?')
           .filter(t => t !== '?');
         const helpElements = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
@@ -548,17 +589,35 @@
             if (num) helpTables.push(num);
           }
         });
+        const expiredElements = document.querySelectorAll('#waitingOrdersContainer .ticket .countdown.expired');
+        const expiredTables = [];
+        expiredElements.forEach(el => {
+          const ticket = el.closest('.ticket');
+          if (ticket) {
+            const tableEl = ticket.querySelector('.ticket-table');
+            if (tableEl) {
+              const num = tableEl.textContent.replace('Table ', '').trim();
+              if (num) expiredTables.push(num);
+            }
+          }
+        });
 
         let msg = '';
         if (readyTables.length > 0) msg += `Commande prête pour la table ${readyTables.join(', ')}. `;
         if (helpTables.length > 0) msg += `Demande d'aide de la table ${helpTables.join(', ')}. `;
+        if (expiredTables.length > 0) msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
         if (msg) triggerAlert(msg);
         else {
-          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id) && !o.repousse).length;
           const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
           if (pendingReady === 0 && pendingHelp === 0) stopAlert();
         }
       }, repeatIntervalSec * 1000);
+    }
+
+    function onNewNotification(message) {
+      if (message) triggerAlert(message);
+      if (!isAlerting) startAlertRepeat();
     }
 
     // ============================================================
@@ -604,7 +663,7 @@
       }
       currentRestaurantId = userData.restaurantId;
       const restoDoc = await db.collection('restaurants').doc(currentRestaurantId).get();
-      if (restoDoc.exists) document.getElementById('headerRestoName')?.textContent = restoDoc.data().nom || 'Mon restaurant';
+      if (restoDoc.exists) document.getElementById('headerRestoName').textContent = restoDoc.data().nom || 'Mon restaurant';
 
       // Afficher les infos du serveur
       const displayName = userData.displayName || userData.nom || userData.email || 'Serveur';
@@ -621,7 +680,7 @@
       setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
 
       // Lancer les écouteurs
-      listenMyOrders();
+      listenOrders();
       listenHelpRequests();
       listenTips();
       listenNotifications();
@@ -651,35 +710,50 @@
         const confirmMsg = 'Paramètres mis à jour.';
         if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
         if (alertMode === 'voix' || alertMode === 'lesdeux') speak(confirmMsg, selectedVoiceName === 'sonnerie' ? null : selectedVoiceName);
-        if (isAlerting) { stopAlert(); if (myReadyOrders.length > 0) startAlertRepeat(); }
+        if (isAlerting) { stopAlert(); if (myReadyOrders.length > 0 || myWaitingOrders.length > 0) startAlertRepeat(); }
       } catch(err) { showToast('Erreur de sauvegarde', 'error'); }
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES ASSIGNÉES À CE SERVEUR (statut 'prêt')
+    //  ÉCOUTE DES COMMANDES (filtrées côté client)
     // ============================================================
-    function listenMyOrders() {
-      if (!currentRestaurantId || !currentUser) return;
-      // On écoute toutes les commandes 'prêt' du restaurant, puis on filtre côté client sur assignedTo
+    function listenOrders() {
+      if (!currentRestaurantId) return;
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
-        .where('status', '==', 'prêt')
         .onSnapshot(snapshot => {
-          const newReady = [];
+          const allOrders = [];
           snapshot.forEach(doc => {
             const order = { id: doc.id, ...doc.data() };
-            // Ne garder que celles assignées à ce serveur (par uid ou email)
-            if (order.assignedTo === currentUser.uid || order.assignedTo === currentUser.email) {
-              newReady.push(order);
+            if (order.status === 'refusée') return;
+            const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (orderDate >= today) {
+              allOrders.push(order);
             }
           });
-          // Mettre à jour la liste
-          myReadyOrders = newReady;
 
-          // Détection de nouvelles commandes pour ce serveur
-          const newOrders = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
-          if (newOrders.length > 0) {
-            const order = newOrders[0];
+          // Filtrer les commandes assignées à ce serveur (uid)
+          const myOrders = allOrders.filter(o => o.assignedTo === currentUser.uid);
+          myReadyOrders = myOrders.filter(o => o.status === 'prêt' && !o.repousse);
+          myWaitingOrders = myOrders.filter(o => o.status === 'en_attente');
+
+          // Toutes les commandes prêtes (pour le filtre "Toutes")
+          allReadyOrders = allOrders.filter(o => o.status === 'prêt');
+          allWaitingOrders = allOrders.filter(o => o.status === 'en_attente');
+
+          // Mettre à jour les badges (uniquement celles du serveur, non repoussées)
+          const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+          document.getElementById('readyBadge').textContent = pendingReady;
+          document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
+          document.getElementById('waitingBadge').textContent = myWaitingOrders.length;
+          document.getElementById('waitingBadge').classList.toggle('show', myWaitingOrders.length > 0);
+          document.getElementById('waitingCount').textContent = `${myWaitingOrders.length} en attente`;
+
+          // Détection de nouvelles commandes prêtes pour ce serveur (non repoussées)
+          const newReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
+          if (newReady.length > 0) {
+            const order = newReady[0];
             showReadyOrderModal(order);
             const tableNum = order.table || order.tableNumber || '?';
             const msg = `Commande prête pour la table ${tableNum}`;
@@ -688,13 +762,19 @@
             if (!isAlerting) startAlertRepeat();
           }
 
-          // Mettre à jour le badge
-          const pendingCount = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-          document.getElementById('readyBadge').textContent = pendingCount;
-          document.getElementById('readyBadge').classList.toggle('show', pendingCount > 0);
-
           renderReadyOrders();
+          renderWaitingOrders();
         }, error => console.error('Erreur écoute orders:', error));
+    }
+
+    // ============================================================
+    //  FILTRE (Mes commandes / Toutes)
+    // ============================================================
+    function toggleFilter() {
+      showOnlyMine = !showOnlyMine;
+      document.getElementById('filterLabel').textContent = showOnlyMine ? 'Mes commandes' : 'Toutes';
+      renderReadyOrders();
+      renderWaitingOrders();
     }
 
     // ============================================================
@@ -702,7 +782,9 @@
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
-      if (myReadyOrders.length === 0) {
+      let orders = showOnlyMine ? myReadyOrders : allReadyOrders;
+
+      if (orders.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
           <p>Super ! Aucune commande en attente.</p>
@@ -710,9 +792,13 @@
         return;
       }
       container.innerHTML = '';
-      myReadyOrders.forEach(order => {
+      orders.forEach(order => {
+        const isMine = order.assignedTo === currentUser.uid;
+        // Si on est en mode "Toutes", on n'affiche pas les commandes repoussées par le serveur (on les ignore)
+        if (!showOnlyMine && order.repousse) return;
+
         const tableNum = order.table || order.tableNumber || '?';
-        const isNew = !acknowledgedOrderIds.has(order.id);
+        const isNew = isMine && !acknowledgedOrderIds.has(order.id);
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
           return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
@@ -731,6 +817,20 @@
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
+
+        // Boutons disponibles
+        let serveBtn = '';
+        let repousserBtn = '';
+        if (isMine) {
+          serveBtn = `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>`;
+          // Bouton repousser (uniquement si la commande n'est pas déjà repoussée)
+          if (!order.repousse) {
+            repousserBtn = `<button class="btn btn-warning" onclick="repousserCommande('${order.id}')"><i class="fas fa-clock"></i> Repousser</button>`;
+          }
+        } else {
+          serveBtn = `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
+        }
+
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
         ticket.innerHTML = `
@@ -746,8 +846,100 @@
           </div>
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
-            <button class="btn btn-success" onclick="servirCommande('${order.id}')"><i class="fas fa-check-double"></i> Marquer SERVI</button>
-            <button class="btn btn-warning" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
+            ${serveBtn}
+            ${repousserBtn}
+          </div>
+        `;
+        container.appendChild(ticket);
+      });
+    }
+
+    // ============================================================
+    //  RENDU DES COMMANDES EN ATTENTE
+    // ============================================================
+    function renderWaitingOrders() {
+      const container = document.getElementById('waitingOrdersContainer');
+      let orders = showOnlyMine ? myWaitingOrders : allWaitingOrders;
+      // Si "Toutes", on enlève les commandes repoussées par le serveur
+      if (!showOnlyMine) orders = orders.filter(o => !o.repousse);
+
+      if (orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
+          <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
+          <p>Aucune commande en file d'attente.</p>
+        </div>`;
+        return;
+      }
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const isMine = order.assignedTo === currentUser.uid;
+        if (!showOnlyMine && order.repousse) return;
+
+        const tableNum = order.table || order.tableNumber || '?';
+        const itemsHtml = order.items ? order.items.map(item => {
+          const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
+          return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
+        }).join('') : '<li>Détails non disponibles</li>';
+        const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
+
+        const waitingSince = order.waitingAt ? order.waitingAt.toDate() : order.createdAt.toDate();
+        const diffMs = Date.now() - waitingSince.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        let ageClass = 'green';
+        let ageLabel = 'Récent';
+        if (diffMin >= 2 && diffMin < 5) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
+        else if (diffMin >= 5 && diffMin < 10) { ageClass = 'orange'; ageLabel = 'Ancien'; }
+        else if (diffMin >= 10) { ageClass = 'red'; ageLabel = 'Très ancien'; }
+
+        let timerInfo = waitingTimers.get(order.id);
+        let countdownHtml = '';
+        let delayHtml = '';
+        if (timerInfo) {
+          const remaining = timerInfo.remainingSeconds;
+          const mins = Math.floor(remaining / 60);
+          const secs = remaining % 60;
+          const isExpired = remaining <= 0;
+          countdownHtml = `<span class="countdown ${isExpired ? 'expired' : ''}" style="color:${isExpired ? 'var(--danger)' : 'var(--text-dark)'}">${mins}:${secs.toString().padStart(2, '0')}</span>`;
+          delayHtml = `
+            <div class="delay-control">
+              <span>Délai :</span>
+              ${countdownHtml}
+              ${isExpired ? '<span class="badge badge-danger">EXPIRÉ</span>' : ''}
+              <button class="btn btn-sm btn-outline-secondary" onclick="annulerDelai('${order.id}')"><i class="fas fa-times"></i></button>
+            </div>
+          `;
+        } else {
+          delayHtml = `
+            <div class="delay-control">
+              <input type="number" id="delayInput_${order.id}" placeholder="Minutes" min="1" value="5" style="width:80px;" />
+              <button class="btn btn-sm btn-primary" onclick="definirDelai('${order.id}')"><i class="fas fa-hourglass-start"></i> Démarrer</button>
+            </div>
+          `;
+        }
+
+        let serveBtn = '';
+        if (isMine) {
+          serveBtn = `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>`;
+        } else {
+          serveBtn = `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
+        }
+
+        const ticket = document.createElement('div');
+        ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
+        ticket.innerHTML = `
+          <div class="ticket-header">
+            <div class="ticket-table" style="background:#e0f2fe;color:#0369a1;">Table ${tableNum}</div>
+            <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
+          </div>
+          ${instructions}
+          <ul class="ticket-items">${itemsHtml}</ul>
+          <div class="waiting-timer">
+            <span class="time-badge ${ageClass}">⏱ ${ageLabel} (${diffMin} min)</span>
+          </div>
+          <div style="margin-top:10px;">${delayHtml}</div>
+          <div class="ticket-footer" style="margin-top:15px;">
+            ${serveBtn}
+            ${isMine ? `<button class="btn btn-primary" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>` : ''}
           </div>
         `;
         container.appendChild(ticket);
@@ -760,6 +952,8 @@
     window.prendreEnCharge = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
+          assignedTo: currentUser.uid,
+          assignedToName: currentUser.displayName || currentUser.email || 'Serveur',
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
           acknowledgedBy: currentUser.uid
         });
@@ -767,13 +961,24 @@
         showToast('Commande prise en charge !', 'success');
         playConfirmation('Commande prise en charge.');
         closeModal();
-        renderReadyOrders();
-        const pendingReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-        const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
-        if (pendingReady === 0 && pendingHelp === 0) stopAlert();
-        else if (!isAlerting) startAlertRepeat();
+        // Le snapshot se chargera de mettre à jour les listes
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
+        console.error(error);
+      }
+    };
+
+    window.repousserCommande = async function(orderId) {
+      try {
+        await db.collection('orders').doc(orderId).update({
+          repousse: true,
+          repousseAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Commande repoussée. Elle sera masquée de votre vue.', 'info');
+        playConfirmation('Commande repoussée.');
+        // La commande disparaît de la vue
+      } catch (error) {
+        showToast('Erreur lors du repoussage', 'error');
         console.error(error);
       }
     };
@@ -791,7 +996,7 @@
       }
     };
 
-    window.servirCommande = async function(orderId) {
+    window.marquerCommeServi = async function(orderId) {
       const doc = await db.collection('orders').doc(orderId).get();
       const order = doc.data();
       if (order.paymentMode === 'cash' && !order.paymentConfirmed) {
@@ -807,11 +1012,63 @@
         showToast('Commande marquée comme servie !', 'success');
         playConfirmation('Commande servie.');
         acknowledgedOrderIds.delete(orderId);
+        if (waitingTimers.has(orderId)) {
+          clearInterval(waitingTimers.get(orderId).intervalId);
+          waitingTimers.delete(orderId);
+        }
         closeModal();
         loadHistory(document.getElementById('historyDateFilter').value || null);
       } catch (error) {
         showToast('Erreur lors de la mise à jour', 'error');
         console.error(error);
+      }
+    };
+
+    // ============================================================
+    //  GESTION DES DÉLAIS
+    // ============================================================
+    window.definirDelai = function(orderId) {
+      const input = document.getElementById('delayInput_' + orderId);
+      if (!input) { showToast('Erreur : champ introuvable', 'error'); return; }
+      const minutes = parseInt(input.value) || 5;
+      if (minutes <= 0) { alert('Veuillez entrer un nombre de minutes valide.'); return; }
+      if (waitingTimers.has(orderId)) {
+        clearInterval(waitingTimers.get(orderId).intervalId);
+        waitingTimers.delete(orderId);
+      }
+      const totalSec = minutes * 60;
+      let remaining = totalSec;
+      const timerObj = { remainingSeconds: remaining, intervalId: null };
+      const update = () => {
+        remaining--;
+        timerObj.remainingSeconds = remaining;
+        if (remaining <= 0) {
+          clearInterval(timerObj.intervalId);
+          timerObj.remainingSeconds = 0;
+          const order = myWaitingOrders.find(o => o.id === orderId);
+          const table = order ? (order.table || order.tableNumber || '?') : '?';
+          const msg = `Délai écoulé pour la table ${table}`;
+          triggerAlert(msg);
+          showToast(`⚠️ Délai écoulé pour la table ${table}`, 'warning');
+          if (!isAlerting) startAlertRepeat();
+          renderWaitingOrders();
+        } else {
+          renderWaitingOrders();
+        }
+      };
+      timerObj.intervalId = setInterval(update, 1000);
+      waitingTimers.set(orderId, timerObj);
+      showToast(`Délai de ${minutes} min défini pour cette commande.`, 'info');
+      playConfirmation(`Délai de ${minutes} minutes défini.`);
+      renderWaitingOrders();
+    };
+
+    window.annulerDelai = function(orderId) {
+      if (waitingTimers.has(orderId)) {
+        clearInterval(waitingTimers.get(orderId).intervalId);
+        waitingTimers.delete(orderId);
+        showToast('Délai annulé.', 'info');
+        renderWaitingOrders();
       }
     };
 
@@ -846,7 +1103,7 @@
       `;
       const actionsHTML = `
         <button class="btn btn-success" onclick="prendreEnCharge('${order.id}')"><i class="fas fa-hand-holding-heart"></i> Prendre en charge</button>
-        <button class="btn btn-warning" onclick="servirCommande('${order.id}')"><i class="fas fa-check-double"></i> Servir maintenant</button>
+        <button class="btn btn-warning" onclick="repousserCommande('${order.id}')"><i class="fas fa-clock"></i> Repousser</button>
         <button class="btn btn-silence" onclick="closeModal(); stopAlert();"><i class="fas fa-volume-mute"></i> Silencer</button>
       `;
       openModal('🍽️ Commande prête !', bodyHTML, actionsHTML);
@@ -1037,8 +1294,8 @@
         .then(snapshot => {
           const orders = [];
           snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-          // Filtrer par assignation (uid ou email)
-          let filtered = orders.filter(o => o.assignedTo === currentUser.uid || o.assignedTo === currentUser.email);
+          // Filtrer par assignation (uid)
+          let filtered = orders.filter(o => o.assignedTo === currentUser.uid);
           if (dateFilter) {
             const start = new Date(dateFilter + 'T00:00:00');
             const end = new Date(dateFilter + 'T23:59:59');
