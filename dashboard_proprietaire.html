@@ -572,7 +572,7 @@
         </div>
         <div id="employesTableContainer">
           <div class="table-wrap">
-            <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
+            <table><thead><tr><th>Photo</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th>Poste</th><th>Code Connexion</th><th>Actions</th></tr></thead><tbody id="employesList"></tbody></table>
           </div>
         </div>
       </div>
@@ -903,20 +903,20 @@
     // ============================================================
     //  CONFIGURATION FIREBASE & CLOUDINARY
     // ============================================================
-      const firebaseConfig = {
-  apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
-  authDomain: "cinexau-903a6.firebaseapp.com",
-  projectId: "cinexau-903a6",
-  storageBucket: "cinexau-903a6.firebasestorage.app",
-  messagingSenderId: "247230931008",
-  appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpvdfugex1MtpC6jOyTOIyZzY2kgcgHnk",
+      authDomain: "cinexau-903a6.firebaseapp.com",
+      projectId: "cinexau-903a6",
+      storageBucket: "cinexau-903a6.firebasestorage.app",
+      messagingSenderId: "247230931008",
+      appId: "1:247230931008:web:89824e9a4a257bd831ffa5"
+    };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
-const secondaryAuth = secondaryApp.auth();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
+    const secondaryAuth = secondaryApp.auth();
 
     const CLOUDINARY_CLOUD_NAME = 'do83voiqy';
     const CLOUDINARY_UPLOAD_PRESET = 'afrikdigitalo_upload';
@@ -1450,6 +1450,7 @@ const secondaryAuth = secondaryApp.auth();
         tr.innerHTML = `
           <td>${photo}</td><td style="font-weight:600;">${data.nom || 'Sans nom'}</td><td>${data.email}</td>
           <td><code>${data.motDePasse || '******'}</code></td><td><span class="badge badge-info">${data.role}</span></td>
+          <td>${data.poste || ''}</td>
           <td><code style="color:var(--primary); font-weight:bold;">${data.codeRestaurant || 'N/A'}</code></td>
           <td>
             <button class="btn btn-outline btn-sm" onclick="copyEmployeInfo('${doc.id}')"><i class="fas fa-copy"></i></button>
@@ -1507,6 +1508,7 @@ const secondaryAuth = secondaryApp.auth();
         Email : ${data.email || 'Non défini'}
         Mot de passe : ${data.motDePasse || 'Non défini'}
         Rôle : ${data.role || 'Non défini'}
+        Poste : ${data.poste || 'Non défini'}
         Code restaurant : ${data.codeRestaurant || 'Non défini'}
         Restaurant : ${restaurantData.nom || 'Non défini'}
         `;
@@ -1548,6 +1550,11 @@ const secondaryAuth = secondaryApp.auth();
             <button type="button" class="btn btn-success btn-sm" id="confirmAddRole" style="margin-top:6px;">Ajouter</button>
           </div>
         </div>
+        <div class="form-group">
+          <label>Détail du poste (ex: Chef de rang, Cuisinier n°1, Comptable principal)</label>
+          <input type="text" id="empPoste" class="form-control" placeholder="Précisez le poste exact" />
+          <small class="hint-text"><i class="fas fa-info-circle"></i> Permet de différencier plusieurs employés ayant le même rôle.</small>
+        </div>
         <div class="grid-2">
           <div class="form-group"><label>Code restaurant</label><input type="text" id="empCode" class="form-control" value="${code}" readonly style="background:#f8fafc;font-weight:bold;" /></div>
           <div class="form-group"><label>Mot de passe initial</label><input type="text" id="empPassword" class="form-control" value="password123" required /></div>
@@ -1575,6 +1582,7 @@ const secondaryAuth = secondaryApp.auth();
           const password = document.getElementById('empPassword').value;
           const nom = document.getElementById('empNom').value;
           const codeRestaurant = document.getElementById('empCode').value;
+          const poste = document.getElementById('empPoste').value.trim();
 
           // Création du compte Firebase Auth pour l'employé
           const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
@@ -1587,6 +1595,7 @@ const secondaryAuth = secondaryApp.auth();
             codeRestaurant: codeRestaurant,
             motDePasse: password,
             photo: uploadedPhotoUrl,
+            poste: poste,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await secondaryAuth.signOut();
@@ -1667,6 +1676,7 @@ const secondaryAuth = secondaryApp.auth();
             ${(restaurantData.roles || []).map(r => `<option value="${r}" ${r === data.role ? 'selected' : ''}>${r}</option>`).join('')}
           </select>
         </div>
+        <div class="form-group"><label>Détail du poste</label><input type="text" id="editEmpPoste" class="form-control" value="${data.poste || ''}" /></div>
         <div class="form-group"><label>Code restaurant (non modifiable)</label><input type="text" class="form-control" value="${data.codeRestaurant || ''}" disabled /></div>
         <div class="form-group"><label>Mot de passe (ne peut pas être modifié ici)</label><input type="text" class="form-control" value="${data.motDePasse || '******'}" disabled /></div>
       `;
@@ -1674,7 +1684,8 @@ const secondaryAuth = secondaryApp.auth();
       openModal('Modifier l\'employé', html, async () => {
         await db.collection('users').doc(uid).update({ 
           nom: document.getElementById('editEmpNom').value, 
-          role: document.getElementById('editEmpRole').value, 
+          role: document.getElementById('editEmpRole').value,
+          poste: document.getElementById('editEmpPoste').value.trim(),
           photo: updatedPhotoUrl 
         });
         showToast('Profil employé mis à jour'); loadEmployes();
@@ -1777,6 +1788,24 @@ const secondaryAuth = secondaryApp.auth();
           <span>En promotion (Affiche un badge)</span>
         </div>
         <div class="form-group" id="platPrixOriginalGroup" style="display:none;"><label>Prix avant promotion (FCFA)</label><input type="number" id="platPrixOriginal" class="form-control" /></div>
+        
+        <!-- Compléments avec Type (Complément / Boisson) -->
+        <div class="form-group">
+          <label>Compléments & Boissons</label>
+          <div id="complementsContainer">
+            <div class="complement-input-group" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+              <input type="text" class="form-control" placeholder="Nom" id="compNom" style="flex:1; min-width:100px;" />
+              <input type="number" class="form-control" placeholder="Prix" id="compPrix" style="width:100px;" />
+              <select class="form-control" id="compType" style="width:130px;">
+                <option value="complément">Complément</option>
+                <option value="boisson">Boisson</option>
+              </select>
+              <button type="button" class="btn btn-success btn-sm" id="addComplementBtn"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="complementsList" style="margin-top:8px;"></div>
+          </div>
+          <small class="hint-text"><i class="fas fa-info-circle"></i> Vous pouvez ajouter des compléments (ingrédients supplémentaires) et des boissons. Le client choisira ses options lors de la commande.</small>
+        </div>
       `;
       
       openModal('Ajouter un plat au menu', html, async () => {
@@ -1794,6 +1823,15 @@ const secondaryAuth = secondaryApp.auth();
             catSelect.value = selectedCategory;
           }
         }
+
+        // Récupération des compléments avec leur type
+        const compItems = [];
+        document.querySelectorAll('#complementsList .complement-tag').forEach(el => {
+          const nom = el.dataset.nom || '';
+          const prix = parseFloat(el.dataset.prix) || 0;
+          const type = el.dataset.type || 'complément';
+          if (nom) compItems.push({ nom, prix, type });
+        });
         
         await db.collection('menus').add({
           restaurantId: currentRestaurantId,
@@ -1805,6 +1843,7 @@ const secondaryAuth = secondaryApp.auth();
           prixOriginal: promo ? parseFloat(document.getElementById('platPrixOriginal').value) || null : null,
           image: uploadedPlatUrl,
           disponible: true,
+          complements: compItems,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Nouveau plat ajouté avec succès ! ✨');
@@ -1860,6 +1899,28 @@ const secondaryAuth = secondaryApp.auth();
           });
         }
       }, 100);
+
+      // Gestion de l'ajout de complément (avec type)
+      document.getElementById('addComplementBtn').addEventListener('click', function() {
+        const nomInput = document.getElementById('compNom');
+        const prixInput = document.getElementById('compPrix');
+        const typeSelect = document.getElementById('compType');
+        const nom = nomInput.value.trim();
+        const prix = parseFloat(prixInput.value);
+        const type = typeSelect.value;
+        if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
+        const list = document.getElementById('complementsList');
+        const tag = document.createElement('span');
+        tag.className = 'complement-tag';
+        tag.dataset.nom = nom;
+        tag.dataset.prix = prix;
+        tag.dataset.type = type;
+        tag.innerHTML = `${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
+        list.appendChild(tag);
+        nomInput.value = '';
+        prixInput.value = '';
+        typeSelect.value = 'complément';
+      });
     });
 
     window.editPlat = async (id) => {
@@ -1867,6 +1928,18 @@ const secondaryAuth = secondaryApp.auth();
       const data = doc.data();
       let currentImgUrl = data.image || '';
       
+      // Construire les tags des compléments existants
+      let complementsHtml = '';
+      if (data.complements && data.complements.length > 0) {
+        data.complements.forEach(c => {
+          const type = c.type || 'complément';
+          complementsHtml += `<span class="complement-tag" data-nom="${c.nom}" data-prix="${c.prix}" data-type="${type}">
+            ${c.nom} <span class="price">+${c.prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span>
+            <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>
+          </span>`;
+        });
+      }
+
       const html = `
         <div class="form-group">
           <label>Image du Plat</label>
@@ -1891,10 +1964,37 @@ const secondaryAuth = secondaryApp.auth();
           <span>En promotion</span>
         </div>
         <div class="form-group" id="editPlatPrixOriginalGroup" style="${data.promotion ? 'display:block;' : 'display:none;'}"><label>Prix avant promotion (FCFA)</label><input type="number" id="editPlatPrixOriginal" class="form-control" value="${data.prixOriginal || ''}" /></div>
+        
+        <!-- Compléments avec Type -->
+        <div class="form-group">
+          <label>Compléments & Boissons</label>
+          <div id="editComplementsContainer">
+            <div class="complement-input-group" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+              <input type="text" class="form-control" placeholder="Nom" id="editCompNom" style="flex:1; min-width:100px;" />
+              <input type="number" class="form-control" placeholder="Prix" id="editCompPrix" style="width:100px;" />
+              <select class="form-control" id="editCompType" style="width:130px;">
+                <option value="complément">Complément</option>
+                <option value="boisson">Boisson</option>
+              </select>
+              <button type="button" class="btn btn-success btn-sm" id="editAddComplementBtn"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="editComplementsList" style="margin-top:8px;">${complementsHtml}</div>
+          </div>
+        </div>
       `;
       
       openModal('Modifier le plat', html, async () => {
         const promo = document.getElementById('editPlatPromo').checked;
+        
+        // Récupération des compléments avec leur type
+        const compItems = [];
+        document.querySelectorAll('#editComplementsList .complement-tag').forEach(el => {
+          const nom = el.dataset.nom || '';
+          const prix = parseFloat(el.dataset.prix) || 0;
+          const type = el.dataset.type || 'complément';
+          if (nom) compItems.push({ nom, prix, type });
+        });
+
         await db.collection('menus').doc(id).update({
           nom: document.getElementById('editPlatNom').value,
           description: document.getElementById('editPlatDescription').value || '',
@@ -1902,7 +2002,8 @@ const secondaryAuth = secondaryApp.auth();
           categorie: document.getElementById('editPlatCategorie').value,
           promotion: promo,
           prixOriginal: promo ? parseFloat(document.getElementById('editPlatPrixOriginal').value) || null : null,
-          image: currentImgUrl
+          image: currentImgUrl,
+          complements: compItems
         });
         showToast('Plat modifié avec succès !');
         loadMenu();
@@ -1923,6 +2024,28 @@ const secondaryAuth = secondaryApp.auth();
           document.getElementById('platEditPreview').src = url;
           currentImgUrl = url;
         });
+      });
+
+      // Gestion de l'ajout de complément dans l'édition
+      document.getElementById('editAddComplementBtn').addEventListener('click', function() {
+        const nomInput = document.getElementById('editCompNom');
+        const prixInput = document.getElementById('editCompPrix');
+        const typeSelect = document.getElementById('editCompType');
+        const nom = nomInput.value.trim();
+        const prix = parseFloat(prixInput.value);
+        const type = typeSelect.value;
+        if (!nom || isNaN(prix)) { showToast('Veuillez saisir un nom et un prix valide.', 'warning'); return; }
+        const list = document.getElementById('editComplementsList');
+        const tag = document.createElement('span');
+        tag.className = 'complement-tag';
+        tag.dataset.nom = nom;
+        tag.dataset.prix = prix;
+        tag.dataset.type = type;
+        tag.innerHTML = `${nom} <span class="price">+${prix} F</span> <span style="font-size:0.7rem; color:var(--text-muted);">${type}</span> <i class="fas fa-times" style="cursor:pointer;margin-left:6px;color:var(--danger);" onclick="this.parentElement.remove()"></i>`;
+        list.appendChild(tag);
+        nomInput.value = '';
+        prixInput.value = '';
+        typeSelect.value = 'complément';
       });
     };
 
@@ -2016,39 +2139,35 @@ const secondaryAuth = secondaryApp.auth();
     }
 
     function updateQRUI() {
-  const menuBox = document.getElementById('menuLinkContainer');
-  const generateBtn = document.getElementById('generateMenuLink');
-  const viewMenuBtn = document.getElementById('btnVoirRestaurant');
-  const qrEl = document.getElementById('qrcode');
+      const menuBox = document.getElementById('menuLinkContainer');
+      const generateBtn = document.getElementById('generateMenuLink');
+      const viewMenuBtn = document.getElementById('btnVoirRestaurant');
+      const qrEl = document.getElementById('qrcode');
 
-  if (restaurantData && restaurantData.nom && menuItemsCount > 0) {
-    // Cas 1 : le menu digital n'existe pas encore -> afficher le bouton de génération
-    if (!restaurantData.menuUrl) {
-      if (menuBox) menuBox.style.display = 'none';
-      if (generateBtn) generateBtn.style.display = 'inline-flex';
-      if (viewMenuBtn) viewMenuBtn.style.display = 'none';
-      if (qrEl) qrEl.innerHTML = '';
-      return;
+      if (restaurantData && restaurantData.nom && menuItemsCount > 0) {
+        if (!restaurantData.menuUrl) {
+          if (menuBox) menuBox.style.display = 'none';
+          if (generateBtn) generateBtn.style.display = 'inline-flex';
+          if (viewMenuBtn) viewMenuBtn.style.display = 'none';
+          if (qrEl) qrEl.innerHTML = '';
+          return;
+        }
+        if (menuBox) menuBox.style.display = 'block';
+        if (generateBtn) generateBtn.style.display = 'none';
+        if (viewMenuBtn) {
+          viewMenuBtn.style.display = 'inline-flex';
+          viewMenuBtn.onclick = () => window.open(restaurantData.menuUrl, '_blank');
+        }
+        if (qrEl && qrEl.innerHTML === '') {
+          generateQRWithLogo(restaurantData.menuUrl);
+        }
+      } else {
+        if (menuBox) menuBox.style.display = 'none';
+        if (generateBtn) generateBtn.style.display = 'none';
+        if (viewMenuBtn) viewMenuBtn.style.display = 'none';
+        if (qrEl) qrEl.innerHTML = '';
+      }
     }
-
-    // Cas 2 : le lien existe -> afficher le QR, le lien et le bouton du haut
-    if (menuBox) menuBox.style.display = 'block';
-    if (generateBtn) generateBtn.style.display = 'none';
-    if (viewMenuBtn) {
-      viewMenuBtn.style.display = 'inline-flex';
-      viewMenuBtn.onclick = () => window.open(restaurantData.menuUrl, '_blank');
-    }
-
-    if (qrEl && qrEl.innerHTML === '') {
-      generateQRWithLogo(restaurantData.menuUrl);
-    }
-  } else {
-    if (menuBox) menuBox.style.display = 'none';
-    if (generateBtn) generateBtn.style.display = 'none';
-    if (viewMenuBtn) viewMenuBtn.style.display = 'none';
-    if (qrEl) qrEl.innerHTML = '';
-  }
-}
 
     document.getElementById('toggleQrBtn').addEventListener('click', function() {
       const content = document.getElementById('qrCollapsible');
