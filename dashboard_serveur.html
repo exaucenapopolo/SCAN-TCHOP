@@ -10,7 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ====== STYLES IDENTIQUES AUX ORIGINAUX (conservés) ====== */
+    /* ============================================
+       STYLES (inchangés)
+    ============================================ */
     :root {
       --primary: #3498db;
       --primary-dark: #2980b9;
@@ -34,7 +36,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-    /* ====== SIDEBAR ====== */
+    /* --- SIDEBAR --- */
     .sidebar-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); backdrop-filter:blur(6px); z-index:90; display:none; opacity:0; transition:opacity 0.3s; }
     .sidebar-overlay.open { display:block; opacity:1; }
     .sidebar { width:280px; background:linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); color:#fff; padding:30px 20px; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.4s; box-shadow:4px 0 30px rgba(0,0,0,0.1); }
@@ -54,7 +56,7 @@
     .badge-notif.show { display:inline-block; animation: pop 0.3s ease; }
     @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
 
-    /* ====== MAIN CONTENT ====== */
+    /* --- MAIN --- */
     .main { margin-left:280px; flex:1; padding:30px 40px; min-height:100vh; width:calc(100vw - 280px); }
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:15px; }
     .header h1 { font-size:2rem; font-weight:800; color:var(--text-dark); font-family:'Playfair Display',serif; }
@@ -171,6 +173,7 @@
     .filters-row label { font-weight:600; color:var(--text-muted); }
     .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
+    /* Bannière de notification */
     .notification-banner {
       background: #fff3cd; border-left: 6px solid var(--warning); padding: 12px 18px; border-radius: 12px;
       margin-bottom: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
@@ -242,7 +245,7 @@
       </div>
     </div>
 
-    <!-- ===== BANNIÈRE DE NOTIFICATION ===== -->
+    <!-- BANNIÈRE NOTIFICATION -->
     <div id="notificationBanner" style="display:none;"></div>
 
     <!-- ===== SECTION: À SERVIR ===== -->
@@ -252,8 +255,8 @@
           <h3><i class="fas fa-concierge-bell"></i> Prêt en cuisine</h3>
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
             <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
-            <button class="btn btn-outline-secondary" id="toggleMyOrders" onclick="toggleMyOrdersFilter()">
-              <i class="fas fa-user-check"></i> <span id="filterLabel">Mes commandes</span>
+            <button class="btn btn-outline-secondary" id="toggleFilterBtn" onclick="toggleFilter()">
+              <i class="fas fa-filter"></i> <span id="filterLabel">Mes commandes</span>
             </button>
           </div>
         </div>
@@ -368,7 +371,7 @@
 
   </div>
 
-  <!-- ===== FIREBASE & SCRIPTS ===== -->
+  <!-- ========== FIREBASE & SCRIPTS ========== -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -396,16 +399,16 @@
     let currentUser = null;
     let currentRestaurantId = null;
 
-    // Listes des commandes (uniquement celles assignées au serveur, après filtrage côté client)
-    let readyOrders = [];
-    let waitingOrders = [];
-    let servedOrders = [];
+    // Listes complètes des commandes (objets avec id)
+    let allOrders = [];         // toutes les commandes du jour
+    let readyOrders = [];       // status === 'prêt'
+    let waitingOrders = [];     // status === 'en_attente'
+    let servedOrders = [];      // status === 'terminé' (pour historique)
 
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
     let waitingTimers = new Map();
 
-    // Audio & alertes
     let audioCtx = null;
     let selectedVoiceName = 'sonnerie';
     let alertMode = 'sonnerie';
@@ -414,7 +417,7 @@
     let availableVoices = [];
     let isAlerting = false;
 
-    let showMyOrdersOnly = true; // Par défaut, afficher uniquement les commandes du serveur
+    let showOnlyMine = true;  // par défaut, on filtre sur ses commandes
 
     // ============================================================
     //  UI HELPERS
@@ -498,7 +501,7 @@
     });
 
     // ============================================================
-    //  AUDIO & ALERTES (avec répétition)
+    //  AUDIO & ALERTES
     // ============================================================
     function getAudioContext() {
       if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -539,28 +542,18 @@
     }
 
     function triggerAlert(message) {
-      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
-        playDingDong();
-      }
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
       if (alertMode === 'voix' || alertMode === 'lesdeux') {
-        if (selectedVoiceName === 'sonnerie') {
-          speak(message, null);
-        } else {
-          speak(message, selectedVoiceName);
-        }
+        if (selectedVoiceName === 'sonnerie') speak(message, null);
+        else speak(message, selectedVoiceName);
       }
     }
 
     function playConfirmation(message) {
-      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') {
-        playDingDong();
-      }
+      if (alertMode === 'sonnerie' || alertMode === 'lesdeux') playDingDong();
       if (alertMode === 'voix' || alertMode === 'lesdeux') {
-        if (selectedVoiceName === 'sonnerie') {
-          speak(message, null);
-        } else {
-          speak(message, selectedVoiceName);
-        }
+        if (selectedVoiceName === 'sonnerie') speak(message, null);
+        else speak(message, selectedVoiceName);
       }
     }
 
@@ -577,12 +570,10 @@
       if (alertIntervalId) return;
       isAlerting = true;
       alertIntervalId = setInterval(() => {
-        // Vérifier les commandes prêtes non accusées
         const readyTables = readyOrders
           .filter(o => !acknowledgedOrderIds.has(o.id))
           .map(o => o.table || o.tableNumber || '?')
           .filter(t => t !== '?');
-        // Demandes d'aide en attente
         const helpElements = document.querySelectorAll('#helpRequestsContainer .help-request-card:not(.accepted)');
         const helpTables = [];
         helpElements.forEach(el => {
@@ -592,7 +583,6 @@
             if (num) helpTables.push(num);
           }
         });
-        // Délais expirés
         const expiredElements = document.querySelectorAll('#waitingOrdersContainer .ticket .countdown.expired');
         const expiredTables = [];
         expiredElements.forEach(el => {
@@ -607,31 +597,21 @@
         });
 
         let msg = '';
-        if (readyTables.length > 0) {
-          msg += `Commande prête pour la table ${readyTables.join(', ')}. `;
-        }
-        if (helpTables.length > 0) {
-          msg += `Demande d'aide de la table ${helpTables.join(', ')}. `;
-        }
-        if (expiredTables.length > 0) {
-          msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
-        }
+        if (readyTables.length > 0) msg += `Commande prête pour la table ${readyTables.join(', ')}. `;
+        if (helpTables.length > 0) msg += `Demande d'aide de la table ${helpTables.join(', ')}. `;
+        if (expiredTables.length > 0) msg += `Délai écoulé pour la table ${expiredTables.join(', ')}. `;
         if (msg) triggerAlert(msg);
         else {
           const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-          const pendingHelp = document.getElementById('helpBadge').textContent;
-          if (pendingReady === 0 && parseInt(pendingHelp) === 0) {
-            stopAlert();
-          }
+          const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
+          if (pendingReady === 0 && pendingHelp === 0) stopAlert();
         }
       }, repeatIntervalSec * 1000);
     }
 
     function onNewNotification(message) {
       if (message) triggerAlert(message);
-      if (!isAlerting) {
-        startAlertRepeat();
-      }
+      if (!isAlerting) startAlertRepeat();
     }
 
     // ============================================================
@@ -651,14 +631,9 @@
         select.appendChild(opt);
       });
       if (selectedVoiceName && selectedVoiceName !== 'sonnerie') {
-        if (availableVoices.some(v => v.name === selectedVoiceName)) {
-          select.value = selectedVoiceName;
-        } else {
-          select.value = 'sonnerie';
-        }
-      } else {
-        select.value = 'sonnerie';
-      }
+        if (availableVoices.some(v => v.name === selectedVoiceName)) select.value = selectedVoiceName;
+        else select.value = 'sonnerie';
+      } else select.value = 'sonnerie';
     }
 
     if (window.speechSynthesis) {
@@ -690,12 +665,11 @@
       document.getElementById('alertMode').value = alertMode;
       document.getElementById('repeatInterval').value = repeatIntervalSec;
       setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
-
       // Lancer les écouteurs
       listenOrders();
       listenHelpRequests();
       listenTips();
-      listenOrderReadyNotifications(); // Écouter les notifications de commandes prêtes
+      listenNotifications();
       loadHistory(null);
     });
 
@@ -727,117 +701,62 @@
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (sans index composite)
+    //  ÉCOUTE DES COMMANDES (toutes, puis filtre client)
     // ============================================================
     function listenOrders() {
-      if (!currentRestaurantId || !currentUser) return;
-
-      // On écoute toutes les commandes du restaurant et on filtre côté client
-      const q = db.collection('orders').where('restaurantId', '==', currentRestaurantId);
-      const unsubscribe = q.onSnapshot(snapshot => {
-        const allOrders = [];
-        snapshot.forEach(doc => {
-          const order = { id: doc.id, ...doc.data() };
-          if (order.status === 'refusée') return; // ignore refusées
-          allOrders.push(order);
-        });
-
-        // Filtrer les commandes assignées à ce serveur
-        const myOrders = allOrders.filter(o => o.assignedTo === currentUser.uid);
-
-        // Séparer selon le statut
-        const newReady = myOrders.filter(o => o.status === 'prêt');
-        const newWaiting = myOrders.filter(o => o.status === 'en_attente');
-        const newServed = myOrders.filter(o => o.status === 'terminé');
-
-        // Mettre à jour les listes
-        readyOrders = newReady;
-        waitingOrders = newWaiting;
-        servedOrders = newServed;
-
-        // Badges
-        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-        document.getElementById('readyBadge').textContent = pendingReady;
-        document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
-        document.getElementById('waitingBadge').textContent = waitingOrders.length;
-        document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
-        document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
-
-        // Détection des nouvelles commandes (non accusées)
-        const newOrders = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
-        if (newOrders.length > 0) {
-          const latest = newOrders[0];
-          const tableNum = latest.table || latest.tableNumber || '?';
-          showReadyOrderModal(latest);
-          triggerAlert(`Commande prête pour la table ${tableNum}`);
-          showToast(`Table ${tableNum} est prête !`, 'warning');
-          if (!isAlerting) startAlertRepeat();
-        }
-
-        // Rendu
-        renderReadyOrders();
-        renderWaitingOrders();
-
-      }, error => {
-        console.error('Erreur écoute commandes:', error);
-        showToast('Erreur de connexion Firestore. Vérifiez votre réseau.', 'error');
-      });
-
-      // Pour l'historique, on recharge avec un autre listener ou on utilise le même
-    }
-
-    // ============================================================
-    //  ÉCOUTE DES NOTIFICATIONS DE COMMANDES PRÊTES
-    // ============================================================
-    function listenOrderReadyNotifications() {
-      if (!currentRestaurantId || !currentUser) return;
-      // Écouter les notifications de type 'order_ready' ciblant ce serveur
-      db.collection('notifications')
+      if (!currentRestaurantId) return;
+      db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
-        .where('targetUser', '==', currentUser.uid)
-        .where('type', '==', 'order_ready')
         .onSnapshot(snapshot => {
-          snapshot.docChanges().forEach(change => {
-            if (change.type === 'added') {
-              const data = change.doc.data();
-              const table = data.message.match(/Table (\d+)/);
-              const tableNum = table ? table[1] : '?';
-              const msg = `Commande prête pour la table ${tableNum}`;
-              showNotificationBanner(msg, 'success');
-              triggerAlert(msg);
-              showToast(`Nouvelle commande prête pour la table ${tableNum}`, 'success');
-              // Marquer la notification comme lue
-              db.collection('notifications').doc(change.doc.id).update({ read: true });
+          allOrders = [];
+          snapshot.forEach(doc => {
+            const order = { id: doc.id, ...doc.data() };
+            if (order.status === 'refusée') return;
+            const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (orderDate >= today) {
+              allOrders.push(order);
             }
           });
-        }, error => {
-          console.error('Erreur écoute notifications:', error);
-        });
+
+          // Filtrer par statut
+          readyOrders = allOrders.filter(o => o.status === 'prêt');
+          waitingOrders = allOrders.filter(o => o.status === 'en_attente');
+
+          // Mettre à jour les badges
+          const myReady = readyOrders.filter(o => o.assignedTo === currentUser.uid);
+          const myWaiting = waitingOrders.filter(o => o.assignedTo === currentUser.uid);
+          document.getElementById('readyBadge').textContent = myReady.length;
+          document.getElementById('readyBadge').classList.toggle('show', myReady.length > 0);
+          document.getElementById('waitingBadge').textContent = myWaiting.length;
+          document.getElementById('waitingBadge').classList.toggle('show', myWaiting.length > 0);
+          document.getElementById('waitingCount').textContent = `${myWaiting.length} en attente`;
+
+          // Détection de nouvelles commandes prêtes pour ce serveur
+          const newReady = readyOrders.filter(o => 
+            o.assignedTo === currentUser.uid && !acknowledgedOrderIds.has(o.id)
+          );
+          if (newReady.length > 0) {
+            const order = newReady[0];
+            showReadyOrderModal(order);
+            const tableNum = order.table || order.tableNumber || '?';
+            const msg = `Commande prête pour la table ${tableNum}`;
+            triggerAlert(msg);
+            showToast(`Table ${tableNum} est prête !`, 'warning');
+            if (!isAlerting) startAlertRepeat();
+          }
+
+          renderReadyOrders();
+          renderWaitingOrders();
+        }, error => console.error('Erreur écoute orders:', error));
     }
 
     // ============================================================
-    //  AFFICHAGE DES BANNIÈRES DE NOTIFICATION
+    //  FILTRE (Mes commandes / Toutes)
     // ============================================================
-    function showNotificationBanner(message, type = 'info') {
-      const banner = document.getElementById('notificationBanner');
-      banner.style.display = 'flex';
-      banner.className = `notification-banner ${type}`;
-      banner.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}" style="font-size:1.2rem;"></i>
-        <span>${message}</span>
-        <button class="dismiss" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
-      `;
-      // Auto-disparition après 10 secondes
-      setTimeout(() => { banner.style.display = 'none'; }, 10000);
-    }
-
-    // ============================================================
-    //  FILTRE MES COMMANDES
-    // ============================================================
-    function toggleMyOrdersFilter() {
-      showMyOrdersOnly = !showMyOrdersOnly;
-      document.getElementById('filterLabel').textContent = showMyOrdersOnly ? 'Mes commandes' : 'Toutes les commandes';
-      // Re-rendre les commandes (mais les listes sont déjà filtrées par assignation, donc ce filtre est redondant mais on le garde)
+    function toggleFilter() {
+      showOnlyMine = !showOnlyMine;
+      document.getElementById('filterLabel').textContent = showOnlyMine ? 'Mes commandes' : 'Toutes';
       renderReadyOrders();
       renderWaitingOrders();
     }
@@ -848,9 +767,8 @@
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
       let filtered = readyOrders;
-      if (showMyOrdersOnly && currentUser) {
-        filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
-      }
+      if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
+      
       if (filtered.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-check-circle fa-3x" style="opacity:0.2;margin-bottom:15px;color:var(--success);"></i>
@@ -882,7 +800,6 @@
         }
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
-        ticket.dataset.acknowledged = acknowledgedOrderIds.has(order.id) ? 'true' : 'false';
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table">Table ${tableNum}</div>
@@ -911,9 +828,8 @@
     function renderWaitingOrders() {
       const container = document.getElementById('waitingOrdersContainer');
       let filtered = waitingOrders;
-      if (showMyOrdersOnly && currentUser) {
-        filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
-      }
+      if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
+
       if (filtered.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);width:100%;grid-column:1/-1;">
           <i class="fas fa-hourglass-half fa-3x" style="opacity:0.2;margin-bottom:15px;"></i>
@@ -1003,11 +919,8 @@
         renderReadyOrders();
         const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
-        if (pendingReady === 0 && pendingHelp === 0) {
-          stopAlert();
-        } else if (!isAlerting) {
-          startAlertRepeat();
-        }
+        if (pendingReady === 0 && pendingHelp === 0) stopAlert();
+        else if (!isAlerting) startAlertRepeat();
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -1076,7 +989,7 @@
     };
 
     // ============================================================
-    //  GESTION DES DÉLAIS (file d'attente)
+    //  GESTION DES DÉLAIS
     // ============================================================
     window.definirDelai = function(orderId) {
       const input = document.getElementById('delayInput_' + orderId);
@@ -1089,10 +1002,7 @@
       }
       const totalSec = minutes * 60;
       let remaining = totalSec;
-      const timerObj = {
-        remainingSeconds: remaining,
-        intervalId: null
-      };
+      const timerObj = { remainingSeconds: remaining, intervalId: null };
       const update = () => {
         remaining--;
         timerObj.remainingSeconds = remaining;
@@ -1251,9 +1161,7 @@
         closeModal();
         const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
-        if (pendingReady === 0 && pendingHelp === 0) {
-          stopAlert();
-        }
+        if (pendingReady === 0 && pendingHelp === 0) stopAlert();
       } catch (error) {
         showToast('Erreur lors de la prise en charge', 'error');
         console.error(error);
@@ -1273,9 +1181,7 @@
         closeModal();
         const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
         const pendingHelp = parseInt(document.getElementById('helpBadge').textContent) || 0;
-        if (pendingReady === 0 && pendingHelp === 0) {
-          stopAlert();
-        }
+        if (pendingReady === 0 && pendingHelp === 0) stopAlert();
       } catch (error) {
         showToast('Erreur lors de la résolution', 'error');
         console.error(error);
@@ -1304,11 +1210,47 @@
     }
 
     // ============================================================
-    //  HISTORIQUE AVEC FILTRES
+    //  ÉCOUTE DES NOTIFICATIONS CIBLÉES (commandes prêtes)
+    // ============================================================
+    function listenNotifications() {
+      if (!currentRestaurantId || !currentUser) return;
+      db.collection('notifications')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('targetUser', '==', currentUser.uid)
+        .where('type', '==', 'order_ready')
+        .onSnapshot(snapshot => {
+          snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+              const data = change.doc.data();
+              const table = data.message.match(/Table (\d+)/);
+              const tableNum = table ? table[1] : '?';
+              const msg = `Commande prête pour la table ${tableNum}`;
+              showNotificationBanner(msg, 'success');
+              triggerAlert(msg);
+              showToast(`Nouvelle commande prête pour la table ${tableNum}`, 'success');
+              db.collection('notifications').doc(change.doc.id).update({ read: true });
+            }
+          });
+        }, error => console.error('Erreur écoute notifications:', error));
+    }
+
+    function showNotificationBanner(message, type = 'info') {
+      const banner = document.getElementById('notificationBanner');
+      banner.style.display = 'flex';
+      banner.className = `notification-banner ${type}`;
+      banner.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}" style="font-size:1.2rem;"></i>
+        <span>${message}</span>
+        <button class="dismiss" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+      `;
+      setTimeout(() => { banner.style.display = 'none'; }, 10000);
+    }
+
+    // ============================================================
+    //  HISTORIQUE AVEC FILTRES (côté client)
     // ============================================================
     function loadHistory(dateFilter) {
       if (!currentRestaurantId) return;
-      // On utilise une requête simple sur le restaurant et le statut, puis on filtre côté client
       db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
         .where('status', '==', 'terminé')
@@ -1316,23 +1258,25 @@
         .then(snapshot => {
           const orders = [];
           snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-          // Filtrer par serveur assigné (si présent)
-          let filtered = orders.filter(o => o.assignedTo === currentUser.uid);
+          // Filtrer côté client
+          let filtered = orders;
           if (dateFilter) {
             const start = new Date(dateFilter + 'T00:00:00');
             const end = new Date(dateFilter + 'T23:59:59');
-            filtered = filtered.filter(o => {
+            filtered = orders.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= start && served <= end;
             });
           } else {
             const today = new Date(); today.setHours(0,0,0,0);
             const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
-            filtered = filtered.filter(o => {
+            filtered = orders.filter(o => {
               const served = o.servedAt ? o.servedAt.toDate() : null;
               return served && served >= today && served < tomorrow;
             });
           }
+          // Filtrer par assignation (si on veut)
+          if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUser.uid);
           filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
           renderHistory(filtered);
         })
@@ -1441,9 +1385,6 @@
       showToast('Test audio envoyé !', 'info');
     };
 
-    // ============================================================
-    //  INIT
-    // ============================================================
     console.log('SCAN&TCHOP Serveur prêt !');
   </script>
 </body>
