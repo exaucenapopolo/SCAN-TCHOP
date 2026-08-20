@@ -3009,8 +3009,13 @@
         // ============================================
         const API_BASE_URL = ''; // À remplacer par l'URL réelle de votre backend
 
+        // --- Modifications pour ajouter les frais de 3.5% ---
         async function initierPaiementCommande(restoId, platId, nomPlat, amount, phone, redirectUrl, qty, isSplit, splitCount) {
             try {
+                // Ajout des frais de 3.5% pour les paiements Mobile Money
+                const feeRate = 0.035;
+                const amountWithFees = Math.round(amount * (1 + feeRate));
+
                 const response = await fetch(`${API_BASE_URL}/api/create-order-checkout`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3018,7 +3023,7 @@
                         restoId,
                         platId,
                         nomPlat,
-                        amount,
+                        amount: amountWithFees,
                         phone,
                         redirectUrl,
                         qty,
@@ -3037,16 +3042,19 @@
             }
         }
 
-        // Nouvelle fonction pour initier le paiement du pourboire
         async function initierPaiementPourboire(restoId, orderId, amount, phone, redirectUrl) {
             try {
+                // Ajout des frais de 3.5% pour les pourboires
+                const feeRate = 0.035;
+                const amountWithFees = Math.round(amount * (1 + feeRate));
+
                 const response = await fetch(`${API_BASE_URL}/api/create-tip-checkout`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         restoId,
                         orderId,
-                        amount,
+                        amount: amountWithFees,
                         phone,
                         redirectUrl
                     })
@@ -4665,16 +4673,13 @@
             }
         }
 
-        // Affichage de la modale de confirmation pour le pourboire
+        // --- MODIFICATION : showConfirmTipModal simplifiée ---
         function showConfirmTipModal(pending) {
             const recap = document.getElementById('confirmTipRecap');
-            // Calcul du montant net (brut - 5%)
-            const netAmount = Math.round(pending.amountBrut * 0.95);
+            // On affiche uniquement le montant payé (brut), le téléphone, la note et le commentaire
+            // Pas de frais, pas de montant net, pas de numéro de commande
             recap.innerHTML = `
-                        <p><strong>Pourboire brut :</strong> ${pending.amountBrut} FCFA</p>
-                        <p><strong>Frais (5%) :</strong> ${pending.amountBrut - netAmount} FCFA</p>
-                        <p><strong>Montant net reversé au restaurant :</strong> ${netAmount} FCFA</p>
-                        <p><strong>Commande :</strong> ${pending.orderId}</p>
+                        <p><strong>Montant payé :</strong> ${pending.amountBrut} FCFA</p>
                         <p><strong>Téléphone :</strong> ${pending.phone}</p>
                         ${pending.rating > 0 ? `<p><strong>Note :</strong> ${pending.rating} étoiles</p>` : ''}
                         ${pending.commentaire ? `<p><strong>Commentaire :</strong> ${pending.commentaire}</p>` : ''}
@@ -4695,7 +4700,7 @@
             const pending = window._pendingTipData;
             if (!pending) return;
             try {
-                // Calcul du montant net
+                // Calcul du montant net (5% de frais pour le restaurant)
                 const netAmount = Math.round(pending.amountBrut * 0.95);
                 // Enregistrer dans la collection "tips"
                 await db.collection('tips').add({
