@@ -735,8 +735,8 @@
             }
           });
 
-          // Filtrer par email du serveur
-          const myOrders = allOrders.filter(o => o.assignedTo === currentUserEmail);
+          // Filtrer par email du serveur (insensible à la casse)
+          const myOrders = allOrders.filter(o => o.assignedTo && o.assignedTo.toLowerCase() === currentUserEmail.toLowerCase());
           // Commandes prêtes (statut 'prêt') et sans report
           myReadyOrders = myOrders.filter(o => o.status === 'prêt' && !o.delayUntil);
           // Commandes prêtes avec report
@@ -785,6 +785,7 @@
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
+      // Si showOnlyMine, on utilise myReadyOrders, sinon allReadyOrders
       let orders = showOnlyMine ? myReadyOrders : allReadyOrders;
       
       if (orders.length === 0) {
@@ -798,6 +799,8 @@
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
         const isNew = !acknowledgedOrderIds.has(order.id);
+        const isMine = order.assignedTo && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase();
+        
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
           return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
@@ -811,27 +814,34 @@
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
           } else {
             paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
-            confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
+            // Seulement si c'est la commande du serveur
+            if (isMine) {
+              confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
+            }
           }
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
 
-        const isMine = order.assignedTo === currentUserEmail;
-        const serveBtn = isMine ? 
-          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>` :
-          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
-
-        // Bouton Reporter (pour définir un délai)
-        const reportHtml = `
-          <div class="delay-control">
-            <input type="number" id="delayInput_${order.id}" placeholder="Minutes" min="1" value="5" style="width:80px;" />
-            <button class="btn btn-sm btn-warning" onclick="definirDelai('${order.id}')"><i class="fas fa-hourglass-start"></i> Reporter</button>
-          </div>
-        `;
+        // Boutons d'action : uniquement si isMine
+        let actionButtons = '';
+        if (isMine) {
+          // Si paiement en espèces non encaissé, on ne permet pas de servir ? On laisse la liberté mais on peut ajouter un warning.
+          // On affiche toujours les boutons, mais on peut conditionner.
+          actionButtons = `
+            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>
+            <div class="delay-control">
+              <input type="number" id="delayInput_${order.id}" placeholder="Minutes" min="1" value="5" style="width:80px;" />
+              <button class="btn btn-sm btn-warning" onclick="definirDelai('${order.id}')"><i class="fas fa-hourglass-start"></i> Reporter</button>
+            </div>
+          `;
+        } else {
+          // Pas de boutons d'action, juste une indication
+          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || 'un autre serveur'}</span>`;
+        }
 
         const ticket = document.createElement('div');
-        ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
+        ticket.className = `ticket ${isNew && isMine ? 'new-ready' : ''}`;
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table">Table ${tableNum}</div>
@@ -845,8 +855,8 @@
           </div>
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
-            ${serveBtn}
-            ${isMine ? reportHtml : ''}
+            ${actionButtons}
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || 'inconnu'}</div>
           </div>
         `;
         container.appendChild(ticket);
@@ -868,10 +878,11 @@
         return;
       }
       container.innerHTML = '';
-      // Trier par delayUntil croissant
       orders.sort((a,b) => (a.delayUntil?.toDate?.() || 0) - (b.delayUntil?.toDate?.() || 0));
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
+        const isMine = order.assignedTo && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase();
+        
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
           return `<li style="display:flex;align-items:center;gap:8px;">${img}<span>${item.quantite}x ${item.nom}</span></li>`;
@@ -881,7 +892,6 @@
         let delayUntil = order.delayUntil ? order.delayUntil.toDate() : new Date();
         const now = new Date();
         const diffMs = delayUntil - now;
-        const diffMin = Math.floor(diffMs / 60000);
         const remainingSec = Math.max(0, Math.floor(diffMs / 1000));
         const mins = Math.floor(remainingSec / 60);
         const secs = remainingSec % 60;
@@ -889,8 +899,8 @@
         let ageClass = 'green';
         let ageLabel = 'Reporté';
         if (isExpired) { ageClass = 'red'; ageLabel = 'Expiré'; }
-        else if (diffMin >= 5) { ageClass = 'orange'; ageLabel = 'Long'; }
-        else if (diffMin >= 2) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
+        else if (mins >= 5) { ageClass = 'orange'; ageLabel = 'Long'; }
+        else if (mins >= 2) { ageClass = 'yellow'; ageLabel = 'Moyen'; }
         else { ageClass = 'green'; ageLabel = 'Court'; }
 
         const countdownHtml = `<span class="countdown ${isExpired ? 'expired' : 'valid'}">${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</span>`;
@@ -903,16 +913,23 @@
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
           } else {
             paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
-            confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
+            if (isMine) {
+              confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
+            }
           }
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
 
-        const isMine = order.assignedTo === currentUserEmail;
-        const serveBtn = isMine ? 
-          `<button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>` :
-          `<span class="badge badge-info">Assigné à ${order.assignedToName || 'un autre serveur'}</span>`;
+        let actionButtons = '';
+        if (isMine) {
+          actionButtons = `
+            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>
+            <button class="btn btn-outline-secondary" onclick="annulerDelai('${order.id}')"><i class="fas fa-undo"></i> Annuler le report</button>
+          `;
+        } else {
+          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || 'un autre serveur'}</span>`;
+        }
 
         const ticket = document.createElement('div');
         ticket.className = `ticket delayed ${isExpired ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
@@ -934,8 +951,8 @@
           </div>
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
-            ${serveBtn}
-            ${isMine ? `<button class="btn btn-outline-secondary" onclick="annulerDelai('${order.id}')"><i class="fas fa-undo"></i> Annuler le report</button>` : ''}
+            ${actionButtons}
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || 'inconnu'}</div>
           </div>
         `;
         container.appendChild(ticket);
@@ -945,6 +962,7 @@
     // ============================================================
     //  ACTIONS SUR COMMANDES
     // ============================================================
+    // Prendre en charge (pour les commandes prêtes) - on assigne l'email
     window.prendreEnCharge = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
@@ -976,8 +994,6 @@
         });
         showToast(`Report défini pour ${minutes} min`, 'info');
         playConfirmation(`Report de ${minutes} minutes.`);
-        // La commande sera déplacée vers "Reportées"
-        // On met à jour les listes via le snapshot
       } catch (error) {
         showToast('Erreur lors de la définition du report', 'error');
         console.error(error);
@@ -1023,7 +1039,7 @@
         await db.collection('orders').doc(orderId).update({
           status: 'terminé',
           servedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          delayUntil: firebase.firestore.FieldValue.delete() // supprimer le report s'il existe
+          delayUntil: firebase.firestore.FieldValue.delete()
         });
         showToast('Commande marquée comme servie !', 'success');
         playConfirmation('Commande servie.');
@@ -1267,8 +1283,8 @@
               return served && served >= today && served < tomorrow;
             });
           }
-          // Filtrer par email du serveur
-          if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo === currentUserEmail);
+          // Filtrer par email du serveur (insensible à la casse)
+          if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo && o.assignedTo.toLowerCase() === currentUserEmail.toLowerCase());
           filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
           renderHistory(filtered);
         })
@@ -1377,7 +1393,7 @@
       showToast('Test audio envoyé !', 'info');
     };
 
-    console.log('SCAN&TCHOP Serveur prêt (avec reports) !');
+    console.log('SCAN&TCHOP Serveur prêt (avec reports et filtrage par email) !');
   </script>
 </body>
 </html>
