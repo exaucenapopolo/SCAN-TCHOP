@@ -986,6 +986,10 @@
             background: #d1fae5;
             color: #065f46;
         }
+        .badge-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
 
         .track-timer {
             display: flex;
@@ -2000,6 +2004,10 @@
             background: #e2e8f0;
             color: #475569;
         }
+        .order-history-item .status.refusée {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
 
         .btn-track-order {
             background: var(--btn-bg);
@@ -2822,6 +2830,27 @@
         </div>
     </div>
 
+    <!-- ===== MODALE REFUS DE COMMANDE (NOUVEAU) ===== -->
+    <div class="modal-overlay" id="modalRefused">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeModal('modalRefused')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center; margin-bottom:6px;">
+                <i class="fas fa-times-circle" style="color:#ef4444; font-size:3rem;"></i>
+            </div>
+            <h2 style="text-align:center; margin-bottom:6px;">Commande refusée</h2>
+            <div style="background:#fee2e2; padding:16px; border-radius:var(--radius-sm); margin:16px 0; border-left:5px solid #ef4444;">
+                <p><strong>Motif :</strong> <span id="refusedMotif"></span></p>
+                <p><strong>Suggestion :</strong> <span id="refusedSuggestion"></span></p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">
+                    <i class="fas fa-info-circle"></i> Nous vous invitons à contacter l'établissement pour plus d'informations.
+                </p>
+            </div>
+            <button class="btn-commander" onclick="closeModal('modalRefused')" style="width:100%;">
+                <i class="fas fa-check-circle"></i> J'ai compris
+            </button>
+        </div>
+    </div>
+
     <!-- ===== FIREBASE & JS ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js">
     </script>
@@ -3037,6 +3066,7 @@
         let tipReviewShown = false;
         let orderUnsubscribe = null;
         let searchTerm = '';
+        let refusedModalShown = false;   // Nouvelle variable pour éviter doublon
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -3329,6 +3359,7 @@
             document.getElementById('trackStatusBadge').textContent = 'Chargement...';
             document.getElementById('trackTimerContainer').style.display = 'none';
             tipReviewShown = false;
+            refusedModalShown = false; // Réinitialiser pour cette commande
             listenOrderStatus(orderId);
             trackingDiv.scrollIntoView({ behavior: 'smooth' });
         }
@@ -3579,7 +3610,6 @@
         // APPLICATION DES COULEURS DU RESTAURANT
         // ============================================
         function applyColors(colors) {
-            // Couleur principale (pour les titres, prix, icônes, bordures...)
             if (colors.couleurPrincipale) {
                 const root = document.documentElement;
                 root.style.setProperty('--primary', colors.couleurPrincipale);
@@ -3589,12 +3619,10 @@
                 const lighter = lightenColor(colors.couleurPrincipale, 0.85);
                 root.style.setProperty('--primary-light', lighter);
             }
-            // Couleur des boutons
             if (colors.couleurBoutons) {
                 const root = document.documentElement;
                 root.style.setProperty('--btn-bg', colors.couleurBoutons);
                 root.style.setProperty('--btn-bg-hover', darkenColor(colors.couleurBoutons, 0.1));
-                // Appliquer aux boutons via des classes CSS dédiées
                 document.querySelectorAll('.btn-commander, .btn-avis-header, .btn-action, .btn-game, .btn-play, .btn-primary-footer, .btn-track-order, .btn-order-fav, .btn-commander:not(:disabled)').forEach(el => {
                     el.style.background = colors.couleurBoutons;
                     el.style.boxShadow = `0 4px 16px ${hexToRgba(colors.couleurBoutons, 0.25)}`;
@@ -3657,7 +3685,6 @@
                     logo.style.display = 'none';
                 }
 
-                // Appliquer les couleurs
                 if (resto.couleurPrincipale || resto.couleurBoutons) {
                     applyColors({
                         couleurPrincipale: resto.couleurPrincipale || '#e67e22',
@@ -3868,7 +3895,6 @@
                     `<span class="badge-promo">Promo</span>` : '';
                 const descriptionHtml = plat.description ? `<p class="description-plat">${plat.description}</p>` : '';
 
-                // Affichage des compléments/boissons sur la carte (version simplifiée)
                 let complementsHtml = '';
                 if (plat.complements && plat.complements.length > 0) {
                     complementsHtml = `<div class="complements-list">` +
@@ -4633,7 +4659,7 @@
         }
 
         // ============================================
-        // ORDER TRACKING
+        // ORDER TRACKING - avec gestion du refus
         // ============================================
         function showTracking(orderId) {
             const trackingDiv = document.getElementById('orderTracking');
@@ -4646,6 +4672,7 @@
             document.getElementById('trackStatusBadge').textContent = 'En attente';
             document.getElementById('trackTimerContainer').style.display = 'none';
             tipReviewShown = false;
+            refusedModalShown = false; // Réinitialiser pour cette commande
             if (orderUnsubscribe) {
                 orderUnsubscribe();
                 orderUnsubscribe = null;
@@ -4673,6 +4700,24 @@
                 const trackingDiv = document.getElementById('orderTracking');
                 const timerContainer = document.getElementById('trackTimerContainer');
 
+                // --- Gestion du statut "refusée" ---
+                if (status === 'refusée') {
+                    timerContainer.style.display = 'none';
+                    trackingDiv.classList.remove('ready');
+                    document.getElementById('trackStatusBadge').className = 'badge badge-danger';
+                    document.getElementById('trackStatusBadge').textContent = 'Refusée';
+                    document.getElementById('trackTime').textContent = 'Commande refusée';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    document.getElementById('trackCountdown').textContent = '--:--';
+                    document.getElementById('trackProgressBar').style.width = '0%';
+                    document.getElementById('trackPercent').textContent = '0%';
+
+                    // Afficher la modale de refus avec les détails
+                    showRefusedModal(data.refusMotif, data.refusSuggestion);
+                    return;
+                }
+
+                // --- Traitement des autres statuts ---
                 if (status === 'en préparation' && data.tempsEstime && data.startTime) {
                     timerContainer.style.display = 'flex';
                     trackingDiv.classList.remove('ready');
@@ -4763,6 +4808,43 @@
             }
             update();
             countdownInterval = setInterval(update, 1000);
+        }
+
+        // ============================================
+        // REFUS MODAL - affichage et lecture vocale
+        // ============================================
+        function showRefusedModal(motif, suggestion) {
+            if (refusedModalShown) return;
+            refusedModalShown = true;
+
+            document.getElementById('refusedMotif').textContent = motif || 'Raison non spécifiée';
+            document.getElementById('refusedSuggestion').textContent = suggestion || 'Veuillez contacter le restaurant.';
+
+            // Ouvrir la modale
+            openModal('modalRefused');
+
+            // Lecture vocale du message
+            const message = `Votre commande a été refusée. Motif : ${motif || 'Raison non spécifiée'}. Suggestion : ${suggestion || 'Veuillez contacter le restaurant.'}`;
+            if (window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                // Fallback : sonnerie si la synthèse n'est pas disponible
+                playBeep();
+            }
+
+            // Alerte sonore renforcée si l'utilisateur a activé le son
+            if (soundEnabled) {
+                playBeep();
+                setTimeout(playBeep, 300);
+                setTimeout(playBeep, 600);
+            }
+
+            // Afficher également une notification toast
+            showToast('Votre commande a été refusée. Consultez la modale pour plus d\'informations.', 'Commande refusée', 'error', 8000);
         }
 
         // ============================================
@@ -4987,7 +5069,7 @@
                     if (doc.exists) {
                         const data = doc.data();
                         const status = data.status || 'en attente';
-                        if (status !== 'terminé' && status !== 'servi') {
+                        if (status !== 'terminé' && status !== 'servi' && status !== 'refusée') {
                             activeOrderId = savedOrderId;
                             showTracking(savedOrderId);
                             localStorage.setItem('pendingOrder', JSON.stringify({
@@ -4999,6 +5081,10 @@
                         } else {
                             localStorage.removeItem('activeOrderId');
                             localStorage.removeItem('pendingOrder');
+                            if (status === 'refusée') {
+                                // Afficher la modale de refus même au chargement
+                                showRefusedModal(data.refusMotif, data.refusSuggestion);
+                            }
                         }
                     } else {
                         localStorage.removeItem('activeOrderId');
