@@ -405,12 +405,13 @@
     let currentRestaurantId = null;
     let currentUserEmail = null;
     let currentUserDisplayName = null;
+    let currentUserUid = null;
 
-    // Commandes du serveur (filtrées par email)
+    // Commandes du serveur (filtrées par email ou UID)
     let myReadyOrders = [];
-    let myDelayedOrders = [];   // commandes prêtes avec delayUntil
-    let allReadyOrders = [];    // toutes les commandes prêtes (pour filtre "Toutes")
-    let allDelayedOrders = [];  // toutes les commandes avec delayUntil
+    let myDelayedOrders = [];
+    let allReadyOrders = [];
+    let allDelayedOrders = [];
 
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
@@ -423,7 +424,7 @@
     let availableVoices = [];
     let isAlerting = false;
 
-    let showOnlyMine = true;  // par défaut, filtrer sur ses commandes (email)
+    let showOnlyMine = true;
 
     // ============================================================
     //  UI HELPERS
@@ -655,6 +656,7 @@
       currentUser = user;
       currentUserEmail = user.email;
       currentUserDisplayName = user.displayName || user.email || 'Serveur';
+      currentUserUid = user.uid;
       document.getElementById('serverName').textContent = currentUserDisplayName;
       document.getElementById('serverEmail').textContent = currentUserEmail;
 
@@ -717,7 +719,25 @@
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (filtrées par email)
+    //  FONCTION POUR DÉTERMINER SI LA COMMANDE EST ASSIGNÉE AU SERVEUR
+    // ============================================================
+    function isAssignedToMe(order) {
+      if (!order) return false;
+      // Vérifier par email (insensible à la casse)
+      if (order.assignedTo && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase()) {
+        return true;
+      }
+      // Vérifier par UID
+      if (order.assignedToUid && order.assignedToUid === currentUserUid) {
+        return true;
+      }
+      // Vérifier si assignedTo correspond à l'email ou si assignedToUid correspond
+      // On peut aussi vérifier si assignedTo est exactement l'email
+      return false;
+    }
+
+    // ============================================================
+    //  ÉCOUTE DES COMMANDES
     // ============================================================
     function listenOrders() {
       if (!currentRestaurantId) return;
@@ -735,25 +755,22 @@
             }
           });
 
-          // Filtrer par email du serveur (insensible à la casse)
-          const myOrders = allOrders.filter(o => o.assignedTo && o.assignedTo.toLowerCase() === currentUserEmail.toLowerCase());
-          // Commandes prêtes (statut 'prêt') et sans report
+          // Filtrer les commandes du serveur
+          const myOrders = allOrders.filter(o => isAssignedToMe(o));
           myReadyOrders = myOrders.filter(o => o.status === 'prêt' && !o.delayUntil);
-          // Commandes prêtes avec report
           myDelayedOrders = myOrders.filter(o => o.status === 'prêt' && o.delayUntil);
 
-          // Toutes les commandes prêtes (pour le filtre "Toutes")
+          // Toutes les commandes prêtes
           allReadyOrders = allOrders.filter(o => o.status === 'prêt' && !o.delayUntil);
           allDelayedOrders = allOrders.filter(o => o.status === 'prêt' && o.delayUntil);
 
-          // Mettre à jour les badges
           document.getElementById('readyBadge').textContent = myReadyOrders.length;
           document.getElementById('readyBadge').classList.toggle('show', myReadyOrders.length > 0);
           document.getElementById('delayedBadge').textContent = myDelayedOrders.length;
           document.getElementById('delayedBadge').classList.toggle('show', myDelayedOrders.length > 0);
           document.getElementById('delayedCount').textContent = `${myDelayedOrders.length} reportées`;
 
-          // Détection de nouvelles commandes prêtes (sans report)
+          // Détection nouvelles commandes prêtes
           const newReady = myReadyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
           if (newReady.length > 0) {
             const order = newReady[0];
@@ -771,7 +788,7 @@
     }
 
     // ============================================================
-    //  FILTRE (Mes commandes / Toutes)
+    //  FILTRE
     // ============================================================
     function toggleFilter() {
       showOnlyMine = !showOnlyMine;
@@ -781,11 +798,10 @@
     }
 
     // ============================================================
-    //  RENDU DES COMMANDES PRÊTES (sans report)
+    //  RENDU DES COMMANDES PRÊTES
     // ============================================================
     function renderReadyOrders() {
       const container = document.getElementById('readyOrdersContainer');
-      // Si showOnlyMine, on utilise myReadyOrders, sinon allReadyOrders
       let orders = showOnlyMine ? myReadyOrders : allReadyOrders;
       
       if (orders.length === 0) {
@@ -799,7 +815,7 @@
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
         const isNew = !acknowledgedOrderIds.has(order.id);
-        const isMine = order.assignedTo && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase();
+        const isMine = isAssignedToMe(order);
         
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
@@ -814,7 +830,6 @@
             paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé en espèces</span>`;
           } else {
             paymentStatusHtml = `<span class="badge badge-unpaid"><i class="fas fa-times"></i> Non encaissé</span>`;
-            // Seulement si c'est la commande du serveur
             if (isMine) {
               confirmBtnHtml = `<button class="btn btn-payment-confirm" onclick="confirmerPaiement('${order.id}')"><i class="fas fa-hand-holding-usd"></i> Encaisser</button>`;
             }
@@ -823,11 +838,8 @@
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
 
-        // Boutons d'action : uniquement si isMine
         let actionButtons = '';
         if (isMine) {
-          // Si paiement en espèces non encaissé, on ne permet pas de servir ? On laisse la liberté mais on peut ajouter un warning.
-          // On affiche toujours les boutons, mais on peut conditionner.
           actionButtons = `
             <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>
             <div class="delay-control">
@@ -836,8 +848,7 @@
             </div>
           `;
         } else {
-          // Pas de boutons d'action, juste une indication
-          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || 'un autre serveur'}</span>`;
+          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || order.assignedToUid || 'un autre serveur'}</span>`;
         }
 
         const ticket = document.createElement('div');
@@ -856,7 +867,7 @@
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
             ${actionButtons}
-            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || 'inconnu'}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || order.assignedToUid || 'inconnu'}</div>
           </div>
         `;
         container.appendChild(ticket);
@@ -864,7 +875,7 @@
     }
 
     // ============================================================
-    //  RENDU DES COMMANDES REPORTÉES (avec delayUntil)
+    //  RENDU DES COMMANDES REPORTÉES
     // ============================================================
     function renderDelayedOrders() {
       const container = document.getElementById('delayedOrdersContainer');
@@ -881,7 +892,7 @@
       orders.sort((a,b) => (a.delayUntil?.toDate?.() || 0) - (b.delayUntil?.toDate?.() || 0));
       orders.forEach(order => {
         const tableNum = order.table || order.tableNumber || '?';
-        const isMine = order.assignedTo && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase();
+        const isMine = isAssignedToMe(order);
         
         const itemsHtml = order.items ? order.items.map(item => {
           const img = item.image ? `<img src="${item.image}" alt="${item.nom}" style="width:30px;height:30px;border-radius:6px;object-fit:cover;" />` : '';
@@ -928,7 +939,7 @@
             <button class="btn btn-outline-secondary" onclick="annulerDelai('${order.id}')"><i class="fas fa-undo"></i> Annuler le report</button>
           `;
         } else {
-          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || 'un autre serveur'}</span>`;
+          actionButtons = `<span class="badge badge-info">Assigné à ${order.assignedTo || order.assignedToUid || 'un autre serveur'}</span>`;
         }
 
         const ticket = document.createElement('div');
@@ -952,7 +963,7 @@
           <div class="ticket-footer" style="margin-top:15px;">
             ${confirmBtnHtml}
             ${actionButtons}
-            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || 'inconnu'}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Assigné à ${order.assignedTo || order.assignedToUid || 'inconnu'}</div>
           </div>
         `;
         container.appendChild(ticket);
@@ -962,11 +973,11 @@
     // ============================================================
     //  ACTIONS SUR COMMANDES
     // ============================================================
-    // Prendre en charge (pour les commandes prêtes) - on assigne l'email
     window.prendreEnCharge = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
           assignedTo: currentUserEmail,
+          assignedToUid: currentUserUid,
           assignedToName: currentUserDisplayName,
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
           acknowledgedBy: currentUser.uid
@@ -981,7 +992,6 @@
       }
     };
 
-    // Définir un délai (report) sur une commande prête
     window.definirDelai = async function(orderId) {
       const input = document.getElementById('delayInput_' + orderId);
       if (!input) { showToast('Erreur : champ introuvable', 'error'); return; }
@@ -1000,7 +1010,6 @@
       }
     };
 
-    // Annuler un report
     window.annulerDelai = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
@@ -1089,7 +1098,7 @@
     }
 
     // ============================================================
-    //  ÉCOUTE DES DEMANDES D'AIDE (inchangé)
+    //  DEMANDES D'AIDE (inchangé)
     // ============================================================
     function listenHelpRequests() {
       if (!currentRestaurantId) return;
@@ -1219,7 +1228,7 @@
     }
 
     // ============================================================
-    //  ÉCOUTE DES NOTIFICATIONS CIBLÉES (inchangé)
+    //  NOTIFICATIONS CIBLÉES
     // ============================================================
     function listenNotifications() {
       if (!currentRestaurantId || !currentUser) return;
@@ -1256,7 +1265,7 @@
     }
 
     // ============================================================
-    //  HISTORIQUE AVEC FILTRE (email)
+    //  HISTORIQUE
     // ============================================================
     function loadHistory(dateFilter) {
       if (!currentRestaurantId) return;
@@ -1283,8 +1292,7 @@
               return served && served >= today && served < tomorrow;
             });
           }
-          // Filtrer par email du serveur (insensible à la casse)
-          if (showOnlyMine) filtered = filtered.filter(o => o.assignedTo && o.assignedTo.toLowerCase() === currentUserEmail.toLowerCase());
+          if (showOnlyMine) filtered = filtered.filter(o => isAssignedToMe(o));
           filtered.sort((a,b) => (b.servedAt?.seconds || 0) - (a.servedAt?.seconds || 0));
           renderHistory(filtered);
         })
@@ -1344,7 +1352,7 @@
     }
 
     // ============================================================
-    //  POURBOIRES (inchangé)
+    //  POURBOIRES
     // ============================================================
     function listenTips() {
       if (!currentUser) return;
@@ -1393,7 +1401,7 @@
       showToast('Test audio envoyé !', 'info');
     };
 
-    console.log('SCAN&TCHOP Serveur prêt (avec reports et filtrage par email) !');
+    console.log('SCAN&TCHOP Serveur prêt (filtrage par email et UID) !');
   </script>
 </body>
 </html>
