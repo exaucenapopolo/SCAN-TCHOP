@@ -15,7 +15,7 @@
             --primary-hover: #cf6f1b;
             --primary-light: #fef3e8;
             --primary-dark: #b85f12;
-            --btn-bg: #d35400;           /* couleur par défaut des boutons */
+            --btn-bg: #d35400;
             --btn-bg-hover: #b85f12;
             --bg-color: #fdf8f4;
             --text-main: #0b1a2e;
@@ -990,6 +990,10 @@
             background: #fee2e2;
             color: #b91c1c;
         }
+        .badge-delay {
+            background: #fef3c7;
+            color: #b45309;
+        }
 
         .track-timer {
             display: flex;
@@ -1028,6 +1032,29 @@
 
         .order-tracking.ready .track-timer .progress-bar {
             background: #10b981;
+        }
+
+        /* --- NOUVEAU : zone pour le délai de report --- */
+        #trackDelayContainer {
+            display: none;
+            margin-top: 10px;
+            background: #fef3c7;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        #trackDelayContainer .delay-label {
+            font-weight: 600;
+            color: #b45309;
+        }
+        #trackDelayContainer .delay-countdown {
+            font-weight: 700;
+            color: #b45309;
+            font-size: 1.2rem;
+            min-width: 70px;
         }
 
         .track-actions {
@@ -2502,6 +2529,12 @@
                 </div>
                 <span id="trackPercent" style="font-weight:600; min-width:40px;">0%</span>
             </div>
+            <!-- NOUVEAU : zone pour le report -->
+            <div id="trackDelayContainer">
+                <span class="delay-label"><i class="fas fa-hourglass-half"></i> Votre plat sera servi dans :</span>
+                <span class="delay-countdown" id="trackDelayCountdown">--:--</span>
+                <span style="font-size:0.9rem; color:#b45309;">(délai demandé par le serveur)</span>
+            </div>
             <div class="track-actions">
                 <button class="btn-help" onclick="requestHelp()"><i class="fas fa-hands-helping"></i> J'ai besoin d'aide</button>
                 <button class="btn-avis-header" onclick="openModal('modalAvis')"><i class="fas fa-star"></i> Laisser un avis</button>
@@ -2830,7 +2863,7 @@
         </div>
     </div>
 
-    <!-- ===== MODALE REFUS DE COMMANDE (NOUVEAU) ===== -->
+    <!-- ===== MODALE REFUS DE COMMANDE ===== -->
     <div class="modal-overlay" id="modalRefused">
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-modal" onclick="closeModal('modalRefused')"><i class="fas fa-times"></i></button>
@@ -3063,10 +3096,11 @@
         let activeOrderId = null;
         let currentUser = null;
         let countdownInterval = null;
+        let delayCountdownInterval = null;
         let tipReviewShown = false;
         let orderUnsubscribe = null;
         let searchTerm = '';
-        let refusedModalShown = false;   // Nouvelle variable pour éviter doublon
+        let refusedModalShown = false;
 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -3320,7 +3354,7 @@
                     const statusClass = status.replace(' ', '-').toLowerCase();
                     const dateStr = order._date.getFullYear() > 1970 ? order._date.toLocaleDateString('fr-FR') :
                         'Date inconnue';
-                    const showTrack = (status === 'en attente' || status === 'en préparation');
+                    const showTrack = (status === 'en attente' || status === 'en préparation' || status === 'prêt');
                     html += `
                                 <div class="order-history-item">
                                     <div>
@@ -3347,6 +3381,7 @@
                 orderUnsubscribe = null;
             }
             if (countdownInterval) clearInterval(countdownInterval);
+            if (delayCountdownInterval) clearInterval(delayCountdownInterval);
             activeOrderId = orderId;
             localStorage.setItem('activeOrderId', orderId);
             const trackingDiv = document.getElementById('orderTracking');
@@ -3358,8 +3393,9 @@
             document.getElementById('trackStatusBadge').className = 'badge badge-warning';
             document.getElementById('trackStatusBadge').textContent = 'Chargement...';
             document.getElementById('trackTimerContainer').style.display = 'none';
+            document.getElementById('trackDelayContainer').style.display = 'none';
             tipReviewShown = false;
-            refusedModalShown = false; // Réinitialiser pour cette commande
+            refusedModalShown = false;
             listenOrderStatus(orderId);
             trackingDiv.scrollIntoView({ behavior: 'smooth' });
         }
@@ -4561,12 +4597,36 @@
         }
 
         // ============================================
-        // TIP
+        // TIP & REVIEW (avec attribution au serveur)
         // ============================================
+        // Fonction pour récupérer l'UID du serveur assigné à une commande
+        async function getServerUidForOrder(orderId) {
+            try {
+                const doc = await db.collection('orders').doc(orderId).get();
+                if (!doc.exists) return null;
+                const data = doc.data();
+                // Priorité à assignedToUid, puis assignedTo (email)
+                if (data.assignedToUid) return data.assignedToUid;
+                if (data.assignedTo) {
+                    // Chercher l'utilisateur par email
+                    const email = data.assignedTo;
+                    const usersSnap = await db.collection('users').where('email', '==', email).get();
+                    if (!usersSnap.empty) {
+                        return usersSnap.docs[0].id;
+                    }
+                }
+                return null;
+            } catch (e) {
+                console.warn('Erreur récupération serveur:', e);
+                return null;
+            }
+        }
+
         function submitTipAndReview() {
             const commentaire = document.getElementById('tipCommentaire').value.trim();
             const phone = document.getElementById('tipPhone').value.trim();
 
+            // Avis (déjà fait)
             if (tipRating > 0) {
                 db.collection('avis').add({
                     restaurantId,
@@ -4583,33 +4643,36 @@
 
             if (tipAmount > 0) {
                 if (!phone) {
-                    showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis',
-                        'warning');
+                    showToast('Veuillez renseigner votre numéro Mobile Money pour le pourboire.', 'Champ requis', 'warning');
                     return;
                 }
 
-                initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
-                    .then(result => {
-                        if (result.success && result.checkoutUrl) {
-                            const pendingData = {
-                                type: 'tip',
-                                restoId: restaurantId,
-                                orderId: tipOrderId,
-                                amount: tipAmount,
-                                phone: phone,
-                                commentaire: commentaire,
-                                rating: tipRating,
-                                timestamp: Date.now()
-                            };
-                            localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
-                            window.location.href = result.checkoutUrl;
-                        } else {
-                            showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
-                    });
+                // Récupérer l'UID du serveur assigné
+                getServerUidForOrder(tipOrderId).then(serverUid => {
+                    initierPaiementPourboire(restaurantId, tipOrderId, tipAmount, phone, window.location.href)
+                        .then(result => {
+                            if (result.success && result.checkoutUrl) {
+                                const pendingData = {
+                                    type: 'tip',
+                                    restoId: restaurantId,
+                                    orderId: tipOrderId,
+                                    amount: tipAmount,
+                                    phone: phone,
+                                    commentaire: commentaire,
+                                    rating: tipRating,
+                                    timestamp: Date.now(),
+                                    serverUid: serverUid
+                                };
+                                localStorage.setItem('pendingPayment', JSON.stringify(pendingData));
+                                window.location.href = result.checkoutUrl;
+                            } else {
+                                showToast('Erreur lors de l\'initialisation du paiement.', 'Erreur', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showToast(error.message || 'Erreur lors du paiement.', 'Erreur', 'error');
+                        });
+                });
             } else {
                 closeModal('modalTipReview');
                 showToast('Merci pour votre retour !', 'À bientôt', 'success');
@@ -4624,6 +4687,7 @@
                         <p><strong>Téléphone :</strong> ${pending.phone}</p>
                         ${pending.rating > 0 ? `<p><strong>Note :</strong> ${pending.rating} étoiles</p>` : ''}
                         ${pending.commentaire ? `<p><strong>Commentaire :</strong> ${pending.commentaire}</p>` : ''}
+                        <p><strong>Serveur attribué :</strong> ${pending.serverUid ? 'UID: '+pending.serverUid : 'Non attribué'}</p>
                     `;
             window._pendingTipData = pending;
             document.getElementById('confirmTipCheck').checked = false;
@@ -4646,7 +4710,10 @@
                     amount: pending.amount,
                     phone: pending.phone,
                     statut: 'payé',
-                    date: firebase.firestore.FieldValue.serverTimestamp()
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: pending.serverUid || null,
+                    restaurantId: pending.restoId,
+                    clientName: currentUser?.displayName || 'Anonyme'
                 });
                 showToast(`Pourboire de ${pending.amount} FCFA enregistré !`, 'Merci', 'success');
                 localStorage.removeItem('pendingPayment');
@@ -4659,7 +4726,7 @@
         }
 
         // ============================================
-        // ORDER TRACKING - avec gestion du refus
+        // ORDER TRACKING (avec gestion du report)
         // ============================================
         function showTracking(orderId) {
             const trackingDiv = document.getElementById('orderTracking');
@@ -4671,8 +4738,9 @@
             document.getElementById('trackStatusBadge').className = 'badge badge-warning';
             document.getElementById('trackStatusBadge').textContent = 'En attente';
             document.getElementById('trackTimerContainer').style.display = 'none';
+            document.getElementById('trackDelayContainer').style.display = 'none';
             tipReviewShown = false;
-            refusedModalShown = false; // Réinitialiser pour cette commande
+            refusedModalShown = false;
             if (orderUnsubscribe) {
                 orderUnsubscribe();
                 orderUnsubscribe = null;
@@ -4682,6 +4750,7 @@
 
         function listenOrderStatus(orderId) {
             if (countdownInterval) clearInterval(countdownInterval);
+            if (delayCountdownInterval) clearInterval(delayCountdownInterval);
 
             orderUnsubscribe = db.collection('orders').doc(orderId).onSnapshot(doc => {
                 if (!doc.exists) {
@@ -4699,23 +4768,71 @@
 
                 const trackingDiv = document.getElementById('orderTracking');
                 const timerContainer = document.getElementById('trackTimerContainer');
+                const delayContainer = document.getElementById('trackDelayContainer');
 
                 // --- Gestion du statut "refusée" ---
                 if (status === 'refusée') {
                     timerContainer.style.display = 'none';
+                    delayContainer.style.display = 'none';
                     trackingDiv.classList.remove('ready');
                     document.getElementById('trackStatusBadge').className = 'badge badge-danger';
                     document.getElementById('trackStatusBadge').textContent = 'Refusée';
                     document.getElementById('trackTime').textContent = 'Commande refusée';
                     if (countdownInterval) clearInterval(countdownInterval);
+                    if (delayCountdownInterval) clearInterval(delayCountdownInterval);
                     document.getElementById('trackCountdown').textContent = '--:--';
                     document.getElementById('trackProgressBar').style.width = '0%';
                     document.getElementById('trackPercent').textContent = '0%';
-
-                    // Afficher la modale de refus avec les détails
                     showRefusedModal(data.refusMotif, data.refusSuggestion);
                     return;
                 }
+
+                // --- Traitement du report (delayUntil) ---
+                if (status === 'prêt' && data.delayUntil) {
+                    const delayUntil = data.delayUntil.toDate ? data.delayUntil.toDate() : new Date(data.delayUntil);
+                    const now = new Date();
+                    const diffMs = delayUntil - now;
+                    const remainingSec = Math.max(0, Math.floor(diffMs / 1000));
+                    const mins = Math.floor(remainingSec / 60);
+                    const secs = remainingSec % 60;
+                    const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                    
+                    // Afficher le conteneur de report
+                    delayContainer.style.display = 'flex';
+                    document.getElementById('trackDelayCountdown').textContent = timeStr;
+                    
+                    // Cacher le timer de préparation
+                    timerContainer.style.display = 'none';
+                    
+                    // Mettre à jour le statut
+                    document.getElementById('trackStatusBadge').className = 'badge badge-delay';
+                    document.getElementById('trackStatusBadge').textContent = 'Reporté';
+                    document.getElementById('trackTime').textContent = `Servi dans ${mins} min ${secs} sec`;
+                    trackingDiv.classList.remove('ready');
+
+                    // Lancer le compte à rebours du report
+                    if (delayCountdownInterval) clearInterval(delayCountdownInterval);
+                    delayCountdownInterval = setInterval(() => {
+                        const now2 = new Date();
+                        const diff2 = delayUntil - now2;
+                        if (diff2 <= 0) {
+                            clearInterval(delayCountdownInterval);
+                            document.getElementById('trackDelayCountdown').textContent = '00:00';
+                            // Optionnel : on peut notifier le client que le délai est écoulé
+                            showToast('Le délai est écoulé, votre plat devrait être servi maintenant.', 'Info', 'info');
+                            return;
+                        }
+                        const mins2 = Math.floor(diff2 / 60000);
+                        const secs2 = Math.floor((diff2 % 60000) / 1000);
+                        document.getElementById('trackDelayCountdown').textContent = `${String(mins2).padStart(2,'0')}:${String(secs2).padStart(2,'0')}`;
+                        document.getElementById('trackTime').textContent = `Servi dans ${mins2} min ${secs2} sec`;
+                    }, 1000);
+                    
+                    return;
+                }
+
+                // Si pas de report, cacher le conteneur
+                delayContainer.style.display = 'none';
 
                 // --- Traitement des autres statuts ---
                 if (status === 'en préparation' && data.tempsEstime && data.startTime) {
@@ -4811,7 +4928,7 @@
         }
 
         // ============================================
-        // REFUS MODAL - affichage et lecture vocale
+        // REFUS MODAL
         // ============================================
         function showRefusedModal(motif, suggestion) {
             if (refusedModalShown) return;
@@ -4820,10 +4937,8 @@
             document.getElementById('refusedMotif').textContent = motif || 'Raison non spécifiée';
             document.getElementById('refusedSuggestion').textContent = suggestion || 'Veuillez contacter le restaurant.';
 
-            // Ouvrir la modale
             openModal('modalRefused');
 
-            // Lecture vocale du message
             const message = `Votre commande a été refusée. Motif : ${motif || 'Raison non spécifiée'}. Suggestion : ${suggestion || 'Veuillez contacter le restaurant.'}`;
             if (window.speechSynthesis) {
                 const utterance = new SpeechSynthesisUtterance(message);
@@ -4832,18 +4947,15 @@
                 utterance.pitch = 1;
                 window.speechSynthesis.speak(utterance);
             } else {
-                // Fallback : sonnerie si la synthèse n'est pas disponible
                 playBeep();
             }
 
-            // Alerte sonore renforcée si l'utilisateur a activé le son
             if (soundEnabled) {
                 playBeep();
                 setTimeout(playBeep, 300);
                 setTimeout(playBeep, 600);
             }
 
-            // Afficher également une notification toast
             showToast('Votre commande a été refusée. Consultez la modale pour plus d\'informations.', 'Commande refusée', 'error', 8000);
         }
 
@@ -5082,7 +5194,6 @@
                             localStorage.removeItem('activeOrderId');
                             localStorage.removeItem('pendingOrder');
                             if (status === 'refusée') {
-                                // Afficher la modale de refus même au chargement
                                 showRefusedModal(data.refusMotif, data.refusSuggestion);
                             }
                         }

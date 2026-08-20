@@ -431,13 +431,9 @@
     // ============================================================
     function isAssignedToMe(order) {
       if (!order) return false;
-      // 1. Comparer avec l'UID stocké dans assignedTo (utilisé par la cuisine)
       if (order.assignedTo && order.assignedTo === currentUserUid) return true;
-      // 2. Comparer avec assignedToUid (pour compatibilité)
       if (order.assignedToUid && order.assignedToUid === currentUserUid) return true;
-      // 3. Comparer avec l'email (pour les anciennes commandes ou si on a stocké l'email)
       if (order.assignedTo && typeof order.assignedTo === 'string' && order.assignedTo.toLowerCase() === currentUserEmail.toLowerCase()) return true;
-      // 4. Vérifier si assignedToName correspond (peut-être)
       if (order.assignedToName && order.assignedToName.toLowerCase() === currentUserDisplayName.toLowerCase()) return true;
       return false;
     }
@@ -839,7 +835,7 @@
         let actionButtons = '';
         if (isMine) {
           actionButtons = `
-            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Commencer à servir</button>
+            <button class="btn btn-success" onclick="marquerCommeServi('${order.id}')"><i class="fas fa-utensils"></i> Servir maintenant</button>
             <div class="delay-control">
               <input type="number" id="delayInput_${order.id}" placeholder="Minutes" min="1" value="5" style="width:80px;" />
               <button class="btn btn-sm btn-warning" onclick="definirDelai('${order.id}')"><i class="fas fa-hourglass-start"></i> Reporter</button>
@@ -971,7 +967,6 @@
     // ============================================================
     //  ACTIONS SUR COMMANDES
     // ============================================================
-    // Prendre en charge (assigner au serveur)
     window.prendreEnCharge = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
@@ -991,7 +986,6 @@
       }
     };
 
-    // Définir un délai (report) sur une commande prête
     window.definirDelai = async function(orderId) {
       const input = document.getElementById('delayInput_' + orderId);
       if (!input) { showToast('Erreur : champ introuvable', 'error'); return; }
@@ -1010,7 +1004,6 @@
       }
     };
 
-    // Annuler un report
     window.annulerDelai = async function(orderId) {
       try {
         await db.collection('orders').doc(orderId).update({
@@ -1099,7 +1092,7 @@
     }
 
     // ============================================================
-    //  DEMANDES D'AIDE (inchangé)
+    //  DEMANDES D'AIDE
     // ============================================================
     function listenHelpRequests() {
       if (!currentRestaurantId) return;
@@ -1354,7 +1347,7 @@
     }
 
     // ============================================================
-    //  POURBOIRES (inchangé)
+    //  POURBOIRES (filtrés par userId = UID du serveur)
     // ============================================================
     function listenTips() {
       if (!currentUser) return;
@@ -1374,7 +1367,7 @@
     }
 
     function renderTips(tips) {
-      const total = tips.reduce((sum, t) => sum + (t.montant || 0), 0);
+      const total = tips.reduce((sum, t) => sum + (t.amount || 0), 0);
       document.getElementById('tipTotalDisplay').textContent = `Total : ${total} FCFA`;
       document.getElementById('tipTotalBig').textContent = `${total} FCFA`;
       const container = document.getElementById('tipHistoryContainer');
@@ -1388,7 +1381,7 @@
         const div = document.createElement('div');
         div.className = 'tip-item';
         const dateStr = tip.date ? new Date(tip.date.seconds * 1000).toLocaleString() : '';
-        div.innerHTML = `<span>${tip.montant} FCFA ${tip.note ? ' - ' + tip.note : ''}</span><span style="color:var(--text-muted);">${dateStr}</span>`;
+        div.innerHTML = `<span>${tip.amount} FCFA ${tip.clientName ? ' - ' + tip.clientName : ''}</span><span style="color:var(--text-muted);">${dateStr}</span>`;
         container.appendChild(div);
       });
     }
