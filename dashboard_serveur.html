@@ -10,9 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ============================================
-       VARIABLES & RESET
-    ============================================ */
+    /* ====== STYLES IDENTIQUES AUX ORIGINAUX (conservés) ====== */
     :root {
       --primary: #3498db;
       --primary-dark: #2980b9;
@@ -36,7 +34,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-    /* ========== SIDEBAR ========== */
+    /* ====== SIDEBAR (identique) ====== */
     .sidebar-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); backdrop-filter:blur(6px); z-index:90; display:none; opacity:0; transition:opacity 0.3s; }
     .sidebar-overlay.open { display:block; opacity:1; }
     .sidebar { width:280px; background:linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); color:#fff; padding:30px 20px; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.4s; box-shadow:4px 0 30px rgba(0,0,0,0.1); }
@@ -56,7 +54,7 @@
     .badge-notif.show { display:inline-block; animation: pop 0.3s ease; }
     @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
 
-    /* ========== MAIN CONTENT ========== */
+    /* ====== MAIN CONTENT ====== */
     .main { margin-left:280px; flex:1; padding:30px 40px; min-height:100vh; width:calc(100vw - 280px); }
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:15px; }
     .header h1 { font-size:2rem; font-weight:800; color:var(--text-dark); font-family:'Playfair Display',serif; }
@@ -68,7 +66,6 @@
     .section.active { display:block; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ========== CARDS & TICKETS ========== */
     .card { background:var(--card-bg); border-radius:var(--radius); border:1px solid rgba(255,255,255,0.6); box-shadow:var(--shadow-md); padding:28px 30px; margin-bottom:30px; }
     .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:15px; }
     .card-header h3 { font-size:1.4rem; font-weight:700; display:flex; align-items:center; gap:12px; font-family:'Playfair Display',serif; }
@@ -109,7 +106,6 @@
     .delay-control input { width: 80px; padding: 6px 10px; border: 1.5px solid #d5d8dc; border-radius: 8px; font-size: 0.9rem; }
     .delay-control .countdown { font-weight: 700; font-size: 1.1rem; color: var(--danger); }
 
-    /* ========== DEMANDES D'AIDE ========== */
     .help-request-card {
       background: #fff; border-radius: 16px; padding: 18px; border-left: 6px solid var(--danger);
       box-shadow: var(--shadow-sm); margin-bottom: 16px; transition: var(--transition);
@@ -120,13 +116,11 @@
     .help-request-card .help-message { margin:12px 0; color:var(--text-dark); }
     .help-request-card .help-actions { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
 
-    /* ========== POURBOIRES ========== */
     .tip-box { background:#f8f9fa; border-radius:16px; padding:20px; margin-bottom:20px; }
     .tip-box .tip-total { font-size:2rem; font-weight:800; color:var(--primary-dark); }
     .tip-history { max-height:300px; overflow-y:auto; }
     .tip-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #ecf0f1; font-size:0.95rem; }
 
-    /* ========== BOUTONS & BADGES ========== */
     .btn { padding:10px 20px; border:none; border-radius:12px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; }
     .btn:active { transform:scale(0.96); }
     .btn-primary { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(52, 152, 219, 0.25); }
@@ -147,19 +141,16 @@
     .badge-resolved { background:#d1fae5; color:#065f46; }
     .badge-serving { background:#e0f2fe; color:#0369a1; }
 
-    /* ========== FORMULAIRES ========== */
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
     .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid #d5d8dc; border-radius: 12px; font-family: inherit; font-size: 0.95rem; }
     .form-control:focus { outline: none; border-color: var(--primary); }
 
-    /* ========== TOAST ========== */
     #toastContainer { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
     .toast { background:#fff; border-left:5px solid; box-shadow:0 10px 35px rgba(0,0,0,0.08); padding:16px 24px; border-radius:12px; display:flex; align-items:center; gap:14px; font-weight:600; pointer-events:auto; animation:toastSlideIn 0.35s forwards; }
     @keyframes toastSlideIn { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } }
     @keyframes toastSlideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(120%); opacity:0; } }
 
-    /* ========== MODALE ========== */
     .modal-overlay {
       position:fixed; top:0; left:0; width:100vw; height:100vh;
       background:rgba(0,0,0,0.5); backdrop-filter:blur(8px);
@@ -175,14 +166,20 @@
     .modal-box .modal-title { font-size:1.6rem; font-weight:800; margin-bottom:12px; font-family:'Playfair Display',serif; }
     .modal-box .modal-body { margin:20px 0; }
     .modal-box .modal-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
-    .modal-box .badge-large { font-size:1rem; padding:8px 16px; }
 
-    /* ========== FILTRES HISTORIQUE ========== */
     .filters-row { display:flex; gap:15px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
     .filters-row label { font-weight:600; color:var(--text-muted); }
     .filters-row input, .filters-row select { padding:8px 14px; border:1.5px solid #d5d8dc; border-radius:10px; font-size:0.9rem; }
 
-    /* ========== RESPONSIVE ========== */
+    /* Notifications flottantes */
+    .notification-banner {
+      background: #fff3cd; border-left: 6px solid var(--warning); padding: 12px 18px; border-radius: 12px;
+      margin-bottom: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    .notification-banner.success { background: #d1fae5; border-left-color: var(--success); }
+    .notification-banner .dismiss { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+
     @media (max-width:768px) {
       .sidebar { transform:translateX(-100%); }
       .sidebar.open { transform:translateX(0); }
@@ -197,7 +194,7 @@
   <div id="toastContainer"></div>
   <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- ========== MODALE GÉNÉRIQUE ========== -->
+  <!-- ===== MODALE GÉNÉRIQUE ===== -->
   <div id="notificationModal" class="modal-overlay">
     <div class="modal-box">
       <button class="modal-close" id="modalCloseBtn">&times;</button>
@@ -207,7 +204,7 @@
     </div>
   </div>
 
-  <!-- ========== SIDEBAR ========== -->
+  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <img src="https://raw.githubusercontent.com/exaucenapopolo/SCAN-TCHOP/refs/heads/main/Images/Logos/logo%20scan%26tchop.png" alt="logo" />
@@ -232,7 +229,7 @@
     </div>
   </aside>
 
-  <!-- ========== MAIN ========== -->
+  <!-- ===== MAIN ===== -->
   <div class="main">
     <div class="header">
       <div style="display:flex; align-items:center; gap:16px;">
@@ -246,7 +243,10 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: À SERVIR ========== -->
+    <!-- ===== BANNIÈRE DE NOTIFICATION ===== -->
+    <div id="notificationBanner" style="display:none;"></div>
+
+    <!-- ===== SECTION: À SERVIR ===== -->
     <div id="section-a-servir" class="section active">
       <div class="card">
         <div class="card-header">
@@ -254,7 +254,7 @@
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
             <button class="btn btn-primary" onclick="playTestSound()"><i class="fas fa-volume-up"></i> Tester l'alerte</button>
             <button class="btn btn-outline-secondary" id="toggleMyOrders" onclick="toggleMyOrdersFilter()">
-              <i class="fas fa-user-check"></i> <span id="filterLabel">Toutes les commandes</span>
+              <i class="fas fa-user-check"></i> <span id="filterLabel">Mes commandes</span>
             </button>
           </div>
         </div>
@@ -268,7 +268,7 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: FILE D'ATTENTE ========== -->
+    <!-- ===== SECTION: FILE D'ATTENTE ===== -->
     <div id="section-file-attente" class="section">
       <div class="card">
         <div class="card-header">
@@ -285,7 +285,7 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: DEMANDES D'AIDE ========== -->
+    <!-- ===== SECTION: DEMANDES D'AIDE ===== -->
     <div id="section-demandes-aide" class="section">
       <div class="card">
         <div class="card-header">
@@ -299,7 +299,7 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: HISTORIQUE ========== -->
+    <!-- ===== SECTION: HISTORIQUE ===== -->
     <div id="section-historique" class="section">
       <div class="card">
         <div class="card-header">
@@ -317,7 +317,7 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: POURBOIRES ========== -->
+    <!-- ===== SECTION: POURBOIRES ===== -->
     <div id="section-pourboires" class="section">
       <div class="card">
         <div class="card-header">
@@ -334,7 +334,7 @@
       </div>
     </div>
 
-    <!-- ========== SECTION: PARAMÈTRES ========== -->
+    <!-- ===== SECTION: PARAMÈTRES ===== -->
     <div id="section-parametres" class="section">
       <div class="card">
         <div class="card-header">
@@ -369,7 +369,7 @@
 
   </div>
 
-  <!-- ========== FIREBASE & SCRIPTS ========== -->
+  <!-- ===== FIREBASE & SCRIPTS ===== -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -397,19 +397,16 @@
     let currentUser = null;
     let currentRestaurantId = null;
 
-    // Listes complètes des commandes (objets avec id)
-    let readyOrders = [];        // status === 'prêt'
-    let waitingOrders = [];      // status === 'en_attente'
-    let servedOrders = [];       // status === 'terminé' (pour historique)
+    // Listes des commandes (uniquement celles assignées au serveur)
+    let readyOrders = [];
+    let waitingOrders = [];
+    let servedOrders = [];
 
-    // Suivi des IDs déjà alertés
     let acknowledgedOrderIds = new Set();
     let knownHelpRequests = [];
+    let waitingTimers = new Map();
 
-    // Timers pour les délais (file d'attente)
-    let waitingTimers = new Map(); // orderId -> { intervalId, remainingSeconds }
-
-    // Audio
+    // Audio & alertes
     let audioCtx = null;
     let selectedVoiceName = 'sonnerie';
     let alertMode = 'sonnerie';
@@ -418,8 +415,7 @@
     let availableVoices = [];
     let isAlerting = false;
 
-    // Filtre "Mes commandes"
-    let showMyOrdersOnly = false;
+    let showMyOrdersOnly = true; // Par défaut, afficher uniquement les commandes du serveur
 
     // ============================================================
     //  UI HELPERS
@@ -582,7 +578,7 @@
       if (alertIntervalId) return;
       isAlerting = true;
       alertIntervalId = setInterval(() => {
-        // Récupérer les tables des commandes prêtes non accusées
+        // Vérifier les commandes prêtes non accusées
         const readyTables = readyOrders
           .filter(o => !acknowledgedOrderIds.has(o.id))
           .map(o => o.table || o.tableNumber || '?')
@@ -597,7 +593,7 @@
             if (num) helpTables.push(num);
           }
         });
-        // Délais expirés (on recherche les éléments avec .countdown.expired)
+        // Délais expirés
         const expiredElements = document.querySelectorAll('#waitingOrdersContainer .ticket .countdown.expired');
         const expiredTables = [];
         expiredElements.forEach(el => {
@@ -623,7 +619,6 @@
         }
         if (msg) triggerAlert(msg);
         else {
-          // Si plus rien, on arrête
           const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
           const pendingHelp = document.getElementById('helpBadge').textContent;
           if (pendingReady === 0 && parseInt(pendingHelp) === 0) {
@@ -696,10 +691,12 @@
       document.getElementById('alertMode').value = alertMode;
       document.getElementById('repeatInterval').value = repeatIntervalSec;
       setTimeout(() => { document.getElementById('voiceSelect').value = selectedVoiceName; }, 500);
+
       // Lancer les écouteurs
       listenOrders();
       listenHelpRequests();
       listenTips();
+      listenOrderReadyNotifications(); // Écouter les notifications de commandes prêtes
       loadHistory(null);
     });
 
@@ -731,55 +728,110 @@
     });
 
     // ============================================================
-    //  ÉCOUTE DES COMMANDES (ORDERS)
+    //  ÉCOUTE DES COMMANDES (filtrées par assignation)
     // ============================================================
     function listenOrders() {
-      if (!currentRestaurantId) return;
-      db.collection('orders')
+      if (!currentRestaurantId || !currentUser) return;
+
+      // Écouter les commandes prêtes et en attente assignées à ce serveur
+      const qReady = db.collection('orders')
         .where('restaurantId', '==', currentRestaurantId)
+        .where('status', '==', 'prêt')
+        .where('assignedTo', '==', currentUser.uid);
+
+      const qWaiting = db.collection('orders')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('status', '==', 'en_attente')
+        .where('assignedTo', '==', currentUser.uid);
+
+      // On peut utiliser un seul listener avec une requête composite, mais Firestore ne supporte pas les "OR".
+      // On va donc faire deux listeners et fusionner les résultats.
+      let readyUnsubscribe = null;
+      let waitingUnsubscribe = null;
+
+      readyUnsubscribe = qReady.onSnapshot(snapshot => {
+        readyOrders = [];
+        snapshot.forEach(doc => {
+          const order = { id: doc.id, ...doc.data() };
+          // Ne pas afficher les commandes refusées
+          if (order.status === 'refusée') return;
+          readyOrders.push(order);
+        });
+        // Mettre à jour le badge
+        const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
+        document.getElementById('readyBadge').textContent = pendingReady;
+        document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
+        renderReadyOrders();
+        // Vérifier si une nouvelle commande est arrivée (non accusée)
+        const newOrders = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id));
+        if (newOrders.length > 0) {
+          const latest = newOrders[0];
+          const tableNum = latest.table || latest.tableNumber || '?';
+          showReadyOrderModal(latest);
+          triggerAlert(`Commande prête pour la table ${tableNum}`);
+          showToast(`Table ${tableNum} est prête !`, 'warning');
+          if (!isAlerting) startAlertRepeat();
+        }
+      }, error => console.error('Erreur écoute ready:', error));
+
+      waitingUnsubscribe = qWaiting.onSnapshot(snapshot => {
+        waitingOrders = [];
+        snapshot.forEach(doc => {
+          const order = { id: doc.id, ...doc.data() };
+          if (order.status === 'refusée') return;
+          waitingOrders.push(order);
+        });
+        document.getElementById('waitingBadge').textContent = waitingOrders.length;
+        document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
+        document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
+        renderWaitingOrders();
+      }, error => console.error('Erreur écoute waiting:', error));
+
+      // Pour l'historique, on utilise un autre listener plus tard (ou on recharge)
+    }
+
+    // ============================================================
+    //  ÉCOUTE DES NOTIFICATIONS DE COMMANDES PRÊTES
+    // ============================================================
+    function listenOrderReadyNotifications() {
+      if (!currentRestaurantId || !currentUser) return;
+      // Écouter les notifications de type 'order_ready' ciblant ce serveur
+      db.collection('notifications')
+        .where('restaurantId', '==', currentRestaurantId)
+        .where('targetRole', '==', 'Serveur')
+        .where('targetUser', '==', currentUser.uid)
+        .where('type', '==', 'order_ready')
         .onSnapshot(snapshot => {
-          const newReady = [];
-          const newWaiting = [];
-          const newServed = [];
-          snapshot.forEach(doc => {
-            const order = { id: doc.id, ...doc.data() };
-            // Ne pas afficher les commandes refusées
-            if (order.status === 'refusée') return;
-            const orderDate = order.createdAt ? order.createdAt.toDate() : new Date();
-            const today = new Date(); today.setHours(0,0,0,0);
-            if (orderDate >= today) {
-              if (order.status === 'prêt') {
-                newReady.push(order);
-                // Détection de nouvelle commande prête non encore accusée
-                if (!acknowledgedOrderIds.has(order.id) && !readyOrders.some(o => o.id === order.id)) {
-                  showReadyOrderModal(order);
-                  const tableNum = order.table || order.tableNumber || '?';
-                  const msg = `Commande prête pour la table ${tableNum}`;
-                  triggerAlert(msg);
-                  showToast(`Table ${tableNum} est prête !`, 'warning');
-                  if (!isAlerting) startAlertRepeat();
-                }
-              } else if (order.status === 'en_attente') {
-                newWaiting.push(order);
-              } else if (order.status === 'terminé') {
-                newServed.push(order);
-              }
+          snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+              const data = change.doc.data();
+              const table = data.message.match(/Table (\d+)/);
+              const tableNum = table ? table[1] : '?';
+              const msg = `Commande prête pour la table ${tableNum}`;
+              showNotificationBanner(msg, 'success');
+              triggerAlert(msg);
+              showToast(`Nouvelle commande prête pour la table ${tableNum}`, 'success');
+              // Marquer la notification comme lue
+              db.collection('notifications').doc(change.doc.id).update({ read: true });
             }
           });
-          // Mise à jour des listes globales
-          readyOrders = newReady;
-          waitingOrders = newWaiting;
-          // Badges
-          const pendingReady = readyOrders.filter(o => !acknowledgedOrderIds.has(o.id)).length;
-          document.getElementById('readyBadge').textContent = pendingReady;
-          document.getElementById('readyBadge').classList.toggle('show', pendingReady > 0);
-          document.getElementById('waitingBadge').textContent = waitingOrders.length;
-          document.getElementById('waitingBadge').classList.toggle('show', waitingOrders.length > 0);
-          document.getElementById('waitingCount').textContent = `${waitingOrders.length} en attente`;
-          // Rendu
-          renderReadyOrders();
-          renderWaitingOrders();
-        });
+        }, error => console.error('Erreur écoute notifications:', error));
+    }
+
+    // ============================================================
+    //  AFFICHAGE DES BANNIÈRES DE NOTIFICATION
+    // ============================================================
+    function showNotificationBanner(message, type = 'info') {
+      const banner = document.getElementById('notificationBanner');
+      banner.style.display = 'flex';
+      banner.className = `notification-banner ${type}`;
+      banner.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}" style="font-size:1.2rem;"></i>
+        <span>${message}</span>
+        <button class="dismiss" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+      `;
+      // Auto-disparition après 10 secondes
+      setTimeout(() => { banner.style.display = 'none'; }, 10000);
     }
 
     // ============================================================
@@ -788,6 +840,7 @@
     function toggleMyOrdersFilter() {
       showMyOrdersOnly = !showMyOrdersOnly;
       document.getElementById('filterLabel').textContent = showMyOrdersOnly ? 'Mes commandes' : 'Toutes les commandes';
+      // Re-rendre les commandes (mais les listes sont déjà filtrées par assignation, donc ce filtre est redondant mais on le garde)
       renderReadyOrders();
       renderWaitingOrders();
     }
@@ -830,22 +883,13 @@
         } else {
           paymentStatusHtml = `<span class="badge badge-paid"><i class="fas fa-check"></i> Payé (En ligne)</span>`;
         }
-        // Afficher le serveur assigné
-        let assignedInfo = '';
-        if (order.assignedTo) {
-          const assignedName = order.assignedToName || order.assignedTo;
-          const isMe = currentUser && order.assignedTo === currentUser.uid;
-          assignedInfo = `<span style="font-size:0.8rem;color:var(--text-muted);">${isMe ? '✓ Vous' : '👤 '+assignedName}</span>`;
-        } else {
-          assignedInfo = `<span style="font-size:0.8rem;color:var(--warning);">Non assignée</span>`;
-        }
         const ticket = document.createElement('div');
         ticket.className = `ticket ${isNew ? 'new-ready' : ''}`;
         ticket.dataset.acknowledged = acknowledgedOrderIds.has(order.id) ? 'true' : 'false';
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table">Table ${tableNum}</div>
-            <div class="ticket-time"><i class="fas fa-bell"></i> À Servir ${assignedInfo}</div>
+            <div class="ticket-time"><i class="fas fa-bell"></i> À Servir</div>
           </div>
           ${instructions}
           <ul class="ticket-items">${itemsHtml}</ul>
@@ -889,7 +933,6 @@
         }).join('') : '<li>Détails non disponibles</li>';
         const instructions = order.instructions ? `<div class="instructions"><i class="fas fa-comment-dots"></i> ${order.instructions}</div>` : '';
 
-        // Temps d'attente
         const waitingSince = order.waitingAt ? order.waitingAt.toDate() : order.createdAt.toDate();
         const diffMs = Date.now() - waitingSince.getTime();
         const diffMin = Math.floor(diffMs / 60000);
@@ -899,7 +942,6 @@
         else if (diffMin >= 5 && diffMin < 10) { ageClass = 'orange'; ageLabel = 'Ancien'; }
         else if (diffMin >= 10) { ageClass = 'red'; ageLabel = 'Très ancien'; }
 
-        // Délai
         let timerInfo = waitingTimers.get(order.id);
         let countdownHtml = '';
         let delayHtml = '';
@@ -926,22 +968,12 @@
           `;
         }
 
-        // Afficher le serveur assigné
-        let assignedInfo = '';
-        if (order.assignedTo) {
-          const assignedName = order.assignedToName || order.assignedTo;
-          const isMe = currentUser && order.assignedTo === currentUser.uid;
-          assignedInfo = `<span style="font-size:0.8rem;color:var(--text-muted);">${isMe ? '✓ Vous' : '👤 '+assignedName}</span>`;
-        } else {
-          assignedInfo = `<span style="font-size:0.8rem;color:var(--warning);">Non assignée</span>`;
-        }
-
         const ticket = document.createElement('div');
         ticket.className = `ticket waiting ${ageClass === 'red' ? 'very-old' : (ageClass === 'orange' || ageClass === 'yellow' ? 'old' : '')}`;
         ticket.innerHTML = `
           <div class="ticket-header">
             <div class="ticket-table" style="background:#e0f2fe;color:#0369a1;">Table ${tableNum}</div>
-            <div class="ticket-time"><i class="fas fa-clock"></i> En attente ${assignedInfo}</div>
+            <div class="ticket-time"><i class="fas fa-clock"></i> En attente</div>
           </div>
           ${instructions}
           <ul class="ticket-items">${itemsHtml}</ul>
@@ -965,9 +997,7 @@
       try {
         await db.collection('orders').doc(orderId).update({
           acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          acknowledgedBy: currentUser.uid,
-          assignedTo: currentUser.uid,
-          assignedToName: currentUser.displayName || currentUser.email || 'Serveur'
+          acknowledgedBy: currentUser.uid
         });
         acknowledgedOrderIds.add(orderId);
         showToast('Commande prise en charge !', 'success');
@@ -991,9 +1021,7 @@
       try {
         await db.collection('orders').doc(orderId).update({
           status: 'en_attente',
-          waitingAt: firebase.firestore.FieldValue.serverTimestamp(),
-          assignedTo: currentUser.uid,
-          assignedToName: currentUser.displayName || currentUser.email || 'Serveur'
+          waitingAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showToast('Commande mise en file d\'attente.', 'info');
         playConfirmation('Commande mise en file d\'attente.');
@@ -1074,7 +1102,6 @@
         if (remaining <= 0) {
           clearInterval(timerObj.intervalId);
           timerObj.remainingSeconds = 0;
-          // Alerter
           const order = waitingOrders.find(o => o.id === orderId);
           const table = order ? (order.table || order.tableNumber || '?') : '?';
           const msg = `Délai écoulé pour la table ${table}`;
@@ -1144,7 +1171,6 @@
     // ============================================================
     function listenHelpRequests() {
       if (!currentRestaurantId) return;
-      // On écoute les notifications ciblant spécifiquement ce serveur ou tous les serveurs
       db.collection('notifications')
         .where('restaurantId', '==', currentRestaurantId)
         .where('targetRole', '==', 'Serveur')
@@ -1153,7 +1179,6 @@
           const requests = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            // Si la notification est ciblée, on la filtre
             if (data.targetUser && data.targetUser !== currentUser.uid) return;
             if (data.status !== 'resolved') requests.push({ id: doc.id, ...data });
           });
